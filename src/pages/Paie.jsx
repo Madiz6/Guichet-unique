@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Calendar, Download, CreditCard, Trash2, Minus, Eye, Filter, FileText, Mail, X } from 'lucide-react';
+import { Badge } from "@/components/ui/badge"; // NEW
+import { ArrowLeft, Plus, Calendar, Download, CreditCard, Trash2, Minus, Eye, Filter, FileText, Mail, X, Search, ChevronRight, Users, TrendingUp, DollarSign, CheckCircle2, AlertCircle } from 'lucide-react'; // NEW icons
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { format, startOfMonth, endOfMonth, addMonths } from 'date-fns';
@@ -16,7 +17,7 @@ import { calculatePayroll } from "../components/payroll/DjiboutiCalculator";
 import { generatePayslip } from "../components/payroll/PDFGenerator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // NEW AnimatePresence
 import PermissionGuard, { usePermission } from "../components/permissions/PermissionGuard";
 import SignatureDialog from "../components/documents/SignatureDialog";
 import PayslipEmailModal from "../components/payroll/PayslipEmailModal";
@@ -28,10 +29,17 @@ export default function Paie() {
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [employeeAbsences, setEmployeeAbsences] = useState({});
   const [employeeOtherDeductions, setEmployeeOtherDeductions] = useState({});
-  // NEW: State for absence and deduction timing options
   const [employeeAbsenceTiming, setEmployeeAbsenceTiming] = useState({}); // true = after deductions, false = from gross (default)
   const [employeeOtherDeductionTiming, setEmployeeOtherDeductionTiming] = useState({}); // true = from gross, false = after deductions (default)
-  
+
+  // NEW: Enterprise features
+  const [searchQuery, setSearchQuery] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('Actif');
+  const [selectedEmployeeDrawer, setSelectedEmployeeDrawer] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Changed to 10 for better pagination granularity initially
+
   const [viewingCycle, setViewingCycle] = useState(null);
   const [showPayrollList, setShowPayrollList] = useState(false);
   const [showPaymentGateway, setShowPaymentGateway] = useState(false);
@@ -95,40 +103,40 @@ export default function Paie() {
   const getEmployeeHolidayStatus = (employeeId, cycleData) => {
     const cyclePeriod = cycleData.mois_annee; // Format: YYYYMM
     if (!cyclePeriod) return null;
-    
+
     const cycleYear = parseInt(cyclePeriod.substring(0, 4), 10);
     const cycleMonth = parseInt(cyclePeriod.substring(4, 6), 10); // 1-based month
-    
+
     // Find approved holidays that overlap with cycle period
     const activeHoliday = holidays.find(h => {
       if (h.employee_id !== employeeId) return false;
       if (h.statut !== 'Approuvé' && h.statut !== 'En cours') return false; // Only consider approved or in-progress holidays
-      
+
       const startDate = new Date(h.date_debut);
       const endDate = new Date(h.date_fin);
       // Use cycleStart and cycleEnd to represent the full month period
       const cycleStart = new Date(cycleYear, cycleMonth - 1, 1);
       const cycleEnd = new Date(cycleYear, cycleMonth, 0, 23, 59, 59, 999); // Last day of the month, end of day
-      
+
       // Check if holiday overlaps with cycle period
       return (startDate <= cycleEnd && endDate >= cycleStart);
     });
-    
+
     if (!activeHoliday) return null;
-    
+
     // For maternity leave, calculate which month this is
     if (activeHoliday.type_conge === 'Congé maternité') {
       const startDate = new Date(activeHoliday.date_debut);
       // monthDiff gives difference in months from start date of holiday to the current cycle month
       const monthDiff = (cycleYear - startDate.getFullYear()) * 12 + (cycleMonth - (startDate.getMonth() + 1));
       const monthNumber = monthDiff + 1; // 1-based month of maternity leave
-      
+
       return {
         type: activeHoliday.type_conge,
         month_number: Math.max(1, monthNumber) // Ensure it's at least month 1
       };
     }
-    
+
     return {
       type: activeHoliday.type_conge
     };
@@ -164,6 +172,13 @@ export default function Paie() {
       setEmployeeAbsenceTiming({}); // Reset timing
       setEmployeeOtherDeductionTiming({}); // Reset timing
       setEmployeeCyclePrimes({}); // Reset primes
+
+      // NEW: Reset search and filter states
+      setSearchQuery('');
+      setDepartmentFilter('all');
+      setStatusFilter('Actif');
+      setCurrentPage(1);
+
       toast.success('Cycle de paie créé avec succès');
     },
   });
@@ -237,10 +252,10 @@ export default function Paie() {
   const handleCreateCycle = () => {
     const employeesToProcess = selectedEmployees.length > 0
       ? employees.filter(e => selectedEmployees.includes(e.id))
-      : employees.filter(e => e.statut === 'Actif');
+      : []; // Only process explicitly selected employees
 
     if (employeesToProcess.length === 0) {
-      toast.error('Aucun employé sélectionné');
+      toast.error('Aucun employé sélectionné pour ce cycle de paie.');
       return;
     }
 
@@ -256,35 +271,38 @@ export default function Paie() {
       const cyclePrimes = employeeCyclePrimes[emp.id] || [];
       const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false; // default: false (from gross)
       const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false; // default: false (after deductions)
-      
+
       const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
       if (holidayStatus) {
         employeeHolidayStatuses[emp.id] = holidayStatus;
       }
 
-      // Determine what amounts go into `absences_amount` for calculatePayroll (i.e., affect gross/contributions)
+      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
       let effectiveAbsencesForGross = 0;
-      if (!absenceAfterDeductions) { // If absence is NOT after deductions, it's from gross
-          effectiveAbsencesForGross += absences;
+      if (!absenceAfterDeductions) {
+        effectiveAbsencesForGross += absences;
       }
-      if (otherDeductionFromGross) { // If other deduction IS from gross
-          effectiveAbsencesForGross += otherDeductions;
+      if (otherDeductionFromGross) {
+        effectiveAbsencesForGross += otherDeductions;
       }
 
-      // Prepare employee object for calculation with gross-affecting deductions
+      // 2. Prepare employee object for payroll calculation
       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-      
-      // Perform initial calculation
+
+      // 3. Perform initial payroll calculation
       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-      // Apply deductions that are *after* calculation to the net salary
-      let finalNetForEmployee = calc.netSalary;
-      if (absenceAfterDeductions) { // If absence IS after deductions, subtract from net
-          finalNetForEmployee -= absences;
+      // 4. Calculate deductions that are applied AFTER contributions (from NET)
+      let netDeductions = 0;
+      if (absenceAfterDeductions) {
+        netDeductions += absences;
       }
-      if (!otherDeductionFromGross) { // If other deduction is NOT from gross (i.e., after deductions), subtract from net
-          finalNetForEmployee -= otherDeductions;
+      if (!otherDeductionFromGross) {
+        netDeductions += otherDeductions;
       }
+
+      // 5. Calculate final net salary
+      const finalNetForEmployee = calc.netSalary - netDeductions;
 
       totalGross += calc.grossSalary;
       totalChargesSalariales += calc.cnssEmployee.total + calc.its;
@@ -389,6 +407,85 @@ export default function Paie() {
     }));
   };
 
+  // Filter employees for the form based on search, department, and status
+  const filteredEmployees = employees.filter(emp => {
+    const matchesSearch = !searchQuery ||
+      `${emp.prenom} ${emp.nom}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.fonction?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.matricule_cnss?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesDepartment = departmentFilter === 'all' || emp.departement === departmentFilter;
+    const matchesStatus = statusFilter === 'all' || emp.statut === statusFilter;
+
+    return matchesSearch && matchesDepartment && matchesStatus;
+  });
+
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const paginatedEmployees = filteredEmployees.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Get unique departments for the form filter
+  const departments = [...new Set(employees.map(e => e.departement).filter(Boolean))];
+
+  // Calculate statistics for selected employees in the form
+  const selectedEmployeesDataForStats = employees.filter(e => selectedEmployees.includes(e.id));
+  const stats = {
+    total: selectedEmployeesDataForStats.length,
+    totalBrut: selectedEmployeesDataForStats.reduce((sum, emp) => {
+      const absences = employeeAbsences[emp.id] || 0;
+      const otherDeductions = employeeOtherDeductions[emp.id] || 0;
+      const cyclePrimes = employeeCyclePrimes[emp.id] || [];
+      const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false;
+      const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false;
+
+      const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
+
+      let effectiveAbsencesForGross = 0;
+      if (!absenceAfterDeductions) {
+        effectiveAbsencesForGross += absences;
+      }
+      if (otherDeductionFromGross) {
+        effectiveAbsencesForGross += otherDeductions;
+      }
+
+      const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
+      const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
+      return sum + calc.grossSalary;
+    }, 0),
+    totalNet: selectedEmployeesDataForStats.reduce((sum, emp) => {
+      const absences = employeeAbsences[emp.id] || 0;
+      const otherDeductions = employeeOtherDeductions[emp.id] || 0;
+      const cyclePrimes = employeeCyclePrimes[emp.id] || [];
+      const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false;
+      const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false;
+
+      const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
+
+      let effectiveAbsencesForGross = 0;
+      if (!absenceAfterDeductions) {
+        effectiveAbsencesForGross += absences;
+      }
+      if (otherDeductionFromGross) {
+        effectiveAbsencesForGross += otherDeductions;
+      }
+
+      const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
+      const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
+
+      let netDeductions = 0;
+      if (absenceAfterDeductions) {
+        netDeductions += absences;
+      }
+      if (!otherDeductionFromGross) {
+        netDeductions += otherDeductions;
+      }
+
+      return sum + (calc.netSalary - netDeductions);
+    }, 0)
+  };
+
   // Get all payroll records across all cycles for the comprehensive list
   const allPayrollRecords = cycles.flatMap(cycle => {
     // Ensure employee_ids exist before mapping
@@ -405,29 +502,32 @@ export default function Paie() {
       const absenceAfterDeductions = cycle.employee_absence_timing?.[emp.id] || false;
       const otherDeductionFromGross = cycle.employee_other_deduction_timing?.[emp.id] || false;
 
-      // Determine what amounts go into `absences_amount` for calculatePayroll (i.e., affect gross/contributions)
+      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
       let effectiveAbsencesForGross = 0;
       if (!absenceAfterDeductions) { // If absence is NOT after deductions, it's from gross
-          effectiveAbsencesForGross += absences;
+        effectiveAbsencesForGross += absences;
       }
       if (otherDeductionFromGross) { // If other deduction IS from gross
-          effectiveAbsencesForGross += otherDeductions;
+        effectiveAbsencesForGross += otherDeductions;
       }
 
-      // Prepare employee object for calculation with gross-affecting deductions
+      // 2. Prepare employee object for calculation with gross-affecting deductions
       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-      
-      // Perform initial calculation
+
+      // 3. Perform initial calculation
       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-      // Apply deductions that are *after* calculation to the net salary
-      let finalNet = calc.netSalary;
+      // 4. Calculate deductions that are applied AFTER contributions (from NET)
+      let netDeductions = 0;
       if (absenceAfterDeductions) { // If absence IS after deductions, subtract from net
-          finalNet -= absences;
+        netDeductions += absences;
       }
       if (!otherDeductionFromGross) { // If other deduction is NOT from gross (i.e., after deductions), subtract from net
-          finalNet -= otherDeductions;
+        netDeductions += otherDeductions;
       }
+
+      // 5. Calculate final net salary
+      const finalNet = calc.netSalary - netDeductions;
 
       return {
         cycleId: cycle.id,
@@ -474,7 +574,7 @@ export default function Paie() {
   if (showForm) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1800px] mx-auto"> {/* Changed max-width */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -491,20 +591,84 @@ export default function Paie() {
                 setEmployeeAbsenceTiming({}); // Reset timing
                 setEmployeeOtherDeductionTiming({}); // Reset timing
                 setEmployeeCyclePrimes({}); // Reset primes
+                // NEW: Reset search and filter states
+                setSearchQuery('');
+                setDepartmentFilter('all');
+                setStatusFilter('Actif');
+                setCurrentPage(1);
               }}
               className="border-[#D3DCE6]"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-semibold text-[#0A2540]">Nouveau Cycle de Paie</h1>
-              <p className="text-[#697586] mt-1">Sélectionnez les employés et ajoutez les déductions/primes si nécessaire</p>
+              <p className="text-[#697586] mt-1">{cycleData.periode}</p> {/* Display current period */}
             </div>
           </motion.div>
 
+          {/* NEW: Dashboard Insights */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#697586]">Employés Sélectionnés</p>
+                    <p className="text-2xl font-bold text-[#0A2540]">{stats.total}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#697586]">Salaire Brut Total</p>
+                    <p className="text-2xl font-bold text-[#0A2540]">{stats.totalBrut.toLocaleString()} DJF</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#697586]">Salaire Net Total</p>
+                    <p className="text-2xl font-bold text-[#0066FF]">{stats.totalNet.toLocaleString()} DJF</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#697586]">Date de Paiement</p>
+                    <p className="text-lg font-bold text-[#0A2540]">{format(new Date(cycleData.date_paiement), 'dd MMM yyyy')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card className="border border-[#E8ECF2] mb-6">
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div>
                   <Label>Période</Label>
                   <Input
@@ -542,336 +706,234 @@ export default function Paie() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-[#0A2540]">Sélectionner les employés</h3>
+              {/* NEW: Search and Filters */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6 p-4 bg-[#F7F9FC] rounded-lg">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#697586]" />
+                    <Input
+                      placeholder="Rechercher par nom, fonction, matricule..."
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1); // Reset pagination on search
+                      }}
+                      className="pl-10 border-[#D3DCE6]"
+                    />
+                  </div>
+                </div>
+                <Select value={departmentFilter} onValueChange={(value) => { setDepartmentFilter(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-[200px] border-[#D3DCE6]">
+                    <SelectValue placeholder="Département" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les départements</SelectItem>
+                    {departments.map(dept => (
+                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={(value) => { setStatusFilter(value); setCurrentPage(1); }}>
+                  <SelectTrigger className="w-[180px] border-[#D3DCE6]">
+                    <SelectValue placeholder="Statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts</SelectItem>
+                    <SelectItem value="Actif">Actif</SelectItem>
+                    <SelectItem value="En congé">En congé</SelectItem>
+                    <SelectItem value="Suspendu">Suspendu</SelectItem>
+                    <SelectItem value="Inactif">Inactif</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button
                   variant="outline"
-                  onClick={() => setSelectedEmployees(selectedEmployees.length === employees.filter(e => e.statut === 'Actif').length ? [] : employees.filter(e => e.statut === 'Actif').map(e => e.id))}
-                  className="border-[#D3DCE6]"
+                  onClick={() => setSelectedEmployees(selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0 ? [] : filteredEmployees.map(e => e.id))}
+                  className="border-[#0066FF] text-[#0066FF]"
                 >
-                  {selectedEmployees.length === employees.filter(e => e.statut === 'Actif').length ? 'Désélectionner tout' : 'Sélectionner tout les actifs'}
+                  {selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0 ? 'Désélectionner tout' : 'Sélectionner tout'}
                 </Button>
               </div>
 
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {employees.map(emp => {
-                  const absences = employeeAbsences[emp.id] || 0;
-                  const otherDeductions = employeeOtherDeductions[emp.id] || 0;
-                  const cyclePrimes = employeeCyclePrimes[emp.id] || [];
-                  const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false; // default: false (from gross)
-                  const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false; // default: false (after deductions)
-                  const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
-
-                  // Determine what amounts go into `absences_amount` for calculatePayroll (i.e., affect gross/contributions)
-                  let effectiveAbsencesForGross = 0;
-                  if (!absenceAfterDeductions) { // If absence is NOT after deductions, it's from gross
-                      effectiveAbsencesForGross += absences;
-                  }
-                  if (otherDeductionFromGross) { // If other deduction IS from gross
-                      effectiveAbsencesForGross += otherDeductions;
-                  }
-
-                  // Prepare employee object for calculation with gross-affecting deductions
-                  const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-                  
-                  // Perform initial calculation
-                  const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
-
-                  // Apply deductions that are *after* calculation to the net salary
-                  let finalNet = calc.netSalary;
-                  if (absenceAfterDeductions) { // If absence IS after deductions, subtract from net
-                      finalNet -= absences;
-                  }
-                  if (!otherDeductionFromGross) { // If other deduction is NOT from gross (i.e., after deductions), subtract from net
-                      finalNet -= otherDeductions;
-                  }
-
-                  const isSelected = selectedEmployees.includes(emp.id);
-
-                  return (
-                    <div
-                      key={emp.id}
-                      className={`p-4 rounded-lg border-2 transition-all ${
-                        isSelected
-                          ? 'border-[#0066FF] bg-[#F0F7FF]'
-                          : 'border-[#E8ECF2] hover:border-[#D3DCE6]'
-                      }`}
-                    >
-                      <div className="flex items-start gap-4">
+              {/* NEW: Enterprise Table View */}
+              <div className="border border-[#E8ECF2] rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-[#F7F9FC]">
+                      <TableHead className="w-12">
                         <input
                           type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleEmployeeSelection(emp.id)}
-                          className="mt-1 w-5 h-5 text-[#0066FF] rounded"
+                          checked={selectedEmployees.length === paginatedEmployees.length && paginatedEmployees.length > 0}
+                          onChange={() => {
+                            if (selectedEmployees.length === paginatedEmployees.length) {
+                              setSelectedEmployees([]);
+                            } else {
+                              setSelectedEmployees(paginatedEmployees.map(e => e.id));
+                            }
+                          }}
+                          className="w-5 h-5 text-[#0066FF] rounded"
                         />
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start mb-3">
+                      </TableHead>
+                      <TableHead>Employé</TableHead>
+                      <TableHead>Département</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Salaire Brut</TableHead>
+                      <TableHead>Salaire Net</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedEmployees.map(emp => {
+                      const absences = employeeAbsences[emp.id] || 0;
+                      const otherDeductions = employeeOtherDeductions[emp.id] || 0;
+                      const cyclePrimes = employeeCyclePrimes[emp.id] || [];
+                      const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false;
+                      const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false;
+                      const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
+
+                      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
+                      let effectiveAbsencesForGross = 0;
+                      if (!absenceAfterDeductions) {
+                        effectiveAbsencesForGross += absences;
+                      }
+                      if (otherDeductionFromGross) {
+                        effectiveAbsencesForGross += otherDeductions;
+                      }
+
+                      // 2. Prepare employee object for payroll calculation
+                      const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
+
+                      // 3. Perform initial payroll calculation
+                      const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
+
+                      // 4. Calculate deductions that are applied AFTER contributions (from NET)
+                      let netDeductions = 0;
+                      if (absenceAfterDeductions) {
+                        netDeductions += absences;
+                      }
+                      if (!otherDeductionFromGross) {
+                        netDeductions += otherDeductions;
+                      }
+
+                      // 5. Calculate final net salary
+                      const finalNet = calc.netSalary - netDeductions;
+
+                      const isSelected = selectedEmployees.includes(emp.id);
+                      const hasModifications = absences > 0 || otherDeductions > 0 || cyclePrimes.length > 0;
+
+                      return (
+                        <TableRow
+                          key={emp.id}
+                          className={`hover:bg-[#F7F9FC] transition-colors ${isSelected ? 'bg-blue-50' : ''}`}
+                        >
+                          <TableCell>
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleEmployeeSelection(emp.id)}
+                              className="w-5 h-5 text-[#0066FF] rounded"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              {emp.photo_url ? (
+                                <img src={emp.photo_url} alt={`${emp.prenom} ${emp.nom}`} className="w-10 h-10 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center text-white font-semibold text-sm">
+                                  {emp.prenom?.[0]}{emp.nom?.[0]}
+                                </div>
+                              )}
+                              <div>
+                                <p className="font-semibold text-[#0A2540]">{emp.prenom} {emp.nom}</p>
+                                <p className="text-xs text-[#697586]">{emp.fonction}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{emp.departement}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={
+                              emp.statut === 'Actif' ? 'bg-[#E5F8F3] text-[#00C48C]' :
+                              emp.statut === 'En congé' ? 'bg-[#FFF4E5] text-[#FA6400]' :
+                              'bg-[#F5F5F5] text-[#8896A8]'
+                            }>
+                              {emp.statut}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <p className="font-semibold text-[#0A2540]">{calc.grossSalary.toLocaleString()} DJF</p>
+                          </TableCell>
+                          <TableCell>
                             <div>
-                              <p className="font-semibold text-[#0A2540]">{emp.prenom} {emp.nom}</p>
-                              <p className="text-sm text-[#697586]">{emp.fonction} - {emp.departement}</p>
-                            </div>
-                            <div className="text-right">
-                              {(absences > 0 || otherDeductions > 0 || cyclePrimes.length > 0 || holidayStatus) && (
-                                <p className="font-semibold text-[#697586] line-through text-sm">
-                                  {calculatePayroll(emp, null, []).netSalary.toLocaleString()} DJF
-                                </p>
+                              {hasModifications && (
+                                <p className="text-xs text-[#697586] line-through">{calculatePayroll(emp, null, []).netSalary.toLocaleString()} DJF</p>
                               )}
-                              <p className="font-bold text-[#0066FF] text-lg">{finalNet.toLocaleString()} DJF</p>
-                              <p className="text-xs text-[#697586]">Net à payer</p>
-                            </div>
-                          </div>
-
-                          {/* Holiday Status Notice */}
-                          {holidayStatus && calc.holidayNote && (
-                            <div className={`mb-3 p-3 rounded-lg border ${
-                              calc.paidByCNSS 
-                                ? 'bg-purple-50 border-purple-200'
-                                : calc.salaryPercentage === 0
-                                ? 'bg-red-50 border-red-200'
-                                : calc.salaryPercentage < 1
-                                ? 'bg-amber-50 border-amber-200'
-                                : 'bg-blue-50 border-blue-200'
-                            }`}>
-                              <p className="text-sm font-semibold">
-                                {calc.holidayNote}
-                              </p>
-                              {calc.paidByCNSS && (
-                                <p className="text-xs mt-1 text-purple-700">
-                                  💡 La CNSS prend en charge le salaire complet de l'employée
-                                </p>
+                              <p className="font-bold text-[#0066FF]">{finalNet.toLocaleString()} DJF</p>
+                              {hasModifications && (
+                                <div className="flex items-center gap-1 mt-1">
+                                  {cyclePrimes.length > 0 && <Badge className="text-xs bg-green-100 text-green-700">+{cyclePrimes.length} prime(s)</Badge>}
+                                  {absences > 0 && <Badge className="text-xs bg-red-100 text-red-700">Absences</Badge>}
+                                  {otherDeductions > 0 && <Badge className="text-xs bg-amber-100 text-amber-700">Déductions</Badge>}
+                                </div>
                               )}
                             </div>
-                          )}
-
-                          {/* Cycle Primes Display */}
-                          {cyclePrimes.length > 0 && (
-                            <div className="mb-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                              <p className="text-xs font-semibold text-green-800 mb-2">✨ Primes du cycle:</p>
-                              {cyclePrimes.map((prime, idx) => (
-                                <div key={idx} className="flex justify-between items-center text-sm mb-1">
-                                  <span className="text-green-700">
-                                    {prime.nom} {prime.add_after_deductions ? '(après déductions)' : '(avant déductions)'}
-                                  </span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-green-800">+{prime.montant.toLocaleString()} DJF</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemovePrime(emp.id, idx)}
-                                      className="text-red-500 hover:text-red-700"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setSelectedEmployeeDrawer(emp)}
+                                className="border-[#D3DCE6]"
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                Détails
+                              </Button>
                             </div>
-                          )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
 
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleAddPrime(emp.id)}
-                            className="mb-3 border-green-500 text-green-600 hover:bg-green-50"
-                          >
-                            <Plus className="w-4 h-4 mr-2" />
-                            Ajouter une Prime
-                          </Button>
-
-                          {/* ENHANCED Absences Input with Timing Option */}
-                          <div className="flex items-start gap-3 mt-3 p-3 bg-gradient-to-r from-red-50 to-white rounded-lg border border-red-200">
-                            <Minus className="w-4 h-4 text-red-600 mt-1" />
-                            <div className="flex-1">
-                              <Label className="text-xs text-[#697586] font-semibold">Absences</Label>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={absences || ''}
-                                  onChange={(e) => handleAbsencesChange(emp.id, e.target.value)}
-                                  placeholder="0"
-                                  className="border-[#D3DCE6] h-9"
-                                />
-                                <span className="text-sm text-[#697586] whitespace-nowrap">DJF</span>
-                              </div>
-                              
-                              <div className="flex items-center gap-2 mt-2 p-2 bg-white rounded border border-red-200">
-                                <input
-                                  id={`absence-timing-${emp.id}`}
-                                  type="checkbox"
-                                  checked={absenceAfterDeductions}
-                                  onChange={(e) => setEmployeeAbsenceTiming(prev => ({
-                                    ...prev,
-                                    [emp.id]: e.target.checked
-                                  }))}
-                                  className="w-4 h-4"
-                                />
-                                <Label htmlFor={`absence-timing-${emp.id}`} className="text-xs text-red-800 cursor-pointer">
-                                  Déduire APRÈS les cotisations (n'affecte pas CNSS/ITS)
-                                </Label>
-                              </div>
-                              
-                              <p className="text-xs mt-1 text-red-600">
-                                {absenceAfterDeductions 
-                                  ? "⚠️ Déduction après cotisations - N'affecte pas CNSS/ITS"
-                                  : "⚠️ Déduction du brut - Affecte le calcul CNSS et ITS"
-                                }
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* ENHANCED Other Deductions Input with Timing Option */}
-                          <div className="flex items-start gap-3 mt-2 p-3 bg-gradient-to-r from-amber-50 to-white rounded-lg border border-amber-200">
-                            <Minus className="w-4 h-4 text-amber-600 mt-1" />
-                            <div className="flex-1">
-                              <Label className="text-xs text-[#697586] font-semibold">Autres déductions</Label>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={otherDeductions || ''}
-                                  onChange={(e) => handleOtherDeductionsChange(emp.id, e.target.value)}
-                                  placeholder="0"
-                                  className="border-[#D3DCE6] h-9"
-                                />
-                                <span className="text-sm text-[#697586] whitespace-nowrap">DJF</span>
-                              </div>
-                              
-                              <div className="flex items-center gap-2 mt-2 p-2 bg-white rounded border border-amber-200">
-                                <input
-                                  id={`deduction-timing-${emp.id}`}
-                                  type="checkbox"
-                                  checked={otherDeductionFromGross}
-                                  onChange={(e) => setEmployeeOtherDeductionTiming(prev => ({
-                                    ...prev,
-                                    [emp.id]: e.target.checked
-                                  }))}
-                                  className="w-4 h-4"
-                                />
-                                <Label htmlFor={`deduction-timing-${emp.id}`} className="text-xs text-amber-800 cursor-pointer">
-                                  Déduire du BRUT (affecte CNSS/ITS)
-                                </Label>
-                              </div>
-                              
-                              <p className="text-xs mt-1 text-amber-600">
-                                {otherDeductionFromGross
-                                  ? "⚠️ Déduction du brut - Affecte le calcul CNSS et ITS"
-                                  : "ℹ️ Déduction après cotisations - N'affecte pas CNSS/ITS"
-                                }
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Salary Breakdown */}
-                          <div className="mt-3 p-3 bg-gradient-to-r from-[#F7F9FC] to-white rounded-lg border border-[#E8ECF2]">
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              {holidayStatus && calc.salaryPercentage !== 1 && (
-                                <div className="flex justify-between col-span-2 pb-2 border-b border-[#E8ECF2]">
-                                  <span className="text-[#697586] font-semibold">Pourcentage appliqué:</span>
-                                  <span className="font-bold text-[#FA6400]">{(calc.salaryPercentage * 100).toFixed(0)}%</span>
-                                </div>
-                              )}
-                              
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Salaire de Base:</span>
-                                <span className="font-medium text-[#0A2540]">{calc.breakdown.salaire_base.toLocaleString()}</span>
-                              </div>
-                              
-                              {calc.breakdown.prime_anciennete > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">Prime Ancienneté:</span>
-                                  <span className="font-medium text-[#0A2540]">{calc.breakdown.prime_anciennete.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              {calc.totalPrimesBeforeDeductions > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">Primes (affectant brut):</span>
-                                  <span className="font-medium text-green-600">+{calc.totalPrimesBeforeDeductions.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              {absences > 0 && !absenceAfterDeductions && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">Absences (brut):</span>
-                                  <span className="font-medium text-red-600">-{absences.toLocaleString()}</span>
-                                </div>
-                              )}
-
-                              {otherDeductions > 0 && otherDeductionFromGross && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">Autres déduc. (brut):</span>
-                                  <span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              <div className="flex justify-between col-span-2 pt-1 border-t border-[#E8ECF2]">
-                                <span className="text-[#697586] font-semibold">Brut ajusté:</span>
-                                <span className="font-semibold text-[#0A2540]">{calc.grossSalary.toLocaleString()}</span>
-                              </div>
-                              
-                              {calc.cnssEmployee.total > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">CNSS Salariale:</span>
-                                  <span className="font-medium text-[#FA6400]">-{calc.cnssEmployee.total.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              {calc.its > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">ITS:</span>
-                                  <span className="font-medium text-[#FA6400]">-{calc.its.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              {calc.aide > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">AIDE:</span>
-                                  <span className="font-medium text-[#FA6400]">-{calc.aide.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              {calc.retcim > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">RetCim:</span>
-                                  <span className="font-medium text-[#FA6400]">-{calc.retcim}</span>
-                                </div>
-                              )}
-                              
-                              {absences > 0 && absenceAfterDeductions && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">Absences (net):</span>
-                                  <span className="font-bold text-red-600">-{absences.toLocaleString()}</span>
-                                </div>
-                              )}
-
-                              {otherDeductions > 0 && !otherDeductionFromGross && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">Autres déduc. (net):</span>
-                                  <span className="font-bold text-amber-600">-{otherDeductions.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              {calc.totalPrimesAfterDeductions > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-[#697586]">Primes (après déduc.):</span>
-                                  <span className="font-bold text-green-600">+{calc.totalPrimesAfterDeductions.toLocaleString()}</span>
-                                </div>
-                              )}
-                              
-                              <div className="flex justify-between col-span-2 pt-2 border-t-2 border-[#0066FF]">
-                                <span className="font-bold text-[#0A2540]">NET À PAYER:</span>
-                                <span className="font-bold text-[#0066FF] text-base">{finalNet.toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* NEW: Pagination */}
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-[#697586]">
+                  Affichage {((currentPage - 1) * itemsPerPage) + 1} à {Math.min(currentPage * itemsPerPage, filteredEmployees.length)} sur {filteredEmployees.length} employés
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="border-[#D3DCE6]"
+                  >
+                    Précédent
+                  </Button>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <Button
+                      key={i}
+                      variant={currentPage === i + 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={currentPage === i + 1 ? "bg-[#0066FF] text-white" : "border-[#D3DCE6]"}
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="border-[#D3DCE6]"
+                  >
+                    Suivant
+                  </Button>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-[#E8ECF2]">
@@ -882,9 +944,13 @@ export default function Paie() {
                     setSelectedEmployees([]);
                     setEmployeeAbsences({});
                     setEmployeeOtherDeductions({});
-                    setEmployeeAbsenceTiming({}); // Reset timing
-                    setEmployeeOtherDeductionTiming({}); // Reset timing
-                    setEmployeeCyclePrimes({}); // Reset primes
+                    setEmployeeAbsenceTiming({});
+                    setEmployeeOtherDeductionTiming({});
+                    setEmployeeCyclePrimes({});
+                    setSearchQuery('');
+                    setDepartmentFilter('all');
+                    setStatusFilter('Actif');
+                    setCurrentPage(1);
                   }}
                   className="border-[#D3DCE6]"
                 >
@@ -893,15 +959,358 @@ export default function Paie() {
                 <Button
                   onClick={handleCreateCycle}
                   className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg"
-                  disabled={!canCreate || createCycleMutation.isLoading}
+                  disabled={!canCreate || createCycleMutation.isLoading || selectedEmployees.length === 0}
                 >
                   <Calendar className="w-4 h-4 mr-2" />
-                  {createCycleMutation.isLoading ? 'Création...' : `Créer le cycle (${selectedEmployees.length || employees.filter(e => e.statut === 'Actif').length} employés)`}
+                  {createCycleMutation.isLoading ? 'Création...' : `Créer le cycle (${selectedEmployees.length} employés)`}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* NEW: Right-Hand Drawer for Employee Details */}
+        <AnimatePresence>
+          {selectedEmployeeDrawer && (
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed right-0 top-0 h-full w-[600px] bg-white shadow-2xl z-50 overflow-y-auto"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-[#0A2540]">Détails de l'Employé</h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSelectedEmployeeDrawer(null)}
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Employee Info */}
+                  <Card className="border border-[#E8ECF2]">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4 mb-4">
+                        {selectedEmployeeDrawer.photo_url ? (
+                          <img src={selectedEmployeeDrawer.photo_url} alt={`${selectedEmployeeDrawer.prenom} ${selectedEmployeeDrawer.nom}`} className="w-16 h-16 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center text-white font-bold text-xl">
+                            {selectedEmployeeDrawer.prenom?.[0]}{selectedEmployeeDrawer.nom?.[0]}
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-bold text-[#0A2540] text-lg">{selectedEmployeeDrawer.prenom} {selectedEmployeeDrawer.nom}</h3>
+                          <p className="text-sm text-[#697586]">{selectedEmployeeDrawer.fonction}</p>
+                          <Badge className="mt-1">{selectedEmployeeDrawer.departement}</Badge>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-[#697586]">Email</p>
+                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.email || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[#697586]">Téléphone</p>
+                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.telephone || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[#697586]">Matricule CNSS</p>
+                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.matricule_cnss || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[#697586]">Régime</p>
+                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.regime_cnss || '-'}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Employee-specific Absences and Other Deductions Inputs */}
+                  {/* ENHANCED Absences Input with Timing Option */}
+                  <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-red-50 to-white rounded-lg border border-red-200">
+                    <Minus className="w-4 h-4 text-red-600 mt-1" />
+                    <div className="flex-1">
+                      <Label className="text-xs text-[#697586] font-semibold">Absences</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={employeeAbsences[selectedEmployeeDrawer.id] || ''}
+                          onChange={(e) => handleAbsencesChange(selectedEmployeeDrawer.id, e.target.value)}
+                          placeholder="0"
+                          className="border-[#D3DCE6] h-9"
+                        />
+                        <span className="text-sm text-[#697586] whitespace-nowrap">DJF</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-2 p-2 bg-white rounded border border-red-200">
+                        <input
+                          id={`absence-timing-${selectedEmployeeDrawer.id}`}
+                          type="checkbox"
+                          checked={employeeAbsenceTiming[selectedEmployeeDrawer.id] || false}
+                          onChange={(e) => setEmployeeAbsenceTiming(prev => ({
+                            ...prev,
+                            [selectedEmployeeDrawer.id]: e.target.checked
+                          }))}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor={`absence-timing-${selectedEmployeeDrawer.id}`} className="text-xs text-red-800 cursor-pointer">
+                          Déduire APRÈS les cotisations (n'affecte pas CNSS/ITS)
+                        </Label>
+                      </div>
+
+                      <p className="text-xs mt-1 text-red-600">
+                        {(employeeAbsenceTiming[selectedEmployeeDrawer.id] || false)
+                          ? "⚠️ Déduction après cotisations - N'affecte pas CNSS/ITS"
+                          : "⚠️ Déduction du brut - Affecte le calcul CNSS et ITS"
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* ENHANCED Other Deductions Input with Timing Option */}
+                  <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-amber-50 to-white rounded-lg border border-amber-200">
+                    <Minus className="w-4 h-4 text-amber-600 mt-1" />
+                    <div className="flex-1">
+                      <Label className="text-xs text-[#697586] font-semibold">Autres déductions</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={employeeOtherDeductions[selectedEmployeeDrawer.id] || ''}
+                          onChange={(e) => handleOtherDeductionsChange(selectedEmployeeDrawer.id, e.target.value)}
+                          placeholder="0"
+                          className="border-[#D3DCE6] h-9"
+                        />
+                        <span className="text-sm text-[#697586] whitespace-nowrap">DJF</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-2 p-2 bg-white rounded border border-amber-200">
+                        <input
+                          id={`deduction-timing-${selectedEmployeeDrawer.id}`}
+                          type="checkbox"
+                          checked={employeeOtherDeductionTiming[selectedEmployeeDrawer.id] || false}
+                          onChange={(e) => setEmployeeOtherDeductionTiming(prev => ({
+                            ...prev,
+                            [selectedEmployeeDrawer.id]: e.target.checked
+                          }))}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor={`deduction-timing-${selectedEmployeeDrawer.id}`} className="text-xs text-amber-800 cursor-pointer">
+                          Déduire du BRUT (affecte CNSS/ITS)
+                        </Label>
+                      </div>
+
+                      <p className="text-xs mt-1 text-amber-600">
+                        {(employeeOtherDeductionTiming[selectedEmployeeDrawer.id] || false)
+                          ? "⚠️ Déduction du brut - Affecte le calcul CNSS et ITS"
+                          : "ℹ️ Déduction après cotisations - N'affecte pas CNSS/ITS"
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+
+                  {/* Current Modifications */}
+                  {(() => {
+                    const empId = selectedEmployeeDrawer.id;
+                    const absences = employeeAbsences[empId] || 0;
+                    const otherDeductions = employeeOtherDeductions[empId] || 0;
+                    const primes = employeeCyclePrimes[empId] || [];
+
+                    return (absences > 0 || otherDeductions > 0 || primes.length > 0) && (
+                      <Card className="border border-blue-200 bg-blue-50">
+                        <CardContent className="p-4">
+                          <h4 className="font-semibold text-[#0A2540] mb-3">Modifications Actuelles</h4>
+                          <div className="space-y-2 text-sm">
+                            {primes.length > 0 && (
+                              <div>
+                                <p className="text-green-700 font-semibold mb-1">Primes:</p>
+                                {primes.map((prime, idx) => (
+                                  <div key={idx} className="flex justify-between items-center bg-white p-2 rounded">
+                                    <span className="text-[#0A2540]">{prime.nom}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-semibold text-green-700">+{prime.montant.toLocaleString()} DJF</span>
+                                      <button type="button" onClick={() => handleRemovePrime(empId, idx)} className="text-red-500 hover:text-red-700">
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {absences > 0 && (
+                              <div className="flex justify-between items-center bg-white p-2 rounded">
+                                <span className="text-red-700 font-semibold">Absences:</span>
+                                <span className="font-semibold text-red-700">-{absences.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {otherDeductions > 0 && (
+                              <div className="flex justify-between items-center bg-white p-2 rounded">
+                                <span className="text-amber-700 font-semibold">Autres déductions:</span>
+                                <span className="font-semibold text-amber-700">-{otherDeductions.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
+
+                  {/* Salary Breakdown */}
+                  <Card className="border border-[#E8ECF2]">
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold text-[#0A2540] mb-3">Détails du Salaire</h4>
+                      {(() => {
+                        const empId = selectedEmployeeDrawer.id;
+                        const absences = employeeAbsences[empId] || 0;
+                        const otherDeductions = employeeOtherDeductions[empId] || 0;
+                        const cyclePrimes = employeeCyclePrimes[empId] || [];
+                        const absenceAfterDeductions = employeeAbsenceTiming[empId] || false;
+                        const otherDeductionFromGross = employeeOtherDeductionTiming[empId] || false;
+                        const holidayStatus = getEmployeeHolidayStatus(empId, cycleData);
+
+                        // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
+                        let effectiveAbsencesForGross = 0;
+                        if (!absenceAfterDeductions) {
+                          effectiveAbsencesForGross += absences;
+                        }
+                        if (otherDeductionFromGross) {
+                          effectiveAbsencesForGross += otherDeductions;
+                        }
+
+                        // 2. Prepare employee object for payroll calculation
+                        const empForCalc = { ...selectedEmployeeDrawer, absences_amount: effectiveAbsencesForGross };
+
+                        // 3. Perform initial payroll calculation
+                        const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
+
+                        // 4. Calculate deductions that are applied AFTER contributions (from NET)
+                        let netDeductions = 0;
+                        if (absenceAfterDeductions) {
+                          netDeductions += absences;
+                        }
+                        if (!otherDeductionFromGross) {
+                          netDeductions += otherDeductions;
+                        }
+
+                        // 5. Calculate final net salary
+                        const finalNet = calc.netSalary - netDeductions;
+
+                        return (
+                          <div className="space-y-2 text-sm">
+                            {holidayStatus && calc.holidayNote && (
+                              <div className={`mb-3 p-3 rounded-lg border ${
+                                calc.paidByCNSS
+                                  ? 'bg-purple-50 border-purple-200'
+                                  : calc.salaryPercentage === 0
+                                    ? 'bg-red-50 border-red-200'
+                                    : calc.salaryPercentage < 1
+                                      ? 'bg-amber-50 border-amber-200'
+                                      : 'bg-blue-50 border-blue-200'
+                              }`}>
+                                <p className="text-sm font-semibold">
+                                  {calc.holidayNote}
+                                </p>
+                                {calc.paidByCNSS && (
+                                  <p className="text-xs mt-1 text-purple-700">
+                                    💡 La CNSS prend en charge le salaire complet de l'employée
+                                  </p>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex justify-between">
+                              <span className="text-[#697586]">Salaire de Base:</span>
+                              <span className="font-medium text-[#0A2540]">{calc.breakdown.salaire_base.toLocaleString()} DJF</span>
+                            </div>
+                            {calc.breakdown.prime_anciennete > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">Prime Ancienneté:</span>
+                                <span className="font-medium text-green-600">+{calc.breakdown.prime_anciennete.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {calc.totalPrimesBeforeDeductions > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">Primes (affectant brut):</span>
+                                <span className="font-medium text-green-600">+{calc.totalPrimesBeforeDeductions.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {absences > 0 && !absenceAfterDeductions && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">Absences (brut):</span>
+                                <span className="font-medium text-red-600">-{absences.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {otherDeductions > 0 && otherDeductionFromGross && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">Autres déduc. (brut):</span>
+                                <span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between py-2 border-t border-[#E8ECF2]">
+                              <span className="text-[#697586] font-semibold">Brut Ajusté:</span>
+                              <span className="font-semibold text-[#0A2540]">{calc.grossSalary.toLocaleString()} DJF</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[#697586]">CNSS Salariale:</span>
+                              <span className="font-medium text-red-600">-{calc.cnssEmployee.total.toLocaleString()} DJF</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-[#697586]">ITS:</span>
+                              <span className="font-medium text-red-600">-{calc.its.toLocaleString()} DJF</span>
+                            </div>
+                            {calc.aide > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">AIDE:</span>
+                                <span className="font-medium text-red-600">-{calc.aide.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {calc.retcim > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">RetCim:</span>
+                                <span className="font-medium text-red-600">-{calc.retcim.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {absences > 0 && absenceAfterDeductions && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">Absences (net):</span>
+                                <span className="font-bold text-red-600">-{absences.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {otherDeductions > 0 && !otherDeductionFromGross && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">Autres déduc. (net):</span>
+                                <span className="font-bold text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            {calc.totalPrimesAfterDeductions > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-[#697586]">Primes (après déduc.):</span>
+                                <span className="font-bold text-green-600">+{calc.totalPrimesAfterDeductions.toLocaleString()} DJF</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between pt-2 border-t-2 border-[#0066FF]">
+                              <span className="font-bold text-[#0A2540]">NET À PAYER:</span>
+                              <span className="font-bold text-[#0066FF] text-lg">{finalNet.toLocaleString()} DJF</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Prime Modal */}
         {showPrimeModal && (
@@ -1122,24 +1531,24 @@ export default function Paie() {
                           <TableCell className="font-bold text-[#0066FF]">{record.netSalary.toLocaleString()} DJF</TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEmailModalData({ employee: record.employee, cycle: record.cycle })}
-                                  className="border-[#6366F1] text-[#6366F1] hover:bg-[#6366F1] hover:text-white"
-                                >
-                                  <Mail className="w-4 h-4 mr-1" />
-                                  Email
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleDownloadPayslip(record.employee, record.cycle)}
-                                  className="border-[#D3DCE6]"
-                                >
-                                  <Download className="w-4 h-4 mr-1" />
-                                  PDF
-                                </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEmailModalData({ employee: record.employee, cycle: record.cycle })}
+                                className="border-[#6366F1] text-[#6366F1] hover:bg-[#6366F1] hover:text-white"
+                              >
+                                <Mail className="w-4 h-4 mr-1" />
+                                Email
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDownloadPayslip(record.employee, record.cycle)}
+                                className="border-[#D3DCE6]"
+                              >
+                                <Download className="w-4 h-4 mr-1" />
+                                PDF
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -1320,29 +1729,32 @@ export default function Paie() {
                       const absenceAfterDeductions = viewingCycle.employee_absence_timing?.[emp.id] || false;
                       const otherDeductionFromGross = viewingCycle.employee_other_deduction_timing?.[emp.id] || false;
 
-                      // Determine what amounts go into `absences_amount` for calculatePayroll (i.e., affect gross/contributions)
+                      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
                       let effectiveAbsencesForGross = 0;
-                      if (!absenceAfterDeductions) { // If absence is NOT after deductions, it's from gross
-                          effectiveAbsencesForGross += absences;
+                      if (!absenceAfterDeductions) {
+                        effectiveAbsencesForGross += absences;
                       }
-                      if (otherDeductionFromGross) { // If other deduction IS from gross
-                          effectiveAbsencesForGross += otherDeductions;
+                      if (otherDeductionFromGross) {
+                        effectiveAbsencesForGross += otherDeductions;
                       }
 
-                      // Prepare employee object for calculation with gross-affecting deductions
+                      // 2. Prepare employee object for payroll calculation
                       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-                      
-                      // Perform initial calculation
+
+                      // 3. Perform initial payroll calculation
                       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-                      // Apply deductions that are *after* calculation to the net salary
-                      let finalNetForEmployee = calc.netSalary;
-                      if (absenceAfterDeductions) { // If absence IS after deductions, subtract from net
-                          finalNetForEmployee -= absences;
+                      // 4. Calculate deductions that are applied AFTER contributions (from NET)
+                      let netDeductions = 0;
+                      if (absenceAfterDeductions) {
+                        netDeductions += absences;
                       }
-                      if (!otherDeductionFromGross) { // If other deduction is NOT from gross (i.e., after deductions), subtract from net
-                          finalNetForEmployee -= otherDeductions;
+                      if (!otherDeductionFromGross) {
+                        netDeductions += otherDeductions;
                       }
+
+                      // 5. Calculate final net salary
+                      const finalNetForEmployee = calc.netSalary - netDeductions;
 
                       // Calculate total primes for display
                       const totalPrimes = cyclePrimes.reduce((sum, prime) => sum + prime.montant, 0);
@@ -1366,24 +1778,24 @@ export default function Paie() {
                           <TableCell className="font-bold text-[#0066FF]">{finalNetForEmployee.toLocaleString()} DJF</TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEmailModalData({ employee: emp, cycle: viewingCycle })}
-                                  className="border-[#6366F1] text-[#6366F1] hover:bg-[#6366F1] hover:text-white"
-                                >
-                                  <Mail className="w-4 h-4 mr-1" />
-                                  Email
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleDownloadPayslip(emp, viewingCycle)}
-                                  className="border-[#D3DCE6]"
-                                >
-                                  <Download className="w-4 h-4 mr-1" />
-                                  PDF
-                                </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEmailModalData({ employee: emp, cycle: viewingCycle })}
+                                className="border-[#6366F1] text-[#6366F1] hover:bg-[#6366F1] hover:text-white"
+                              >
+                                <Mail className="w-4 h-4 mr-1" />
+                                Email
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDownloadPayslip(emp, viewingCycle)}
+                                className="border-[#D3DCE6]"
+                              >
+                                <Download className="w-4 h-4 mr-1" />
+                                PDF
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
