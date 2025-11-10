@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import PermissionGuard from "../components/permissions/PermissionGuard";
+import MaintenanceTracker from "../components/maintenance/MaintenanceTracker";
 
 export default function Leasing() {
   const [showAssetForm, setShowAssetForm] = useState(false);
@@ -32,6 +33,7 @@ export default function Leasing() {
   const [uploading, setUploading] = useState(false);
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [viewingAssetMaintenance, setViewingAssetMaintenance] = useState(null);
   
   const queryClient = useQueryClient();
   
@@ -368,6 +370,7 @@ export default function Leasing() {
               <TabsTrigger value="assets">Actifs</TabsTrigger>
               <TabsTrigger value="leases">Contrats</TabsTrigger>
               <TabsTrigger value="payments">Paiements</TabsTrigger>
+              <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
               <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             </TabsList>
             
@@ -878,6 +881,65 @@ export default function Leasing() {
                     )}
                   </CardContent>
                 </Card>
+              </motion.div>
+            </TabsContent>
+
+            {/* NEW: Maintenance Tab */}
+            <TabsContent value="maintenance">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                {viewingAssetMaintenance ? (
+                  <div>
+                    <div className="flex items-center gap-4 mb-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => setViewingAssetMaintenance(null)}
+                        className="border-[#D3DCE6]"
+                      >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Retour
+                      </Button>
+                      <div>
+                        <h2 className="text-2xl font-bold text-[#0F172A]">
+                          Maintenance - {viewingAssetMaintenance.nom}
+                        </h2>
+                        <p className="text-sm text-[#64748B]">{viewingAssetMaintenance.type_actif}</p>
+                      </div>
+                    </div>
+                    <MaintenanceTracker asset={viewingAssetMaintenance} />
+                  </div>
+                ) : (
+                  <Card className="border-0 shadow-lg">
+                    <div className="p-6 border-b border-[#E5E7EB]">
+                      <h3 className="text-xl font-bold text-[#0F172A]">Gestion de Maintenance</h3>
+                      <p className="text-sm text-[#64748B] mt-1">Sélectionnez un actif pour gérer sa maintenance</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                      {assets.map((asset) => (
+                        <Card 
+                          key={asset.id} 
+                          className="border border-[#E5E7EB] hover:shadow-lg transition-all cursor-pointer"
+                          onClick={() => setViewingAssetMaintenance(asset)}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-bold text-[#0F172A]">{asset.nom}</h4>
+                              <Badge variant="outline">{asset.type_actif}</Badge>
+                            </div>
+                            <p className="text-sm text-[#64748B] mb-3">{asset.localisation || 'N/A'}</p>
+                            <Button size="sm" className="w-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]">
+                              Gérer la Maintenance
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </Card>
+                )}
               </motion.div>
             </TabsContent>
             
