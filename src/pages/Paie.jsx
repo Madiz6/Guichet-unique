@@ -56,10 +56,9 @@ export default function Paie() {
   // State for email modal
   const [emailModalData, setEmailModalData] = useState(null);
 
-  // State for cycle primes
+  // State for cycle primes (retained globally for drawer context)
   const [employeeCyclePrimes, setEmployeeCyclePrimes] = useState({});
-  const [showPrimeModal, setShowPrimeModal] = useState(false);
-  const [selectedEmployeeForPrime, setSelectedEmployeeForPrime] = useState(null);
+  const [selectedEmployeeForPrime, setSelectedEmployeeForPrime] = useState(null); // Used to identify which employee is currently having prime added/edited in the drawer
   const [primeType, setPrimeType] = useState('');
   const [customPrimeName, setCustomPrimeName] = useState('');
   const [primeMontant, setPrimeMontant] = useState('');
@@ -203,43 +202,6 @@ export default function Paie() {
       toast.success('Cycle supprimé');
     },
   });
-
-  const handleAddPrime = (empId) => {
-    setSelectedEmployeeForPrime(empId);
-    setShowPrimeModal(true);
-    setPrimeType('');
-    setCustomPrimeName('');
-    setPrimeMontant('');
-    setAddAfterDeductions(false);
-  };
-
-  const handleSavePrime = () => {
-    if (!primeMontant || parseFloat(primeMontant) <= 0) {
-      toast.error('Le montant de la prime doit être supérieur à zéro.');
-      return;
-    }
-
-    const primeName = primeType === 'custom' ? customPrimeName : primeType;
-    if (!primeName) {
-      toast.error('Veuillez spécifier le nom de la prime.');
-      return;
-    }
-
-    const newPrime = {
-      nom: primeName,
-      montant: parseFloat(primeMontant),
-      add_after_deductions: addAfterDeductions
-    };
-
-    setEmployeeCyclePrimes(prev => ({
-      ...prev,
-      [selectedEmployeeForPrime]: [...(prev[selectedEmployeeForPrime] || []), newPrime]
-    }));
-
-    setShowPrimeModal(false);
-    setSelectedEmployeeForPrime(null);
-    toast.success('Prime ajoutée avec succès!');
-  };
 
   const handleRemovePrime = (empId, primeIndex) => {
     setEmployeeCyclePrimes(prev => ({
@@ -985,7 +947,15 @@ export default function Paie() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setSelectedEmployeeDrawer(null)}
+                    onClick={() => {
+                      setSelectedEmployeeDrawer(null);
+                      // Reset prime input states when closing the drawer
+                      setSelectedEmployeeForPrime(null);
+                      setPrimeType('');
+                      setCustomPrimeName('');
+                      setPrimeMontant('');
+                      setAddAfterDeductions(false);
+                    }}
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -1026,6 +996,127 @@ export default function Paie() {
                           <p className="text-[#697586]">Régime</p>
                           <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.regime_cnss || '-'}</p>
                         </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* PRIMES Section - Inline Form */}
+                  <Card className="border border-green-200 bg-gradient-to-r from-green-50 to-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Plus className="w-5 h-5 text-green-600" />
+                        <h4 className="font-semibold text-[#0A2540]">Ajouter une Prime</h4>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs">Type de Prime</Label>
+                          <Select
+                            value={selectedEmployeeForPrime === selectedEmployeeDrawer.id ? primeType : ''}
+                            onValueChange={(value) => {
+                              setSelectedEmployeeForPrime(selectedEmployeeDrawer.id);
+                              setPrimeType(value);
+                            }}
+                          >
+                            <SelectTrigger className="mt-1 border-[#D3DCE6]">
+                              <SelectValue placeholder="Sélectionner..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Prime des heures supplémentaires">Prime des heures supplémentaires</SelectItem>
+                              <SelectItem value="Prime de fonction">Prime de fonction</SelectItem>
+                              <SelectItem value="Prime de logement">Prime de logement</SelectItem>
+                              <SelectItem value="Prime de transport">Prime de transport</SelectItem>
+                              <SelectItem value="Prime de sujétion">Prime de sujétion</SelectItem>
+                              <SelectItem value="Prime de rendement">Prime de rendement</SelectItem>
+                              <SelectItem value="Autres primes">Autres primes</SelectItem>
+                              <SelectItem value="custom">Personnalisée...</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {selectedEmployeeForPrime === selectedEmployeeDrawer.id && primeType === 'custom' && (
+                          <div>
+                            <Label className="text-xs">Nom de la Prime</Label>
+                            <Input
+                              value={customPrimeName}
+                              onChange={(e) => setCustomPrimeName(e.target.value)}
+                              placeholder="Ex: Prime de performance Q4"
+                              className="mt-1 border-[#D3DCE6]"
+                            />
+                          </div>
+                        )}
+
+                        <div>
+                          <Label className="text-xs">Montant (DJF)</Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={selectedEmployeeForPrime === selectedEmployeeDrawer.id ? primeMontant : ''}
+                            onChange={(e) => {
+                              setSelectedEmployeeForPrime(selectedEmployeeDrawer.id);
+                              setPrimeMontant(e.target.value);
+                            }}
+                            placeholder="0"
+                            className="mt-1 border-[#D3DCE6]"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2 p-2 bg-amber-50 rounded border border-amber-200">
+                          <input
+                            id={`drawer-prime-after-${selectedEmployeeDrawer.id}`}
+                            type="checkbox"
+                            checked={selectedEmployeeForPrime === selectedEmployeeDrawer.id ? addAfterDeductions : false}
+                            onChange={(e) => {
+                              setSelectedEmployeeForPrime(selectedEmployeeDrawer.id);
+                              setAddAfterDeductions(e.target.checked);
+                            }}
+                            className="w-4 h-4"
+                          />
+                          <Label htmlFor={`drawer-prime-after-${selectedEmployeeDrawer.id}`} className="text-xs text-amber-800 cursor-pointer">
+                            Ajouter APRÈS les cotisations et ITS (n'affecte pas les cotisations)
+                          </Label>
+                        </div>
+
+                        <Button
+                          onClick={() => {
+                            if (!primeMontant || parseFloat(primeMontant) <= 0) {
+                              toast.error('Le montant de la prime doit être supérieur à zéro.');
+                              return;
+                            }
+
+                            const primeName = primeType === 'custom' ? customPrimeName : primeType;
+                            if (!primeName) {
+                              toast.error('Veuillez spécifier le nom de la prime.');
+                              return;
+                            }
+
+                            const newPrime = {
+                              nom: primeName,
+                              montant: parseFloat(primeMontant),
+                              add_after_deductions: addAfterDeductions
+                            };
+
+                            setEmployeeCyclePrimes(prev => ({
+                              ...prev,
+                              [selectedEmployeeDrawer.id]: [...(prev[selectedEmployeeDrawer.id] || []), newPrime]
+                            }));
+
+                            // Reset form
+                            setPrimeType('');
+                            setCustomPrimeName('');
+                            setPrimeMontant('');
+                            setAddAfterDeductions(false);
+                            setSelectedEmployeeForPrime(null);
+
+                            toast.success('Prime ajoutée avec succès!');
+                          }}
+                          disabled={!primeType || !primeMontant || parseFloat(primeMontant) <= 0 || (primeType === 'custom' && !customPrimeName)}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Ajouter la Prime
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1135,7 +1226,12 @@ export default function Paie() {
                                 <p className="text-green-700 font-semibold mb-1">Primes:</p>
                                 {primes.map((prime, idx) => (
                                   <div key={idx} className="flex justify-between items-center bg-white p-2 rounded">
-                                    <span className="text-[#0A2540]">{prime.nom}</span>
+                                    <div className="flex-1">
+                                      <span className="text-[#0A2540] font-medium">{prime.nom}</span>
+                                      <p className="text-xs text-green-600">
+                                        {prime.add_after_deductions ? '(après déductions)' : '(avant déductions - affecte brut)'}
+                                      </p>
+                                    </div>
                                     <div className="flex items-center gap-2">
                                       <span className="font-semibold text-green-700">+{prime.montant.toLocaleString()} DJF</span>
                                       <button type="button" onClick={() => handleRemovePrime(empId, idx)} className="text-red-500 hover:text-red-700">
@@ -1148,13 +1244,23 @@ export default function Paie() {
                             )}
                             {absences > 0 && (
                               <div className="flex justify-between items-center bg-white p-2 rounded">
-                                <span className="text-red-700 font-semibold">Absences:</span>
+                                <div>
+                                  <span className="text-red-700 font-semibold">Absences:</span>
+                                  <p className="text-xs text-red-600">
+                                    {employeeAbsenceTiming[empId] ? '(après déductions)' : '(du brut)'}
+                                  </p>
+                                </div>
                                 <span className="font-semibold text-red-700">-{absences.toLocaleString()} DJF</span>
                               </div>
                             )}
                             {otherDeductions > 0 && (
                               <div className="flex justify-between items-center bg-white p-2 rounded">
-                                <span className="text-amber-700 font-semibold">Autres déductions:</span>
+                                <div>
+                                  <span className="text-amber-700 font-semibold">Autres déductions:</span>
+                                  <p className="text-xs text-amber-600">
+                                    {employeeOtherDeductionTiming[empId] ? '(du brut)' : '(après déductions)'}
+                                  </p>
+                                </div>
                                 <span className="font-semibold text-amber-700">-{otherDeductions.toLocaleString()} DJF</span>
                               </div>
                             )}
@@ -1311,91 +1417,6 @@ export default function Paie() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Prime Modal */}
-        {showPrimeModal && (
-          <Dialog open={showPrimeModal} onOpenChange={setShowPrimeModal}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Ajouter une Prime pour {employees.find(e => e.id === selectedEmployeeForPrime)?.prenom} {employees.find(e => e.id === selectedEmployeeForPrime)?.nom}</DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                <div>
-                  <Label>Type de Prime</Label>
-                  <Select value={primeType} onValueChange={setPrimeType}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Sélectionner..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Prime des heures supplémentaires">Prime des heures supplémentaires</SelectItem>
-                      <SelectItem value="Prime de fonction">Prime de fonction</SelectItem>
-                      <SelectItem value="Prime de logement">Prime de logement</SelectItem>
-                      <SelectItem value="Prime de transport">Prime de transport</SelectItem>
-                      <SelectItem value="Prime de sujétion">Prime de sujétion</SelectItem>
-                      <SelectItem value="Prime de rendement">Prime de rendement</SelectItem>
-                      <SelectItem value="Autres primes">Autres primes</SelectItem>
-                      <SelectItem value="custom">Personnalisée...</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {primeType === 'custom' && (
-                  <div>
-                    <Label>Nom de la Prime</Label>
-                    <Input
-                      value={customPrimeName}
-                      onChange={(e) => setCustomPrimeName(e.target.value)}
-                      placeholder="Ex: Prime de performance Q4"
-                      className="mt-2"
-                    />
-                  </div>
-                )}
-
-                <div>
-                  <Label>Montant (DJF)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={primeMontant}
-                    onChange={(e) => setPrimeMontant(e.target.value)}
-                    placeholder="0"
-                    className="mt-2"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <input
-                    id="addAfterDeductions"
-                    type="checkbox"
-                    checked={addAfterDeductions}
-                    onChange={(e) => setAddAfterDeductions(e.target.checked)}
-                    className="w-4 h-4"
-                  />
-                  <Label htmlFor="addAfterDeductions" className="text-sm text-amber-800">
-                    Ajouter APRÈS les cotisations et ITS (n'affecte pas les cotisations)
-                  </Label>
-                </div>
-
-                <p className="text-xs text-[#64748B]">
-                  {addAfterDeductions
-                    ? "⚠️ Cette prime sera ajoutée au net après calcul des cotisations (CNSS/ITS). Elle n'est pas soumise aux cotisations."
-                    : "ℹ️ Cette prime sera ajoutée au brut avant calcul des cotisations (CNSS/ITS). Elle est soumise aux cotisations."}
-                </p>
-
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button variant="outline" onClick={() => setShowPrimeModal(false)}>
-                    Annuler
-                  </Button>
-                  <Button onClick={handleSavePrime} className="bg-[#0066FF]" disabled={!primeMontant || parseFloat(primeMontant) <= 0 || (primeType === 'custom' && !customPrimeName) || !primeType}>
-                    Ajouter
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
       </div>
     );
   }
