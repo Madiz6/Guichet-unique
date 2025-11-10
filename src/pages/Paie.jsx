@@ -28,7 +28,7 @@ export default function Paie() {
   const [showForm, setShowForm] = useState(false);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [employeeAbsences, setEmployeeAbsences] = useState({});
-  const [employeeOtherDeductions, setEmployeeOtherDeductions] = useState({});
+  const [employeeOtherDeductions, setEmployeeOtherDeductions] = {};
   const [employeeAbsenceTiming, setEmployeeAbsenceTiming] = useState({}); // true = after deductions, false = from gross (default)
   const [employeeOtherDeductionTiming, setEmployeeOtherDeductionTiming] = useState({}); // true = from gross, false = after deductions (default)
 
@@ -536,7 +536,7 @@ export default function Paie() {
   if (showForm) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">
-        <div className="max-w-[1800px] mx-auto"> {/* Changed max-width */}
+        <div className="max-w-[1800px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -565,7 +565,7 @@ export default function Paie() {
             </Button>
             <div className="flex-1">
               <h1 className="text-2xl font-semibold text-[#0A2540]">Nouveau Cycle de Paie</h1>
-              <p className="text-[#697586] mt-1">{cycleData.periode}</p> {/* Display current period */}
+              <p className="text-[#697586] mt-1">{cycleData.periode}</p>
             </div>
           </motion.div>
 
@@ -949,7 +949,6 @@ export default function Paie() {
                     size="icon"
                     onClick={() => {
                       setSelectedEmployeeDrawer(null);
-                      // Reset prime input states when closing the drawer
                       setSelectedEmployeeForPrime(null);
                       setPrimeType('');
                       setCustomPrimeName('');
@@ -961,7 +960,7 @@ export default function Paie() {
                   </Button>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-6 pb-24">
                   {/* Employee Info */}
                   <Card className="border border-[#E8ECF2]">
                     <CardContent className="p-4">
@@ -1370,9 +1369,9 @@ export default function Paie() {
                               <span className="font-medium text-red-600">-{calc.cnssEmployee.total.toLocaleString()} DJF</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-[#697586]">ITS:</span>
-                              <span className="font-medium text-red-600">-{calc.its.toLocaleString()} DJF</span>
-                            </div>
+                                <span className="text-[#697586]">ITS:</span>
+                                <span className="font-medium text-red-600">-{calc.its.toLocaleString()} DJF</span>
+                              </div>
                             {calc.aide > 0 && (
                               <div className="flex justify-between">
                                 <span className="text-[#697586]">AIDE:</span>
@@ -1412,45 +1411,45 @@ export default function Paie() {
                       })()}
                     </CardContent>
                   </Card>
+                </div>
+              </div>
 
-                  {/* Action Buttons at Bottom */}
-                  </div>
-                  <div className="sticky bottom-0 bg-white border-t-2 border-[#E8ECF2] pt-4 px-6 pb-6 shadow-lg mt-auto">
-                    <div className="flex gap-3">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          // Don't save changes - just close
-                          setSelectedEmployeeDrawer(null);
-                          setSelectedEmployeeForPrime(null);
-                          setPrimeType('');
-                          setCustomPrimeName('');
-                          setPrimeMontant('');
-                          setAddAfterDeductions(false);
-                          toast.info('Modifications conservées');
-                        }}
-                        className="flex-1 border-[#D3DCE6] hover:bg-gray-50"
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Fermer
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          setSelectedEmployeeDrawer(null);
-                          setSelectedEmployeeForPrime(null);
-                          setPrimeType('');
-                          setCustomPrimeName('');
-                          setPrimeMontant('');
-                          setAddAfterDeductions(false);
-                          toast.success('Modifications enregistrées avec succès!');
-                        }}
-                        className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg"
-                      >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Enregistrer
-                      </Button>
-                    </div>
-                  </div>
+              {/* Action Buttons - Fixed at Bottom */}
+              <div className="border-t-2 border-[#E8ECF2] bg-white p-6 shadow-lg">
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedEmployeeDrawer(null);
+                      setSelectedEmployeeForPrime(null);
+                      setPrimeType('');
+                      setCustomPrimeName('');
+                      setPrimeMontant('');
+                      setAddAfterDeductions(false);
+                      toast.info('Modifications conservées');
+                    }}
+                    className="flex-1 border-[#D3DCE6] hover:bg-gray-50"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Fermer
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedEmployeeDrawer(null);
+                      setSelectedEmployeeForPrime(null);
+                      setPrimeType('');
+                      setCustomPrimeName('');
+                      setPrimeMontant('');
+                      setAddAfterDeductions(false);
+                      toast.success('Modifications enregistrées avec succès!');
+                    }}
+                    className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg"
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Enregistrer
+                  </Button>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
