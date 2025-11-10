@@ -28,7 +28,7 @@ export default function Paie() {
   const [showForm, setShowForm] = useState(false);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [employeeAbsences, setEmployeeAbsences] = useState({});
-  const [employeeOtherDeductions, setEmployeeOtherDeductions] = {};
+  const [employeeOtherDeductions, setEmployeeOtherDeductions] = useState({});
   const [employeeAbsenceTiming, setEmployeeAbsenceTiming] = useState({}); // true = after deductions, false = from gross (default)
   const [employeeOtherDeductionTiming, setEmployeeOtherDeductionTiming] = useState({}); // true = from gross, false = after deductions (default)
 
