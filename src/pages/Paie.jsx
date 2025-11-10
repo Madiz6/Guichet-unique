@@ -939,9 +939,9 @@ export default function Paie() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 h-full w-[600px] bg-white shadow-2xl z-50 overflow-y-auto"
+              className="fixed right-0 top-0 h-full w-[600px] bg-white shadow-2xl z-50 flex flex-col"
             >
-              <div className="p-6">
+              <div className="p-6 flex-grow overflow-y-auto">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-[#0A2540]">Détails de l'Employé</h2>
                   <Button
@@ -1320,7 +1320,7 @@ export default function Paie() {
                                     ? 'bg-red-50 border-red-200'
                                     : calc.salaryPercentage < 1
                                       ? 'bg-amber-50 border-amber-200'
-                                      : 'bg-blue-50 border-blue-200'
+                                    : 'bg-blue-50 border-blue-200'
                               }`}>
                                 <p className="text-sm font-semibold">
                                   {calc.holidayNote}
@@ -1412,8 +1412,45 @@ export default function Paie() {
                       })()}
                     </CardContent>
                   </Card>
-                </div>
-              </div>
+
+                  {/* Action Buttons at Bottom */}
+                  </div>
+                  <div className="sticky bottom-0 bg-white border-t-2 border-[#E8ECF2] pt-4 px-6 pb-6 shadow-lg mt-auto">
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          // Don't save changes - just close
+                          setSelectedEmployeeDrawer(null);
+                          setSelectedEmployeeForPrime(null);
+                          setPrimeType('');
+                          setCustomPrimeName('');
+                          setPrimeMontant('');
+                          setAddAfterDeductions(false);
+                          toast.info('Modifications conservées');
+                        }}
+                        className="flex-1 border-[#D3DCE6] hover:bg-gray-50"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Fermer
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setSelectedEmployeeDrawer(null);
+                          setSelectedEmployeeForPrime(null);
+                          setPrimeType('');
+                          setCustomPrimeName('');
+                          setPrimeMontant('');
+                          setAddAfterDeductions(false);
+                          toast.success('Modifications enregistrées avec succès!');
+                        }}
+                        className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Enregistrer
+                      </Button>
+                    </div>
+                  </div>
             </motion.div>
           )}
         </AnimatePresence>
