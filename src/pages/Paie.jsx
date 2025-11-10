@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Calendar, Download, CreditCard, Trash2, Minus, Eye, Filter, FileText, Mail, X, Search, ChevronRight, Users, TrendingUp, DollarSign, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Calendar, Download, CreditCard, Trash2, Minus, Eye, Filter, FileText, Mail, X, Search, Users, TrendingUp, DollarSign, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { format, startOfMonth, endOfMonth, addMonths } from 'date-fns';
@@ -29,36 +28,30 @@ export default function Paie() {
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [employeeAbsences, setEmployeeAbsences] = useState({});
   const [employeeOtherDeductions, setEmployeeOtherDeductions] = useState({});
-  const [employeeAbsenceTiming, setEmployeeAbsenceTiming] = useState({}); // true = after deductions, false = from gross (default)
-  const [employeeOtherDeductionTiming, setEmployeeOtherDeductionTiming] = useState({}); // true = from gross, false = after deductions (default)
+  const [employeeAbsenceTiming, setEmployeeAbsenceTiming] = useState({});
+  const [employeeOtherDeductionTiming, setEmployeeOtherDeductionTiming] = useState({});
+  const [employeeCyclePrimes, setEmployeeCyclePrimes] = useState({});
 
-  // NEW: Enterprise features
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('Actif');
   const [selectedEmployeeDrawer, setSelectedEmployeeDrawer] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Changed to 10 for better pagination granularity initially
+  const itemsPerPage = 10;
 
   const [viewingCycle, setViewingCycle] = useState(null);
   const [showPayrollList, setShowPayrollList] = useState(false);
   const [showPaymentGateway, setShowPaymentGateway] = useState(false);
   const [selectedCycleForPayment, setSelectedCycleForPayment] = useState(null);
 
-  // Filters for payroll list
   const [filterMonth, setFilterMonth] = useState('all');
   const [filterYear, setFilterYear] = useState('all');
   const [filterDepartment, setFilterDepartment] = useState('all');
 
-  // State for signature dialog
   const [signatureDialog, setSignatureDialog] = useState({ isOpen: false, documentType: null, employee: null, cycle: null });
-
-  // State for email modal
   const [emailModalData, setEmailModalData] = useState(null);
 
-  // State for cycle primes (retained globally for drawer context)
-  const [employeeCyclePrimes, setEmployeeCyclePrimes] = useState({});
-  const [selectedEmployeeForPrime, setSelectedEmployeeForPrime] = useState(null); // Used to identify which employee is currently having prime added/edited in the drawer
+  const [selectedEmployeeForPrime, setSelectedEmployeeForPrime] = useState(null);
   const [primeType, setPrimeType] = useState('');
   const [customPrimeName, setCustomPrimeName] = useState('');
   const [primeMontant, setPrimeMontant] = useState('');
@@ -80,10 +73,9 @@ export default function Paie() {
 
   const queryClient = useQueryClient();
 
-  // Modified employee query to fetch all employees (not just active) for comprehensive payroll list
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => base44.entities.Employee.list('-created_date'), // Removed 'statut: Actif' filter from here
+    queryFn: () => base44.entities.Employee.list('-created_date'),
   });
 
   const { data: companies = [] } = useQuery({
@@ -98,41 +90,35 @@ export default function Paie() {
 
   const company = companies[0] || {};
 
-  // Helper function to get active holiday for employee in cycle period
   const getEmployeeHolidayStatus = (employeeId, cycleData) => {
-    const cyclePeriod = cycleData.mois_annee; // Format: YYYYMM
+    const cyclePeriod = cycleData.mois_annee;
     if (!cyclePeriod) return null;
 
     const cycleYear = parseInt(cyclePeriod.substring(0, 4), 10);
-    const cycleMonth = parseInt(cyclePeriod.substring(4, 6), 10); // 1-based month
+    const cycleMonth = parseInt(cyclePeriod.substring(4, 6), 10);
 
-    // Find approved holidays that overlap with cycle period
     const activeHoliday = holidays.find(h => {
       if (h.employee_id !== employeeId) return false;
-      if (h.statut !== 'Approuvé' && h.statut !== 'En cours') return false; // Only consider approved or in-progress holidays
+      if (h.statut !== 'Approuvé' && h.statut !== 'En cours') return false;
 
       const startDate = new Date(h.date_debut);
       const endDate = new Date(h.date_fin);
-      // Use cycleStart and cycleEnd to represent the full month period
       const cycleStart = new Date(cycleYear, cycleMonth - 1, 1);
-      const cycleEnd = new Date(cycleYear, cycleMonth, 0, 23, 59, 59, 999); // Last day of the month, end of day
+      const cycleEnd = new Date(cycleYear, cycleMonth, 0, 23, 59, 59, 999);
 
-      // Check if holiday overlaps with cycle period
       return (startDate <= cycleEnd && endDate >= cycleStart);
     });
 
     if (!activeHoliday) return null;
 
-    // For maternity leave, calculate which month this is
     if (activeHoliday.type_conge === 'Congé maternité') {
       const startDate = new Date(activeHoliday.date_debut);
-      // monthDiff gives difference in months from start date of holiday to the current cycle month
       const monthDiff = (cycleYear - startDate.getFullYear()) * 12 + (cycleMonth - (startDate.getMonth() + 1));
-      const monthNumber = monthDiff + 1; // 1-based month of maternity leave
+      const monthNumber = monthDiff + 1;
 
       return {
         type: activeHoliday.type_conge,
-        month_number: Math.max(1, monthNumber) // Ensure it's at least month 1
+        month_number: Math.max(1, monthNumber)
       };
     }
 
@@ -151,7 +137,6 @@ export default function Paie() {
     onSuccess: async (newCycle) => {
       queryClient.invalidateQueries(['payroll-cycles']);
 
-      // ✅ AUDIT LOG
       await logAuditAction(
         AUDIT_ACTIONS.PAYROLL_CREATED,
         'PayrollCycle',
@@ -168,11 +153,9 @@ export default function Paie() {
       setSelectedEmployees([]);
       setEmployeeAbsences({});
       setEmployeeOtherDeductions({});
-      setEmployeeAbsenceTiming({}); // Reset timing
-      setEmployeeOtherDeductionTiming({}); // Reset timing
-      setEmployeeCyclePrimes({}); // Reset primes
-
-      // NEW: Reset search and filter states
+      setEmployeeAbsenceTiming({});
+      setEmployeeOtherDeductionTiming({});
+      setEmployeeCyclePrimes({});
       setSearchQuery('');
       setDepartmentFilter('all');
       setStatusFilter('Actif');
@@ -187,7 +170,6 @@ export default function Paie() {
     onSuccess: async (_, deletedId) => {
       const deletedCycle = cycles.find(c => c.id === deletedId);
 
-      // ✅ AUDIT LOG
       if (deletedCycle) {
         await logAuditAction(
           AUDIT_ACTIONS.PAYROLL_DELETED,
@@ -214,7 +196,7 @@ export default function Paie() {
   const handleCreateCycle = () => {
     const employeesToProcess = selectedEmployees.length > 0
       ? employees.filter(e => selectedEmployees.includes(e.id))
-      : []; // Only process explicitly selected employees
+      : [];
 
     if (employeesToProcess.length === 0) {
       toast.error('Aucun employé sélectionné pour ce cycle de paie.');
@@ -231,15 +213,14 @@ export default function Paie() {
       const absences = employeeAbsences[emp.id] || 0;
       const otherDeductions = employeeOtherDeductions[emp.id] || 0;
       const cyclePrimes = employeeCyclePrimes[emp.id] || [];
-      const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false; // default: false (from gross)
-      const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false; // default: false (after deductions)
+      const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false;
+      const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false;
 
       const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
       if (holidayStatus) {
         employeeHolidayStatuses[emp.id] = holidayStatus;
       }
 
-      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
       let effectiveAbsencesForGross = 0;
       if (!absenceAfterDeductions) {
         effectiveAbsencesForGross += absences;
@@ -248,13 +229,9 @@ export default function Paie() {
         effectiveAbsencesForGross += otherDeductions;
       }
 
-      // 2. Prepare employee object for payroll calculation
       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-
-      // 3. Perform initial payroll calculation
       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-      // 4. Calculate deductions that are applied AFTER contributions (from NET)
       let netDeductions = 0;
       if (absenceAfterDeductions) {
         netDeductions += absences;
@@ -263,7 +240,6 @@ export default function Paie() {
         netDeductions += otherDeductions;
       }
 
-      // 5. Calculate final net salary
       const finalNetForEmployee = calc.netSalary - netDeductions;
 
       totalGross += calc.grossSalary;
@@ -283,8 +259,8 @@ export default function Paie() {
       employee_ids: employeesToProcess.map(e => e.id),
       employee_absences: employeeAbsences,
       employee_other_deductions: employeeOtherDeductions,
-      employee_absence_timing: employeeAbsenceTiming, // Save timing
-      employee_other_deduction_timing: employeeOtherDeductionTiming, // Save timing
+      employee_absence_timing: employeeAbsenceTiming,
+      employee_other_deduction_timing: employeeOtherDeductionTiming,
       employee_cycle_primes: employeeCyclePrimes,
       employee_holiday_status: employeeHolidayStatuses
     };
@@ -298,7 +274,6 @@ export default function Paie() {
   };
 
   const handlePaymentSuccess = async (paymentData) => {
-    // ✅ AUDIT LOG
     if (selectedCycleForPayment) {
       await logAuditAction(
         AUDIT_ACTIONS.PAYROLL_PAID,
@@ -320,7 +295,6 @@ export default function Paie() {
   };
 
   const handleDownloadPayslip = async (emp, cycle) => {
-    // ✅ AUDIT LOG
     await logAuditAction(
       AUDIT_ACTIONS.PAYSLIP_GENERATED,
       'Employee',
@@ -369,7 +343,6 @@ export default function Paie() {
     }));
   };
 
-  // Filter employees for the form based on search, department, and status
   const filteredEmployees = employees.filter(emp => {
     const matchesSearch = !searchQuery ||
       `${emp.prenom} ${emp.nom}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -388,10 +361,8 @@ export default function Paie() {
     currentPage * itemsPerPage
   );
 
-  // Get unique departments for the form filter
   const departments = [...new Set(employees.map(e => e.departement).filter(Boolean))];
 
-  // Calculate statistics for selected employees in the form
   const selectedEmployeesDataForStats = employees.filter(e => selectedEmployees.includes(e.id));
   const stats = {
     total: selectedEmployeesDataForStats.length,
@@ -401,16 +372,11 @@ export default function Paie() {
       const cyclePrimes = employeeCyclePrimes[emp.id] || [];
       const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false;
       const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false;
-
       const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
 
       let effectiveAbsencesForGross = 0;
-      if (!absenceAfterDeductions) {
-        effectiveAbsencesForGross += absences;
-      }
-      if (otherDeductionFromGross) {
-        effectiveAbsencesForGross += otherDeductions;
-      }
+      if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
+      if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
 
       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
@@ -422,73 +388,48 @@ export default function Paie() {
       const cyclePrimes = employeeCyclePrimes[emp.id] || [];
       const absenceAfterDeductions = employeeAbsenceTiming[emp.id] || false;
       const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false;
-
       const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
 
       let effectiveAbsencesForGross = 0;
-      if (!absenceAfterDeductions) {
-        effectiveAbsencesForGross += absences;
-      }
-      if (otherDeductionFromGross) {
-        effectiveAbsencesForGross += otherDeductions;
-      }
+      if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
+      if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
 
       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
       let netDeductions = 0;
-      if (absenceAfterDeductions) {
-        netDeductions += absences;
-      }
-      if (!otherDeductionFromGross) {
-        netDeductions += otherDeductions;
-      }
+      if (absenceAfterDeductions) netDeductions += absences;
+      if (!otherDeductionFromGross) netDeductions += otherDeductions;
 
       return sum + (calc.netSalary - netDeductions);
     }, 0)
   };
 
-  // Get all payroll records across all cycles for the comprehensive list
   const allPayrollRecords = cycles.flatMap(cycle => {
-    // Ensure employee_ids exist before mapping
     if (!cycle.employee_ids) return [];
 
     return cycle.employee_ids.map(empId => {
       const emp = employees.find(e => e.id === empId);
-      if (!emp) return null; // Skip if employee not found (e.g., deleted employee)
+      if (!emp) return null;
 
       const absences = cycle.employee_absences?.[emp.id] || 0;
       const otherDeductions = cycle.employee_other_deductions?.[emp.id] || 0;
-      const cyclePrimes = cycle.employee_cycle_primes?.[emp.id] || []; // Retrieve primes
-      const holidayStatus = cycle.employee_holiday_status?.[emp.id] || null; // Retrieve holiday status
+      const cyclePrimes = cycle.employee_cycle_primes?.[emp.id] || [];
+      const holidayStatus = cycle.employee_holiday_status?.[emp.id] || null;
       const absenceAfterDeductions = cycle.employee_absence_timing?.[emp.id] || false;
       const otherDeductionFromGross = cycle.employee_other_deduction_timing?.[emp.id] || false;
 
-      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
       let effectiveAbsencesForGross = 0;
-      if (!absenceAfterDeductions) { // If absence is NOT after deductions, it's from gross
-        effectiveAbsencesForGross += absences;
-      }
-      if (otherDeductionFromGross) { // If other deduction IS from gross
-        effectiveAbsencesForGross += otherDeductions;
-      }
+      if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
+      if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
 
-      // 2. Prepare employee object for calculation with gross-affecting deductions
       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-
-      // 3. Perform initial calculation
       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-      // 4. Calculate deductions that are applied AFTER contributions (from NET)
       let netDeductions = 0;
-      if (absenceAfterDeductions) { // If absence IS after deductions, subtract from net
-        netDeductions += absences;
-      }
-      if (!otherDeductionFromGross) { // If other deduction is NOT from gross (i.e., after deductions), subtract from net
-        netDeductions += otherDeductions;
-      }
+      if (absenceAfterDeductions) netDeductions += absences;
+      if (!otherDeductionFromGross) netDeductions += otherDeductions;
 
-      // 5. Calculate final net salary
       const finalNet = calc.netSalary - netDeductions;
 
       return {
@@ -505,12 +446,11 @@ export default function Paie() {
         absences,
         otherDeductions,
         netSalary: finalNet,
-        cycle // Keep the original cycle data for PDF generation
+        cycle
       };
-    }).filter(Boolean); // Filter out any null records
+    }).filter(Boolean);
   });
 
-  // Apply filters to payroll records
   const filteredPayrollRecords = allPayrollRecords.filter(record => {
     const monthMatch = filterMonth === 'all' || record.cycleMonth === filterMonth;
     const yearMatch = filterYear === 'all' || record.cycleYear === filterYear;
@@ -518,7 +458,6 @@ export default function Paie() {
     return monthMatch && yearMatch && deptMatch;
   });
 
-  // Get unique years, months, and departments for filters
   const availableYears = [...new Set(allPayrollRecords.map(r => r.cycleYear).filter(Boolean))].sort((a, b) => b.localeCompare(a));
   const availableMonths = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
   const availableDepartments = [...new Set(employees.map(e => e.departement).filter(Boolean))].sort();
@@ -550,10 +489,9 @@ export default function Paie() {
                 setSelectedEmployees([]);
                 setEmployeeAbsences({});
                 setEmployeeOtherDeductions({});
-                setEmployeeAbsenceTiming({}); // Reset timing
-                setEmployeeOtherDeductionTiming({}); // Reset timing
-                setEmployeeCyclePrimes({}); // Reset primes
-                // NEW: Reset search and filter states
+                setEmployeeAbsenceTiming({});
+                setEmployeeOtherDeductionTiming({});
+                setEmployeeCyclePrimes({});
                 setSearchQuery('');
                 setDepartmentFilter('all');
                 setStatusFilter('Actif');
@@ -569,7 +507,6 @@ export default function Paie() {
             </div>
           </motion.div>
 
-          {/* NEW: Dashboard Insights */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <Card className="border-0 shadow-lg">
               <CardContent className="p-6">
@@ -668,7 +605,6 @@ export default function Paie() {
                 </div>
               </div>
 
-              {/* NEW: Search and Filters */}
               <div className="flex flex-col md:flex-row gap-4 mb-6 p-4 bg-[#F7F9FC] rounded-lg">
                 <div className="flex-1">
                   <div className="relative">
@@ -678,7 +614,7 @@ export default function Paie() {
                       value={searchQuery}
                       onChange={(e) => {
                         setSearchQuery(e.target.value);
-                        setCurrentPage(1); // Reset pagination on search
+                        setCurrentPage(1);
                       }}
                       className="pl-10 border-[#D3DCE6]"
                     />
@@ -716,7 +652,6 @@ export default function Paie() {
                 </Button>
               </div>
 
-              {/* NEW: Enterprise Table View */}
               <div className="border border-[#E8ECF2] rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -752,33 +687,18 @@ export default function Paie() {
                       const otherDeductionFromGross = employeeOtherDeductionTiming[emp.id] || false;
                       const holidayStatus = getEmployeeHolidayStatus(emp.id, cycleData);
 
-                      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
                       let effectiveAbsencesForGross = 0;
-                      if (!absenceAfterDeductions) {
-                        effectiveAbsencesForGross += absences;
-                      }
-                      if (otherDeductionFromGross) {
-                        effectiveAbsencesForGross += otherDeductions;
-                      }
+                      if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
+                      if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
 
-                      // 2. Prepare employee object for payroll calculation
                       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-
-                      // 3. Perform initial payroll calculation
                       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-                      // 4. Calculate deductions that are applied AFTER contributions (from NET)
                       let netDeductions = 0;
-                      if (absenceAfterDeductions) {
-                        netDeductions += absences;
-                      }
-                      if (!otherDeductionFromGross) {
-                        netDeductions += otherDeductions;
-                      }
+                      if (absenceAfterDeductions) netDeductions += absences;
+                      if (!otherDeductionFromGross) netDeductions += otherDeductions;
 
-                      // 5. Calculate final net salary
                       const finalNet = calc.netSalary - netDeductions;
-
                       const isSelected = selectedEmployees.includes(emp.id);
                       const hasModifications = absences > 0 || otherDeductions > 0 || cyclePrimes.length > 0;
 
@@ -860,7 +780,6 @@ export default function Paie() {
                 </Table>
               </div>
 
-              {/* NEW: Pagination */}
               <div className="flex items-center justify-between mt-4">
                 <p className="text-sm text-[#697586]">
                   Affichage {((currentPage - 1) * itemsPerPage) + 1} à {Math.min(currentPage * itemsPerPage, filteredEmployees.length)} sur {filteredEmployees.length} employés
@@ -931,7 +850,6 @@ export default function Paie() {
           </Card>
         </div>
 
-        {/* NEW: Right-Hand Drawer for Employee Details */}
         <AnimatePresence>
           {selectedEmployeeDrawer && (
             <motion.div
@@ -961,7 +879,6 @@ export default function Paie() {
                 </div>
 
                 <div className="space-y-6 pb-24">
-                  {/* Employee Info */}
                   <Card className="border border-[#E8ECF2]">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4 mb-4">
@@ -999,7 +916,6 @@ export default function Paie() {
                     </CardContent>
                   </Card>
 
-                  {/* PRIMES Section - Inline Form */}
                   <Card className="border border-green-200 bg-gradient-to-r from-green-50 to-white">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
@@ -1101,7 +1017,6 @@ export default function Paie() {
                               [selectedEmployeeDrawer.id]: [...(prev[selectedEmployeeDrawer.id] || []), newPrime]
                             }));
 
-                            // Reset form
                             setPrimeType('');
                             setCustomPrimeName('');
                             setPrimeMontant('');
@@ -1120,8 +1035,6 @@ export default function Paie() {
                     </CardContent>
                   </Card>
 
-                  {/* Employee-specific Absences and Other Deductions Inputs */}
-                  {/* ENHANCED Absences Input with Timing Option */}
                   <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-red-50 to-white rounded-lg border border-red-200">
                     <Minus className="w-4 h-4 text-red-600 mt-1" />
                     <div className="flex-1">
@@ -1164,7 +1077,6 @@ export default function Paie() {
                     </div>
                   </div>
 
-                  {/* ENHANCED Other Deductions Input with Timing Option */}
                   <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-amber-50 to-white rounded-lg border border-amber-200">
                     <Minus className="w-4 h-4 text-amber-600 mt-1" />
                     <div className="flex-1">
@@ -1207,8 +1119,6 @@ export default function Paie() {
                     </div>
                   </div>
 
-
-                  {/* Current Modifications */}
                   {(() => {
                     const empId = selectedEmployeeDrawer.id;
                     const absences = employeeAbsences[empId] || 0;
@@ -1252,7 +1162,7 @@ export default function Paie() {
                                 <span className="font-semibold text-red-700">-{absences.toLocaleString()} DJF</span>
                               </div>
                             )}
-                            {otherDeductions > 0 && !otherDeductionFromGross && (
+                            {otherDeductions > 0 && (
                               <div className="flex justify-between items-center bg-white p-2 rounded">
                                 <div>
                                   <span className="text-amber-700 font-semibold">Autres déductions:</span>
@@ -1269,7 +1179,6 @@ export default function Paie() {
                     );
                   })()}
 
-                  {/* Salary Breakdown */}
                   <Card className="border border-[#E8ECF2]">
                     <CardContent className="p-4">
                       <h4 className="font-semibold text-[#0A2540] mb-3">Détails du Salaire</h4>
@@ -1282,31 +1191,17 @@ export default function Paie() {
                         const otherDeductionFromGross = employeeOtherDeductionTiming[empId] || false;
                         const holidayStatus = getEmployeeHolidayStatus(empId, cycleData);
 
-                        // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
                         let effectiveAbsencesForGross = 0;
-                        if (!absenceAfterDeductions) {
-                          effectiveAbsencesForGross += absences;
-                        }
-                        if (otherDeductionFromGross) {
-                          effectiveAbsencesForGross += otherDeductions;
-                        }
+                        if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
+                        if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
 
-                        // 2. Prepare employee object for payroll calculation
                         const empForCalc = { ...selectedEmployeeDrawer, absences_amount: effectiveAbsencesForGross };
-
-                        // 3. Perform initial payroll calculation
                         const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-                        // 4. Calculate deductions that are applied AFTER contributions (from NET)
                         let netDeductions = 0;
-                        if (absenceAfterDeductions) {
-                          netDeductions += absences;
-                        }
-                        if (!otherDeductionFromGross) {
-                          netDeductions += otherDeductions;
-                        }
+                        if (absenceAfterDeductions) netDeductions += absences;
+                        if (!otherDeductionFromGross) netDeductions += otherDeductions;
 
-                        // 5. Calculate final net salary
                         const finalNet = calc.netSalary - netDeductions;
 
                         return (
@@ -1369,9 +1264,9 @@ export default function Paie() {
                               <span className="font-medium text-red-600">-{calc.cnssEmployee.total.toLocaleString()} DJF</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-[#697586]">ITS:</span>
-                                <span className="font-medium text-red-600">-{calc.its.toLocaleString()} DJF</span>
-                              </div>
+                              <span className="text-[#697586]">ITS:</span>
+                              <span className="font-medium text-red-600">-{calc.its.toLocaleString()} DJF</span>
+                            </div>
                             {calc.aide > 0 && (
                               <div className="flex justify-between">
                                 <span className="text-[#697586]">AIDE:</span>
@@ -1414,7 +1309,6 @@ export default function Paie() {
                 </div>
               </div>
 
-              {/* Action Buttons - Fixed at Bottom */}
               <div className="border-t-2 border-[#E8ECF2] bg-white p-6 shadow-lg">
                 <div className="flex gap-3">
                   <Button
@@ -1457,7 +1351,6 @@ export default function Paie() {
     );
   }
 
-  // New UI for comprehensive payroll list
   if (showPayrollList) {
     return (
       <PermissionGuard permission="payroll_view">
@@ -1484,7 +1377,6 @@ export default function Paie() {
               </div>
             </motion.div>
 
-            {/* Filters */}
             <Card className="border border-[#E8ECF2] mb-6">
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -1540,7 +1432,6 @@ export default function Paie() {
               </CardContent>
             </Card>
 
-            {/* Payroll List */}
             <Card className="border border-[#E8ECF2] shadow-lg">
               <div className="overflow-x-auto">
                 <Table>
@@ -1566,7 +1457,7 @@ export default function Paie() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredPayrollRecords.map((record, idx) => (
+                      filteredPayrollRecords.map((record) => (
                         <TableRow key={`${record.cycleId}-${record.employee.id}`} className="border-b border-[#E8ECF2] hover:bg-[#F7F9FC]">
                           <TableCell className="font-medium text-[#0A2540]">
                             <div>
@@ -1639,7 +1530,6 @@ export default function Paie() {
               <h1 className="text-3xl font-bold text-[#0A2540]">Cycles de Paie</h1>
               <p className="text-[#697586] mt-1">Gérer les cycles de paie mensuels</p>
             </div>
-            {/* New button to show payroll list */}
             <Button
               variant="outline"
               onClick={() => setShowPayrollList(true)}
@@ -1781,39 +1671,23 @@ export default function Paie() {
                     {employees.filter(e => viewingCycle.employee_ids?.includes(e.id)).map(emp => {
                       const absences = viewingCycle.employee_absences?.[emp.id] || 0;
                       const otherDeductions = viewingCycle.employee_other_deductions?.[emp.id] || 0;
-                      const cyclePrimes = viewingCycle.employee_cycle_primes?.[emp.id] || []; // Retrieve primes
-                      const holidayStatus = viewingCycle.employee_holiday_status?.[emp.id] || null; // Retrieve holiday status
+                      const cyclePrimes = viewingCycle.employee_cycle_primes?.[emp.id] || [];
+                      const holidayStatus = viewingCycle.employee_holiday_status?.[emp.id] || null;
                       const absenceAfterDeductions = viewingCycle.employee_absence_timing?.[emp.id] || false;
                       const otherDeductionFromGross = viewingCycle.employee_other_deduction_timing?.[emp.id] || false;
 
-                      // 1. Calculate effective absences/deductions that impact GROSS (and thus contributions)
                       let effectiveAbsencesForGross = 0;
-                      if (!absenceAfterDeductions) {
-                        effectiveAbsencesForGross += absences;
-                      }
-                      if (otherDeductionFromGross) {
-                        effectiveAbsencesForGross += otherDeductions;
-                      }
+                      if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
+                      if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
 
-                      // 2. Prepare employee object for payroll calculation
                       const empForCalc = { ...emp, absences_amount: effectiveAbsencesForGross };
-
-                      // 3. Perform initial payroll calculation
                       const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
 
-                      // 4. Calculate deductions that are applied AFTER contributions (from NET)
                       let netDeductions = 0;
-                      if (absenceAfterDeductions) {
-                        netDeductions += absences;
-                      }
-                      if (!otherDeductionFromGross) {
-                        netDeductions += otherDeductions;
-                      }
+                      if (absenceAfterDeductions) netDeductions += absences;
+                      if (!otherDeductionFromGross) netDeductions += otherDeductions;
 
-                      // 5. Calculate final net salary
                       const finalNetForEmployee = calc.netSalary - netDeductions;
-
-                      // Calculate total primes for display
                       const totalPrimes = cyclePrimes.reduce((sum, prime) => sum + prime.montant, 0);
 
                       return (
@@ -1866,7 +1740,6 @@ export default function Paie() {
         </div>
       </div>
 
-      {/* Payment Gateway */}
       {showPaymentGateway && selectedCycleForPayment && (
         <PaymentGateway
           isOpen={showPaymentGateway}
