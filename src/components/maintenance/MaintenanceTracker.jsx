@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import AssetPerformanceReport from "./AssetPerformanceReport";
 
 export default function MaintenanceTracker({ asset }) {
   const [showRecordForm, setShowRecordForm] = useState(false);
@@ -36,6 +38,16 @@ export default function MaintenanceTracker({ asset }) {
   const { data: maintenanceSchedules = [] } = useQuery({
     queryKey: ['maintenance-schedules', asset.id],
     queryFn: () => base44.entities.MaintenanceSchedule.filter({ asset_id: asset.id }),
+  });
+
+  const { data: leases = [] } = useQuery({
+    queryKey: ['leases'], // Assuming leases are not asset-specific or filtered elsewhere if needed
+    queryFn: () => base44.entities.Lease.list(),
+  });
+
+  const { data: payments = [] } = useQuery({
+    queryKey: ['lease-payments'], // Assuming payments are not asset-specific or filtered elsewhere if needed
+    queryFn: () => base44.entities.LeasePayment.list(),
   });
 
   const createRecordMutation = useMutation({
@@ -453,108 +465,12 @@ export default function MaintenanceTracker({ asset }) {
 
         {/* Reports Tab */}
         <TabsContent value="reports">
-          <div className="space-y-6">
-            {/* Cost Over Time Chart */}
-            <Card className="border-0 shadow-lg">
-              <div className="p-6 border-b border-[#E5E7EB]">
-                <h3 className="text-xl font-bold text-[#0F172A]">Coûts de Maintenance au Fil du Temps</h3>
-              </div>
-              <CardContent className="p-6">
-                {costOverTimeData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={costOverTimeData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                      <XAxis dataKey="date" tick={{ fill: '#64748B', fontSize: 12 }} />
-                      <YAxis tick={{ fill: '#64748B', fontSize: 12 }} />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="cout" stroke="#6366F1" strokeWidth={2} name="Coût (DJF)" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="text-center text-[#64748B] py-12">Aucune donnée disponible</p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Maintenance Type Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-lg">
-                <div className="p-6 border-b border-[#E5E7EB]">
-                  <h3 className="text-lg font-bold text-[#0F172A]">Répartition par Type</h3>
-                </div>
-                <CardContent className="p-6">
-                  {pieData.length > 0 ? (
-                    <>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <PieChart>
-                          <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={90}
-                            paddingAngle={2}
-                            dataKey="value"
-                          >
-                            {pieData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                      <div className="grid grid-cols-2 gap-3 mt-4">
-                        {pieData.map((item, idx) => (
-                          <div key={item.name} className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }}></div>
-                            <div>
-                              <p className="text-xs font-medium text-[#0F172A]">{item.name}</p>
-                              <p className="text-xs text-[#64748B]">{item.value} fois</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-center text-[#64748B] py-12">Aucune donnée</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Summary Statistics */}
-              <Card className="border-0 shadow-lg">
-                <div className="p-6 border-b border-[#E5E7EB]">
-                  <h3 className="text-lg font-bold text-[#0F172A]">Résumé de Performance</h3>
-                </div>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-white rounded-lg border border-green-200">
-                      <p className="text-sm text-[#64748B] mb-1">Coût Total de Maintenance</p>
-                      <p className="text-2xl font-bold text-green-600">{stats.totalCost.toLocaleString()} DJF</p>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-white rounded-lg border border-blue-200">
-                      <p className="text-sm text-[#64748B] mb-1">Coût Moyen par Maintenance</p>
-                      <p className="text-2xl font-bold text-blue-600">{Math.round(stats.avgCost).toLocaleString()} DJF</p>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-r from-purple-50 to-white rounded-lg border border-purple-200">
-                      <p className="text-sm text-[#64748B] mb-1">Dernière Maintenance</p>
-                      <p className="text-lg font-bold text-purple-600">
-                        {stats.lastMaintenance ? format(new Date(stats.lastMaintenance), 'dd MMM yyyy', { locale: fr }) : 'Jamais'}
-                      </p>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-r from-orange-50 to-white rounded-lg border border-orange-200">
-                      <p className="text-sm text-[#64748B] mb-1">Maintenances En Attente</p>
-                      <p className="text-2xl font-bold text-orange-600">{stats.pendingMaintenance}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          <AssetPerformanceReport 
+            asset={asset}
+            maintenanceRecords={maintenanceRecords}
+            leases={leases}
+            payments={payments}
+          />
         </TabsContent>
       </Tabs>
 
