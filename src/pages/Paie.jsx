@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge"; // NEW
-import { ArrowLeft, Plus, Calendar, Download, CreditCard, Trash2, Minus, Eye, Filter, FileText, Mail, X, Search, ChevronRight, Users, TrendingUp, DollarSign, CheckCircle2, AlertCircle } from 'lucide-react'; // NEW icons
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Plus, Calendar, Download, CreditCard, Trash2, Minus, Eye, Filter, FileText, Mail, X, Search, ChevronRight, Users, TrendingUp, DollarSign, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { format, startOfMonth, endOfMonth, addMonths } from 'date-fns';
@@ -17,7 +17,7 @@ import { calculatePayroll } from "../components/payroll/DjiboutiCalculator";
 import { generatePayslip } from "../components/payroll/PDFGenerator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion'; // NEW AnimatePresence
+import { motion, AnimatePresence } from 'framer-motion';
 import PermissionGuard, { usePermission } from "../components/permissions/PermissionGuard";
 import SignatureDialog from "../components/documents/SignatureDialog";
 import PayslipEmailModal from "../components/payroll/PayslipEmailModal";
@@ -1252,7 +1252,7 @@ export default function Paie() {
                                 <span className="font-semibold text-red-700">-{absences.toLocaleString()} DJF</span>
                               </div>
                             )}
-                            {otherDeductions > 0 && (
+                            {otherDeductions > 0 && !otherDeductionFromGross && (
                               <div className="flex justify-between items-center bg-white p-2 rounded">
                                 <div>
                                   <span className="text-amber-700 font-semibold">Autres déductions:</span>
