@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreditCard, Smartphone, Building2, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { base44 } from "@/api/base44Client";
 import { toast } from 'sonner';
+import MerasPaymentGateway from './MerasPaymentGateway';
 
 export default function PaymentGateway({ 
   isOpen, 
@@ -19,6 +21,7 @@ export default function PaymentGateway({
   entityId,
   metadata = {}
 }) {
+  const [gatewayType, setGatewayType] = useState('meras');
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [processing, setProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(null); // 'success', 'failed', null
@@ -108,6 +111,21 @@ export default function PaymentGateway({
     return v;
   };
   
+  // Use Meras if selected
+  if (gatewayType === 'meras') {
+    return (
+      <MerasPaymentGateway
+        isOpen={isOpen}
+        onClose={onClose}
+        amount={amount}
+        description={description}
+        paymentId={entityId}
+        entityType={paymentType}
+        onSuccess={onSuccess}
+      />
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-gradient-to-br from-white to-[#F7F9FC]">
@@ -116,6 +134,14 @@ export default function PaymentGateway({
             💳 Paiement Sécurisé
           </DialogTitle>
         </DialogHeader>
+
+        {/* Gateway Selection */}
+        <Tabs value={gatewayType} onValueChange={setGatewayType} className="mb-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="meras">Meras (Djibouti)</TabsTrigger>
+            <TabsTrigger value="manual">Manuel</TabsTrigger>
+          </TabsList>
+        </Tabs>
         
         {paymentStatus === 'success' ? (
           <div className="py-12 text-center">
