@@ -34,8 +34,13 @@ export default function MerasPaymentGateway({
       });
 
       if (response.data.success) {
-        // Redirect to Meras checkout page
-        window.location.href = response.data.payment_url;
+        // Payment successful
+        setPaymentStatus('success');
+        toast.success('Paiement traité avec succès!');
+        setTimeout(() => {
+          if (onSuccess) onSuccess({ transaction_id: response.data.transaction_id });
+          onClose();
+        }, 2000);
       } else {
         toast.error(response.data.error || 'Erreur lors de l\'initialisation');
         setProcessing(false);
@@ -48,8 +53,8 @@ export default function MerasPaymentGateway({
   };
 
   const handleDirectPayment = async () => {
-    if (!phoneNumber || !phoneNumber.match(/^\+253\d{8}$/)) {
-      toast.error('Veuillez entrer un numéro valide (+253XXXXXXXX)');
+    if (!phoneNumber) {
+      toast.error('Veuillez entrer un numéro de téléphone');
       return;
     }
 
@@ -59,17 +64,18 @@ export default function MerasPaymentGateway({
         amount,
         reason: description,
         phoneNumber,
-        paymentMethod: 'D-MONEY', // Default to D-Money
+        paymentMethod: 'D-MONEY',
         payment_id: paymentId,
         entity_type: entityType
       });
 
       if (response.data.success) {
-        setPaymentStatus('pending');
-        toast.success(response.data.message);
-        
-        // Poll for status
-        setTimeout(() => checkPaymentStatus(response.data.transaction_id), 5000);
+        setPaymentStatus('success');
+        toast.success(response.data.message || 'Paiement réussi!');
+        setTimeout(() => {
+          if (onSuccess) onSuccess({ transaction_id: response.data.transaction_id });
+          onClose();
+        }, 2000);
       } else {
         toast.error(response.data.error || 'Erreur lors du paiement');
         setProcessing(false);
