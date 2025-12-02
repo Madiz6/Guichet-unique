@@ -24,7 +24,10 @@ import Home from './pages/Home';
 import SecurityDocumentation from './pages/SecurityDocumentation';
 import MigrationStrategy from './pages/MigrationStrategy';
 import InvitationProcess from './pages/InvitationProcess';
-import Layout from './Layout.jsx';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailure from './pages/PaymentFailure';
+import PaymentCancelled from './pages/PaymentCancelled';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -54,10 +57,13 @@ export const PAGES = {
     "SecurityDocumentation": SecurityDocumentation,
     "MigrationStrategy": MigrationStrategy,
     "InvitationProcess": InvitationProcess,
+    "PaymentSuccess": PaymentSuccess,
+    "PaymentFailure": PaymentFailure,
+    "PaymentCancelled": PaymentCancelled,
 }
 
 export const pagesConfig = {
     mainPage: "Dashboard",
     Pages: PAGES,
-    Layout: Layout,
+    Layout: __Layout,
 };
