@@ -111,16 +111,16 @@ export default function Layout({ children, currentPageName }) {
         <Sidebar className="border-r border-[#E5E7EB] bg-white shadow-sm">
           <SidebarHeader className="border-b border-[#E5E7EB] p-6">
             <Link to={createPageUrl("Home")} className="flex items-center gap-3">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
-                alt="Paie360 Logo" 
-                className="w-10 h-10 object-contain rounded-full"
-              />
-              <div>
-                <h2 className="font-bold text-[#0A2540] text-lg">Paie360</h2>
-                <p className="text-xs text-[#697586]">Gestion RH</p>
-              </div>
-            </Link>
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
+                  alt="Paie360 Logo" 
+                  className="w-10 h-10 object-contain rounded-full"
+                />
+                <div>
+                  <h2 className="font-bold text-[#0A2540] text-lg">Paie360</h2>
+                  <p className="text-xs text-[#697586]">Powered by Meras PSP</p>
+                </div>
+              </Link>
           </SidebarHeader>
           
           <SidebarContent className="p-3">
@@ -161,7 +161,10 @@ export default function Layout({ children, currentPageName }) {
                     alt="Paie360 Logo" 
                     className="w-8 h-8 object-contain rounded-full"
                   />
-                  <h1 className="text-lg font-bold text-[#0A2540]">Paie360</h1>
+                  <div>
+                    <h1 className="text-lg font-bold text-[#0A2540]">Paie360</h1>
+                    <p className="text-[10px] text-[#697586] -mt-1">Powered by Meras PSP</p>
+                  </div>
                 </Link>
               </div>
               
@@ -205,8 +208,12 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex-1">
             {children}
           </div>
+        {/* Footer */}
+        <footer className="bg-white border-t border-[#E5E7EB] px-6 py-3 text-center">
+          <p className="text-xs text-[#697586]">© 2024 Paie360 • Powered by <span className="font-semibold text-[#6366F1]">Meras PSP</span></p>
+        </footer>
         </main>
-      </div>
-    </SidebarProvider>
-  );
-}
+        </div>
+        </SidebarProvider>
+        );
+        }
