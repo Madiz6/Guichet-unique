@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -776,7 +775,7 @@ export default function Home() {
           </div>
           
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-            <p>© 2025 Paie360. Tous droits réservés.</p>
+            <p>© 2025 Paie360. Tous droits réservés. Powered by <span className="text-indigo-400 font-semibold">Meras PSP</span></p>
             <div className="flex gap-6 mt-4 md:mt-0">
               <a href="#" className="hover:text-white transition-colors">Confidentialité</a>
               <a href="#" className="hover:text-white transition-colors">Conditions</a>

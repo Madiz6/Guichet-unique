@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -171,14 +170,16 @@ export default function Dashboard() {
                 Welcome back, {company?.nom_entreprise || 'Admin'}
               </h1>
               <p className="text-[#64748B] flex items-center gap-2">
-                <span>{company?.nom_entreprise || 'Paie360'}</span>
-                {company?.numero_affiliation && (
-                  <>
+                    <span>{company?.nom_entreprise || 'Paie360'}</span>
+                    {company?.numero_affiliation && (
+                      <>
+                        <span>•</span>
+                        <span>N° {company.numero_affiliation}</span>
+                      </>
+                    )}
                     <span>•</span>
-                    <span>N° {company.numero_affiliation}</span>
-                  </>
-                )}
-              </p>
+                    <span className="text-[#6366F1] font-medium">Powered by Meras PSP</span>
+                  </p>
             </div>
             <div className="text-right">
               <p className="text-sm text-[#64748B]">{format(new Date(), 'EEEE')}</p>
