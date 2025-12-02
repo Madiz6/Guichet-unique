@@ -33,8 +33,10 @@ export default function MerasPaymentGateway({
         entity_type: entityType
       });
 
-      if (response.data.success) {
-        // Payment successful
+      if (response.data.success && response.data.payment_url) {
+        // Redirect to Meras checkout page
+        window.location.href = response.data.payment_url;
+      } else if (response.data.success) {
         setPaymentStatus('success');
         toast.success('Paiement traité avec succès!');
         setTimeout(() => {

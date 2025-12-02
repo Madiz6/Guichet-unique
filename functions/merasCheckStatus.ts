@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
-import jose from 'npm:jose@5.2.0';
+import * as jose from 'npm:jose@5.2.0';
 
 Deno.serve(async (req) => {
   try {
