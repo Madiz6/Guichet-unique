@@ -35,12 +35,12 @@ export default function Home() {
 
   const handleGetStarted = () => {
     // Redirect to base44 authentication with Dashboard as next page
-    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+    meras.auth.redirectToLogin(createPageUrl('Dashboard'));
   };
 
   const handleLogin = () => {
     // Redirect to base44 authentication with Dashboard as next page
-    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+    meras.auth.redirectToLogin(createPageUrl('Dashboard'));
   };
 
   return (
