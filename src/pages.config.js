@@ -27,6 +27,9 @@ import InvitationProcess from './pages/InvitationProcess';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailure from './pages/PaymentFailure';
 import PaymentCancelled from './pages/PaymentCancelled';
+import MailManagement from './pages/MailManagement';
+import VirtualReceptionist from './pages/VirtualReceptionist';
+import TouristVisa from './pages/TouristVisa';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +63,9 @@ export const PAGES = {
     "PaymentSuccess": PaymentSuccess,
     "PaymentFailure": PaymentFailure,
     "PaymentCancelled": PaymentCancelled,
+    "MailManagement": MailManagement,
+    "VirtualReceptionist": VirtualReceptionist,
+    "TouristVisa": TouristVisa,
 }
 
 export const pagesConfig = {
