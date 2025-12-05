@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
-import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, GraduationCap, Star, FileSpreadsheet, Home, Shield } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -82,16 +82,6 @@ export default function Layout({ children, currentPageName }) {
       icon: Building2,
     },
     ...(isAdmin ? [
-      {
-        title: "Évaluations",
-        url: createPageUrl("PerformanceReviews"),
-        icon: Star,
-      },
-      {
-        title: "Formations",
-        url: createPageUrl("Training"),
-        icon: GraduationCap,
-      },
       {
         title: "Sécurité",
         url: createPageUrl("SecurityDocumentation"),
