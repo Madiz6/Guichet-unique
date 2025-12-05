@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
-import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -80,6 +80,21 @@ export default function Layout({ children, currentPageName }) {
       title: "Gestion de Location",
       url: createPageUrl("Leasing"),
       icon: Building2,
+    },
+    {
+      title: "Mail Management",
+      url: createPageUrl("MailManagement"),
+      icon: Mailbox,
+    },
+    {
+      title: "Virtual Receptionist",
+      url: createPageUrl("VirtualReceptionist"),
+      icon: Headphones,
+    },
+    {
+      title: "Tourist Visa",
+      url: createPageUrl("TouristVisa"),
+      icon: Plane,
     },
     ...(isAdmin ? [
       {
