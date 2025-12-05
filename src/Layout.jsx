@@ -23,7 +23,7 @@ export default function Layout({ children, currentPageName }) {
   
   const { data: user } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
+    queryFn: () => meras.auth.me(),
   });
   
   const isAdmin = user?.role === 'admin';
@@ -37,7 +37,7 @@ export default function Layout({ children, currentPageName }) {
   }
   
   const handleLogout = () => {
-    base44.auth.logout();
+    meras.auth.logout();
   };
   
   const navigationItems = [

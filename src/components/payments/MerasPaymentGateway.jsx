@@ -25,7 +25,7 @@ export default function MerasPaymentGateway({
   const handleCheckoutPayment = async () => {
     setProcessing(true);
     try {
-      const response = await base44.functions.invoke('merasInitiatePayment', {
+      const response = await meras.functions.invoke('merasInitiatePayment', {
         amount,
         reason: description,
         phoneNumber: phoneNumber || undefined,
@@ -62,7 +62,7 @@ export default function MerasPaymentGateway({
 
     setProcessing(true);
     try {
-      const response = await base44.functions.invoke('merasDirectPayment', {
+      const response = await meras.functions.invoke('merasDirectPayment', {
         amount,
         reason: description,
         phoneNumber,
@@ -91,7 +91,7 @@ export default function MerasPaymentGateway({
 
   const checkPaymentStatus = async (transactionId) => {
     try {
-      const response = await base44.functions.invoke('merasCheckStatus', {
+      const response = await meras.functions.invoke('merasCheckStatus', {
         transaction_id: transactionId
       });
 

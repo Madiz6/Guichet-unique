@@ -16,24 +16,24 @@ export default function Dashboard() {
   
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => base44.entities.Employee.list(),
+    queryFn: () => meras.entities.Employee.list(),
   });
   
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list(),
+    queryFn: () => meras.entities.Company.list(),
   });
   
   const company = companies[0] || {};
   
   const { data: cycles = [] } = useQuery({
     queryKey: ['payroll-cycles'],
-    queryFn: () => base44.entities.PayrollCycle.list('-created_date', 12),
+    queryFn: () => meras.entities.PayrollCycle.list('-created_date', 12),
   });
   
   const { data: declarations = [] } = useQuery({
     queryKey: ['declarations'],
-    queryFn: () => base44.entities.Declaration.list('-created_date', 10),
+    queryFn: () => meras.entities.Declaration.list('-created_date', 10),
   });
   
   const activeEmployees = employees.filter(e => e.statut === 'Actif');
