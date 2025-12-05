@@ -1,22 +1,42 @@
 import React from 'react';
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { meras } from "@/components/core/MerasClient";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldOff } from 'lucide-react';
+import { ShieldOff, Loader2 } from 'lucide-react';
 
 export default function PermissionGuard({ permission, children, fallback = null }) {
-  const { data: user } = useQuery({
+  const { data: user, isLoading } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
+    queryFn: () => meras.auth.me(),
   });
+  
+  // Show loading while fetching user
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0066FF]" />
+      </div>
+    );
+  }
+  
+  // If no user data yet, allow access (will be handled by auth)
+  if (!user) {
+    return <>{children}</>;
+  }
   
   // Admin has all permissions
   if (user?.role === 'admin') {
     return <>{children}</>;
   }
   
+  // If no specific permission required, allow access
+  if (!permission) {
+    return <>{children}</>;
+  }
+  
   // Check if user has the required permission
-  const hasPermission = user?.permissions?.[permission] === true;
+  // If permissions object doesn't exist, allow access by default
+  const hasPermission = !user?.permissions || user?.permissions?.[permission] === true;
   
   if (!hasPermission) {
     if (fallback) {
@@ -37,11 +57,25 @@ export default function PermissionGuard({ permission, children, fallback = null 
 }
 
 export function usePermission(permission) {
-  const { data: user } = useQuery({
+  const { data: user, isLoading } = useQuery({
     queryKey: ['current-user'],
-    queryFn: () => base44.auth.me(),
+    queryFn: () => meras.auth.me(),
   });
   
+  // While loading, return true to avoid blocking
+  if (isLoading) return true;
+  
+  // If no user, allow access
+  if (!user) return true;
+  
+  // Admin has all permissions
   if (user?.role === 'admin') return true;
+  
+  // If no specific permission required, allow
+  if (!permission) return true;
+  
+  // If permissions object doesn't exist, allow by default
+  if (!user?.permissions) return true;
+  
   return user?.permissions?.[permission] === true;
 }
