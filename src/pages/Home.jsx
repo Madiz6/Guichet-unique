@@ -25,7 +25,11 @@ import {
   Sparkles,
   ChevronRight,
   Menu,
-  X
+  X,
+  Building2,
+  Mailbox,
+  Headphones,
+  Plane
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -341,6 +345,34 @@ export default function Home() {
                 description: "Audit trail, contrôle d'accès et conformité aux standards bancaires. Vos données sont protégées.",
                 color: "from-red-500 to-pink-500",
                 benefits: ["Audit trail", "RBAC", "Cryptage SSL"]
+              },
+              {
+                icon: Building2,
+                title: "Gestion de Location",
+                description: "Gérez vos bureaux, espaces de coworking et salles de réunion. Suivi des paiements et facturation automatique.",
+                color: "from-teal-500 to-cyan-500",
+                benefits: ["Gestion des actifs", "Facturation auto", "Suivi paiements"]
+              },
+              {
+                icon: Mailbox,
+                title: "Mail Management Services",
+                description: "Utilisez notre adresse de bureau premium avec boîte postale comme adresse de correspondance. Réception, tri et stockage de tout votre courrier.",
+                color: "from-amber-500 to-orange-500",
+                benefits: ["Adresse prestigieuse", "Notification instantanée", "Réception 24/7"]
+              },
+              {
+                icon: Headphones,
+                title: "Virtual Receptionist",
+                description: "Assurez-vous que tous les appels de vos clients sont répondus. Obtenez un numéro local 04 et une équipe disponible 24/7.",
+                color: "from-pink-500 to-rose-500",
+                benefits: ["Numéro local 04", "Équipe 24/7", "Accueil personnalisé"]
+              },
+              {
+                icon: Plane,
+                title: "Tourist Visa",
+                description: "Processus de demande de visa simplifié pour Djibouti. Visa touristique 30 ou 90 jours, entrées simples ou multiples.",
+                color: "from-sky-500 to-blue-500",
+                benefits: ["Visa 30/90 jours", "Entrées multiples", "Processus rapide"]
               }
             ].map((solution, idx) => (
               <motion.div
