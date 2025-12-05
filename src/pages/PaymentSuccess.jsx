@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from "@/api/base44Client";
+import { meras } from "@/components/core/MerasClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
@@ -20,7 +20,7 @@ export default function PaymentSuccess() {
       // Verify payment status
       setTimeout(async () => {
         try {
-          const response = await base44.functions.invoke('merasCheckStatus', {
+          const response = await meras.functions.invoke('merasCheckStatus', {
             transaction_id: txnId
           });
 

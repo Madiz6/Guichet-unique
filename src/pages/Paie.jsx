@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from "@/api/base44Client";
+import { meras } from "@/components/core/MerasClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,17 +75,17 @@ export default function Paie() {
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => base44.entities.Employee.list('-created_date'),
+    queryFn: () => meras.entities.Employee.list('-created_date'),
   });
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
-    queryFn: () => base44.entities.Company.list(),
+    queryFn: () => meras.entities.Company.list(),
   });
 
   const { data: holidays = [] } = useQuery({
     queryKey: ['holidays'],
-    queryFn: () => base44.entities.Holiday.list(),
+    queryFn: () => meras.entities.Holiday.list(),
   });
 
   const company = companies[0] || {};
@@ -129,11 +129,11 @@ export default function Paie() {
 
   const { data: cycles = [] } = useQuery({
     queryKey: ['payroll-cycles'],
-    queryFn: () => base44.entities.PayrollCycle.list('-created_date'),
+    queryFn: () => meras.entities.PayrollCycle.list('-created_date'),
   });
 
   const createCycleMutation = useMutation({
-    mutationFn: (data) => base44.entities.PayrollCycle.create(data),
+    mutationFn: (data) => meras.entities.PayrollCycle.create(data),
     onSuccess: async (newCycle) => {
       queryClient.invalidateQueries(['payroll-cycles']);
 
@@ -166,7 +166,7 @@ export default function Paie() {
   });
 
   const deleteCycleMutation = useMutation({
-    mutationFn: (id) => base44.entities.PayrollCycle.delete(id),
+    mutationFn: (id) => meras.entities.PayrollCycle.delete(id),
     onSuccess: async (_, deletedId) => {
       const deletedCycle = cycles.find(c => c.id === deletedId);
 
