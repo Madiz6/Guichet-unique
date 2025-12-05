@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from "@/api/base44Client";
+import { meras } from "@/components/core/MerasClient";
 import { useQuery } from "@tanstack/react-query";
 import { Users, TrendingUp, TrendingDown, FileText, DollarSign, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
