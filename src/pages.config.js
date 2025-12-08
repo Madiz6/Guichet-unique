@@ -30,6 +30,7 @@ import PaymentCancelled from './pages/PaymentCancelled';
 import MailManagement from './pages/MailManagement';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import TouristVisa from './pages/TouristVisa';
+import CompanySetup from './pages/CompanySetup';
 import __Layout from './Layout.jsx';
 
 
@@ -66,6 +67,7 @@ export const PAGES = {
     "MailManagement": MailManagement,
     "VirtualReceptionist": VirtualReceptionist,
     "TouristVisa": TouristVisa,
+    "CompanySetup": CompanySetup,
 }
 
 export const pagesConfig = {

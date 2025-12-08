@@ -96,6 +96,11 @@ export default function Layout({ children, currentPageName }) {
       url: createPageUrl("TouristVisa"),
       icon: Plane,
     },
+    {
+      title: "Créer Entreprise",
+      url: createPageUrl("CompanySetup"),
+      icon: Building2,
+    },
     ...(isAdmin ? [
       {
         title: "Sécurité",
