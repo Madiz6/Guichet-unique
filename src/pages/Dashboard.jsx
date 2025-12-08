@@ -21,12 +21,19 @@ export default function Dashboard() {
     queryFn: () => meras.entities.Employee.list(),
   });
   
-  const { data: companies = [] } = useQuery({
+  const { data: companies = [], isLoading: loadingCompanies } = useQuery({
     queryKey: ['companies'],
     queryFn: () => meras.entities.Company.list(),
   });
   
   const company = companies[0] || {};
+
+  // Auto-open wizard for new users without company
+  React.useEffect(() => {
+    if (!loadingCompanies && companies.length === 0) {
+      setShowCompanyWizard(true);
+    }
+  }, [loadingCompanies, companies.length]);
   
   const { data: cycles = [] } = useQuery({
     queryKey: ['payroll-cycles'],
