@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
 import { useQuery } from "@tanstack/react-query";
-import { Users, TrendingUp, TrendingDown, FileText, DollarSign, ArrowRight } from 'lucide-react';
+import { Users, TrendingUp, TrendingDown, FileText, DollarSign, ArrowRight, Building2, Plus } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
@@ -10,9 +10,11 @@ import { format } from 'date-fns';
 import { calculatePayroll } from "../components/payroll/DjiboutiCalculator";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion } from 'framer-motion';
+import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
 
 export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('12M');
+  const [showCompanyWizard, setShowCompanyWizard] = useState(false);
   
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
@@ -158,6 +160,36 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <div className="p-8 max-w-[1600px] mx-auto">
+        {/* No Company Alert */}
+        {companies.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Card className="border-0 shadow-lg bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-l-amber-500">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[#0A2540]">Aucune entreprise configurée</h3>
+                      <p className="text-sm text-[#697586] mt-1">
+                        Créez votre entreprise pour commencer à utiliser la plateforme
+                      </p>
+                    </div>
+                  </div>
+                  <Button onClick={() => setShowCompanyWizard(true)} className="bg-gradient-to-r from-amber-500 to-orange-500">
+                    <Plus className="w-4 h-4 mr-2" /> Créer mon entreprise
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -476,7 +508,14 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
-    </div>
-  );
-}
+        </div>
+
+        {/* Company Creation Wizard */}
+        <CompanyCreationWizard
+        isOpen={showCompanyWizard}
+        onClose={() => setShowCompanyWizard(false)}
+        onSuccess={() => setShowCompanyWizard(false)}
+        />
+        </div>
+        );
+        }
