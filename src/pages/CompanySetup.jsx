@@ -138,120 +138,109 @@ export default function CompanySetup() {
               </motion.div>
             )}
 
-            {/* Company Overview Card */}
+            {/* Informations Générales */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="border-0 shadow-lg">
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      {company.logo_url ? (
-                        <img src={company.logo_url} alt="Logo" className="w-20 h-20 object-contain rounded-lg border-2 border-[#E8ECF2]" />
-                      ) : (
-                        <div className="w-20 h-20 bg-gradient-to-br from-[#0066FF] to-[#0052CC] rounded-lg flex items-center justify-center">
-                          <Building2 className="w-10 h-10 text-white" />
-                        </div>
-                      )}
-                      <div>
-                        <h2 className="text-2xl font-bold text-[#0A2540] mb-1">{company.nom_entreprise}</h2>
-                        <p className="text-[#697586]">{company.type_entreprise}</p>
+                  <h3 className="text-lg font-bold text-[#0A2540] mb-6 flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-[#0066FF]" />
+                    Informations Générales
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    {/* Logo Section */}
+                    <div className="lg:col-span-1">
+                      <div className="text-center">
+                        <p className="text-sm text-[#697586] mb-3">Logo de l'entreprise</p>
+                        {company.logo_url ? (
+                          <img src={company.logo_url} alt="Logo" className="w-32 h-32 object-contain mx-auto rounded-lg border-2 border-[#E8ECF2] bg-white p-2" />
+                        ) : (
+                          <div className="w-32 h-32 mx-auto bg-gradient-to-br from-[#0066FF] to-[#0052CC] rounded-lg flex items-center justify-center">
+                            <Building2 className="w-16 h-16 text-white" />
+                          </div>
+                        )}
+                        <p className="text-xs text-[#697586] mt-2">PNG, JPG jusqu'à 5MB</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span className="text-sm font-medium text-green-600">Actif</span>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
-                      <FileText className="w-6 h-6 text-blue-600 mb-2" />
-                      <p className="text-sm text-blue-900 font-semibold">NIF</p>
-                      <p className="text-xs text-blue-700">{company.nif}</p>
-                    </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
-                      <Users className="w-6 h-6 text-purple-600 mb-2" />
-                      <p className="text-sm text-purple-900 font-semibold">CNSS</p>
-                      <p className="text-xs text-purple-700">{company.numero_affiliation}</p>
-                    </div>
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4">
-                      <Calendar className="w-6 h-6 text-green-600 mb-2" />
-                      <p className="text-sm text-green-900 font-semibold">Création</p>
-                      <p className="text-xs text-green-700">{company.date_creation ? format(new Date(company.date_creation), 'dd/MM/yyyy') : '-'}</p>
-                    </div>
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4">
-                      <Users className="w-6 h-6 text-orange-600 mb-2" />
-                      <p className="text-sm text-orange-900 font-semibold">Assurés</p>
-                      <p className="text-xs text-orange-700">{company.nombre_assures || 0}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                    {/* Company Details */}
+                    <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Nom de l'entreprise *</p>
+                        <p className="font-semibold text-[#0A2540]">{company.nom_entreprise}</p>
+                      </div>
 
-            {/* Contact Information Card */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="border-0 shadow-lg">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-[#0A2540] mb-4 flex items-center gap-2">
-                    <Mail className="w-5 h-5 text-[#0066FF]" />
-                    Coordonnées
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-start gap-3 p-4 bg-[#F7F9FC] rounded-lg">
-                      <Mail className="w-5 h-5 text-[#0066FF] mt-0.5" />
-                      <div>
-                        <p className="text-sm text-[#697586] mb-1">Email</p>
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Type *</p>
+                        <p className="font-semibold text-[#0A2540]">{company.type_entreprise}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">N° d'affiliation CNSS *</p>
+                        <p className="font-semibold text-[#0A2540]">{company.numero_affiliation}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">NIF *</p>
+                        <p className="font-semibold text-[#0A2540]">{company.nif}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">N° d'immatriculation au registre de commerce</p>
+                        <p className="font-semibold text-[#0A2540]">{company.numero_registre_commerce || '-'}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Raison sociale</p>
+                        <p className="font-semibold text-[#0A2540]">{company.raison_sociale || company.nom_entreprise}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg md:col-span-2">
+                        <p className="text-xs text-[#697586] mb-1">Adresse</p>
+                        <p className="font-semibold text-[#0A2540]">{company.adresse || '-'}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Activité</p>
+                        <p className="font-semibold text-[#0A2540]">{company.activite || '-'}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Sous-Activité</p>
+                        <p className="font-semibold text-[#0A2540]">{company.sous_activite || '-'}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Nombre d'assurés</p>
+                        <p className="font-semibold text-[#0A2540]">{company.nombre_assures || 0}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Date d'affiliation</p>
+                        <p className="font-semibold text-[#0A2540]">{company.date_affiliation ? format(new Date(company.date_affiliation), 'dd/MM/yyyy') : '-'}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Date de création</p>
+                        <p className="font-semibold text-[#0A2540]">{company.date_creation ? format(new Date(company.date_creation), 'dd/MM/yyyy') : '-'}</p>
+                      </div>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Email</p>
                         <p className="font-semibold text-[#0A2540]">{company.email || '-'}</p>
                       </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-4 bg-[#F7F9FC] rounded-lg">
-                      <Phone className="w-5 h-5 text-[#0066FF] mt-0.5" />
-                      <div>
-                        <p className="text-sm text-[#697586] mb-1">Téléphone</p>
+
+                      <div className="p-3 bg-[#F7F9FC] rounded-lg">
+                        <p className="text-xs text-[#697586] mb-1">Téléphone</p>
                         <p className="font-semibold text-[#0A2540]">{company.telephone || '-'}</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3 p-4 bg-[#F7F9FC] rounded-lg md:col-span-2">
-                      <MapPin className="w-5 h-5 text-[#0066FF] mt-0.5" />
-                      <div>
-                        <p className="text-sm text-[#697586] mb-1">Adresse</p>
-                        <p className="font-semibold text-[#0A2540]">{company.adresse || '-'}</p>
-                      </div>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* Business Information Card */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Card className="border-0 shadow-lg">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-[#0A2540] mb-4 flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-[#0066FF]" />
-                    Informations d'Activité
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-[#F7F9FC] rounded-lg">
-                      <p className="text-sm text-[#697586] mb-1">Activité Principale</p>
-                      <p className="font-semibold text-[#0A2540]">{company.activite || '-'}</p>
-                    </div>
-                    <div className="p-4 bg-[#F7F9FC] rounded-lg">
-                      <p className="text-sm text-[#697586] mb-1">Sous-Activité</p>
-                      <p className="font-semibold text-[#0A2540]">{company.sous_activite || '-'}</p>
-                    </div>
-                    <div className="p-4 bg-[#F7F9FC] rounded-lg">
-                      <p className="text-sm text-[#697586] mb-1">Raison Sociale</p>
-                      <p className="font-semibold text-[#0A2540]">{company.raison_sociale || company.nom_entreprise}</p>
-                    </div>
-                    <div className="p-4 bg-[#F7F9FC] rounded-lg">
-                      <p className="text-sm text-[#697586] mb-1">Date d'Affiliation CNSS</p>
-                      <p className="font-semibold text-[#0A2540]">{company.date_affiliation ? format(new Date(company.date_affiliation), 'dd/MM/yyyy') : '-'}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+
 
             {/* Documents Card */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>

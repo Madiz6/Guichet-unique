@@ -97,7 +97,7 @@ export default function Layout({ children, currentPageName }) {
       icon: Plane,
     },
     {
-      title: "Créer Entreprise",
+      title: "Portail d'Entreprise",
       url: createPageUrl("CompanySetup"),
       icon: Building2,
     },
