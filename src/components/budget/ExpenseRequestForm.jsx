@@ -143,14 +143,18 @@ export default function ExpenseRequestForm({ isOpen, onClose, budgets, departmen
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Département *</Label>
-              <Select value={formData.department_id} onValueChange={handleDepartmentChange}>
+              <Select value={formData.department_id || undefined} onValueChange={handleDepartmentChange}>
                 <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Sélectionner..." />
+                  <SelectValue placeholder="Sélectionner un département..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {departments.map(dept => (
-                    <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                  ))}
+                  {departments?.length > 0 ? (
+                    departments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-dept" disabled>Aucun département disponible</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
