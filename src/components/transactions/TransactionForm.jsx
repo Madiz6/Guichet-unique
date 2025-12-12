@@ -8,10 +8,53 @@ import { Textarea } from "@/components/ui/textarea";
 import { Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
+const DEPARTMENTS = [
+  'Sales / Business Development',
+  'Marketing / Communications',
+  'Operations / Production',
+  'Finance / Accounting',
+  'Human Resources (HR)',
+  'IT / Technology',
+  'Customer Service / Support',
+  'Legal / Compliance',
+  'Research & Development (R&D)',
+  'Procurement / Supply Chain',
+  'Administration / Office Management',
+  'Executive / Management'
+];
+
+const INCOME_CATEGORIES = [
+  'Product Sales / Services Revenue',
+  'Subscription Income / Recurring Revenue',
+  'Interest Income',
+  'Investment Income / Dividends',
+  'Grants / Sponsorships',
+  'Refunds / Returns from Suppliers',
+  'Other Miscellaneous Income'
+];
+
+const EXPENSE_CATEGORIES = [
+  'Payroll & Benefits',
+  'Office & Administrative',
+  'Marketing & Advertising',
+  'Travel & Entertainment',
+  'IT / Software / Tools',
+  'Professional Services',
+  'Training & Development',
+  'Procurement / Inventory',
+  'Maintenance & Repairs',
+  'Taxes & Regulatory Fees',
+  'Insurance',
+  'Depreciation & Amortization',
+  'Bank Charges & Interest',
+  'Miscellaneous Expenses'
+];
+
 export default function TransactionForm({ transaction, onSubmit, onCancel, departments }) {
   const [formData, setFormData] = useState(transaction || {
     date: new Date().toISOString().split('T')[0],
     description: '',
+    contact_name: '',
     amount: '',
     type: 'Dépense',
     category: '',
@@ -21,6 +64,8 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     attachments: []
   });
   const [uploading, setUploading] = useState(false);
+
+  const availableCategories = formData.type === 'Revenu' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -100,6 +145,16 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
           onChange={(e) => setFormData({...formData, description: e.target.value})}
           placeholder="Ex: Paiement client, Achat fournitures..."
           required
+          className="mt-2"
+        />
+      </div>
+
+      <div>
+        <Label>{formData.type === 'Revenu' ? 'Nom du Client' : 'Nom du Fournisseur'}</Label>
+        <Input
+          value={formData.contact_name}
+          onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
+          placeholder={formData.type === 'Revenu' ? 'Ex: ABC Company' : 'Ex: XYZ Supplies'}
           className="mt-2"
         />
       </div>

@@ -288,6 +288,7 @@ export default function Transactions() {
                     <tr className="border-b border-[#E8ECF2]">
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Date</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Description</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Contact</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Montant</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Type</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Catégorie</th>
@@ -319,6 +320,9 @@ export default function Transactions() {
                                 </Badge>
                               )}
                             </div>
+                          </td>
+                          <td className="py-4 px-4 text-sm text-[#475569]">
+                            {transaction.contact_name || '-'}
                           </td>
                           <td className="py-4 px-4">
                             <span className={`font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>

@@ -170,6 +170,15 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                 <p className="text-[#0A2540]">{transaction.description}</p>
               </div>
 
+              {transaction.contact_name && (
+                <div>
+                  <p className="text-sm text-[#697586] mb-1">
+                    {transaction.type === 'Revenu' ? 'Client' : 'Fournisseur'}
+                  </p>
+                  <p className="text-[#0A2540] font-medium">{transaction.contact_name}</p>
+                </div>
+              )}
+
               {transaction.category && (
                 <div>
                   <p className="text-sm text-[#697586] mb-1">Catégorie</p>
