@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { X, Edit2, Trash2, Download, FileText, Image as ImageIcon } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { X, Edit2, Trash2, Download, FileText, Image as ImageIcon, CreditCard, Calendar, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TransactionDetailDrawer({ transaction, onClose, onUpdate, onDelete, departments, categories }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -21,35 +22,62 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ x: '100%' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100%' }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="fixed right-0 top-0 h-full w-[600px] bg-white shadow-2xl z-50 flex flex-col border-l border-[#E8ECF2]"
-      >
-        <div className="p-6 border-b border-[#E8ECF2] flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-[#0A2540]">Détails de la Transaction</h2>
-          <div className="flex gap-2">
-            {!isEditing && (
-              <>
-                <Button variant="outline" size="icon" onClick={() => setIsEditing(true)}>
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={() => onDelete(transaction.id)} className="text-red-600 hover:bg-red-50">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </>
-            )}
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <div className="p-6 border-b border-[#E8ECF2]">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-[#0A2540]">Transaction Details</h2>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="w-5 h-5" />
             </Button>
           </div>
+
+          {/* Account Info */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#0A2540] flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-xs text-[#697586]">Account</p>
+                <p className="font-semibold text-[#0A2540]">{transaction.payment_method || 'Cash'}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-[#697586]">
+                {transaction.date && format(new Date(transaction.date), 'M/d/yyyy, hh:mm a')}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {isEditing ? (
+        {/* Amount Section */}
+        <div className="px-6 py-4 bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className={`text-4xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-[#0A2540]'}`}>
+                {transaction.type === 'Revenu' ? '+' : '-'}{transaction.amount?.toLocaleString()} DJF
+              </p>
+              <p className="text-sm text-[#697586] mt-1">{transaction.category || 'Uncategorized'}</p>
+            </div>
+            <Badge className="bg-green-100 text-green-700 border-0">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Complete
+            </Badge>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="max-h-[400px] overflow-y-auto">
+        <Tabs defaultValue="payment" className="px-6 py-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="payment">Payment Information</TabsTrigger>
+            <TabsTrigger value="events">Events</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="payment" className="space-y-4 mt-4">
+            {isEditing ? (
             <>
               <div>
                 <Label>Date</Label>
@@ -144,108 +172,108 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                 />
               </div>
             </>
-          ) : (
-            <>
-              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                <div>
-                  <p className="text-sm text-[#697586]">Montant</p>
-                  <p className={`text-3xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>
-                    {transaction.type === 'Revenu' ? '+' : '-'}{transaction.amount?.toLocaleString()} DJF
-                  </p>
+            ) : (
+              <>
+                {/* Description */}
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-[#697586]">Description</p>
+                  <p className="text-sm text-[#0A2540]">{transaction.description}</p>
                 </div>
-                <Badge className={transaction.type === 'Revenu' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
-                  {transaction.type}
-                </Badge>
-              </div>
 
-              <div>
-                <p className="text-sm text-[#697586] mb-1">Date</p>
-                <p className="text-[#0A2540] font-semibold">
-                  {transaction.date && format(new Date(transaction.date), 'dd MMMM yyyy')}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-[#697586] mb-1">Description</p>
-                <p className="text-[#0A2540]">{transaction.description}</p>
-              </div>
-
-              {transaction.contact_name && (
-                <div>
-                  <p className="text-sm text-[#697586] mb-1">
-                    {transaction.type === 'Revenu' ? 'Client' : 'Fournisseur'}
-                  </p>
-                  <p className="text-[#0A2540] font-medium">{transaction.contact_name}</p>
-                </div>
-              )}
-
-              {transaction.category && (
-                <div>
-                  <p className="text-sm text-[#697586] mb-1">Catégorie</p>
-                  <Badge variant="outline">{transaction.category}</Badge>
-                </div>
-              )}
-
-              {transaction.department && (
-                <div>
-                  <p className="text-sm text-[#697586] mb-1">Département</p>
-                  <Badge variant="outline">{transaction.department}</Badge>
-                </div>
-              )}
-
-              {transaction.payment_method && (
-                <div>
-                  <p className="text-sm text-[#697586] mb-1">Méthode de paiement</p>
-                  <p className="text-[#0A2540]">{transaction.payment_method}</p>
-                </div>
-              )}
-
-              {transaction.notes && (
-                <div>
-                  <p className="text-sm text-[#697586] mb-1">Notes</p>
-                  <p className="text-[#0A2540]">{transaction.notes}</p>
-                </div>
-              )}
-
-              {transaction.attachments?.length > 0 && (
-                <div>
-                  <p className="text-sm text-[#697586] mb-2">Pièces jointes ({transaction.attachments.length})</p>
-                  <div className="space-y-2">
-                    {transaction.attachments.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-[#F7F9FC] rounded-lg">
-                        <div className="flex items-center gap-2">
-                          {file.type?.startsWith('image/') ? (
-                            <ImageIcon className="w-5 h-5 text-blue-600" />
-                          ) : (
-                            <FileText className="w-5 h-5 text-gray-600" />
-                          )}
-                          <span className="text-sm text-[#0A2540]">{file.name}</span>
-                        </div>
-                        <a href={file.url} target="_blank" rel="noopener noreferrer">
-                          <Button size="sm" variant="ghost">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </a>
-                      </div>
-                    ))}
+                {/* Contact */}
+                {transaction.contact_name && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-[#697586]">
+                      {transaction.type === 'Revenu' ? 'Client' : 'Supplier'}
+                    </p>
+                    <p className="text-sm text-[#0A2540] font-medium">{transaction.contact_name}</p>
                   </div>
+                )}
+
+                {/* Type/Category */}
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-[#697586]">Type</p>
+                  <p className="text-sm text-[#0A2540]">{transaction.category || 'Uncategorized'}</p>
                 </div>
-              )}
-            </>
-          )}
-        </div>
+
+                {/* Department */}
+                {transaction.department && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-[#697586]">Department</p>
+                    <p className="text-sm text-[#0A2540]">{transaction.department}</p>
+                  </div>
+                )}
+
+                {/* Notes */}
+                {transaction.notes && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-[#697586]">Notes</p>
+                    <p className="text-sm text-[#697586]">{transaction.notes}</p>
+                  </div>
+                )}
+
+                {/* Receipts */}
+                {transaction.attachments?.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-[#697586]">Receipts</p>
+                      <p className="text-xs text-[#697586]">Upload or text us a photo</p>
+                    </div>
+                    <div className="flex gap-3">
+                      {transaction.attachments.map((file, index) => (
+                        <a key={index} href={file.url} target="_blank" rel="noopener noreferrer">
+                          {file.type?.startsWith('image/') ? (
+                            <div className="w-20 h-24 rounded-lg border-2 border-[#E8ECF2] overflow-hidden hover:border-[#0066FF] transition-colors">
+                              <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
+                            </div>
+                          ) : (
+                            <div className="w-20 h-24 rounded-lg border-2 border-[#E8ECF2] flex items-center justify-center hover:border-[#0066FF] transition-colors">
+                              <FileText className="w-8 h-8 text-[#697586]" />
+                            </div>
+                          )}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                {!isEditing && (
+                  <div className="flex gap-2 pt-4 border-t border-[#E8ECF2]">
+                    <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="flex-1">
+                      <Edit2 className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => onDelete(transaction.id)} className="flex-1 text-red-600 hover:bg-red-50">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="events" className="mt-4">
+            <div className="text-center py-8 text-[#697586]">
+              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No events recorded</p>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {isEditing && (
-          <div className="p-6 border-t border-[#E8ECF2] flex gap-3">
+          <div className="px-6 py-4 border-t border-[#E8ECF2] flex gap-3">
             <Button variant="outline" onClick={() => { setIsEditing(false); setEditData(transaction); }} className="flex-1">
-              Annuler
+              Cancel
             </Button>
             <Button onClick={handleSave} className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC]">
-              Enregistrer
+              Save Changes
             </Button>
           </div>
         )}
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
