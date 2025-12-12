@@ -10,11 +10,21 @@ import { X, Edit2, Trash2, Download, FileText, Image as ImageIcon, CreditCard, C
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function TransactionDetailDrawer({ transaction, onClose, onUpdate, onDelete, departments, categories }) {
+export default function TransactionDetailDrawer({ transaction, onClose, onUpdate, onDelete, departments, categories, budgets = [] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(transaction);
 
   if (!transaction) return null;
+
+  // Find relevant budget for this transaction
+  const relevantBudget = budgets.find(b => 
+    b.department_name === transaction.department || 
+    b.categories_allowed?.includes(transaction.category)
+  );
+
+  const budgetRemaining = relevantBudget 
+    ? relevantBudget.amount_available || (relevantBudget.amount_allocated - relevantBudget.amount_used - relevantBudget.amount_committed)
+    : null;
 
   const handleSave = () => {
     onUpdate(editData);
@@ -265,6 +275,66 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                     </div>
                   )}
                 </div>
+
+                {/* Budget Information */}
+                {transaction.type === 'Dépense' && relevantBudget && (
+                  <div className="p-4 bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F5] border border-[#E5E7EB] rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-[#1A1A1A] uppercase tracking-wide">Budget Information</p>
+                      <Badge variant="outline" className="text-xs font-normal">
+                        {relevantBudget.department_name}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <p className="text-xs text-[#6B6B6B] mb-1">Alloué</p>
+                        <p className="text-sm font-semibold text-[#1A1A1A]">
+                          {relevantBudget.amount_allocated?.toLocaleString()} DJF
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#6B6B6B] mb-1">Utilisé</p>
+                        <p className="text-sm font-semibold text-[#1A1A1A]">
+                          {relevantBudget.amount_used?.toLocaleString()} DJF
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#6B6B6B] mb-1">Disponible</p>
+                        <p className={`text-sm font-semibold ${
+                          budgetRemaining < relevantBudget.amount_allocated * 0.2 
+                            ? 'text-red-600' 
+                            : budgetRemaining < relevantBudget.amount_allocated * 0.5 
+                            ? 'text-amber-600' 
+                            : 'text-green-600'
+                        }`}>
+                          {budgetRemaining?.toLocaleString()} DJF
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <div className="flex items-center justify-between mb-1 text-xs">
+                        <span className="text-[#6B6B6B]">Utilisation</span>
+                        <span className="font-medium text-[#1A1A1A]">
+                          {((relevantBudget.amount_used / relevantBudget.amount_allocated) * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className={`h-1.5 rounded-full transition-all ${
+                            (relevantBudget.amount_used / relevantBudget.amount_allocated) >= 0.8
+                              ? 'bg-red-500'
+                              : (relevantBudget.amount_used / relevantBudget.amount_allocated) >= 0.5
+                              ? 'bg-amber-500'
+                              : 'bg-green-500'
+                          }`}
+                          style={{ width: `${Math.min((relevantBudget.amount_used / relevantBudget.amount_allocated) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Notes */}
                 {transaction.notes && (

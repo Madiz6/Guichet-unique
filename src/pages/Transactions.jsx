@@ -49,6 +49,11 @@ export default function Transactions() {
     queryFn: () => meras.entities.Employee.list(),
   });
 
+  const { data: budgets = [] } = useQuery({
+    queryKey: ['budgets'],
+    queryFn: () => meras.entities.Budget.list(),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => meras.entities.Transaction.create(data),
     onSuccess: () => {
