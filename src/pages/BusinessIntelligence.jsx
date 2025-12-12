@@ -22,49 +22,58 @@ export default function BusinessIntelligence() {
   const [filterSource, setFilterSource] = useState('all');
 
   // Fetch all data
-  const { data: transactions = [] } = useQuery({
+  const { data: transactions = [], refetch: refetchTransactions } = useQuery({
     queryKey: ['transactions'],
     queryFn: () => meras.entities.Transaction.list('-date'),
+    refetchInterval: 5000,
   });
 
-  const { data: employees = [] } = useQuery({
+  const { data: employees = [], refetch: refetchEmployees } = useQuery({
     queryKey: ['employees'],
     queryFn: () => meras.entities.Employee.list(),
+    refetchInterval: 5000,
   });
 
-  const { data: cycles = [] } = useQuery({
+  const { data: cycles = [], refetch: refetchCycles } = useQuery({
     queryKey: ['payroll-cycles'],
     queryFn: () => meras.entities.PayrollCycle.list('-created_date', 24),
+    refetchInterval: 5000,
   });
 
-  const { data: declarations = [] } = useQuery({
+  const { data: declarations = [], refetch: refetchDeclarations } = useQuery({
     queryKey: ['declarations'],
     queryFn: () => meras.entities.Declaration.list('-created_date'),
+    refetchInterval: 5000,
   });
 
-  const { data: budgets = [] } = useQuery({
+  const { data: budgets = [], refetch: refetchBudgets } = useQuery({
     queryKey: ['budgets'],
     queryFn: () => meras.entities.Budget.list(),
+    refetchInterval: 5000,
   });
 
-  const { data: expenseRequests = [] } = useQuery({
+  const { data: expenseRequests = [], refetch: refetchExpenseRequests } = useQuery({
     queryKey: ['expense-requests'],
     queryFn: () => meras.entities.ExpenseRequest.list(),
+    refetchInterval: 5000,
   });
 
-  const { data: leases = [] } = useQuery({
+  const { data: leases = [], refetch: refetchLeases } = useQuery({
     queryKey: ['leases'],
     queryFn: () => meras.entities.Lease.list(),
+    refetchInterval: 5000,
   });
 
-  const { data: leasePayments = [] } = useQuery({
+  const { data: leasePayments = [], refetch: refetchLeasePayments } = useQuery({
     queryKey: ['lease-payments'],
     queryFn: () => meras.entities.LeasePayment.list(),
+    refetchInterval: 5000,
   });
 
-  const { data: companies = [] } = useQuery({
+  const { data: companies = [], refetch: refetchCompanies } = useQuery({
     queryKey: ['companies'],
     queryFn: () => meras.entities.Company.list(),
+    refetchInterval: 5000,
   });
 
   const company = companies[0] || {};
