@@ -33,6 +33,8 @@ import TouristVisa from './pages/TouristVisa';
 import CompanySetup from './pages/CompanySetup';
 import AutresServices from './pages/AutresServices';
 import Transactions from './pages/Transactions';
+import Contacts from './pages/Contacts';
+import RapportsFinanciers from './pages/RapportsFinanciers';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +74,8 @@ export const PAGES = {
     "CompanySetup": CompanySetup,
     "AutresServices": AutresServices,
     "Transactions": Transactions,
+    "Contacts": Contacts,
+    "RapportsFinanciers": RapportsFinanciers,
 }
 
 export const pagesConfig = {
