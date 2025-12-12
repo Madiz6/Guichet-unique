@@ -146,6 +146,133 @@ export default function BudgetOverview({ budgets, departments, expenseRequests }
           </CardContent>
         </Card>
       )}
+
+      {/* Budget Details Modal */}
+      {selectedBudget && (
+        <Dialog open={!!selectedBudget} onOpenChange={() => setSelectedBudget(null)}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Détails du Budget - {selectedBudget.department_name}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Budget Summary */}
+              <div className="grid grid-cols-3 gap-4">
+                <Card className="border border-green-200 bg-green-50">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-green-600 font-medium mb-1">Utilisé</p>
+                    <p className="text-2xl font-bold text-green-700">
+                      {selectedBudget.amount_used?.toLocaleString()} DJF
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="border border-blue-200 bg-blue-50">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-blue-600 font-medium mb-1">Engagé</p>
+                    <p className="text-2xl font-bold text-blue-700">
+                      {selectedBudget.amount_committed?.toLocaleString()} DJF
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="border border-gray-200 bg-gray-50">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-gray-600 font-medium mb-1">Disponible</p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {(selectedBudget.amount_available || 0)?.toLocaleString()} DJF
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Expense Requests Table */}
+              <div>
+                <h3 className="font-semibold text-[#0A2540] mb-4">Toutes les Demandes de Dépenses</h3>
+                <div className="border border-[#E8ECF2] rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-[#F7F9FC]">
+                        <TableHead>N° Demande</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Demandeur</TableHead>
+                        <TableHead>Montant</TableHead>
+                        <TableHead>Catégorie</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Approbateur</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {expenseRequests
+                        .filter(req => req.budget_id === selectedBudget.id)
+                        .map(request => (
+                          <TableRow key={request.id} className="hover:bg-[#F7F9FC]">
+                            <TableCell className="font-mono text-sm">{request.request_number}</TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium text-[#0A2540]">{request.description}</p>
+                                {request.contact_name && (
+                                  <p className="text-xs text-[#697586]">{request.contact_name}</p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium text-[#0A2540]">{request.requester_name}</p>
+                                <p className="text-xs text-[#697586]">{request.requested_by}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-semibold text-[#0A2540]">
+                              {request.amount_requested?.toLocaleString()} DJF
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{request.category}</Badge>
+                            </TableCell>
+                            <TableCell className="text-sm text-[#697586]">
+                              {request.date_requested}
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={
+                                request.status === 'Approuvée' ? 'bg-green-100 text-green-700' :
+                                request.status === 'Rejetée' ? 'bg-red-100 text-red-700' :
+                                request.status === 'Exécutée' ? 'bg-blue-100 text-blue-700' :
+                                'bg-amber-100 text-amber-700'
+                              }>
+                                {request.status === 'Approuvée' && <CheckCircle className="w-3 h-3 mr-1 inline" />}
+                                {request.status === 'Rejetée' && <XCircle className="w-3 h-3 mr-1 inline" />}
+                                {request.status === 'En attente' && <Clock className="w-3 h-3 mr-1 inline" />}
+                                {request.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {request.approver_name ? (
+                                <div>
+                                  <p className="font-medium text-[#0A2540]">{request.approver_name}</p>
+                                  <p className="text-xs text-[#697586]">{request.approved_by}</p>
+                                  {request.date_approved && (
+                                    <p className="text-xs text-[#697586]">{request.date_approved}</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-[#697586] text-sm">En attente</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      {expenseRequests.filter(req => req.budget_id === selectedBudget.id).length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center py-8 text-[#697586]">
+                            Aucune demande de dépense pour ce budget
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
