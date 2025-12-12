@@ -102,6 +102,34 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     setFormData({ ...formData, attachments: newAttachments });
   };
 
+  const calculateTax = (amount, taxRate) => {
+    const amt = parseFloat(amount) || 0;
+    const rate = parseFloat(taxRate) || 0;
+    const taxAmount = (amt * rate) / 100;
+    const totalAmount = amt + taxAmount;
+    return { taxAmount, totalAmount };
+  };
+
+  const handleAmountChange = (value) => {
+    const { taxAmount, totalAmount } = calculateTax(value, formData.tax_rate);
+    setFormData({
+      ...formData,
+      amount: value,
+      tax_amount: taxAmount.toFixed(2),
+      total_amount: totalAmount.toFixed(2)
+    });
+  };
+
+  const handleTaxRateChange = (value) => {
+    const { taxAmount, totalAmount } = calculateTax(formData.amount, value);
+    setFormData({
+      ...formData,
+      tax_rate: value,
+      tax_amount: taxAmount.toFixed(2),
+      total_amount: totalAmount.toFixed(2)
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.description || !formData.amount) {
