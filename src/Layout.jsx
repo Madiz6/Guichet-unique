@@ -82,19 +82,9 @@ export default function Layout({ children, currentPageName }) {
       icon: Building2,
     },
     {
-      title: "Mail Management",
-      url: createPageUrl("MailManagement"),
-      icon: Mailbox,
-    },
-    {
-      title: "Virtual Receptionist",
-      url: createPageUrl("VirtualReceptionist"),
+      title: "Autres Services",
+      url: createPageUrl("AutresServices"),
       icon: Headphones,
-    },
-    {
-      title: "Tourist Visa",
-      url: createPageUrl("TouristVisa"),
-      icon: Plane,
     },
     {
       title: "Portail d'Entreprise",

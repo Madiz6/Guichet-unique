@@ -31,6 +31,7 @@ import MailManagement from './pages/MailManagement';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import TouristVisa from './pages/TouristVisa';
 import CompanySetup from './pages/CompanySetup';
+import AutresServices from './pages/AutresServices';
 import __Layout from './Layout.jsx';
 
 
@@ -68,6 +69,7 @@ export const PAGES = {
     "VirtualReceptionist": VirtualReceptionist,
     "TouristVisa": TouristVisa,
     "CompanySetup": CompanySetup,
+    "AutresServices": AutresServices,
 }
 
 export const pagesConfig = {
