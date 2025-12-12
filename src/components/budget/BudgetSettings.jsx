@@ -297,7 +297,7 @@ function BudgetFormDialog({ isOpen, onClose, budget, departments, onSubmit }) {
                 onValueChange={(value) => setFormData({ ...formData, department_id: value })}
               >
                 <SelectTrigger className="mt-2">
-                  <SelectValue />
+                  <SelectValue placeholder="Sélectionner un département..." />
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map(dept => (
