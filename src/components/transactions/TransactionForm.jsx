@@ -56,6 +56,9 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     description: '',
     contact_name: '',
     amount: '',
+    tax_rate: '',
+    tax_amount: '',
+    total_amount: '',
     type: 'Dépense',
     category: '',
     department: '',
@@ -107,7 +110,10 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     }
     onSubmit({
       ...formData,
-      amount: parseFloat(formData.amount)
+      amount: parseFloat(formData.amount),
+      tax_rate: parseFloat(formData.tax_rate) || 0,
+      tax_amount: parseFloat(formData.tax_amount) || 0,
+      total_amount: parseFloat(formData.total_amount) || parseFloat(formData.amount)
     });
   };
 
@@ -161,32 +167,67 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label>Montant (DJF) *</Label>
+          <Label>Montant HT (DJF) *</Label>
           <Input
             type="number"
             step="0.01"
             value={formData.amount}
-            onChange={(e) => setFormData({...formData, amount: e.target.value})}
+            onChange={(e) => handleAmountChange(e.target.value)}
             placeholder="0.00"
             required
             className="mt-2"
           />
         </div>
         <div>
-          <Label>Méthode de paiement</Label>
-          <Select value={formData.payment_method} onValueChange={(value) => setFormData({...formData, payment_method: value})}>
-            <SelectTrigger className="mt-2">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Espèces">Espèces</SelectItem>
-              <SelectItem value="Chèque">Chèque</SelectItem>
-              <SelectItem value="Virement">Virement</SelectItem>
-              <SelectItem value="Carte bancaire">Carte bancaire</SelectItem>
-              <SelectItem value="Mobile Money">Mobile Money</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label>Taux de TVA (%)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.tax_rate}
+            onChange={(e) => handleTaxRateChange(e.target.value)}
+            placeholder="0"
+            className="mt-2"
+          />
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Montant TVA (DJF)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.tax_amount}
+            readOnly
+            className="mt-2 bg-gray-50"
+          />
+        </div>
+        <div>
+          <Label>Montant Total TTC (DJF)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.total_amount}
+            readOnly
+            className="mt-2 bg-gray-50 font-semibold"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label>Méthode de paiement</Label>
+        <Select value={formData.payment_method} onValueChange={(value) => setFormData({...formData, payment_method: value})}>
+          <SelectTrigger className="mt-2">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Espèces">Espèces</SelectItem>
+            <SelectItem value="Chèque">Chèque</SelectItem>
+            <SelectItem value="Virement">Virement</SelectItem>
+            <SelectItem value="Carte bancaire">Carte bancaire</SelectItem>
+            <SelectItem value="Mobile Money">Mobile Money</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

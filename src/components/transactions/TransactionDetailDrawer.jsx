@@ -226,11 +226,11 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
 
                 {/* Amount Details */}
                 <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
-                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Amount</p>
-                      <p className={`text-xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>
-                        {transaction.type === 'Revenu' ? '+' : '-'}{transaction.amount?.toLocaleString()} DJF
+                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Montant HT</p>
+                      <p className="text-lg font-semibold text-[#0A2540]">
+                        {transaction.amount?.toLocaleString()} DJF
                       </p>
                     </div>
                     <div>
@@ -240,6 +240,30 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                       </p>
                     </div>
                   </div>
+                  {transaction.tax_rate > 0 && (
+                    <div className="pt-3 border-t border-blue-200">
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div>
+                          <p className="text-[#697586]">TVA ({transaction.tax_rate}%)</p>
+                          <p className="font-semibold text-[#0A2540]">{transaction.tax_amount?.toLocaleString()} DJF</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-[#697586]">Total TTC</p>
+                          <p className={`text-lg font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>
+                            {transaction.type === 'Revenu' ? '+' : '-'}{transaction.total_amount?.toLocaleString() || transaction.amount?.toLocaleString()} DJF
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {(!transaction.tax_rate || transaction.tax_rate === 0) && (
+                    <div className="pt-2 border-t border-blue-200">
+                      <p className="text-xs text-[#697586]">Total</p>
+                      <p className={`text-xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>
+                        {transaction.type === 'Revenu' ? '+' : '-'}{transaction.amount?.toLocaleString()} DJF
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Notes */}
