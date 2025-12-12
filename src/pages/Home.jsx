@@ -172,109 +172,167 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-indigo-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="relative pt-32 pb-20 px-6 lg:px-8 overflow-hidden" style={{
+        backgroundImage: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%)',
+      }}>
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMCAyYy0yLjIxIDAtNCAxLjc5LTQgNHMxLjc5IDQgNCA0IDQtMS43OSA0LTQtMS43OS00LTQtNHoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ii8+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 rounded-full mb-6">
-                <Sparkles className="w-4 h-4 text-indigo-600" />
-                <span className="text-sm font-semibold text-indigo-600">Solution RH 100% Djiboutienne</span>
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full mb-8">
+                <Sparkles className="w-4 h-4 text-white" />
+                <span className="text-sm font-semibold text-white">Solution RH 100% Djiboutienne</span>
               </div>
               
-              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                Gérez votre paie en
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600"> 5 minutes</span>
+              <h1 className="text-5xl lg:text-7xl font-bold text-white mb-8 leading-tight">
+                Gérez votre entreprise en
+                <span className="block mt-2">5 minutes</span>
               </h1>
               
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              <p className="text-xl lg:text-2xl text-blue-100 mb-12 leading-relaxed max-w-3xl mx-auto">
                 La première plateforme de paie et RH conçue spécifiquement pour les entreprises Djiboutiennes. 
                 Conforme CNSS, ITS et code du travail.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
                 <Button 
                   onClick={handleGetStarted}
                   size="lg" 
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-600/30 text-lg px-8 py-6 h-auto"
+                  className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-10 py-7 h-auto font-bold shadow-2xl"
                 >
-                  Essai gratuit - 30 jours
+                  Commencer maintenant
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 text-lg px-8 py-6 h-auto"
+                  className="border-2 border-white text-white hover:bg-white/10 text-lg px-10 py-7 h-auto backdrop-blur-sm"
                   onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
                 >
                   Planifier une démo
-                  <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
               
-              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+              <div className="flex flex-wrap justify-center items-center gap-8 text-white/90">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>Sans carte bancaire</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>Support 24/7</span>
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="font-medium">Sans carte bancaire</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>Données sécurisées</span>
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="font-medium">Support 24/7</span>
                 </div>
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="relative z-10">
-                <img 
-                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&q=80" 
-                  alt="Dashboard Preview" 
-                  className="rounded-2xl shadow-2xl border border-gray-200"
-                />
-                {/* Floating Stats */}
-                <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-xl p-6 border border-gray-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">98%</p>
-                      <p className="text-sm text-gray-600">Satisfaction</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -top-6 -right-6 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-xl p-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-white mb-1">2.5M+</p>
-                    <p className="text-sm text-indigo-200">Bulletins traités</p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="font-medium">Essai gratuit 30 jours</span>
                 </div>
               </div>
             </motion.div>
           </div>
         </div>
+        
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+          </svg>
+        </div>
       </section>
 
+      {/* Process Steps Section */}
+      <section className="py-24 px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Comment ça marche?
+            </h2>
+            <p className="text-xl text-gray-600">
+              Démarrez en 3 étapes simples
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connecting Lines */}
+            <div className="hidden md:block absolute top-32 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200 -z-0"></div>
+            
+            {[
+              {
+                step: "01",
+                title: "Inscrivez-vous",
+                description: "Créez votre compte en moins de 2 minutes. Aucune carte bancaire requise pour l'essai gratuit.",
+                icon: Users,
+                color: "from-blue-500 to-blue-600"
+              },
+              {
+                step: "02",
+                title: "Configurez votre entreprise",
+                description: "Ajoutez vos employés et configurez vos paramètres de paie selon le code du travail Djiboutien.",
+                icon: Building2,
+                color: "from-indigo-500 to-indigo-600"
+              },
+              {
+                step: "03",
+                title: "Lancez votre paie",
+                description: "Générez vos bulletins de paie et déclarations CNSS en un clic. C'est aussi simple que ça!",
+                icon: CheckCircle,
+                color: "from-purple-500 to-purple-600"
+              }
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.2 }}
+                className="relative"
+              >
+                <Card className="border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300 h-full bg-white relative z-10">
+                  <CardContent className="p-8 text-center">
+                    <div className={`w-20 h-20 bg-gradient-to-br ${item.color} rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg`}>
+                      <item.icon className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="inline-block px-4 py-1 bg-blue-100 text-blue-600 font-bold rounded-full mb-4">
+                      {item.step}
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <Button 
+              onClick={handleGetStarted}
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg px-10 py-6 h-auto shadow-xl"
+            >
+              Commencer gratuitement
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+      
       {/* Trust Section */}
-      <section className="py-16 bg-gray-900 text-white">
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <p className="text-center text-gray-400 mb-12 text-lg">Approuvé par les entreprises leaders à Djibouti</p>
+          <p className="text-center text-gray-600 mb-12 text-lg font-semibold">Approuvé par les entreprises leaders à Djibouti</p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center">
             {['Djibouti Telecom', 'Port de Djibouti', 'Ethiopian Airlines', 'Bank of Africa', 'Sheraton Djibouti'].map((company, idx) => (
-              <div key={idx} className="text-center">
-                <p className="text-lg font-semibold text-gray-400 hover:text-white transition-colors">
+              <div key={idx} className="text-center p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <p className="text-lg font-bold text-gray-700">
                   {company}
                 </p>
               </div>
