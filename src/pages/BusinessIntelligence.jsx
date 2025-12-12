@@ -580,6 +580,19 @@ export default function BusinessIntelligence() {
       .sort((a, b) => b.value - a.value);
   }, [transactions]);
 
+  // Employee department distribution for pie chart
+  const pieData = useMemo(() => {
+    const breakdown = {};
+    employees.filter(e => e.statut === 'Actif').forEach(emp => {
+      const dept = emp.departement || 'Non assigné';
+      breakdown[dept] = (breakdown[dept] || 0) + 1;
+    });
+
+    return Object.entries(breakdown)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [employees]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F0F4F8] via-[#E1E8ED] to-[#F7FAFC] p-6 md:p-8">
       <div className="max-w-[1900px] mx-auto">
@@ -1215,7 +1228,30 @@ export default function BusinessIntelligence() {
                     </div>
                   </div>
                   <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={monthlyData}>
+                    <LineChart data={cycles.slice(0, 12).reverse().map(cycle => {
+                      let cycleCNSS = 0;
+                      let cycleITS = 0;
+                      let cycleSalaryNet = 0;
+
+                      employees.forEach(emp => {
+                        if (cycle.employee_ids?.includes(emp.id)) {
+                          const absences = cycle.employee_absences?.[emp.id] || 0;
+                          const empWithAbsences = { ...emp, absences_amount: absences };
+                          const calc = calculatePayroll(empWithAbsences);
+
+                          cycleCNSS += calc.cnssEmployee.total + calc.cnssEmployer.total;
+                          cycleITS += calc.its;
+                          cycleSalaryNet += calc.netSalary;
+                        }
+                      });
+
+                      return {
+                        month: cycle.periode?.substring(0, 3) || format(new Date(cycle.created_date), 'MMM', { locale: fr }),
+                        'Net Salary': Math.round(cycleSalaryNet / 1000),
+                        'CNSS': Math.round(cycleCNSS / 1000),
+                        'ITS': Math.round(cycleITS / 1000)
+                      };
+                    })}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
                       <XAxis dataKey="month" tick={{ fill: '#4A5568', fontSize: 11 }} />
                       <YAxis tick={{ fill: '#4A5568', fontSize: 11 }} />
