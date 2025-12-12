@@ -10,10 +10,10 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import BudgetOverview from '../components/budget/BudgetOverview';
-import ExpenseRequestForm from '../components/budget/ExpenseRequestForm';
-import ApprovalInterface from '../components/budget/ApprovalInterface';
-import BudgetSettings from '../components/budget/BudgetSettings';
+import BudgetOverview from '../components/budget/BudgetOverview.js';
+import ExpenseRequestForm from '../components/budget/ExpenseRequestForm.js';
+import ApprovalInterface from '../components/budget/ApprovalInterface.js';
+import BudgetSettings from '../components/budget/BudgetSettings.js';
 
 export default function BudgetManagement() {
   const [showRequestForm, setShowRequestForm] = useState(false);
