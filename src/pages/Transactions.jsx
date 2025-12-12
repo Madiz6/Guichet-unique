@@ -400,6 +400,7 @@ export default function Transactions() {
         }}
         departments={departments}
         categories={categories}
+        budgets={budgets}
       />
     </div>
   );
