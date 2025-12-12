@@ -46,8 +46,10 @@ export default function BudgetManagement() {
 
   const myRequests = expenseRequests.filter(r => r.requested_by === user?.email);
   const pendingApprovals = expenseRequests.filter(r => {
+    if (r.status !== 'En attente') return false;
+    if (isAdmin) return true; // Admins see all pending requests
     const dept = departments.find(d => d.id === r.department_id);
-    return r.status === 'En attente' && dept?.manager_id === user?.email;
+    return dept?.manager_id === user?.email; // Managers see their department's requests
   });
 
   const StatCard = ({ icon: Icon, label, value, color, badge }) => (
@@ -162,6 +164,7 @@ export default function BudgetManagement() {
               requests={myRequests}
               budgets={budgets}
               departments={departments}
+              currentUser={user}
               isMyRequests={true}
             />
           </TabsContent>
