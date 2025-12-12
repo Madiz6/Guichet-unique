@@ -581,7 +581,7 @@ export default function BusinessIntelligence() {
   }, [transactions]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0E27] via-[#1A1F3A] to-[#0A0E27] p-6 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F4F8] via-[#E1E8ED] to-[#F7FAFC] p-6 md:p-8">
       <div className="max-w-[1900px] mx-auto">
         {/* Header */}
         <motion.div 
@@ -592,39 +592,39 @@ export default function BusinessIntelligence() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <Link to={createPageUrl('Dashboard')}>
-                <Button variant="outline" size="icon" className="border-[#2D3748] bg-[#1A202C] hover:bg-[#2D3748]">
-                  <ArrowLeft className="w-4 h-4 text-white" />
+                <Button variant="outline" size="icon" className="border-[#CBD5E0] bg-white hover:bg-[#F7FAFC]">
+                  <ArrowLeft className="w-4 h-4 text-[#2D3748]" />
                 </Button>
               </Link>
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <Brain className="w-8 h-8 text-[#00D9FF]" />
-                  <h1 className="text-4xl font-bold text-white">
+                  <Brain className="w-8 h-8 text-[#0066FF]" />
+                  <h1 className="text-4xl font-bold text-[#1A202C]">
                     BI Command Center 360°
                   </h1>
                 </div>
-                <p className="text-[#94A3B8] flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#FFD700]" />
+                <p className="text-[#4A5568] flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-[#F59E0B]" />
                   Intelligence stratégique en temps réel • Powered by Meras PSP
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Badge className="bg-[#00D9FF] text-[#0A0E27] px-4 py-2 text-sm font-semibold">
+              <Badge className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white px-4 py-2 text-sm font-semibold shadow-lg">
                 <Activity className="w-4 h-4 mr-2" />
                 LIVE
               </Badge>
               <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger className="w-40 bg-[#1A202C] border-[#2D3748] text-white">
+                <SelectTrigger className="w-40 bg-white border-[#CBD5E0] text-[#1A202C]">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1A202C] border-[#2D3748]">
+                <SelectContent className="bg-white border-[#CBD5E0]">
                   <SelectItem value="6M">6 Mois</SelectItem>
                   <SelectItem value="12M">12 Mois</SelectItem>
                   <SelectItem value="YTD">Cette année</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="bg-gradient-to-r from-[#00D9FF] to-[#0099CC] hover:from-[#00C4E6] hover:to-[#0088BB]">
+              <Button className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:from-[#0052CC] hover:to-[#003D99] shadow-lg">
                 <Download className="w-4 h-4 mr-2" />
                 Exporter Rapport
               </Button>
@@ -638,21 +638,21 @@ export default function BusinessIntelligence() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-gradient-to-r from-red-900/50 to-red-800/50 border border-red-500/50 rounded-xl p-4 mb-6 backdrop-blur-sm"
+                className="bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-300 rounded-xl p-4 mb-6 shadow-lg"
               >
                 <div className="flex items-center gap-3">
-                  <AlertTriangle className="w-6 h-6 text-red-400 animate-pulse" />
+                  <AlertTriangle className="w-6 h-6 text-red-600 animate-pulse" />
                   <div className="flex-1">
-                    <p className="text-white font-semibold mb-1">Alertes Critiques Détectées</p>
+                    <p className="text-red-900 font-semibold mb-1">Alertes Critiques Détectées</p>
                     <div className="flex flex-wrap gap-2">
                       {alerts.filter(a => a.level === 'critical').slice(0, 3).map((alert, idx) => (
-                        <Badge key={idx} className="bg-red-500/30 text-red-200 border-red-400/50">
+                        <Badge key={idx} className="bg-red-200 text-red-900 border-red-400">
                           {alert.message}
                         </Badge>
                       ))}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="border-red-400 text-red-400 hover:bg-red-400/10">
+                  <Button variant="outline" size="sm" className="border-red-400 text-red-600 hover:bg-red-50">
                     Voir tout ({alerts.filter(a => a.level === 'critical').length})
                   </Button>
                 </div>
@@ -757,24 +757,24 @@ export default function BusinessIntelligence() {
 
         {/* Enhanced Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-[#1A202C] border border-[#2D3748] p-1 shadow-xl">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00D9FF] data-[state=active]:to-[#0099CC] data-[state=active]:text-[#0A0E27] text-white">
+          <TabsList className="bg-white border border-[#E2E8F0] p-1 shadow-xl">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0066FF] data-[state=active]:to-[#0052CC] data-[state=active]:text-white text-[#4A5568]">
               <Brain className="w-4 h-4 mr-2" />
               Vue d'ensemble
             </TabsTrigger>
-            <TabsTrigger value="predictions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00D9FF] data-[state=active]:to-[#0099CC] data-[state=active]:text-[#0A0E27] text-white">
+            <TabsTrigger value="predictions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0066FF] data-[state=active]:to-[#0052CC] data-[state=active]:text-white text-[#4A5568]">
               <Zap className="w-4 h-4 mr-2" />
               Prédictions
             </TabsTrigger>
-            <TabsTrigger value="anomalies" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00D9FF] data-[state=active]:to-[#0099CC] data-[state=active]:text-[#0A0E27] text-white">
+            <TabsTrigger value="anomalies" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0066FF] data-[state=active]:to-[#0052CC] data-[state=active]:text-white text-[#4A5568]">
               <AlertTriangle className="w-4 h-4 mr-2" />
               Anomalies ({anomalies.length})
             </TabsTrigger>
-            <TabsTrigger value="recommendations" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00D9FF] data-[state=active]:to-[#0099CC] data-[state=active]:text-[#0A0E27] text-white">
+            <TabsTrigger value="recommendations" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0066FF] data-[state=active]:to-[#0052CC] data-[state=active]:text-white text-[#4A5568]">
               <Target className="w-4 h-4 mr-2" />
               Recommandations ({recommendations.length})
             </TabsTrigger>
-            <TabsTrigger value="360" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00D9FF] data-[state=active]:to-[#0099CC] data-[state=active]:text-[#0A0E27] text-white">
+            <TabsTrigger value="360" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0066FF] data-[state=active]:to-[#0052CC] data-[state=active]:text-white text-[#4A5568]">
               360° Views
             </TabsTrigger>
           </TabsList>
@@ -782,92 +782,92 @@ export default function BusinessIntelligence() {
           {/* Predictions Tab */}
           <TabsContent value="predictions" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00D9FF] to-[#0099CC] flex items-center justify-center">
-                      <Zap className="w-6 h-6 text-[#0A0E27]" />
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center shadow-lg">
+                      <Zap className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white">Prédictions Financières</h3>
-                      <p className="text-sm text-[#94A3B8]">Basées sur l'historique 90 jours</p>
+                      <h3 className="text-xl font-bold text-[#1A202C]">Prédictions Financières</h3>
+                      <p className="text-sm text-[#4A5568]">Basées sur l'historique 90 jours</p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <div className="p-4 bg-[#2D3748] rounded-lg">
+                    <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[#94A3B8]">Masse Salariale (Mois Prochain)</span>
-                        <Badge className="bg-emerald-500/20 text-emerald-400">Prévision</Badge>
+                        <span className="text-[#1A202C] font-medium">Masse Salariale (Mois Prochain)</span>
+                        <Badge className="bg-emerald-500 text-white">Prévision</Badge>
                       </div>
-                      <p className="text-2xl font-bold text-white">{predictions.nextMonthPayroll.toLocaleString()} DJF</p>
+                      <p className="text-2xl font-bold text-[#1A202C]">{predictions.nextMonthPayroll.toLocaleString()} DJF</p>
                     </div>
 
-                    <div className="p-4 bg-[#2D3748] rounded-lg">
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[#94A3B8]">Revenus Projetés (30j)</span>
-                        <Badge className="bg-blue-500/20 text-blue-400">+5% growth</Badge>
+                        <span className="text-[#1A202C] font-medium">Revenus Projetés (30j)</span>
+                        <Badge className="bg-blue-500 text-white">+5% growth</Badge>
                       </div>
-                      <p className="text-2xl font-bold text-white">{predictions.projectedRevenue.toLocaleString()} DJF</p>
+                      <p className="text-2xl font-bold text-[#1A202C]">{predictions.projectedRevenue.toLocaleString()} DJF</p>
                     </div>
 
-                    <div className="p-4 bg-[#2D3748] rounded-lg">
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[#94A3B8]">Cashflow Prévisionnel (90j)</span>
-                        <Badge className={`${predictions.cashflowForecast90Days >= 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                        <span className="text-[#1A202C] font-medium">Cashflow Prévisionnel (90j)</span>
+                        <Badge className={`${predictions.cashflowForecast90Days >= 0 ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
                           {predictions.cashflowForecast90Days >= 0 ? 'Positif' : 'Négatif'}
                         </Badge>
                       </div>
-                      <p className="text-2xl font-bold text-white">{predictions.cashflowForecast90Days.toLocaleString()} DJF</p>
+                      <p className="text-2xl font-bold text-[#1A202C]">{predictions.cashflowForecast90Days.toLocaleString()} DJF</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
                       <AlertTriangle className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white">Alertes Budgétaires</h3>
-                      <p className="text-sm text-[#94A3B8]">Indicateurs de risque</p>
+                      <h3 className="text-xl font-bold text-[#1A202C]">Alertes Budgétaires</h3>
+                      <p className="text-sm text-[#4A5568]">Indicateurs de risque</p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <div className="p-4 bg-[#2D3748] rounded-lg">
+                    <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[#94A3B8]">Taux de Combustion Budget</span>
-                        <Badge className={`${predictions.budgetBurnRate > 90 ? 'bg-rose-500/20 text-rose-400' : predictions.budgetBurnRate > 70 ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                        <span className="text-[#1A202C] font-medium">Taux de Combustion Budget</span>
+                        <Badge className={`${predictions.budgetBurnRate > 90 ? 'bg-rose-500 text-white' : predictions.budgetBurnRate > 70 ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'}`}>
                           {predictions.budgetBurnRate > 90 ? 'Critique' : predictions.budgetBurnRate > 70 ? 'Attention' : 'Sain'}
                         </Badge>
                       </div>
-                      <p className="text-2xl font-bold text-white">{predictions.budgetBurnRate.toFixed(1)}%</p>
-                      <div className="mt-2 w-full bg-[#1A202C] rounded-full h-2">
+                      <p className="text-2xl font-bold text-[#1A202C]">{predictions.budgetBurnRate.toFixed(1)}%</p>
+                      <div className="mt-2 w-full bg-slate-200 rounded-full h-3">
                         <div 
-                          className={`h-2 rounded-full ${predictions.budgetBurnRate > 90 ? 'bg-rose-500' : predictions.budgetBurnRate > 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                          className={`h-3 rounded-full ${predictions.budgetBurnRate > 90 ? 'bg-gradient-to-r from-rose-500 to-red-600' : predictions.budgetBurnRate > 70 ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}
                           style={{ width: `${Math.min(predictions.budgetBurnRate, 100)}%` }}
                         />
                       </div>
                     </div>
 
-                    <div className="p-4 bg-[#2D3748] rounded-lg">
+                    <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[#94A3B8]">Jours jusqu'à épuisement</span>
-                        <Badge className={`${predictions.daysUntilBudgetExhaustion < 30 ? 'bg-rose-500/20 text-rose-400' : predictions.daysUntilBudgetExhaustion < 60 ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                        <span className="text-[#1A202C] font-medium">Jours jusqu'à épuisement</span>
+                        <Badge className={`${predictions.daysUntilBudgetExhaustion < 30 ? 'bg-rose-500 text-white' : predictions.daysUntilBudgetExhaustion < 60 ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'}`}>
                           {predictions.daysUntilBudgetExhaustion < 999 ? `${predictions.daysUntilBudgetExhaustion} jours` : '> 1 an'}
                         </Badge>
                       </div>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-2xl font-bold text-[#1A202C]">
                         {predictions.daysUntilBudgetExhaustion < 999 ? predictions.daysUntilBudgetExhaustion : '∞'} jours
                       </p>
                     </div>
 
-                    <div className="p-4 bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-amber-500/30 rounded-lg">
-                      <p className="text-amber-400 text-sm font-semibold mb-2">⚠️ Action Requise</p>
-                      <p className="text-white text-xs">
+                    <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-400 rounded-lg">
+                      <p className="text-amber-800 text-sm font-semibold mb-2">⚠️ Action Requise</p>
+                      <p className="text-[#1A202C] text-sm">
                         {predictions.budgetBurnRate > 90 
                           ? "Révision budgétaire urgente recommandée" 
                           : predictions.budgetBurnRate > 70 
@@ -883,23 +883,23 @@ export default function BusinessIntelligence() {
 
           {/* Anomalies Tab */}
           <TabsContent value="anomalies" className="space-y-6">
-            <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+            <Card className="border-0 bg-white shadow-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg">
                     <AlertTriangle className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">Détection d'Anomalies</h3>
-                    <p className="text-sm text-[#94A3B8]">{anomalies.length} anomalies détectées</p>
+                    <h3 className="text-xl font-bold text-[#1A202C]">Détection d'Anomalies</h3>
+                    <p className="text-sm text-[#4A5568]">{anomalies.length} anomalies détectées</p>
                   </div>
                 </div>
 
                 {anomalies.length === 0 ? (
                   <div className="text-center py-12">
-                    <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-                    <p className="text-white font-semibold mb-2">Aucune anomalie détectée</p>
-                    <p className="text-[#94A3B8] text-sm">Tous les indicateurs sont normaux</p>
+                    <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                    <p className="text-[#1A202C] font-semibold mb-2">Aucune anomalie détectée</p>
+                    <p className="text-[#4A5568] text-sm">Tous les indicateurs sont normaux</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -911,10 +911,10 @@ export default function BusinessIntelligence() {
                         transition={{ delay: idx * 0.1 }}
                         className={`p-4 rounded-lg border-l-4 ${
                           anomaly.severity === 'high' 
-                            ? 'bg-rose-500/10 border-rose-500' 
+                            ? 'bg-gradient-to-r from-rose-50 to-red-50 border-rose-500' 
                             : anomaly.severity === 'medium'
-                            ? 'bg-amber-500/10 border-amber-500'
-                            : 'bg-blue-500/10 border-blue-500'
+                            ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-500'
+                            : 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-500'
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -922,21 +922,21 @@ export default function BusinessIntelligence() {
                             <div className="flex items-center gap-2 mb-2">
                               <Badge className={`${
                                 anomaly.severity === 'high' 
-                                  ? 'bg-rose-500/20 text-rose-400' 
+                                  ? 'bg-rose-500 text-white' 
                                   : anomaly.severity === 'medium'
-                                  ? 'bg-amber-500/20 text-amber-400'
-                                  : 'bg-blue-500/20 text-blue-400'
-                              }`}>
+                                  ? 'bg-amber-500 text-white'
+                                  : 'bg-blue-500 text-white'
+                              } font-bold`}>
                                 {anomaly.severity === 'high' ? 'CRITIQUE' : anomaly.severity === 'medium' ? 'ATTENTION' : 'INFO'}
                               </Badge>
-                              <Badge className="bg-[#2D3748] text-[#94A3B8] border-0">{anomaly.module}</Badge>
+                              <Badge className="bg-slate-200 text-[#1A202C]">{anomaly.module}</Badge>
                             </div>
-                            <p className="text-white font-medium mb-1">{anomaly.message}</p>
+                            <p className="text-[#1A202C] font-medium mb-1">{anomaly.message}</p>
                             {anomaly.date && (
-                              <p className="text-xs text-[#94A3B8]">Date: {format(new Date(anomaly.date), 'dd MMM yyyy', { locale: fr })}</p>
+                              <p className="text-xs text-[#4A5568]">Date: {format(new Date(anomaly.date), 'dd MMM yyyy', { locale: fr })}</p>
                             )}
                           </div>
-                          <Button size="sm" variant="outline" className="border-[#2D3748] text-white hover:bg-[#2D3748]">
+                          <Button size="sm" variant="outline" className="border-slate-300 text-[#1A202C] hover:bg-slate-100">
                             Investiguer
                           </Button>
                         </div>
@@ -950,23 +950,23 @@ export default function BusinessIntelligence() {
 
           {/* Recommendations Tab */}
           <TabsContent value="recommendations" className="space-y-6">
-            <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+            <Card className="border-0 bg-white shadow-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00D9FF] to-[#0099CC] flex items-center justify-center">
-                    <Target className="w-6 h-6 text-[#0A0E27]" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center shadow-lg">
+                    <Target className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">Recommandations Stratégiques</h3>
-                    <p className="text-sm text-[#94A3B8]">{recommendations.length} actions recommandées</p>
+                    <h3 className="text-xl font-bold text-[#1A202C]">Recommandations Stratégiques</h3>
+                    <p className="text-sm text-[#4A5568]">{recommendations.length} actions recommandées</p>
                   </div>
                 </div>
 
                 {recommendations.length === 0 ? (
                   <div className="text-center py-12">
-                    <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-                    <p className="text-white font-semibold mb-2">Aucune action requise</p>
-                    <p className="text-[#94A3B8] text-sm">Tous les indicateurs sont optimaux</p>
+                    <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                    <p className="text-[#1A202C] font-semibold mb-2">Aucune action requise</p>
+                    <p className="text-[#4A5568] text-sm">Tous les indicateurs sont optimaux</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -976,12 +976,12 @@ export default function BusinessIntelligence() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className={`p-5 rounded-lg border-l-4 ${
+                        className={`p-5 rounded-lg border-l-4 shadow-md ${
                           rec.priority === 'critical' 
-                            ? 'bg-rose-500/10 border-rose-500' 
+                            ? 'bg-gradient-to-r from-rose-50 to-red-50 border-rose-500' 
                             : rec.priority === 'high'
-                            ? 'bg-amber-500/10 border-amber-500'
-                            : 'bg-blue-500/10 border-blue-500'
+                            ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-500'
+                            : 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-500'
                         }`}
                       >
                         <div className="flex items-start justify-between mb-3">
@@ -996,17 +996,17 @@ export default function BusinessIntelligence() {
                               } uppercase text-xs font-bold px-3 py-1`}>
                                 {rec.priority}
                               </Badge>
-                              <Badge className="bg-[#2D3748] text-[#94A3B8] border-0">{rec.module}</Badge>
+                              <Badge className="bg-slate-200 text-[#1A202C]">{rec.module}</Badge>
                             </div>
-                            <h4 className="text-lg font-bold text-white mb-2">{rec.action}</h4>
-                            <p className="text-[#94A3B8] mb-2">
-                              <span className="font-semibold text-white">Cible:</span> {rec.target}
+                            <h4 className="text-lg font-bold text-[#1A202C] mb-2">{rec.action}</h4>
+                            <p className="text-[#4A5568] mb-2">
+                              <span className="font-semibold text-[#1A202C]">Cible:</span> {rec.target}
                             </p>
-                            <p className="text-sm text-[#94A3B8]">
-                              <span className="font-semibold text-white">Raison:</span> {rec.reason}
+                            <p className="text-sm text-[#4A5568]">
+                              <span className="font-semibold text-[#1A202C]">Raison:</span> {rec.reason}
                             </p>
                           </div>
-                          <Button className="bg-gradient-to-r from-[#00D9FF] to-[#0099CC] hover:from-[#00C4E6] hover:to-[#0088BB]">
+                          <Button className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:from-[#0052CC] hover:to-[#003D99] shadow-lg">
                             Appliquer
                           </Button>
                         </div>
@@ -1021,19 +1021,19 @@ export default function BusinessIntelligence() {
           {/* 360 Views Tab */}
           <TabsContent value="360" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4">Vue Département 360°</h3>
+                  <h3 className="text-lg font-bold text-[#1A202C] mb-4">Vue Département 360°</h3>
                   <div className="space-y-3">
                     {departmentBreakdown.slice(0, 5).map((dept, idx) => (
-                      <div key={idx} className="p-3 bg-[#2D3748] rounded-lg">
+                      <div key={idx} className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200 rounded-lg">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-white font-medium">{dept.name}</span>
-                          <span className="text-[#00D9FF] font-bold">{dept.value.toLocaleString()} DJF</span>
+                          <span className="text-[#1A202C] font-medium">{dept.name}</span>
+                          <span className="text-[#0066FF] font-bold">{dept.value.toLocaleString()} DJF</span>
                         </div>
-                        <div className="w-full bg-[#1A202C] rounded-full h-2">
+                        <div className="w-full bg-slate-200 rounded-full h-3">
                           <div 
-                            className="h-2 rounded-full bg-gradient-to-r from-[#00D9FF] to-[#0099CC]"
+                            className="h-3 rounded-full bg-gradient-to-r from-[#0066FF] to-[#0052CC]"
                             style={{ width: `${(dept.value / departmentBreakdown[0].value) * 100}%` }}
                           />
                         </div>
@@ -1043,20 +1043,20 @@ export default function BusinessIntelligence() {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4">Vue Fournisseurs 360°</h3>
+                  <h3 className="text-lg font-bold text-[#1A202C] mb-4">Vue Fournisseurs 360°</h3>
                   <div className="space-y-3">
                     {contacts.slice(0, 5).map((contact, idx) => (
-                      <div key={idx} className="p-3 bg-[#2D3748] rounded-lg">
+                      <div key={idx} className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200 rounded-lg">
                         <div className="flex justify-between items-center">
                           <div>
-                            <p className="text-white font-medium">{contact.name}</p>
-                            <p className="text-xs text-[#94A3B8]">{contact.type}</p>
+                            <p className="text-[#1A202C] font-medium">{contact.name}</p>
+                            <p className="text-xs text-[#4A5568]">{contact.type}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[#00D9FF] font-bold">{(contact.total_amount || 0).toLocaleString()} DJF</p>
-                            <p className="text-xs text-[#94A3B8]">{contact.total_transactions || 0} transactions</p>
+                            <p className="text-[#0066FF] font-bold">{(contact.total_amount || 0).toLocaleString()} DJF</p>
+                            <p className="text-xs text-[#4A5568]">{contact.total_transactions || 0} transactions</p>
                           </div>
                         </div>
                       </div>
@@ -1075,16 +1075,16 @@ export default function BusinessIntelligence() {
               className="grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
               {/* Revenue vs Expenses Trend */}
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl lg:col-span-2">
+              <Card className="border-0 bg-white shadow-2xl lg:col-span-2">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4">Évolution Revenus vs Dépenses</h3>
+                  <h3 className="text-lg font-bold text-[#1A202C] mb-4">Évolution Revenus vs Dépenses</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={monthlyData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
-                      <XAxis dataKey="month" tick={{ fill: '#94A3B8', fontSize: 11 }} />
-                      <YAxis tick={{ fill: '#94A3B8', fontSize: 11 }} label={{ value: 'Milliers DJF', angle: -90, position: 'insideLeft', fill: '#94A3B8' }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #2D3748', borderRadius: '8px' }} />
-                      <Legend wrapperStyle={{ color: '#94A3B8' }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                      <XAxis dataKey="month" tick={{ fill: '#4A5568', fontSize: 11 }} />
+                      <YAxis tick={{ fill: '#4A5568', fontSize: 11 }} label={{ value: 'Milliers DJF', angle: -90, position: 'insideLeft', fill: '#4A5568' }} />
+                      <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #E2E8F0', borderRadius: '8px' }} />
+                      <Legend />
                       <Area type="monotone" dataKey="revenue" stackId="1" stroke="#10B981" fill="#10B981" fillOpacity={0.6} name="Revenus" />
                       <Area type="monotone" dataKey="expenses" stackId="2" stroke="#EF4444" fill="#EF4444" fillOpacity={0.6} name="Dépenses" />
                     </AreaChart>
@@ -1093,9 +1093,9 @@ export default function BusinessIntelligence() {
               </Card>
 
               {/* Budget Utilization */}
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4">Utilisation Budget</h3>
+                  <h3 className="text-lg font-bold text-[#1A202C] mb-4">Utilisation Budget</h3>
                   <div className="flex items-center justify-center mb-4">
                     <div className="relative w-40 h-40">
                       <svg className="transform -rotate-90 w-40 h-40">
@@ -1103,7 +1103,7 @@ export default function BusinessIntelligence() {
                           cx="80"
                           cy="80"
                           r="70"
-                          stroke="#2D3748"
+                          stroke="#E2E8F0"
                           strokeWidth="12"
                           fill="transparent"
                         />
@@ -1111,7 +1111,7 @@ export default function BusinessIntelligence() {
                           cx="80"
                           cy="80"
                           r="70"
-                          stroke="#00D9FF"
+                          stroke="#0066FF"
                           strokeWidth="12"
                           fill="transparent"
                           strokeDasharray={`${2 * Math.PI * 70}`}
@@ -1120,23 +1120,23 @@ export default function BusinessIntelligence() {
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <p className="text-3xl font-bold text-white">{metrics.budgetUtilization.toFixed(0)}%</p>
-                        <p className="text-xs text-[#94A3B8]">Utilisé</p>
+                        <p className="text-3xl font-bold text-[#1A202C]">{metrics.budgetUtilization.toFixed(0)}%</p>
+                        <p className="text-xs text-[#4A5568]">Utilisé</p>
                       </div>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#94A3B8]">Alloué</span>
-                      <span className="font-semibold text-white">{metrics.budgetAllocated.toLocaleString()} DJF</span>
+                      <span className="text-[#4A5568]">Alloué</span>
+                      <span className="font-semibold text-[#1A202C]">{metrics.budgetAllocated.toLocaleString()} DJF</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#94A3B8]">Utilisé</span>
-                      <span className="font-semibold text-[#00D9FF]">{metrics.budgetUsed.toLocaleString()} DJF</span>
+                      <span className="text-[#4A5568]">Utilisé</span>
+                      <span className="font-semibold text-[#0066FF]">{metrics.budgetUsed.toLocaleString()} DJF</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#94A3B8]">Disponible</span>
-                      <span className="font-semibold text-emerald-400">{(metrics.budgetAllocated - metrics.budgetUsed).toLocaleString()} DJF</span>
+                      <span className="text-[#4A5568]">Disponible</span>
+                      <span className="font-semibold text-emerald-500">{(metrics.budgetAllocated - metrics.budgetUsed).toLocaleString()} DJF</span>
                     </div>
                   </div>
                 </CardContent>
@@ -1150,43 +1150,43 @@ export default function BusinessIntelligence() {
               transition={{ delay: 0.2 }}
               className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-emerald-400" />
+                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-[#94A3B8]">CNSS (Total)</p>
-                      <p className="text-xl font-bold text-white">{metrics.cnssTotal.toLocaleString()} DJF</p>
+                      <p className="text-sm text-[#4A5568]">CNSS (Total)</p>
+                      <p className="text-xl font-bold text-[#1A202C]">{metrics.cnssTotal.toLocaleString()} DJF</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-amber-400" />
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-[#94A3B8]">ITS (Total)</p>
-                      <p className="text-xl font-bold text-white">{metrics.itsTotal.toLocaleString()} DJF</p>
+                      <p className="text-sm text-[#4A5568]">ITS (Total)</p>
+                      <p className="text-xl font-bold text-[#1A202C]">{metrics.itsTotal.toLocaleString()} DJF</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-0 bg-[#1A202C]/80 backdrop-blur-xl shadow-2xl">
+              <Card className="border-0 bg-white shadow-2xl">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                      <Building2 className="w-5 h-5 text-blue-400" />
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <Building2 className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-[#94A3B8]">Revenus Location</p>
-                      <p className="text-xl font-bold text-white">{metrics.leaseRevenue.toLocaleString()} DJF</p>
+                      <p className="text-sm text-[#4A5568]">Revenus Location</p>
+                      <p className="text-xl font-bold text-[#1A202C]">{metrics.leaseRevenue.toLocaleString()} DJF</p>
                     </div>
                   </div>
                 </CardContent>
