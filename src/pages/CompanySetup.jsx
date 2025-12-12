@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CheckCircle, Plus, FileText, Calendar, AlertTriangle, Bell, Download, MapPin, Mail, Phone, Users, Briefcase, DollarSign, ShieldCheck } from 'lucide-react';
+import { Building2, CheckCircle, Plus, FileText, Calendar, AlertTriangle, Bell, Download, MapPin, Mail, Phone, Users, Briefcase, DollarSign, ShieldCheck, ScrollText, FolderOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, differenceInDays } from 'date-fns';
 import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
@@ -340,13 +340,51 @@ export default function CompanySetup() {
                     <div className={`p-4 rounded-lg border-2 ${company.contrat_bail_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <FileText className="w-5 h-5 text-green-600" />
+                          <ScrollText className="w-5 h-5 text-green-600" />
                           <p className="font-semibold text-[#0A2540]">Contrat de Bail</p>
                         </div>
                         {company.contrat_bail_url && <CheckCircle className="w-5 h-5 text-green-600" />}
                       </div>
                       {company.contrat_bail_url ? (
                         <a href={company.contrat_bail_url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+                          <Button size="sm" variant="outline" className="w-full">
+                            <Download className="w-4 h-4 mr-2" /> Télécharger
+                          </Button>
+                        </a>
+                      ) : (
+                        <Badge variant="outline" className="bg-gray-100 mt-2">Non fourni</Badge>
+                      )}
+                    </div>
+
+                    <div className={`p-4 rounded-lg border-2 ${company.statut_societe_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="w-5 h-5 text-green-600" />
+                          <p className="font-semibold text-[#0A2540]">Statut de la Société</p>
+                        </div>
+                        {company.statut_societe_url && <CheckCircle className="w-5 h-5 text-green-600" />}
+                      </div>
+                      {company.statut_societe_url ? (
+                        <a href={company.statut_societe_url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+                          <Button size="sm" variant="outline" className="w-full">
+                            <Download className="w-4 h-4 mr-2" /> Télécharger
+                          </Button>
+                        </a>
+                      ) : (
+                        <Badge variant="outline" className="bg-gray-100 mt-2">Non fourni</Badge>
+                      )}
+                    </div>
+
+                    <div className={`p-4 rounded-lg border-2 ${company.autres_documents_dgi_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <FolderOpen className="w-5 h-5 text-green-600" />
+                          <p className="font-semibold text-[#0A2540]">Autres Documents</p>
+                        </div>
+                        {company.autres_documents_dgi_url && <CheckCircle className="w-5 h-5 text-green-600" />}
+                      </div>
+                      {company.autres_documents_dgi_url ? (
+                        <a href={company.autres_documents_dgi_url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
                           <Button size="sm" variant="outline" className="w-full">
                             <Download className="w-4 h-4 mr-2" /> Télécharger
                           </Button>
