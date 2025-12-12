@@ -44,9 +44,10 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['expense-requests']);
-      queryClient.invalidateQueries(['budgets']);
+      queryClient.invalidateQueries({ queryKey: ['expense-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
       toast.success('Demande approuvée et budget engagé');
+      setViewingRequest(null);
     },
   });
 
@@ -61,10 +62,11 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['expense-requests']);
+      queryClient.invalidateQueries({ queryKey: ['expense-requests'] });
       toast.success('Demande rejetée');
       setShowRejectDialog(null);
       setRejectReason('');
+      setViewingRequest(null);
     },
   });
 
@@ -100,8 +102,8 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['expense-requests']);
-      queryClient.invalidateQueries(['budgets']);
+      queryClient.invalidateQueries({ queryKey: ['expense-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
       toast.success('Dépense exécutée et budget mis à jour');
       setUploadingReceipt(null);
       setReceiptAmount('');
