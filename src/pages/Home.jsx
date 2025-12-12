@@ -545,8 +545,82 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Trusted Payment Partners */}
+      <section className="py-32 px-6 lg:px-12 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="inline-block bg-gray-900 text-white px-6 py-2 rounded-full text-sm font-bold mb-8 tracking-wide">
+              TRUSTED PARTNERS
+            </div>
+            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Secure Payment <span className="text-yellow-400">Options*</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Pay securely with Djibouti's leading banks and payment platforms powered by Meras Gateway
+            </p>
+          </div>
+
+          {/* Bank Logos Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-6">
+            {[
+              { name: 'Meras PSP', logo: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png' },
+              { name: 'CIC', text: 'CIC' },
+              { name: 'East Africa Bank', text: 'EAST AFRICA BANK' },
+              { name: 'SABA Bank', text: 'SABA AFRICAN BANK' },
+              { name: 'World Finance', text: 'WF' }
+            ].map((partner, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05 }}
+              >
+                <Card className="border-2 border-gray-200 bg-white hover:shadow-xl transition-all">
+                  <CardContent className="p-8 flex items-center justify-center h-32">
+                    {partner.logo ? (
+                      <img src={partner.logo} alt={partner.name} className="w-16 h-16 object-contain" />
+                    ) : (
+                      <p className="text-xl font-bold text-gray-700">{partner.text}</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Payment Methods Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            {[
+              { name: 'SabaPay', text: 'SabaPay' },
+              { name: 'D-Money', text: 'D-MONEY' },
+              { name: 'Visa', text: 'VISA' },
+              { name: 'Mastercard', text: 'Mastercard' }
+            ].map((method, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05 }}
+              >
+                <Card className="border-2 border-gray-200 bg-white hover:shadow-xl transition-all">
+                  <CardContent className="p-8 flex items-center justify-center h-32">
+                    <p className="text-2xl font-bold text-gray-700">{method.text}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center text-gray-600">
+            <p>Powered by <span className="font-bold text-purple-600">Meras Payment Gateway</span> • Secure SSL Encrypted Transactions</p>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
-      <section id="pricing" className="py-32 px-6 lg:px-12 bg-white">
+      <section id="pricing" className="py-32 px-6 lg:px-12 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-3xl mb-20">
             <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
