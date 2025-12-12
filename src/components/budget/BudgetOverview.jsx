@@ -19,140 +19,57 @@ export default function BudgetOverview({ budgets, departments, expenseRequests }
     const health = getBudgetHealth(budget);
     const usedPercentage = (budget.amount_used / budget.amount_allocated) * 100;
     const committedPercentage = (budget.amount_committed / budget.amount_allocated) * 100;
-    const availablePercentage = ((budget.amount_available || 0) / budget.amount_allocated) * 100;
+    const totalUsedPercentage = usedPercentage + committedPercentage;
 
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        className="w-full"
       >
-        <Card className="border border-[#E8ECF2] hover:shadow-lg transition-all">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="font-bold text-[#0A2540] text-lg">{budget.department_name || dept?.name}</h3>
-                <p className="text-sm text-[#697586]">{budget.period} • {budget.period_start} - {budget.period_end}</p>
+        <Card className="border border-[#E8ECF2] hover:shadow-lg transition-all bg-white">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-4">
+              {/* Icon */}
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#0066FF]/10 to-[#6366F1]/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-7 h-7 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
               </div>
-              <Badge className={`${health.textColor} bg-opacity-10`}>
-                {health.status}
-              </Badge>
-            </div>
 
-            <div className="space-y-4">
-              {/* Budget Bar with Visual Segments */}
-              <div className="relative">
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-[#697586]">
-                      {(usedPercentage + committedPercentage).toFixed(0)}% utilisé
-                    </span>
-                    <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                      health.status === 'Dépassé' ? 'bg-red-100 text-red-700' :
-                      health.status === 'Attention' ? 'bg-amber-100 text-amber-700' :
-                      'bg-green-100 text-green-700'
-                    }`}>
-                      {health.status === 'Dépassé' ? '120% - EXCEEDED ⚠' : 
-                       health.status === 'Attention' ? '90% - ALMOST REACHED' : 
-                       `${(usedPercentage + committedPercentage).toFixed(0)}%`}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-[#0A2540]">
-                      {budget.amount_allocated?.toLocaleString()} DJF
-                    </p>
-                  </div>
+              {/* Department Info */}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-[#0A2540] text-base truncate">
+                  {budget.department_name || dept?.name}
+                </h3>
+                <p className="text-xs text-[#697586]">{budget.period} • {budget.period_start?.split('-')[0]}</p>
+              </div>
+
+              {/* Progress Bar with Amount */}
+              <div className="flex-1 max-w-xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-semibold text-[#0A2540]">
+                    {budget.amount_used?.toLocaleString()} DJF ({totalUsedPercentage.toFixed(0)}%)
+                  </span>
                 </div>
-
-                {/* Progress Bar with Patterns */}
-                <div className="relative h-8 bg-gray-100 rounded-xl overflow-hidden shadow-inner">
-                  {/* Used - Solid Color */}
+                <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className={`absolute h-full transition-all duration-500 ${
-                      health.status === 'Dépassé' ? 'bg-purple-500' :
-                      health.status === 'Attention' ? 'bg-blue-500' :
+                    className={`absolute h-full transition-all duration-500 rounded-full ${
+                      health.status === 'Dépassé' ? 'bg-red-500' :
+                      health.status === 'Attention' ? 'bg-amber-500' :
                       'bg-green-500'
                     }`}
-                    style={{ width: `${Math.min(usedPercentage, 100)}%` }}
+                    style={{ width: `${Math.min(totalUsedPercentage, 100)}%` }}
                   />
-
-                  {/* Committed - Striped Pattern */}
-                  <div
-                    className={`absolute h-full transition-all duration-500 ${
-                      health.status === 'Dépassé' ? 'bg-purple-400' :
-                      health.status === 'Attention' ? 'bg-blue-400' :
-                      'bg-green-400'
-                    }`}
-                    style={{ 
-                      left: `${Math.min(usedPercentage, 100)}%`,
-                      width: `${Math.min(committedPercentage, 100 - usedPercentage)}%`,
-                      backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.3) 4px, rgba(255,255,255,0.3) 8px)'
-                    }}
-                  />
-                </div>
-
-                {/* Amount Labels on Bar */}
-                <div className="flex justify-between items-center mt-2 px-1">
-                  <div className="flex items-center gap-4 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-3 h-3 rounded ${
-                        health.status === 'Dépassé' ? 'bg-purple-500' :
-                        health.status === 'Attention' ? 'bg-blue-500' :
-                        'bg-green-500'
-                      }`}></div>
-                      <span className="font-medium text-[#0A2540]">Used</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-3 h-3 rounded ${
-                        health.status === 'Dépassé' ? 'bg-purple-400' :
-                        health.status === 'Attention' ? 'bg-blue-400' :
-                        'bg-green-400'
-                      }`} style={{
-                        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.5) 2px, rgba(255,255,255,0.5) 4px)'
-                      }}></div>
-                      <span className="font-medium text-[#0A2540]">Committed</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded bg-gray-200"></div>
-                      <span className="font-medium text-[#697586]">Available</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-3 gap-3 pt-3">
-                <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-3 border border-red-200">
-                  <p className="text-xs text-red-600 font-medium mb-1">Utilisé</p>
-                  <p className="text-lg font-bold text-red-700">
-                    {budget.amount_used?.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-red-600">{usedPercentage.toFixed(1)}%</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-3 border border-amber-200">
-                  <p className="text-xs text-amber-600 font-medium mb-1">Engagé</p>
-                  <p className="text-lg font-bold text-amber-700">
-                    {budget.amount_committed?.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-amber-600">{committedPercentage.toFixed(1)}%</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-                  <p className="text-xs text-green-600 font-medium mb-1">Disponible</p>
-                  <p className="text-lg font-bold text-green-700">
-                    {(budget.amount_available || 0).toLocaleString()}
-                  </p>
-                  <p className="text-xs text-green-600">{availablePercentage.toFixed(1)}%</p>
-                </div>
+              {/* Total Amount */}
+              <div className="text-right flex-shrink-0">
+                <p className="text-xl font-bold text-[#0A2540]">
+                  {budget.amount_allocated?.toLocaleString()} DJF
+                </p>
               </div>
-
-              {budget.spending_limit_per_transaction && (
-                <div className="pt-3 border-t border-[#E8ECF2] text-sm">
-                  <p className="text-[#697586]">
-                    Limite par transaction: <span className="font-semibold text-[#0A2540]">{budget.spending_limit_per_transaction.toLocaleString()} DJF</span>
-                  </p>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
