@@ -175,67 +175,129 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
             ) : (
               <>
                 {/* Description */}
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-[#697586]">Description</p>
-                  <p className="text-sm text-[#0A2540]">{transaction.description}</p>
+                <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                  <p className="text-xs font-medium text-[#697586] uppercase">Description</p>
+                  <p className="text-sm text-[#0A2540] font-medium">{transaction.description}</p>
                 </div>
 
                 {/* Contact */}
                 {transaction.contact_name && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-[#697586]">
+                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                    <p className="text-xs font-medium text-[#697586] uppercase">
                       {transaction.type === 'Revenu' ? 'Client' : 'Supplier'}
                     </p>
-                    <p className="text-sm text-[#0A2540] font-medium">{transaction.contact_name}</p>
+                    <p className="text-sm text-[#0A2540] font-semibold">{transaction.contact_name}</p>
                   </div>
                 )}
 
                 {/* Type/Category */}
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-[#697586]">Type</p>
-                  <p className="text-sm text-[#0A2540]">{transaction.category || 'Uncategorized'}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                    <p className="text-xs font-medium text-[#697586] uppercase">Type</p>
+                    <Badge className={transaction.type === 'Revenu' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                      {transaction.type}
+                    </Badge>
+                  </div>
+                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                    <p className="text-xs font-medium text-[#697586] uppercase">Category</p>
+                    <p className="text-sm text-[#0A2540] font-medium">{transaction.category || 'Uncategorized'}</p>
+                  </div>
                 </div>
 
-                {/* Department */}
-                {transaction.department && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-[#697586]">Department</p>
-                    <p className="text-sm text-[#0A2540]">{transaction.department}</p>
+                {/* Department & Payment Method */}
+                <div className="grid grid-cols-2 gap-4">
+                  {transaction.department && (
+                    <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                      <p className="text-xs font-medium text-[#697586] uppercase">Department</p>
+                      <p className="text-sm text-[#0A2540] font-medium">{transaction.department}</p>
+                    </div>
+                  )}
+                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                    <p className="text-xs font-medium text-[#697586] uppercase">Payment Method</p>
+                    <p className="text-sm text-[#0A2540] font-medium">{transaction.payment_method || '-'}</p>
                   </div>
-                )}
+                </div>
+
+                {/* Amount Details */}
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Transaction Amount</p>
+                      <p className={`text-2xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>
+                        {transaction.type === 'Revenu' ? '+' : '-'}{transaction.amount?.toLocaleString()} DJF
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Transaction Date</p>
+                      <p className="text-sm text-[#0A2540] font-semibold">
+                        {transaction.date && format(new Date(transaction.date), 'MMM dd, yyyy')}
+                      </p>
+                      <p className="text-xs text-[#697586]">
+                        {transaction.date && format(new Date(transaction.date), 'hh:mm a')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Notes */}
                 {transaction.notes && (
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-[#697586]">Notes</p>
-                    <p className="text-sm text-[#697586]">{transaction.notes}</p>
+                  <div className="p-4 bg-[#FFF9E5] border border-[#FFE8A1] rounded-lg space-y-1">
+                    <p className="text-xs font-medium text-[#8B6914] uppercase flex items-center gap-2">
+                      <FileText className="w-3 h-3" />
+                      Notes
+                    </p>
+                    <p className="text-sm text-[#0A2540]">{transaction.notes}</p>
                   </div>
                 )}
 
-                {/* Receipts */}
-                {transaction.attachments?.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-medium text-[#697586]">Receipts</p>
-                      <p className="text-xs text-[#697586]">Upload or text us a photo</p>
-                    </div>
-                    <div className="flex gap-3">
+                {/* Receipts & Documents */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-[#697586] uppercase">Receipts & Documents</p>
+                    {transaction.attachments?.length > 0 ? (
+                      <Badge variant="outline" className="text-xs">
+                        {transaction.attachments.length} file{transaction.attachments.length > 1 ? 's' : ''}
+                      </Badge>
+                    ) : (
+                      <p className="text-xs text-[#697586]">No documents uploaded</p>
+                    )}
+                  </div>
+                  
+                  {transaction.attachments?.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-3">
                       {transaction.attachments.map((file, index) => (
-                        <a key={index} href={file.url} target="_blank" rel="noopener noreferrer">
-                          {file.type?.startsWith('image/') ? (
-                            <div className="w-20 h-24 rounded-lg border-2 border-[#E8ECF2] overflow-hidden hover:border-[#0066FF] transition-colors">
-                              <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
-                            </div>
-                          ) : (
-                            <div className="w-20 h-24 rounded-lg border-2 border-[#E8ECF2] flex items-center justify-center hover:border-[#0066FF] transition-colors">
-                              <FileText className="w-8 h-8 text-[#697586]" />
-                            </div>
-                          )}
-                        </a>
+                        <div key={index} className="relative group">
+                          <a href={file.url} target="_blank" rel="noopener noreferrer">
+                            {file.type?.startsWith('image/') ? (
+                              <div className="w-full aspect-[4/5] rounded-lg border-2 border-[#E8ECF2] overflow-hidden hover:border-[#0066FF] transition-all hover:shadow-lg">
+                                <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
+                              </div>
+                            ) : (
+                              <div className="w-full aspect-[4/5] rounded-lg border-2 border-[#E8ECF2] bg-[#F7F9FC] flex flex-col items-center justify-center hover:border-[#0066FF] transition-all hover:shadow-lg p-3">
+                                <FileText className="w-10 h-10 text-[#697586] mb-2" />
+                                <p className="text-xs text-center text-[#697586] truncate w-full">{file.name}</p>
+                              </div>
+                            )}
+                          </a>
+                          <a 
+                            href={file.url} 
+                            download 
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Button size="sm" variant="secondary" className="h-7 w-7 p-0 shadow-lg">
+                              <Download className="w-3 h-3" />
+                            </Button>
+                          </a>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="p-8 text-center border-2 border-dashed border-[#E8ECF2] rounded-lg">
+                      <ImageIcon className="w-12 h-12 mx-auto mb-2 text-[#D3DCE6]" />
+                      <p className="text-sm text-[#697586]">No receipts or documents attached</p>
+                    </div>
+                  )}
+                </div>
 
                 {/* Action Buttons */}
                 {!isEditing && (
