@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CheckCircle, Plus, FileText, Calendar, AlertTriangle, Bell, Download, MapPin, Mail, Phone, Users } from 'lucide-react';
+import { Building2, CheckCircle, Plus, FileText, Calendar, AlertTriangle, Bell, Download, MapPin, Mail, Phone, Users, Briefcase, DollarSign, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, differenceInDays } from 'date-fns';
 import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
@@ -51,7 +51,29 @@ export default function CompanySetup() {
       }
     }
 
-    // Check compliance items (patente, etc.)
+    // Check patente expiry
+    if (company?.date_expiration_patente) {
+      const expiryDate = new Date(company.date_expiration_patente);
+      const daysUntilExpiry = differenceInDays(expiryDate, today);
+      
+      if (daysUntilExpiry <= 30 && daysUntilExpiry >= 0) {
+        alerts.push({
+          type: 'warning',
+          title: 'Patente expire bientôt',
+          message: `Expire dans ${daysUntilExpiry} jours`,
+          date: company.date_expiration_patente
+        });
+      } else if (daysUntilExpiry < 0) {
+        alerts.push({
+          type: 'danger',
+          title: 'Patente expirée',
+          message: `Expirée depuis ${Math.abs(daysUntilExpiry)} jours`,
+          date: company.date_expiration_patente
+        });
+      }
+    }
+
+    // Check compliance items
     complianceItems.forEach(item => {
       if (item.date_expiration) {
         const expiryDate = new Date(item.date_expiration);
@@ -242,25 +264,70 @@ export default function CompanySetup() {
 
 
 
-            {/* Documents Card */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            {/* ODPIC Section */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <Card className="border-0 shadow-lg">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-[#0A2540] mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-[#0066FF]" />
-                    Documents de l'Entreprise
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className={`p-4 rounded-lg border-2 ${company.licence_entreprise_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                      <Briefcase className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#0A2540]">OFFICE DJIBOUTIEN DE LA</h3>
+                      <p className="text-sm text-[#697586]">PROPRIÉTÉ INDUSTRIELLE & COMMERCIALE (ODPIC)</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className={`p-4 rounded-lg border-2 ${company.recepisse_registre_commerce_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-semibold text-[#0A2540]">Licence d'Entreprise</p>
-                        {company.licence_entreprise_url && <CheckCircle className="w-5 h-5 text-green-600" />}
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-blue-600" />
+                          <p className="font-semibold text-[#0A2540]">Récépissé de Registre de Commerce</p>
+                        </div>
+                        {company.recepisse_registre_commerce_url && <CheckCircle className="w-5 h-5 text-green-600" />}
                       </div>
-                      {company.date_expiration_licence && (
-                        <p className="text-xs text-[#697586] mb-2">Expire: {format(new Date(company.date_expiration_licence), 'dd/MM/yyyy')}</p>
+                      {company.recepisse_registre_commerce_url ? (
+                        <a href={company.recepisse_registre_commerce_url} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="outline" className="w-full mt-2">
+                            <Download className="w-4 h-4 mr-2" /> Télécharger
+                          </Button>
+                        </a>
+                      ) : (
+                        <Badge variant="outline" className="bg-gray-100 mt-2">Non fourni</Badge>
                       )}
-                      {company.licence_entreprise_url ? (
-                        <a href={company.licence_entreprise_url} target="_blank" rel="noopener noreferrer">
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* DGI Section */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="border-0 shadow-lg">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#0A2540]">Direction Générale des Impôts (DGI)</h3>
+                      <p className="text-sm text-[#697586]">Documents fiscaux</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className={`p-4 rounded-lg border-2 ${company.patente_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-green-600" />
+                          <p className="font-semibold text-[#0A2540]">Patente</p>
+                        </div>
+                        {company.patente_url && <CheckCircle className="w-5 h-5 text-green-600" />}
+                      </div>
+                      {company.date_expiration_patente && (
+                        <p className="text-xs text-[#697586] mb-2">Expire: {format(new Date(company.date_expiration_patente), 'dd/MM/yyyy')}</p>
+                      )}
+                      {company.patente_url ? (
+                        <a href={company.patente_url} target="_blank" rel="noopener noreferrer">
                           <Button size="sm" variant="outline" className="w-full">
                             <Download className="w-4 h-4 mr-2" /> Télécharger
                           </Button>
@@ -270,13 +337,16 @@ export default function CompanySetup() {
                       )}
                     </div>
 
-                    <div className={`p-4 rounded-lg border-2 ${company.registre_commerce_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className={`p-4 rounded-lg border-2 ${company.contrat_bail_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-semibold text-[#0A2540]">Registre de Commerce</p>
-                        {company.registre_commerce_url && <CheckCircle className="w-5 h-5 text-green-600" />}
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-green-600" />
+                          <p className="font-semibold text-[#0A2540]">Contrat de Bail</p>
+                        </div>
+                        {company.contrat_bail_url && <CheckCircle className="w-5 h-5 text-green-600" />}
                       </div>
-                      {company.registre_commerce_url ? (
-                        <a href={company.registre_commerce_url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+                      {company.contrat_bail_url ? (
+                        <a href={company.contrat_bail_url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
                           <Button size="sm" variant="outline" className="w-full">
                             <Download className="w-4 h-4 mr-2" /> Télécharger
                           </Button>
@@ -285,15 +355,36 @@ export default function CompanySetup() {
                         <Badge variant="outline" className="bg-gray-100 mt-2">Non fourni</Badge>
                       )}
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-                    <div className={`p-4 rounded-lg border-2 ${company.certificat_cnss_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+            {/* CNSS Section */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="border-0 shadow-lg">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <ShieldCheck className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#0A2540]">Caisse Nationale de Sécurité Sociale (CNSS)</h3>
+                      <p className="text-sm text-[#697586]">Documents de sécurité sociale</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className={`p-4 rounded-lg border-2 ${company.immatriculation_cnss_url ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-semibold text-[#0A2540]">Certificat CNSS</p>
-                        {company.certificat_cnss_url && <CheckCircle className="w-5 h-5 text-green-600" />}
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-purple-600" />
+                          <p className="font-semibold text-[#0A2540]">Immatriculation CNSS</p>
+                        </div>
+                        {company.immatriculation_cnss_url && <CheckCircle className="w-5 h-5 text-green-600" />}
                       </div>
-                      {company.certificat_cnss_url ? (
-                        <a href={company.certificat_cnss_url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
-                          <Button size="sm" variant="outline" className="w-full">
+                      {company.immatriculation_cnss_url ? (
+                        <a href={company.immatriculation_cnss_url} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="outline" className="w-full mt-2">
                             <Download className="w-4 h-4 mr-2" /> Télécharger
                           </Button>
                         </a>
