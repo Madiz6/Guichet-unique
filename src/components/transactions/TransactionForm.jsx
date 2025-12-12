@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { meras } from "@/components/core/MerasClient";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Upload, X, FileText, Image as ImageIcon, Sparkles, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 const DEPARTMENTS = [
@@ -67,6 +69,18 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     attachments: []
   });
   const [uploading, setUploading] = useState(false);
+  const [suggestedCategory, setSuggestedCategory] = useState(null);
+  const [loadingSuggestion, setLoadingSuggestion] = useState(false);
+
+  const { data: contacts = [] } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: () => meras.entities.Contact.list(),
+  });
+
+  const { data: pastTransactions = [] } = useQuery({
+    queryKey: ['transactions-for-ai'],
+    queryFn: () => meras.entities.Transaction.list('-created_date', 50),
+  });
 
   const availableCategories = formData.type === 'Revenu' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
@@ -130,6 +144,62 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     });
   };
 
+  const suggestCategory = async () => {
+    if (!formData.description) {
+      toast.error('Veuillez entrer une description d\'abord');
+      return;
+    }
+
+    setLoadingSuggestion(true);
+    try {
+      const recentSimilar = pastTransactions
+        .filter(t => t.type === formData.type && t.category)
+        .slice(0, 10)
+        .map(t => `Description: ${t.description}, Catégorie: ${t.category}`)
+        .join('\n');
+
+      const prompt = `En tant qu'expert comptable à Djibouti, suggérez la catégorie la plus appropriée pour cette transaction:
+
+Type: ${formData.type}
+Description: ${formData.description}
+Contact: ${formData.contact_name || 'Non spécifié'}
+
+Catégories disponibles pour ${formData.type}:
+${availableCategories.join(', ')}
+
+Exemples de transactions précédentes:
+${recentSimilar || 'Aucune transaction précédente'}
+
+Répondez UNIQUEMENT avec le nom exact de la catégorie, rien d'autre.`;
+
+      const response = await meras.integrations.Core.InvokeLLM({
+        prompt,
+        add_context_from_internet: false
+      });
+
+      const suggested = response.trim();
+      if (availableCategories.includes(suggested)) {
+        setSuggestedCategory(suggested);
+        toast.success('Catégorie suggérée!');
+      } else {
+        toast.error('Impossible de suggérer une catégorie');
+      }
+    } catch (error) {
+      toast.error('Erreur lors de la suggestion');
+    } finally {
+      setLoadingSuggestion(false);
+    }
+  };
+
+  useEffect(() => {
+    if (formData.description && formData.description.length > 10 && !formData.category && !transaction) {
+      const timer = setTimeout(() => {
+        suggestCategory();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [formData.description, formData.type]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.description || !formData.amount) {
@@ -141,7 +211,8 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
       amount: parseFloat(formData.amount),
       tax_rate: parseFloat(formData.tax_rate) || 0,
       tax_amount: parseFloat(formData.tax_amount) || 0,
-      total_amount: parseFloat(formData.total_amount) || parseFloat(formData.amount)
+      total_amount: parseFloat(formData.total_amount) || parseFloat(formData.amount),
+      auto_categorized: !!suggestedCategory && formData.category === suggestedCategory
     });
   };
 
@@ -185,12 +256,26 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
 
       <div>
         <Label>{formData.type === 'Revenu' ? 'Nom du Client' : 'Nom du Fournisseur'}</Label>
-        <Input
-          value={formData.contact_name}
-          onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
-          placeholder={formData.type === 'Revenu' ? 'Ex: ABC Company' : 'Ex: XYZ Supplies'}
-          className="mt-2"
-        />
+        <Select 
+          value={formData.contact_name} 
+          onValueChange={(value) => setFormData({...formData, contact_name: value})}
+        >
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder="Sélectionner un contact..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={null}>Aucun contact</SelectItem>
+            {contacts
+              .filter(c => formData.type === 'Revenu' 
+                ? (c.type === 'Client' || c.type === 'Les deux')
+                : (c.type === 'Fournisseur' || c.type === 'Les deux'))
+              .map(contact => (
+                <SelectItem key={contact.id} value={contact.name}>
+                  {contact.name} {contact.company && `(${contact.company})`}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -260,8 +345,27 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label>Catégorie</Label>
-          <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+          <div className="flex items-center justify-between mb-2">
+            <Label>Catégorie</Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={suggestCategory}
+              disabled={loadingSuggestion || !formData.description}
+              className="h-7 text-xs text-purple-600"
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              {loadingSuggestion ? 'Suggestion...' : 'Suggérer avec IA'}
+            </Button>
+          </div>
+          <Select 
+            value={formData.category} 
+            onValueChange={(value) => {
+              setFormData({...formData, category: value});
+              setSuggestedCategory(null);
+            }}
+          >
             <SelectTrigger className="mt-2">
               <SelectValue placeholder="Sélectionner une catégorie..." />
             </SelectTrigger>
@@ -271,6 +375,26 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
               ))}
             </SelectContent>
           </Select>
+          {suggestedCategory && (
+            <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-600" />
+                <span className="text-sm text-purple-800">Suggestion: {suggestedCategory}</span>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setFormData({...formData, category: suggestedCategory});
+                  toast.success('Catégorie appliquée');
+                }}
+                className="h-7 text-purple-600"
+              >
+                <Check className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </div>
         <div>
           <Label>Département</Label>
