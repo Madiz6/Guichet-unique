@@ -23,7 +23,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-xl p-0 gap-0 overflow-hidden max-h-[85vh]">
         {/* Header */}
         <div className="p-6 border-b border-[#E8ECF2]">
           <div className="flex items-center justify-between mb-4">
@@ -56,10 +56,10 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
         <div className="px-6 py-4 bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6]">
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-4xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-[#0A2540]'}`}>
+              <p className={`text-3xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-[#0A2540]'}`}>
                 {transaction.type === 'Revenu' ? '+' : '-'}{transaction.amount?.toLocaleString()} DJF
               </p>
-              <p className="text-sm text-[#697586] mt-1">{transaction.category || 'Uncategorized'}</p>
+              <p className="text-xs text-[#697586] mt-1">{transaction.category || 'Uncategorized'}</p>
             </div>
             <Badge className="bg-green-100 text-green-700 border-0">
               <CheckCircle className="w-3 h-3 mr-1" />
@@ -69,7 +69,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
         </div>
 
         {/* Content */}
-        <div className="max-h-[400px] overflow-y-auto">
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(85vh - 200px)' }}>
         <Tabs defaultValue="payment" className="px-6 py-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="payment">Payment Information</TabsTrigger>
@@ -175,65 +175,62 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
             ) : (
               <>
                 {/* Description */}
-                <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
                   <p className="text-xs font-medium text-[#697586] uppercase">Description</p>
-                  <p className="text-sm text-[#0A2540] font-medium">{transaction.description}</p>
+                  <p className="text-sm text-[#0A2540]">{transaction.description}</p>
                 </div>
 
                 {/* Contact */}
                 {transaction.contact_name && (
-                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                  <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
                     <p className="text-xs font-medium text-[#697586] uppercase">
                       {transaction.type === 'Revenu' ? 'Client' : 'Supplier'}
                     </p>
-                    <p className="text-sm text-[#0A2540] font-semibold">{transaction.contact_name}</p>
+                    <p className="text-sm text-[#0A2540] font-medium">{transaction.contact_name}</p>
                   </div>
                 )}
 
                 {/* Type/Category */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
                     <p className="text-xs font-medium text-[#697586] uppercase">Type</p>
                     <Badge className={transaction.type === 'Revenu' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
                       {transaction.type}
                     </Badge>
                   </div>
-                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                  <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
                     <p className="text-xs font-medium text-[#697586] uppercase">Category</p>
-                    <p className="text-sm text-[#0A2540] font-medium">{transaction.category || 'Uncategorized'}</p>
+                    <p className="text-sm text-[#0A2540]">{transaction.category || '-'}</p>
                   </div>
                 </div>
 
                 {/* Department & Payment Method */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   {transaction.department && (
-                    <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                    <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
                       <p className="text-xs font-medium text-[#697586] uppercase">Department</p>
-                      <p className="text-sm text-[#0A2540] font-medium">{transaction.department}</p>
+                      <p className="text-sm text-[#0A2540]">{transaction.department}</p>
                     </div>
                   )}
-                  <div className="p-4 bg-[#F7F9FC] rounded-lg space-y-1">
+                  <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
                     <p className="text-xs font-medium text-[#697586] uppercase">Payment Method</p>
-                    <p className="text-sm text-[#0A2540] font-medium">{transaction.payment_method || '-'}</p>
+                    <p className="text-sm text-[#0A2540]">{transaction.payment_method || '-'}</p>
                   </div>
                 </div>
 
                 {/* Amount Details */}
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Transaction Amount</p>
-                      <p className={`text-2xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>
+                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Amount</p>
+                      <p className={`text-xl font-bold ${transaction.type === 'Revenu' ? 'text-green-600' : 'text-red-600'}`}>
                         {transaction.type === 'Revenu' ? '+' : '-'}{transaction.amount?.toLocaleString()} DJF
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Transaction Date</p>
+                      <p className="text-xs font-medium text-[#697586] uppercase mb-1">Date</p>
                       <p className="text-sm text-[#0A2540] font-semibold">
                         {transaction.date && format(new Date(transaction.date), 'MMM dd, yyyy')}
-                      </p>
-                      <p className="text-xs text-[#697586]">
-                        {transaction.date && format(new Date(transaction.date), 'hh:mm a')}
                       </p>
                     </div>
                   </div>
@@ -241,8 +238,8 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
 
                 {/* Notes */}
                 {transaction.notes && (
-                  <div className="p-4 bg-[#FFF9E5] border border-[#FFE8A1] rounded-lg space-y-1">
-                    <p className="text-xs font-medium text-[#8B6914] uppercase flex items-center gap-2">
+                  <div className="p-3 bg-[#FFF9E5] border border-[#FFE8A1] rounded-lg space-y-1">
+                    <p className="text-xs font-medium text-[#8B6914] uppercase flex items-center gap-1">
                       <FileText className="w-3 h-3" />
                       Notes
                     </p>
