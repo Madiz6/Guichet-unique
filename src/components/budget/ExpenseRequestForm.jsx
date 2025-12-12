@@ -45,8 +45,8 @@ export default function ExpenseRequestForm({ isOpen, onClose, budgets, departmen
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const requestNumber = `REQ-${Date.now()}`;
-      const budget = budgets.find(b => b.id === data.department_id);
       const dept = departments.find(d => d.id === data.department_id);
+      const budget = budgets.find(b => b.department_id === data.department_id);
       
       const expenseData = {
         ...data,
@@ -143,7 +143,7 @@ export default function ExpenseRequestForm({ isOpen, onClose, budgets, departmen
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Département *</Label>
-              <Select value={formData.department_id || undefined} onValueChange={handleDepartmentChange}>
+              <Select value={formData.department_id || ''} onValueChange={handleDepartmentChange}>
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Sélectionner un département..." />
                 </SelectTrigger>
