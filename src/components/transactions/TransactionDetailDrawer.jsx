@@ -93,13 +93,13 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
           </TabsList>
 
           <TabsContent value="payment" className="space-y-4 mt-4">
-            {isEditing ? (
+            {isEditing && editData ? (
             <>
               <div>
                 <Label>Date</Label>
                 <Input
                   type="date"
-                  value={editData.date}
+                  value={editData.date || ''}
                   onChange={(e) => setEditData({...editData, date: e.target.value})}
                   className="mt-2"
                 />
@@ -108,7 +108,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
               <div>
                 <Label>Description</Label>
                 <Input
-                  value={editData.description}
+                  value={editData.description || ''}
                   onChange={(e) => setEditData({...editData, description: e.target.value})}
                   className="mt-2"
                 />
@@ -119,7 +119,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                   <Label>Montant (DJF)</Label>
                   <Input
                     type="number"
-                    value={editData.amount}
+                    value={editData.amount || 0}
                     onChange={(e) => setEditData({...editData, amount: parseFloat(e.target.value)})}
                     className="mt-2"
                   />
@@ -141,7 +141,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
               <div>
                 <Label>Catégorie</Label>
                 <Input
-                  value={editData.category}
+                  value={editData.category || ''}
                   onChange={(e) => setEditData({...editData, category: e.target.value})}
                   className="mt-2"
                 />
@@ -181,7 +181,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
               <div>
                 <Label>Notes</Label>
                 <Textarea
-                  value={editData.notes}
+                  value={editData.notes || ''}
                   onChange={(e) => setEditData({...editData, notes: e.target.value})}
                   className="mt-2"
                   rows={4}
