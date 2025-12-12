@@ -34,8 +34,8 @@ import CompanySetup from './pages/CompanySetup';
 import AutresServices from './pages/AutresServices';
 import Transactions from './pages/Transactions';
 import Contacts from './pages/Contacts';
-import RapportsFinanciers from './pages/RapportsFinanciers';
 import BudgetManagement from './pages/BudgetManagement';
+import BusinessIntelligence from './pages/BusinessIntelligence';
 import __Layout from './Layout.jsx';
 
 
@@ -76,8 +76,8 @@ export const PAGES = {
     "AutresServices": AutresServices,
     "Transactions": Transactions,
     "Contacts": Contacts,
-    "RapportsFinanciers": RapportsFinanciers,
     "BudgetManagement": BudgetManagement,
+    "BusinessIntelligence": BusinessIntelligence,
 }
 
 export const pagesConfig = {

@@ -87,13 +87,8 @@ export default function Layout({ children, currentPageName }) {
       icon: Users,
     },
     {
-      title: "Rapports Financiers",
-      url: createPageUrl("RapportsFinanciers"),
-      icon: FileSpreadsheet,
-    },
-    {
-      title: "Rapports & Analyses",
-      url: createPageUrl("Reports"),
+      title: "Business Intelligence",
+      url: createPageUrl("BusinessIntelligence"),
       icon: FileSpreadsheet,
     },
     {
