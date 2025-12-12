@@ -32,6 +32,7 @@ import VirtualReceptionist from './pages/VirtualReceptionist';
 import TouristVisa from './pages/TouristVisa';
 import CompanySetup from './pages/CompanySetup';
 import AutresServices from './pages/AutresServices';
+import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
 
@@ -70,6 +71,7 @@ export const PAGES = {
     "TouristVisa": TouristVisa,
     "CompanySetup": CompanySetup,
     "AutresServices": AutresServices,
+    "Transactions": Transactions,
 }
 
 export const pagesConfig = {

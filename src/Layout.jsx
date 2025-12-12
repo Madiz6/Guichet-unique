@@ -72,6 +72,11 @@ export default function Layout({ children, currentPageName }) {
       icon: Calendar,
     },
     {
+      title: "Transactions",
+      url: createPageUrl("Transactions"),
+      icon: DollarSign,
+    },
+    {
       title: "Rapports & Analyses",
       url: createPageUrl("Reports"),
       icon: FileSpreadsheet,
