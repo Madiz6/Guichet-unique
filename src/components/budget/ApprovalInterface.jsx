@@ -263,107 +263,155 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
 
       {/* Request Detail Dialog */}
       <Dialog open={!!viewingRequest} onOpenChange={() => setViewingRequest(null)}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Détails de la Demande</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-2xl bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F5]">
           {viewingRequest && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-[#697586]">Numéro de Demande</p>
-                  <p className="font-mono font-semibold text-[#0A2540]">{viewingRequest.request_number}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#697586]">Statut</p>
-                  {getStatusBadge(viewingRequest.status)}
-                </div>
-                <div>
-                  <p className="text-sm text-[#697586]">Demandeur</p>
-                  <p className="text-[#0A2540]">{viewingRequest.requester_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#697586]">Département</p>
-                  <p className="text-[#0A2540]">{viewingRequest.department_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#697586]">Montant Demandé</p>
-                  <p className="text-xl font-bold text-[#0A2540]">{viewingRequest.amount_requested.toLocaleString()} DJF</p>
-                </div>
-                {viewingRequest.amount_executed > 0 && (
-                  <div>
-                    <p className="text-sm text-[#697586]">Montant Exécuté</p>
-                    <p className="text-xl font-bold text-green-600">{viewingRequest.amount_executed.toLocaleString()} DJF</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm text-[#697586]">Catégorie</p>
-                  <p className="text-[#0A2540]">{viewingRequest.category}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-[#697586]">Type de Demande</p>
-                  <Badge>{viewingRequest.request_type}</Badge>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm text-[#697586] mb-2">Description</p>
-                <p className="text-[#0A2540] bg-[#F7F9FC] p-3 rounded-lg">{viewingRequest.description}</p>
-              </div>
-
-              {viewingRequest.contact_name && (
-                <div>
-                  <p className="text-sm text-[#697586]">Fournisseur/Bénéficiaire</p>
-                  <p className="text-[#0A2540]">{viewingRequest.contact_name}</p>
-                </div>
-              )}
-
-              {viewingRequest.approved_by && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-[#697586]">Approuvé par</p>
-                    <p className="text-[#0A2540]">{viewingRequest.approver_name}</p>
+            <div className="space-y-8 p-6">
+              {/* Requester Card */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB]">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-white text-2xl font-bold">
+                    {viewingRequest.requester_name?.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm text-[#697586]">Date d'Approbation</p>
-                    <p className="text-[#0A2540]">
-                      {viewingRequest.date_approved && format(new Date(viewingRequest.date_approved), 'dd/MM/yyyy')}
+                    <h3 className="text-xl font-semibold text-[#1A1A1A]">{viewingRequest.requester_name}</h3>
+                    <p className="text-[#6B6B6B] font-normal">{viewingRequest.department_name}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-1">Description</p>
+                    <p className="text-sm text-[#1A1A1A]">{viewingRequest.description}</p>
+                  </div>
+
+                  {viewingRequest.contact_name && (
+                    <div>
+                      <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-1">Fournisseur</p>
+                      <p className="text-sm text-[#1A1A1A]">{viewingRequest.contact_name}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-2">Requested payout amount</p>
+                    <p className="text-4xl font-bold text-[#1A1A1A] mb-1">
+                      {viewingRequest.amount_requested.toLocaleString()} DJF
+                    </p>
+                    <p className="text-xs text-[#6B6B6B]">
+                      1 DJF = 0.35 CAD (1,758.48 CAD)
                     </p>
                   </div>
+
+                  {!isMyRequests && viewingRequest.status === 'En attente' && (
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        onClick={() => setShowRejectDialog(viewingRequest)}
+                        className="flex-1 bg-[#FF4D6A] hover:bg-[#E6445E] text-white font-medium rounded-xl h-12"
+                      >
+                        Reject
+                      </Button>
+                      <Button
+                        onClick={() => approveMutation.mutate({ requestId: viewingRequest.id, request: viewingRequest })}
+                        disabled={approveMutation.isLoading}
+                        className="flex-1 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12"
+                      >
+                        Approve
+                      </Button>
+                    </div>
+                  )}
+
+                  {viewingRequest.status !== 'En attente' && (
+                    <div className="pt-4">
+                      {getStatusBadge(viewingRequest.status)}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Connecting Line */}
+              <div className="flex justify-center">
+                <div className="w-px h-12 bg-gradient-to-b from-[#E5E7EB] via-[#E5E7EB] to-transparent"></div>
+              </div>
+
+              {/* Admin/Manager Card */}
+              {viewingRequest.approved_by && (
+                <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB]">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center text-white text-2xl font-bold">
+                      {viewingRequest.approver_name?.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#1A1A1A]">{viewingRequest.approver_name}</h3>
+                      <p className="text-[#6B6B6B] font-normal">Admin</p>
+                    </div>
+                  </div>
+
+                  {isMyRequests && viewingRequest.status === 'Engagée' && (
+                    <Button
+                      onClick={() => setUploadingReceipt(viewingRequest)}
+                      className="w-full bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12"
+                    >
+                      Reimburse expense
+                    </Button>
+                  )}
                 </div>
               )}
+
+              {/* Additional Info */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-xs text-[#6B6B6B] mb-1">Request Number</p>
+                  <p className="font-mono font-medium text-[#1A1A1A]">{viewingRequest.request_number}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#6B6B6B] mb-1">Category</p>
+                  <p className="font-medium text-[#1A1A1A]">{viewingRequest.category}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#6B6B6B] mb-1">Request Date</p>
+                  <p className="font-medium text-[#1A1A1A]">
+                    {viewingRequest.date_requested && format(new Date(viewingRequest.date_requested), 'dd/MM/yyyy')}
+                  </p>
+                </div>
+                {viewingRequest.date_approved && (
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] mb-1">Approval Date</p>
+                    <p className="font-medium text-[#1A1A1A]">
+                      {format(new Date(viewingRequest.date_approved), 'dd/MM/yyyy')}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {viewingRequest.receipt_url && (
                 <div>
-                  <p className="text-sm text-[#697586] mb-2">Reçu/Facture</p>
                   <a
                     href={viewingRequest.receipt_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
+                    className="flex items-center justify-center gap-2 p-4 bg-white border border-[#E5E7EB] rounded-xl hover:shadow-md transition-all"
                   >
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    <span className="text-blue-600 font-medium">Voir le document</span>
+                    <FileText className="w-5 h-5 text-[#1A1A1A]" />
+                    <span className="text-[#1A1A1A] font-medium">View Receipt</span>
                   </a>
                 </div>
               )}
 
               {viewingRequest.policy_violation && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="p-4 bg-[#FFF9E5] border border-[#FFE8A1] rounded-xl">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 text-[#8B6914] mt-0.5" />
                     <div>
-                      <p className="font-semibold text-amber-800 mb-1">Violation de Politique</p>
-                      <p className="text-sm text-amber-700">{viewingRequest.policy_violation_reason}</p>
+                      <p className="font-semibold text-[#8B6914] mb-1">Policy Violation</p>
+                      <p className="text-sm text-[#8B6914]">{viewingRequest.policy_violation_reason}</p>
                     </div>
                   </div>
                 </div>
               )}
 
               {viewingRequest.rejection_reason && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="font-semibold text-red-800 mb-1">Raison du Rejet</p>
-                  <p className="text-sm text-red-700">{viewingRequest.rejection_reason}</p>
+                <div className="p-4 bg-[#FFEBEE] border border-[#FFCDD2] rounded-xl">
+                  <p className="font-semibold text-[#C62828] mb-1">Rejection Reason</p>
+                  <p className="text-sm text-[#C62828]">{viewingRequest.rejection_reason}</p>
                 </div>
               )}
             </div>
