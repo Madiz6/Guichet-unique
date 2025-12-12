@@ -24,20 +24,18 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
 
   const approveMutation = useMutation({
     mutationFn: async ({ requestId, request }) => {
+      if (!currentUser) {
+        throw new Error('Utilisateur non authentifié');
+      }
+
       const budget = budgets.find(b => b.id === request.budget_id);
       
       if (!budget) {
         throw new Error('Budget introuvable');
       }
-      
-      // Update request status first
-      const updatedRequest = await meras.entities.ExpenseRequest.update(requestId, {
-        status: 'Approuvée',
-        approved_by: currentUser?.email,
-        approver_name: currentUser?.full_name,
-        date_approved: new Date().toISOString().split('T')[0]
-      });
 
+      console.log('Approving request:', { requestId, request, budget, currentUser });
+      
       // Update budget - add to committed
       const newCommitted = (budget.amount_committed || 0) + request.amount_requested;
       const newAvailable = budget.amount_allocated - budget.amount_used - newCommitted;
@@ -47,6 +45,15 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
         amount_available: newAvailable
       });
 
+      // Update request status
+      const updatedRequest = await meras.entities.ExpenseRequest.update(requestId, {
+        status: 'Approuvée',
+        approved_by: currentUser.email,
+        approver_name: currentUser.full_name,
+        date_approved: new Date().toISOString().split('T')[0]
+      });
+
+      console.log('Approval successful:', updatedRequest);
       return updatedRequest;
     },
     onSuccess: () => {
@@ -56,7 +63,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       setViewingRequest(null);
     },
     onError: (error) => {
-      toast.error(`Erreur: ${error.message}`);
+      toast.error(`Erreur d'approbation: ${error.message}`);
       console.error('Approval error:', error);
     },
   });
@@ -92,7 +99,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       let newCommitted = budget.amount_committed || 0;
       let newUsed = budget.amount_used || 0;
 
-      if (request.status === 'Engagée') {
+      if (request.status === 'Engagée' || request.status === 'Approuvée') {
         newCommitted -= request.amount_requested;
         newUsed += actualAmount;
       } else {
@@ -154,12 +161,13 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
   const getStatusBadge = (status) => {
     const styles = {
       'En attente': 'bg-amber-100 text-amber-700',
+      'Approuvée': 'bg-blue-100 text-blue-700',
       'Engagée': 'bg-blue-100 text-blue-700',
       'Exécutée': 'bg-green-100 text-green-700',
       'Rejetée': 'bg-red-100 text-red-700',
       'Annulée': 'bg-gray-100 text-gray-700'
     };
-    return <Badge className={styles[status]}>{status}</Badge>;
+    return <Badge className={styles[status] || 'bg-gray-100 text-gray-700'}>{status}</Badge>;
   };
 
   return (
