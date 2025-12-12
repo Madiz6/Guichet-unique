@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, TrendingUp, TrendingDown, DollarSign, Users, FileText, Building2, Download, Filter, AlertTriangle, Bell, Target, Zap, Brain, Activity, Shield } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, DollarSign, Users, FileText, Building2, Download, Filter, AlertTriangle, Bell, Target, Zap, Brain, Activity, Shield, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, addDays, differenceInDays } from 'date-fns';
