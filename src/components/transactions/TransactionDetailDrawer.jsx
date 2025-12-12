@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { X, Edit2, Trash2, Download, FileText, Image as ImageIcon, CreditCard, Calendar, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TransactionDetailDrawer({ transaction, onClose, onUpdate, onDelete, departments, categories }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -22,8 +22,14 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
   };
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl p-0 gap-0 overflow-hidden max-h-[85vh]">
+    <AnimatePresence>
+      <motion.div
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="fixed right-0 top-0 h-full w-[600px] bg-white shadow-2xl z-50 flex flex-col border-l border-[#E8ECF2]"
+      >
         {/* Header */}
         <div className="p-6 border-b border-[#E8ECF2]">
           <div className="flex items-center justify-between mb-4">
@@ -69,7 +75,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(85vh - 200px)' }}>
+        <div className="flex-1 overflow-y-auto">
         <Tabs defaultValue="payment" className="px-6 py-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="payment">Payment Information</TabsTrigger>
@@ -332,7 +338,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
           </div>
         )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </motion.div>
+    </AnimatePresence>
   );
 }
