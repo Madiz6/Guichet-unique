@@ -303,25 +303,24 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                     </p>
                   </div>
 
-                  {!isMyRequests && viewingRequest.status === 'En attente' && (
+                  {viewingRequest.status === 'En attente' && !isMyRequests ? (
                     <div className="flex gap-3 pt-4">
                       <Button
                         onClick={() => setShowRejectDialog(viewingRequest)}
                         className="flex-1 bg-[#FF4D6A] hover:bg-[#E6445E] text-white font-medium rounded-xl h-12"
+                        disabled={approveMutation.isLoading || rejectMutation.isLoading}
                       >
                         Reject
                       </Button>
                       <Button
                         onClick={() => approveMutation.mutate({ requestId: viewingRequest.id, request: viewingRequest })}
-                        disabled={approveMutation.isLoading}
+                        disabled={approveMutation.isLoading || rejectMutation.isLoading}
                         className="flex-1 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12"
                       >
-                        Approve
+                        {approveMutation.isLoading ? 'Approving...' : 'Approve'}
                       </Button>
                     </div>
-                  )}
-
-                  {viewingRequest.status !== 'En attente' && (
+                  ) : (
                     <div className="pt-4">
                       {getStatusBadge(viewingRequest.status)}
                     </div>
