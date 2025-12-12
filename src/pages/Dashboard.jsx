@@ -124,35 +124,33 @@ export default function Dashboard() {
     return (
       <Link to={link}>
         <motion.div
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.2 }}
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.15 }}
         >
-          <Card className="border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-white overflow-hidden h-full">
+          <Card className="border border-[#E5E7EB] swan-shadow hover:swan-shadow-lg transition-all duration-300 bg-white overflow-hidden h-full">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className={`w-10 h-10 rounded-xl ${colors.light} flex items-center justify-center`}>
-                      <Icon className={`w-5 h-5 ${colors.text}`} />
+                    <div className="w-10 h-10 rounded-lg bg-[#F5F5F5] flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-[#1A1A1A]" />
                     </div>
-                    <p className="text-sm font-medium text-[#64748B]">{title}</p>
+                    <p className="text-sm font-normal text-[#6B6B6B]">{title}</p>
                   </div>
-                  <h3 className="text-3xl font-bold text-[#0F172A] mb-2">{value}</h3>
+                  <h3 className="text-3xl font-semibold text-[#1A1A1A] mb-2 tracking-tight">{value}</h3>
                   {trendValue && (
                     <div className="flex items-center gap-1.5">
-                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${
-                        trend === 'up' ? 'bg-[#10B981]/10' : 'bg-[#EF4444]/10'
+                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md ${
+                        trend === 'up' ? 'bg-[#F5F5F5]' : 'bg-[#F5F5F5]'
                       }`}>
                         <TrendIcon className={`w-3.5 h-3.5 ${
-                          trend === 'up' ? 'text-[#10B981]' : 'text-[#EF4444]'
+                          trend === 'up' ? 'text-[#1A1A1A]' : 'text-[#1A1A1A]'
                         }`} />
-                        <span className={`text-xs font-semibold ${
-                          trend === 'up' ? 'text-[#10B981]' : 'text-[#EF4444]'
-                        }`}>
+                        <span className="text-xs font-medium text-[#1A1A1A]">
                           {trendValue}
                         </span>
                       </div>
-                      <span className="text-xs text-[#94A3B8]">vs last month</span>
+                      <span className="text-xs text-[#6B6B6B] font-normal">vs last month</span>
                     </div>
                   )}
                 </div>
@@ -165,7 +163,7 @@ export default function Dashboard() {
   };
   
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#FAFAFA]">
       <div className="p-8 max-w-[1600px] mx-auto">
         {/* No Company Alert */}
         {companies.length === 0 && (
@@ -174,21 +172,21 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <Card className="border-0 shadow-lg bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-l-amber-500">
+            <Card className="border border-[#E5E7EB] swan-shadow bg-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-amber-600" />
+                    <div className="w-12 h-12 rounded-lg bg-[#F5F5F5] flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-[#1A1A1A]" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-[#0A2540]">Aucune entreprise configurée</h3>
-                      <p className="text-sm text-[#697586] mt-1">
+                      <h3 className="font-semibold text-[#1A1A1A] tracking-tight">Aucune entreprise configurée</h3>
+                      <p className="text-sm text-[#6B6B6B] mt-1 font-normal">
                         Créez votre entreprise pour commencer à utiliser la plateforme
                       </p>
                     </div>
                   </div>
-                  <Button onClick={() => setShowCompanyWizard(true)} className="bg-gradient-to-r from-amber-500 to-orange-500">
+                  <Button onClick={() => setShowCompanyWizard(true)} className="bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
                     <Plus className="w-4 h-4 mr-2" /> Créer mon entreprise
                   </Button>
                 </div>
@@ -205,10 +203,10 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-[#0F172A] mb-1">
+              <h1 className="text-4xl font-semibold text-[#1A1A1A] mb-2 tracking-tight">
                 Welcome back, {company?.nom_entreprise || 'Admin'}
               </h1>
-              <p className="text-[#64748B] flex items-center gap-2">
+              <p className="text-[#6B6B6B] flex items-center gap-2 font-normal">
                     <span>{company?.nom_entreprise || 'Paie360'}</span>
                     {company?.numero_affiliation && (
                       <>
@@ -217,12 +215,12 @@ export default function Dashboard() {
                       </>
                     )}
                     <span>•</span>
-                    <span className="text-[#6366F1] font-medium">Powered by Meras PSP</span>
+                    <span className="text-[#1A1A1A] font-medium">Powered by Meras PSP</span>
                   </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-[#64748B]">{format(new Date(), 'EEEE')}</p>
-              <p className="text-lg font-semibold text-[#0F172A]">{format(new Date(), 'dd MMMM yyyy')}</p>
+              <p className="text-sm text-[#6B6B6B] font-normal">{format(new Date(), 'EEEE')}</p>
+              <p className="text-lg font-medium text-[#1A1A1A]">{format(new Date(), 'dd MMMM yyyy')}</p>
             </div>
           </div>
         </motion.div>

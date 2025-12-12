@@ -122,18 +122,18 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6]">
-        <Sidebar className="border-r border-[#E5E7EB] bg-white shadow-sm">
-          <SidebarHeader className="border-b border-[#E5E7EB] p-6">
+      <div className="min-h-screen flex w-full bg-[#FAFAFA]">
+        <Sidebar className="border-r border-[#E5E7EB] bg-white">
+          <SidebarHeader className="border-b border-[#F0F0F0] p-6">
             <Link to={createPageUrl("Home")} className="flex items-center gap-3">
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
                   alt="Paie360 Logo" 
-                  className="w-10 h-10 object-contain rounded-full"
+                  className="w-10 h-10 object-contain"
                 />
                 <div>
-                  <h2 className="font-bold text-[#0A2540] text-lg">Paie360</h2>
-                  <p className="text-xs text-[#697586]">Powered by Meras PSP</p>
+                  <h2 className="font-semibold text-[#1A1A1A] text-lg tracking-tight">Paie360</h2>
+                  <p className="text-xs text-[#6B6B6B] font-normal">Powered by Meras PSP</p>
                 </div>
               </Link>
           </SidebarHeader>
@@ -146,15 +146,15 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
-                        className={`mb-1 rounded-xl transition-all duration-200 ${
+                        className={`mb-1 rounded-lg transition-all duration-200 ${
                           location.pathname === item.url 
-                            ? 'bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white shadow-md' 
-                            : 'hover:bg-[#F7F9FC] text-[#697586] hover:text-[#0066FF]'
+                            ? 'bg-[#1A1A1A] text-white' 
+                            : 'hover:bg-[#F5F5F5] text-[#6B6B6B] hover:text-[#1A1A1A]'
                         }`}
                       >
-                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                          <item.icon className="w-5 h-5" />
-                          <span className="font-medium">{item.title}</span>
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-2.5">
+                          <item.icon className="w-4 h-4" />
+                          <span className="font-normal text-sm">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -166,19 +166,19 @@ export default function Layout({ children, currentPageName }) {
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          <header className="bg-white border-b border-[#E5E7EB] px-6 py-4 shadow-sm">
+          <header className="bg-white border-b border-[#F0F0F0] px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 md:hidden">
-                <SidebarTrigger className="hover:bg-[#F7F9FC] p-2 rounded-lg transition-colors duration-200" />
+                <SidebarTrigger className="hover:bg-[#F5F5F5] p-2 rounded-lg transition-colors duration-200" />
                 <Link to={createPageUrl("Home")} className="flex items-center gap-2">
                   <img 
                     src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
                     alt="Paie360 Logo" 
-                    className="w-8 h-8 object-contain rounded-full"
+                    className="w-8 h-8 object-contain"
                   />
                   <div>
-                    <h1 className="text-lg font-bold text-[#0A2540]">Paie360</h1>
-                    <p className="text-[10px] text-[#697586] -mt-1">Powered by Meras PSP</p>
+                    <h1 className="text-lg font-semibold text-[#1A1A1A] tracking-tight">Paie360</h1>
+                    <p className="text-[10px] text-[#6B6B6B] -mt-1 font-normal">Powered by Meras PSP</p>
                   </div>
                 </Link>
               </div>
@@ -188,24 +188,24 @@ export default function Layout({ children, currentPageName }) {
               <div className="flex items-center gap-4">
                 <NotificationCenter />
                 
-                <div className="flex items-center gap-3 pl-4 border-l border-[#E5E7EB]">
+                <div className="flex items-center gap-3 pl-4 border-l border-[#F0F0F0]">
                   <div className="relative group">
                     <div className="flex items-center gap-3 cursor-pointer">
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-[#0A2540]">{user?.full_name}</p>
-                        <p className="text-xs text-[#697586]">{user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</p>
+                        <p className="text-sm font-medium text-[#1A1A1A]">{user?.full_name}</p>
+                        <p className="text-xs text-[#6B6B6B] font-normal">{user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</p>
                       </div>
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-white font-medium">
                         {user?.full_name?.[0] || 'U'}
                       </div>
                     </div>
                     
                     {/* Dropdown Menu */}
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-[#E5E7EB] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg border border-[#E5E7EB] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 swan-shadow-lg">
                       <div className="p-2">
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#F5F5F5] rounded-lg transition-colors font-normal"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -224,8 +224,8 @@ export default function Layout({ children, currentPageName }) {
             {children}
           </div>
         {/* Footer */}
-        <footer className="bg-white border-t border-[#E5E7EB] px-6 py-3 text-center">
-          <p className="text-xs text-[#697586]">© 2024 Paie360 • Powered by <span className="font-semibold text-[#6366F1]">Meras PSP</span></p>
+        <footer className="bg-white border-t border-[#F0F0F0] px-6 py-3 text-center">
+          <p className="text-xs text-[#6B6B6B] font-normal">© 2024 Paie360 • Powered by <span className="font-medium text-[#1A1A1A]">Meras PSP</span></p>
         </footer>
         </main>
         </div>
