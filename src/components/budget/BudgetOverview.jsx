@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function BudgetOverview({ budgets, departments, expenseRequests }) {
+  const [selectedBudget, setSelectedBudget] = useState(null);
   const getBudgetHealth = (budget) => {
     const total = budget.amount_used + budget.amount_committed;
     const percentage = (total / budget.amount_allocated) * 100;
