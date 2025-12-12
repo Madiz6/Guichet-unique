@@ -77,6 +77,11 @@ export default function Layout({ children, currentPageName }) {
       icon: DollarSign,
     },
     {
+      title: "Gestion Budgétaire",
+      url: createPageUrl("BudgetManagement"),
+      icon: DollarSign,
+    },
+    {
       title: "Contacts",
       url: createPageUrl("Contacts"),
       icon: Users,
