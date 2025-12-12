@@ -26,6 +26,18 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
     mutationFn: async ({ requestId, request }) => {
       const budget = budgets.find(b => b.id === request.budget_id);
       
+      if (!budget) {
+        throw new Error('Budget introuvable');
+      }
+      
+      // Update request status first
+      const updatedRequest = await meras.entities.ExpenseRequest.update(requestId, {
+        status: 'Approuvée',
+        approved_by: currentUser?.email,
+        approver_name: currentUser?.full_name,
+        date_approved: new Date().toISOString().split('T')[0]
+      });
+
       // Update budget - add to committed
       const newCommitted = (budget.amount_committed || 0) + request.amount_requested;
       const newAvailable = budget.amount_allocated - budget.amount_used - newCommitted;
@@ -35,13 +47,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
         amount_available: newAvailable
       });
 
-      // Update request status
-      return await meras.entities.ExpenseRequest.update(requestId, {
-        status: 'Engagée',
-        approved_by: currentUser.email,
-        approver_name: currentUser.full_name,
-        date_approved: new Date().toISOString().split('T')[0]
-      });
+      return updatedRequest;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expense-requests'] });
@@ -49,14 +55,18 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       toast.success('Demande approuvée et budget engagé');
       setViewingRequest(null);
     },
+    onError: (error) => {
+      toast.error(`Erreur: ${error.message}`);
+      console.error('Approval error:', error);
+    },
   });
 
   const rejectMutation = useMutation({
     mutationFn: async ({ requestId }) => {
       return await meras.entities.ExpenseRequest.update(requestId, {
         status: 'Rejetée',
-        approved_by: currentUser.email,
-        approver_name: currentUser.full_name,
+        approved_by: currentUser?.email,
+        approver_name: currentUser?.full_name,
         rejection_reason: rejectReason,
         date_approved: new Date().toISOString().split('T')[0]
       });
@@ -67,6 +77,10 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       setShowRejectDialog(null);
       setRejectReason('');
       setViewingRequest(null);
+    },
+    onError: (error) => {
+      toast.error(`Erreur lors du rejet: ${error.message}`);
+      console.error('Rejection error:', error);
     },
   });
 
@@ -221,13 +235,16 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                             <Eye className="w-4 h-4" />
                           </Button>
                           
-                          {!isMyRequests && request.status === 'En attente' && (
+                          {!isMyRequests && request.status === 'En attente' && currentUser && (
                             <>
                               <Button
                                 size="sm"
                                 className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => approveMutation.mutate({ requestId: request.id, request })}
-                                disabled={approveMutation.isLoading}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  approveMutation.mutate({ requestId: request.id, request });
+                                }}
+                                disabled={approveMutation.isPending}
                               >
                                 <CheckCircle className="w-4 h-4" />
                               </Button>
@@ -235,18 +252,24 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                                 size="sm"
                                 variant="outline"
                                 className="text-red-600 hover:bg-red-50"
-                                onClick={() => setShowRejectDialog(request)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowRejectDialog(request);
+                                }}
                               >
                                 <XCircle className="w-4 h-4" />
                               </Button>
                             </>
                           )}
 
-                          {isMyRequests && request.status === 'Engagée' && (
+                          {isMyRequests && (request.status === 'Engagée' || request.status === 'Approuvée') && (
                             <Button
                               size="sm"
                               className="bg-blue-600 hover:bg-blue-700 text-white"
-                              onClick={() => setUploadingReceipt(request)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setUploadingReceipt(request);
+                              }}
                             >
                               <Upload className="w-4 h-4 mr-1" />
                               Reçu
@@ -315,7 +338,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                           setViewingRequest(null);
                         }}
                         className="flex-1 bg-[#FF4D6A] hover:bg-[#E6445E] text-white font-medium rounded-xl h-12"
-                        disabled={approveMutation.isLoading || rejectMutation.isLoading}
+                        disabled={approveMutation.isPending || rejectMutation.isPending}
                       >
                         Reject
                       </Button>
@@ -323,10 +346,10 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                         onClick={() => {
                           approveMutation.mutate({ requestId: viewingRequest.id, request: viewingRequest });
                         }}
-                        disabled={approveMutation.isLoading || rejectMutation.isLoading}
+                        disabled={approveMutation.isPending || rejectMutation.isPending}
                         className="flex-1 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12"
                       >
-                        {approveMutation.isLoading ? 'Approving...' : 'Approve'}
+                        {approveMutation.isPending ? 'Approving...' : 'Approve'}
                       </Button>
                     </div>
                   )}
@@ -351,7 +374,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                     </div>
                   </div>
 
-                  {isMyRequests && viewingRequest.status === 'Engagée' && (
+                  {isMyRequests && (viewingRequest.status === 'Engagée' || viewingRequest.status === 'Approuvée') && (
                     <Button
                       onClick={() => setUploadingReceipt(viewingRequest)}
                       className="w-full bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12"
@@ -449,9 +472,9 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
               <Button
                 className="bg-red-600 hover:bg-red-700"
                 onClick={() => rejectMutation.mutate({ requestId: showRejectDialog.id })}
-                disabled={!rejectReason || rejectMutation.isLoading}
+                disabled={!rejectReason || rejectMutation.isPending}
               >
-                Confirmer le Rejet
+                {rejectMutation.isPending ? 'Rejet en cours...' : 'Confirmer le Rejet'}
               </Button>
             </div>
           </div>
@@ -482,10 +505,10 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
             <Button
               className="w-full bg-blue-600 hover:bg-blue-700"
               onClick={() => handleUploadReceipt(uploadingReceipt)}
-              disabled={executeExpenseMutation.isLoading}
+              disabled={executeExpenseMutation.isPending}
             >
               <Upload className="w-4 h-4 mr-2" />
-              {executeExpenseMutation.isLoading ? 'Téléchargement...' : 'Télécharger le Reçu'}
+              {executeExpenseMutation.isPending ? 'Téléchargement...' : 'Télécharger le Reçu'}
             </Button>
           </div>
         </DialogContent>
