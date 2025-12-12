@@ -22,7 +22,7 @@ export default function BudgetOverview({ budgets, departments, expenseRequests }
     const health = getBudgetHealth(budget);
     const usedPercentage = (budget.amount_used / budget.amount_allocated) * 100;
     const committedPercentage = (budget.amount_committed / budget.amount_allocated) * 100;
-    const totalUsedPercentage = usedPercentage + committedPercentage;
+    const availablePercentage = ((budget.amount_available || 0) / budget.amount_allocated) * 100;
 
     return (
       <motion.div
@@ -30,7 +30,10 @@ export default function BudgetOverview({ budgets, departments, expenseRequests }
         animate={{ opacity: 1, y: 0 }}
         className="w-full"
       >
-        <Card className="border border-[#E8ECF2] hover:shadow-lg transition-all bg-white">
+        <Card 
+          className="border border-[#E8ECF2] hover:shadow-lg transition-all bg-white cursor-pointer"
+          onClick={() => setSelectedBudget(budget)}
+        >
           <CardContent className="p-5">
             <div className="flex items-center gap-4">
               {/* Icon */}
@@ -48,22 +51,43 @@ export default function BudgetOverview({ budgets, departments, expenseRequests }
                 <p className="text-xs text-[#697586]">{budget.period} • {budget.period_start?.split('-')[0]}</p>
               </div>
 
-              {/* Progress Bar with Amount */}
+              {/* Progress Bar with Segmented Colors */}
               <div className="flex-1 max-w-xs">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-semibold text-[#0A2540]">
-                    {budget.amount_used?.toLocaleString()} DJF ({totalUsedPercentage.toFixed(0)}%)
+                    {(budget.amount_used + budget.amount_committed)?.toLocaleString()} DJF ({(usedPercentage + committedPercentage).toFixed(0)}%)
                   </span>
                 </div>
-                <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden flex">
+                  {/* Used - Green/Amber/Red */}
                   <div
-                    className={`absolute h-full transition-all duration-500 rounded-full ${
+                    className={`h-full transition-all duration-500 ${
                       health.status === 'Dépassé' ? 'bg-red-500' :
                       health.status === 'Attention' ? 'bg-amber-500' :
                       'bg-green-500'
                     }`}
-                    style={{ width: `${Math.min(totalUsedPercentage, 100)}%` }}
+                    style={{ width: `${usedPercentage}%` }}
                   />
+                  {/* Committed - Blue */}
+                  <div
+                    className="h-full transition-all duration-500 bg-blue-500"
+                    style={{ width: `${committedPercentage}%` }}
+                  />
+                  {/* Available - Gray (implicit) */}
+                </div>
+                <div className="flex items-center gap-3 mt-1 text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-[#697586]">Utilisé</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-[#697586]">Engagé</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-gray-200"></div>
+                    <span className="text-[#697586]">Disponible</span>
+                  </div>
                 </div>
               </div>
 
