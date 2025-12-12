@@ -192,22 +192,25 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Catégorie</Label>
-          <Input
-            value={formData.category}
-            onChange={(e) => setFormData({...formData, category: e.target.value})}
-            placeholder="Ex: Salaires, Fournitures..."
-            className="mt-2"
-          />
+          <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Sélectionner une catégorie..." />
+            </SelectTrigger>
+            <SelectContent>
+              {availableCategories.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label>Département</Label>
           <Select value={formData.department} onValueChange={(value) => setFormData({...formData, department: value})}>
             <SelectTrigger className="mt-2">
-              <SelectValue placeholder="Sélectionner..." />
+              <SelectValue placeholder="Sélectionner un département..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={null}>Aucun</SelectItem>
-              {departments.map(dept => (
+              {DEPARTMENTS.map(dept => (
                 <SelectItem key={dept} value={dept}>{dept}</SelectItem>
               ))}
             </SelectContent>
