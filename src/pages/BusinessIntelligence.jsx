@@ -762,6 +762,10 @@ export default function BusinessIntelligence() {
               <Brain className="w-4 h-4 mr-2" />
               Vue d'ensemble
             </TabsTrigger>
+            <TabsTrigger value="details" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0066FF] data-[state=active]:to-[#0052CC] data-[state=active]:text-white text-[#4A5568]">
+              <FileText className="w-4 h-4 mr-2" />
+              Détails
+            </TabsTrigger>
             <TabsTrigger value="predictions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#0066FF] data-[state=active]:to-[#0052CC] data-[state=active]:text-white text-[#4A5568]">
               <Zap className="w-4 h-4 mr-2" />
               Prédictions
@@ -1059,6 +1063,211 @@ export default function BusinessIntelligence() {
                             <p className="text-xs text-[#4A5568]">{contact.total_transactions || 0} transactions</p>
                           </div>
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Détails Tab - New Detailed View */}
+          <TabsContent value="details" className="space-y-6">
+            {/* Top Metrics Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* CNSS Card */}
+              <Card className="border-0 bg-white shadow-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center shadow-lg">
+                      <DollarSign className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-[#4A5568] font-medium uppercase tracking-wide mb-1">COTISATIONS CNSS</p>
+                      <p className="text-sm text-[#4A5568]">(SAL.PAT)</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold text-[#1A202C]">
+                      DJF {metrics.cnssTotal.toLocaleString()}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="px-2.5 py-1 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg">
+                        <div className="flex items-center gap-1.5">
+                          <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-sm font-bold text-emerald-600">21.9%</span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#4A5568]">vs last month</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Active Employees Card */}
+              <Card className="border-0 bg-white shadow-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center shadow-lg">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-[#4A5568] font-medium uppercase tracking-wide mb-1">Active Employees</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold text-[#1A202C]">
+                      {employees.filter(e => e.statut === 'Actif').length}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="px-2.5 py-1 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-1.5">
+                          <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                          <span className="text-sm font-bold text-blue-600">13%</span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#4A5568]">vs last month</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Declarations Card */}
+              <Card className="border-0 bg-white shadow-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#EC4899] to-[#F43F5E] flex items-center justify-center shadow-lg">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-[#4A5568] font-medium uppercase tracking-wide mb-1">Mes Déclarations</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold text-[#1A202C]">
+                      {declarations.length}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="px-2.5 py-1 bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-200 rounded-lg">
+                        <div className="flex items-center gap-1.5">
+                          <TrendingUp className="w-3.5 h-3.5 text-pink-600" />
+                          <span className="text-sm font-bold text-pink-600">5.7%</span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#4A5568]">vs last month</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* ITS Card */}
+              <Card className="border-0 bg-white shadow-2xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center shadow-lg">
+                      <TrendingUp className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-[#4A5568] font-medium uppercase tracking-wide mb-1">IMPÔTS (ITS)</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold text-[#1A202C]">
+                      DJF {metrics.itsTotal.toLocaleString()}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="px-2.5 py-1 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 rounded-lg">
+                        <div className="flex items-center gap-1.5">
+                          <TrendingDown className="w-3.5 h-3.5 text-red-600" />
+                          <span className="text-sm font-bold text-red-600">11%</span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#4A5568]">vs last month</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Salary vs CNSS vs ITS Chart */}
+              <Card className="border-0 bg-white shadow-2xl lg:col-span-2">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-lg font-bold text-[#1A202C]">Salary vs CNSS vs ITS</h3>
+                      <p className="text-sm text-[#4A5568]">Monthly trends (in thousands)</p>
+                    </div>
+                    <div className="flex gap-2">
+                      {['6M', '12M', 'YTD'].map(range => (
+                        <button
+                          key={range}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                            range === '12M'
+                              ? 'bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white shadow-lg'
+                              : 'bg-slate-100 text-[#4A5568] hover:bg-slate-200'
+                          }`}
+                        >
+                          {range}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                      <XAxis dataKey="month" tick={{ fill: '#4A5568', fontSize: 11 }} />
+                      <YAxis tick={{ fill: '#4A5568', fontSize: 11 }} />
+                      <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #E2E8F0', borderRadius: '8px' }} />
+                      <Legend />
+                      <Line type="monotone" dataKey="Net Salary" stroke="#0066FF" strokeWidth={3} dot={{ fill: '#0066FF', r: 4 }} />
+                      <Line type="monotone" dataKey="CNSS" stroke="#10B981" strokeWidth={3} dot={{ fill: '#10B981', r: 4 }} />
+                      <Line type="monotone" dataKey="ITS" stroke="#EC4899" strokeWidth={3} dot={{ fill: '#EC4899', r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Employees Per Department */}
+              <Card className="border-0 bg-white shadow-2xl">
+                <CardContent className="p-6">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-[#1A202C]">Employees Per Department</h3>
+                    <p className="text-sm text-[#4A5568]">Distribution overview</p>
+                  </div>
+                  <div className="relative mb-6">
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={85}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <p className="text-3xl font-bold text-[#1A202C]">{employees.filter(e => e.statut === 'Actif').length}</p>
+                      <p className="text-xs text-[#4A5568]">Total Employees</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {pieData.map((dept, idx) => (
+                      <div key={dept.name} className="flex items-center justify-between p-2 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }}></div>
+                          <span className="text-sm font-medium text-[#1A202C]">{dept.name}</span>
+                        </div>
+                        <span className="text-sm font-bold text-[#4A5568]">{dept.value} emp</span>
                       </div>
                     ))}
                   </div>
