@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   FileText, 
   Download, 
@@ -16,14 +17,17 @@ import {
   Calendar,
   CheckCircle,
   BarChart3,
-  Activity
+  Activity,
+  Info
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import DataPreparationGuide from "../components/financials/DataPreparationGuide";
 
 export default function EtatsFinanciers() {
   const queryClient = useQueryClient();
   const [showGenerateForm, setShowGenerateForm] = useState(false);
+  const [showPreparationGuide, setShowPreparationGuide] = useState(false);
   const [selectedStatement, setSelectedStatement] = useState(null);
   const [formData, setFormData] = useState({
     fiscal_year: new Date().getFullYear().toString(),
@@ -40,6 +44,33 @@ export default function EtatsFinanciers() {
     queryKey: ['assets'],
     queryFn: () => meras.entities.Asset.list()
   });
+
+  const { data: shareholders = [] } = useQuery({
+    queryKey: ['shareholders'],
+    queryFn: () => meras.entities.Shareholder.list()
+  });
+
+  const { data: bankAccounts = [] } = useQuery({
+    queryKey: ['bank-accounts'],
+    queryFn: () => meras.entities.BankAccount.list()
+  });
+
+  const { data: loans = [] } = useQuery({
+    queryKey: ['loans'],
+    queryFn: () => meras.entities.Loan.list()
+  });
+
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => meras.entities.Company.list()
+  });
+
+  const { data: transactions = [] } = useQuery({
+    queryKey: ['transactions'],
+    queryFn: () => meras.entities.Transaction.list()
+  });
+
+  const company = companies[0] || {};
 
   const generateMutation = useMutation({
     mutationFn: async (data) => {
@@ -77,13 +108,23 @@ export default function EtatsFinanciers() {
             <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">États Financiers</h1>
             <p className="text-[#6B6B6B]">Rapports comptables de clôture d'exercice</p>
           </div>
-          <Button 
-            onClick={() => setShowGenerateForm(true)}
-            className="bg-[#1A1A1A] hover:bg-[#2A2A2A]"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Générer États Financiers
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              onClick={() => setShowPreparationGuide(true)}
+              className="border-blue-600 text-blue-600 hover:bg-blue-50"
+            >
+              <Info className="w-4 h-4 mr-2" />
+              Guide de Préparation
+            </Button>
+            <Button 
+              onClick={() => setShowGenerateForm(true)}
+              className="bg-[#1A1A1A] hover:bg-[#2A2A2A]"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Générer États Financiers
+            </Button>
+          </div>
         </div>
 
         {/* Quick Stats */}
@@ -186,6 +227,24 @@ export default function EtatsFinanciers() {
             </CardContent>
           </Card>
         )}
+
+        {/* Data Preparation Guide Dialog */}
+        <Dialog open={showPreparationGuide} onOpenChange={setShowPreparationGuide}>
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Guide de Préparation des Données</DialogTitle>
+            </DialogHeader>
+            <DataPreparationGuide
+              assets={assets}
+              shareholders={shareholders}
+              bankAccounts={bankAccounts}
+              loans={loans}
+              company={company}
+              transactions={transactions}
+              onClose={() => setShowPreparationGuide(false)}
+            />
+          </DialogContent>
+        </Dialog>
 
         {/* Statements List */}
         <div className="grid grid-cols-1 gap-6 mb-8">
