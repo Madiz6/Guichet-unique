@@ -49,7 +49,16 @@ const EXPENSE_CATEGORIES = [
   'Insurance',
   'Depreciation & Amortization',
   'Bank Charges & Interest',
+  'Loan Repayment - Principal',
+  'Loan Repayment - Interest',
   'Miscellaneous Expenses'
+];
+
+const FINANCING_SOURCES = [
+  { value: 'Apport Capital', label: 'Apport en Capital (Associé)', type: 'Revenu', needsShareholder: true },
+  { value: 'Prêt Bancaire', label: 'Prêt Bancaire (Déblocage)', type: 'Revenu', needsLoan: true },
+  { value: 'Remboursement Prêt', label: 'Remboursement de Prêt', type: 'Dépense', needsLoan: true },
+  { value: 'Compte Courant Associé', label: 'Compte Courant Associé (Apport/Retrait)', type: 'both', needsShareholder: true }
 ];
 
 export default function TransactionForm({ transaction, onSubmit, onCancel, departments }) {
@@ -81,6 +90,16 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: () => meras.entities.Contact.list(),
+  });
+
+  const { data: loans = [] } = useQuery({
+    queryKey: ['loans'],
+    queryFn: () => meras.entities.Loan.list(),
+  });
+
+  const { data: shareholders = [] } = useQuery({
+    queryKey: ['shareholders'],
+    queryFn: () => meras.entities.Shareholder.filter({ statut: 'Actif' }),
   });
 
   const { data: pastTransactions = [] } = useQuery({
@@ -428,10 +447,84 @@ Répondez UNIQUEMENT avec le nom exact de la catégorie, rien d'autre.`;
         />
       </div>
 
+      {/* Financing Transactions Section */}
+      <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <Label className="text-purple-900 font-bold mb-3 block">💰 Transaction de Financement (Optionnel)</Label>
+        <div className="grid grid-cols-1 gap-4">
+          <Select 
+            value={formData.source || 'Manuel'} 
+            onValueChange={(value) => {
+              const isFinancing = FINANCING_SOURCES.some(f => f.value === value);
+              setFormData({
+                ...formData, 
+                source: value,
+                is_financing: isFinancing
+              });
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Type de transaction..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Manuel">Transaction Standard</SelectItem>
+              {FINANCING_SOURCES.map(source => (
+                <SelectItem key={source.value} value={source.value}>
+                  {source.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Shareholder Selection */}
+          {(formData.source === 'Apport Capital' || formData.source === 'Compte Courant Associé') && (
+            <div>
+              <Label>Associé *</Label>
+              <Select 
+                value={formData.shareholder_id} 
+                onValueChange={(value) => setFormData({...formData, shareholder_id: value})}
+              >
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Sélectionner un associé..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {shareholders.map(s => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.nom} ({s.pourcentage_participation}%)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Loan Selection */}
+          {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt') && (
+            <div>
+              <Label>Prêt *</Label>
+              <Select 
+                value={formData.loan_id} 
+                onValueChange={(value) => setFormData({...formData, loan_id: value})}
+              >
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Sélectionner un prêt..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {loans.map(l => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {l.numero_pret} - {l.banque} ({l.montant_restant?.toLocaleString()} DJF restant)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Accounting Details */}
       <div className="grid grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <div>
-          <Label>N° Facture {formData.type === 'Dépense' && <span className="text-red-500">*</span>}</Label>
+          <Label>N° Facture {formData.type === 'Dépense' && !formData.is_financing && <span className="text-red-500">*</span>}</Label>
           <Input
             value={formData.numero_facture}
             onChange={(e) => setFormData({...formData, numero_facture: e.target.value})}
