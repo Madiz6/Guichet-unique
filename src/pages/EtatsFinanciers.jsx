@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { Toaster } from 'sonner';
 import DataPreparationGuide from "../components/financials/DataPreparationGuide";
 import DocumentTracker from "../components/financials/DocumentTracker";
 import LiveFinancialDashboard from "../components/financials/LiveFinancialDashboard";
@@ -104,6 +105,7 @@ export default function EtatsFinanciers() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-8">
+      <Toaster position="top-right" />
       <div className="max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -293,13 +295,40 @@ export default function EtatsFinanciers() {
                     }`}>
                       {statement.status}
                     </Badge>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedStatement(statement.id === selectedStatement ? null : statement.id)}
-                    >
-                      {selectedStatement === statement.id ? 'Masquer' : 'Voir Détails'}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            const response = await meras.functions.invoke('generateFinancialStatementPDF', { statement_id: statement.id });
+                            const blob = new Blob([response.data], { type: 'application/pdf' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `Etats_Financiers_${statement.fiscal_year}.pdf`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            a.remove();
+                            toast.success('PDF téléchargé avec succès');
+                          } catch (error) {
+                            toast.error('Erreur lors du téléchargement du PDF');
+                          }
+                        }}
+                        className="border-green-600 text-green-600 hover:bg-green-50"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        PDF
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedStatement(statement.id === selectedStatement ? null : statement.id)}
+                      >
+                        {selectedStatement === statement.id ? 'Masquer' : 'Voir Détails'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
