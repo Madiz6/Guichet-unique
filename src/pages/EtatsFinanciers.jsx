@@ -24,6 +24,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import DataPreparationGuide from "../components/financials/DataPreparationGuide";
 import DocumentTracker from "../components/financials/DocumentTracker";
+import LiveFinancialDashboard from "../components/financials/LiveFinancialDashboard";
 
 export default function EtatsFinanciers() {
   const queryClient = useQueryClient();

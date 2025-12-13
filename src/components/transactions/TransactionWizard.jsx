@@ -10,21 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Upload, X, FileText, ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const NPCG_ACCOUNTS = {
-  'Product Sales / Services Revenue': { compte: '701', label: 'Ventes de marchandises' },
-  'Subscription Income / Recurring Revenue': { compte: '706', label: 'Prestations de services' },
-  'Interest Income': { compte: '762', label: 'Produits financiers' },
-  'Apport Capital': { compte: '101', label: 'Capital social' },
-  'Prêt Bancaire': { compte: '164', label: 'Emprunts bancaires' },
-  'Payroll & Benefits': { compte: '641', label: 'Rémunérations du personnel' },
-  'Office & Administrative': { compte: '606', label: 'Achats non stockés' },
-  'Marketing & Advertising': { compte: '623', label: 'Publicité et relations publiques' },
-  'Professional Services': { compte: '622', label: 'Honoraires' },
-  'Taxes & Regulatory Fees': { compte: '635', label: 'Impôts et taxes' },
-  'Bank Charges & Interest': { compte: '661', label: 'Charges financières' },
-  'Loan Repayment - Principal': { compte: '164', label: 'Remboursement emprunt' },
-};
+import { ENHANCED_CATEGORIES } from './AccountingCategoryMaster';
 
 export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
   const [step, setStep] = useState(1);
@@ -70,10 +56,12 @@ export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
   });
 
   useEffect(() => {
-    if (formData.category && NPCG_ACCOUNTS[formData.category]) {
+    const allCategories = [...ENHANCED_CATEGORIES.REVENUS, ...ENHANCED_CATEGORIES.DEPENSES];
+    const selectedCat = allCategories.find(c => c.value === formData.category);
+    if (selectedCat?.npcg) {
       setFormData(prev => ({
         ...prev,
-        compte_comptable: NPCG_ACCOUNTS[formData.category].compte
+        compte_comptable: selectedCat.npcg
       }));
     }
   }, [formData.category]);
@@ -184,16 +172,23 @@ export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
 
               <div>
                 <Label className="text-lg font-bold mb-3 block">Source de la transaction</Label>
-                <Select value={formData.source} onValueChange={(v) => setFormData({...formData, source: v, is_financing: ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt'].includes(v)})}>
+                <Select value={formData.source} onValueChange={(v) => {
+                  const isFinancing = ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt', 'Compte Courant Associé'].includes(v);
+                  setFormData({...formData, source: v, is_financing: isFinancing});
+                }}>
                   <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Manuel">📝 Transaction Standard</SelectItem>
-                    <SelectItem value="Apport Capital">💎 Apport en Capital</SelectItem>
-                    <SelectItem value="Prêt Bancaire">🏦 Prêt Bancaire</SelectItem>
-                    <SelectItem value="Remboursement Prêt">💳 Remboursement Prêt</SelectItem>
+                    <SelectItem value="Apport Capital">💎 Apport en Capital (101)</SelectItem>
+                    <SelectItem value="Prêt Bancaire">🏦 Prêt Bancaire - Déblocage (164)</SelectItem>
+                    <SelectItem value="Remboursement Prêt">💳 Remboursement Prêt (164)</SelectItem>
                     <SelectItem value="Compte Courant Associé">👤 Compte Courant Associé</SelectItem>
+                    <SelectItem value="Paie">👥 Paie (Auto)</SelectItem>
                   </SelectContent>
                 </Select>
+                {formData.source !== 'Manuel' && (
+                  <p className="text-xs text-blue-600 mt-2">✨ Template appliqué automatiquement</p>
+                )}
               </div>
 
               {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt') && (
@@ -294,13 +289,49 @@ export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Catégorie</Label>
+                  <Label>Catégorie (Plan NPCG)</Label>
                   <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v})}>
                     <SelectTrigger className="mt-2"><SelectValue placeholder="Choisir..." /></SelectTrigger>
-                    <SelectContent>
-                      {Object.keys(NPCG_ACCOUNTS).map(cat => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                      ))}
+                    <SelectContent className="max-h-96">
+                      {formData.type === 'Revenu' ? (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500">PRODUITS D'EXPLOITATION (706)</div>
+                          {ENHANCED_CATEGORIES.REVENUS.filter(c => c.npcg === '706').map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500 mt-2">PRODUITS FINANCIERS (762)</div>
+                          {ENHANCED_CATEGORIES.REVENUS.filter(c => c.npcg === '762').map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500 mt-2">FINANCEMENT</div>
+                          {ENHANCED_CATEGORIES.REVENUS.filter(c => c.npcg === '101' || c.npcg === '164').map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500">FOURNITURES (606)</div>
+                          {ENHANCED_CATEGORIES.DEPENSES.filter(c => c.npcg === '606').map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500 mt-2">SERVICES EXTÉRIEURS (611-628)</div>
+                          {ENHANCED_CATEGORIES.DEPENSES.filter(c => ['611', '613', '615', '616', '617', '621', '622', '623', '626', '627'].includes(c.npcg)).map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500 mt-2">IMPÔTS (635)</div>
+                          {ENHANCED_CATEGORIES.DEPENSES.filter(c => c.npcg === '635').map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500 mt-2">PERSONNEL (641)</div>
+                          {ENHANCED_CATEGORIES.DEPENSES.filter(c => c.npcg === '641').map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                          <div className="px-2 py-1.5 text-xs font-bold text-gray-500 mt-2">CHARGES FINANCIÈRES (661, 164)</div>
+                          {ENHANCED_CATEGORIES.DEPENSES.filter(c => c.npcg === '661' || c.npcg === '164').map(cat => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
