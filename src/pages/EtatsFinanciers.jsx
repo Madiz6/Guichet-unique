@@ -129,6 +129,11 @@ export default function EtatsFinanciers() {
           </div>
         </div>
 
+        {/* Live Financial Dashboard */}
+        <div className="mb-8">
+          <LiveFinancialDashboard fiscalYear={formData.fiscal_year} />
+        </div>
+
         {/* Quick Stats */}
         {statements.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
