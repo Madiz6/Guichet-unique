@@ -14,10 +14,15 @@ import BudgetOverview from '@/components/budget/BudgetOverview';
 import ExpenseRequestForm from '@/components/budget/ExpenseRequestForm';
 import ApprovalInterface from '@/components/budget/ApprovalInterface';
 import BudgetSettings from '@/components/budget/BudgetSettings';
+import BudgetPlanningForm from '@/components/budget/BudgetPlanningForm';
+import BudgetTracker from '@/components/budget/BudgetTracker';
+import BudgetAlerts from '@/components/budget/BudgetAlerts';
 
 export default function BudgetManagement() {
   const [showRequestForm, setShowRequestForm] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [editBudget, setEditBudget] = useState(null);
+  const [activeTab, setActiveTab] = useState('planning');
 
   const queryClient = useQueryClient();
 
@@ -39,6 +44,11 @@ export default function BudgetManagement() {
   const { data: expenseRequests = [] } = useQuery({
     queryKey: ['expense-requests'],
     queryFn: () => meras.entities.ExpenseRequest.list('-created_date'),
+  });
+
+  const { data: transactions = [] } = useQuery({
+    queryKey: ['transactions'],
+    queryFn: () => meras.entities.Transaction.list(),
   });
 
   const isAdmin = user?.role === 'admin';
@@ -88,13 +98,28 @@ export default function BudgetManagement() {
             <h1 className="text-3xl font-bold text-[#0A2540]">Gestion Budgétaire</h1>
             <p className="text-[#697586] mt-1">Suivi des budgets, dépenses et approbations</p>
           </div>
-          <Button
-            onClick={() => setShowRequestForm(true)}
-            className="bg-gradient-to-r from-[#0066FF] to-[#0052CC]"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nouvelle Demande
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => setShowRequestForm(true)}
+              variant="outline"
+              className="border-blue-600 text-blue-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle Demande
+            </Button>
+            {isAdmin && (
+              <Button
+                onClick={() => {
+                  setEditBudget(null);
+                  setShowBudgetForm(true);
+                }}
+                className="bg-gradient-to-r from-[#0066FF] to-[#0052CC]"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Créer Budget
+              </Button>
+            )}
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -142,7 +167,9 @@ export default function BudgetManagement() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-white border border-[#E8ECF2]">
-            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+            <TabsTrigger value="planning">📋 Planification</TabsTrigger>
+            <TabsTrigger value="tracking">📊 Suivi Temps Réel</TabsTrigger>
+            <TabsTrigger value="alerts">🔔 Alertes</TabsTrigger>
             <TabsTrigger value="requests">Mes Demandes</TabsTrigger>
             {(isManager || isAdmin) && (
               <TabsTrigger value="approvals">
@@ -155,8 +182,16 @@ export default function BudgetManagement() {
             {isAdmin && <TabsTrigger value="settings">Configuration</TabsTrigger>}
           </TabsList>
 
-          <TabsContent value="overview">
+          <TabsContent value="planning">
             <BudgetOverview budgets={budgets} departments={departments} expenseRequests={expenseRequests} />
+          </TabsContent>
+
+          <TabsContent value="tracking">
+            <BudgetTracker budgets={budgets} transactions={transactions} expenseRequests={expenseRequests} />
+          </TabsContent>
+
+          <TabsContent value="alerts">
+            <BudgetAlerts budgets={budgets} transactions={transactions} expenseRequests={expenseRequests} />
           </TabsContent>
 
           <TabsContent value="requests">
@@ -194,6 +229,16 @@ export default function BudgetManagement() {
         budgets={budgets}
         departments={departments}
         currentUser={user}
+      />
+
+      <BudgetPlanningForm
+        isOpen={showBudgetForm}
+        onClose={() => {
+          setShowBudgetForm(false);
+          setEditBudget(null);
+        }}
+        departments={departments}
+        editBudget={editBudget}
       />
     </div>
   );
