@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Upload, X, FileText, ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ENHANCED_CATEGORIES } from './AccountingCategoryMaster';
+import { ENHANCED_CATEGORIES } from '../financials/AccountingCategoryMaster';
 
 export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
   const [step, setStep] = useState(1);
