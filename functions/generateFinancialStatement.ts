@@ -504,6 +504,76 @@ Deno.serve(async (req) => {
       rentabilite_nette: total_produits_exploit > 0 ? (resultat_net / total_produits_exploit) * 100 : 0
     };
 
+    // ========== VALIDATION: ACTIF = PASSIF ==========
+    const equilibre_bilan = Math.abs(total_actif - total_passif);
+    if (equilibre_bilan > 1) { // Allow 1 DJF rounding difference
+      console.warn('ATTENTION: Bilan non équilibré!', {
+        total_actif,
+        total_passif,
+        difference: equilibre_bilan
+      });
+    }
+
+    // ========== NOTES ADDITIONNELLES ==========
+    const notes_annexes = {
+      note_1_presentation: `L'entreprise ${companyData?.nom_entreprise || 'ENTREPRISE'} exerce son activité depuis ${companyData?.date_creation ? new Date(companyData.date_creation).toLocaleDateString('fr-FR') : 'N/A'}. Les états financiers sont établis conformément au NPCG (Nouveau Plan Comptable Général).`,
+      note_2_principes: "Les états financiers sont établis selon les principes de prudence, continuité d'exploitation, permanence des méthodes, et coût historique. Les immobilisations sont amorties selon la méthode linéaire.",
+      note_3_immobilisations: details_immobilisations,
+      note_4_creances_clients: details_creances.filter(c => c.numero_facture),
+      note_5_autres_creances: details_creances.filter(c => !c.numero_facture),
+      note_6_disponibilites: bankAccounts.map(b => ({
+        nom: b.nom_compte,
+        banque: b.banque,
+        solde: b.solde_actuel,
+        devise: b.devise
+      })),
+      note_7_dettes_fournisseurs: details_dettes.filter(d => d.compte_comptable?.startsWith('401')),
+      note_8_dettes_fiscales_sociales: {
+        cnss: passif_dettes.cnss || 0,
+        its: passif_dettes.its || 0,
+        impots: passif_dettes.impots || 0,
+        salaires_dus: passif_dettes.salaires_dus || 0,
+        total: passif_dettes.dettes_fiscales_sociales
+      },
+      note_9_autres_dettes: {
+        comptes_courants_associes: shareholders.map(s => ({
+          nom: s.nom,
+          montant: s.compte_courant_associe || 0
+        })),
+        emprunts: details_emprunts,
+        total: passif_dettes.autres_dettes
+      },
+      note_10_charges_externes: {
+        carburant_energie: 0,
+        sous_traitance: 0,
+        location: 0,
+        entretien: 0,
+        assurances: 0,
+        honoraires: 0,
+        publicite: 0,
+        frais_postaux: 0,
+        services_bancaires: 0,
+        divers: 0
+      }
+    };
+
+    // Populate note_10 from transactions
+    transactions.forEach(t => {
+      if (t.type === 'Dépense' && t.compte_comptable) {
+        const code = t.compte_comptable;
+        if (code === '606' || code.startsWith('606')) notes_annexes.note_10_charges_externes.carburant_energie += t.amount || 0;
+        if (code === '611' || code.startsWith('611')) notes_annexes.note_10_charges_externes.sous_traitance += t.amount || 0;
+        if (code === '613' || code.startsWith('613')) notes_annexes.note_10_charges_externes.location += t.amount || 0;
+        if (code === '615' || code.startsWith('615')) notes_annexes.note_10_charges_externes.entretien += t.amount || 0;
+        if (code === '616' || code.startsWith('616')) notes_annexes.note_10_charges_externes.assurances += t.amount || 0;
+        if (code === '622' || code.startsWith('622')) notes_annexes.note_10_charges_externes.honoraires += t.amount || 0;
+        if (code === '623' || code.startsWith('623')) notes_annexes.note_10_charges_externes.publicite += t.amount || 0;
+        if (code === '626' || code.startsWith('626')) notes_annexes.note_10_charges_externes.frais_postaux += t.amount || 0;
+        if (code === '627' || code.startsWith('627')) notes_annexes.note_10_charges_externes.services_bancaires += t.amount || 0;
+        if (code === '628' || code.startsWith('628')) notes_annexes.note_10_charges_externes.divers += t.amount || 0;
+      }
+    });
+
     // Create Financial Statement with full details
     const financialStatement = await base44.asServiceRole.entities.FinancialStatement.create({
       fiscal_year,
@@ -516,6 +586,7 @@ Deno.serve(async (req) => {
       details_dettes,
       details_emprunts,
       provisions,
+      notes_annexes,
       actif: {
         immobilisations_incorporelles: actif_immob_incorp,
         immobilisations_corporelles: actif_immob_corp,
