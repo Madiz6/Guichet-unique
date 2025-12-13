@@ -477,7 +477,6 @@ export default function DetailedNPCGView({ statement }) {
               </div>
             </CardContent>
           </Card>
-          </div>
 
           {/* Provisions */}
           {statement.provisions && (
