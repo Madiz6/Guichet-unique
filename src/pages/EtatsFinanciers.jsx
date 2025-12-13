@@ -23,6 +23,7 @@ import {
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import DataPreparationGuide from "../components/financials/DataPreparationGuide";
+import DocumentTracker from "../components/financials/DocumentTracker";
 
 export default function EtatsFinanciers() {
   const queryClient = useQueryClient();
@@ -174,11 +175,23 @@ export default function EtatsFinanciers() {
           </div>
         )}
 
+        {/* Document Tracker */}
+        {statements.length === 0 && (
+          <div className="mb-8">
+            <DocumentTracker fiscalYear={formData.fiscal_year} />
+          </div>
+        )}
+
         {/* Generate Form Dialog */}
         {showGenerateForm && (
           <Card className="mb-8 border-2 border-[#1A1A1A] shadow-lg">
             <CardContent className="p-6">
               <h3 className="text-xl font-bold text-[#1A1A1A] mb-6">Générer Nouveaux États Financiers</h3>
+              
+              {/* Document Tracker in Form */}
+              <div className="mb-6">
+                <DocumentTracker fiscalYear={formData.fiscal_year} />
+              </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
