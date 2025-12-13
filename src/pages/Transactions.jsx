@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import TransactionForm from '../components/transactions/TransactionForm';
+import TransactionWizard from '../components/transactions/TransactionWizard';
 import BulkUpload from '../components/transactions/BulkUpload';
 import TransactionDetailDrawer from '../components/transactions/TransactionDetailDrawer';
 import TransactionReports from '../components/transactions/TransactionReports';
@@ -364,16 +364,15 @@ export default function Transactions() {
         </Card>
       </div>
 
-      {/* Transaction Form Dialog */}
+      {/* Transaction Wizard Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Nouvelle Transaction</DialogTitle>
+            <DialogTitle>🧙‍♂️ Assistant de Création de Transaction</DialogTitle>
           </DialogHeader>
-          <TransactionForm
+          <TransactionWizard
             onSubmit={(data) => createMutation.mutate(data)}
             onCancel={() => setShowForm(false)}
-            departments={departments}
           />
         </DialogContent>
       </Dialog>
