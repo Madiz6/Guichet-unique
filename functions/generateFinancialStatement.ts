@@ -186,31 +186,109 @@ Deno.serve(async (req) => {
 
     // Produits d'Exploitation
     const prestations_services = transactions
-      .filter(t => t.type === 'Revenu' && t.source === 'Service')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const autres_produits_exploit = transactions
-      .filter(t => t.type === 'Revenu' && t.source !== 'Service')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const total_produits_exploit = prestations_services + autres_produits_exploit;
-
-    // Charges d'Exploitation
-    const achats_matieres = transactions
-      .filter(t => t.category === 'Achats matières')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const autres_achats_charges = transactions
       .filter(t => 
-        t.type === 'Dépense' && 
-        ['Location', 'Fournitures', 'Services externes'].includes(t.category)
+        t.type === 'Revenu' && 
+        (t.compte_comptable === '706' || t.category?.includes('Services'))
       )
       .reduce((sum, t) => sum + t.amount, 0);
 
-    // From payroll
-    const salaires_traitements = cycles.reduce((sum, c) => sum + (c.salaire_net_total || 0), 0);
-    const charges_sociales = declarations.reduce((sum, d) => sum + (d.total_cnss || 0), 0);
-    const impots_taxes = declarations.reduce((sum, d) => sum + (d.total_its || 0), 0);
+    const ventes_marchandises = transactions
+      .filter(t => t.type === 'Revenu' && t.compte_comptable === '701')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const autres_produits_exploit = transactions
+      .filter(t => 
+        t.type === 'Revenu' && 
+        !['706', '701', '762', '101', '164'].includes(t.compte_comptable)
+      )
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const total_produits_exploit = prestations_services + ventes_marchandises + autres_produits_exploit;
+
+    // Charges d'Exploitation
+    const achats_matieres = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '601')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const achats_fournitures = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '606')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const sous_traitance = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '611')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const locations = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '613')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const entretien_reparations = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '615')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const assurances = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '616')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const personnel_exterieur = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '617')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const documentation = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '621')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const honoraires = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '622')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const publicite = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '623')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const transports = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '624')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const missions_receptions = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '625')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const telecommunications = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '626')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const services_bancaires = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '627')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const divers_services = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '628')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const autres_achats_charges = 
+      achats_fournitures + sous_traitance + locations + entretien_reparations + 
+      assurances + personnel_exterieur + documentation + honoraires + publicite + 
+      transports + missions_receptions + telecommunications + services_bancaires + divers_services;
+
+    // From payroll and transactions
+    const salaires_traitements = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '641')
+      .reduce((sum, t) => sum + t.amount, 0) || 
+      cycles.reduce((sum, c) => sum + (c.salaire_net_total || 0), 0);
+
+    const charges_sociales_cnss = transactions
+      .filter(t => t.type === 'Dépense' && t.source === 'Declaration CNSS')
+      .reduce((sum, t) => sum + t.amount, 0) ||
+      declarations.reduce((sum, d) => sum + (d.total_cnss || 0), 0);
+
+    const impots_taxes_its = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '635')
+      .reduce((sum, t) => sum + t.amount, 0) ||
+      declarations.reduce((sum, d) => sum + (d.total_its || 0), 0);
+
+    const charges_sociales = charges_sociales_cnss;
+    const impots_taxes = impots_taxes_its;
 
     // Dotations aux amortissements
     const dotations_amortissements = assets.reduce((sum, a) => {
@@ -246,8 +324,14 @@ Deno.serve(async (req) => {
     const resultat_exploitation = total_produits_exploit - total_charges_exploit;
 
     // Résultat Financier
-    const produits_financiers = 0;
-    const charges_financieres = 0;
+    const produits_financiers = transactions
+      .filter(t => t.type === 'Revenu' && t.compte_comptable === '762')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const charges_financieres = transactions
+      .filter(t => t.type === 'Dépense' && t.compte_comptable === '661')
+      .reduce((sum, t) => sum + t.amount, 0);
+
     const resultat_financier = produits_financiers - charges_financieres;
 
     // Résultat Courant
@@ -270,41 +354,22 @@ Deno.serve(async (req) => {
     passif_capitaux_propres.resultat_exercice = resultat_net;
     passif_capitaux_propres.total = capital_social + resultat_net;
 
-    // Details Charges Externes
+    // Details Charges Externes (by NPCG code)
     const details_charges_externes = {
-      carburant_eau_energie: transactions
-        .filter(t => t.category === 'Énergie')
-        .reduce((sum, t) => sum + t.amount, 0),
-      sous_traitance: transactions
-        .filter(t => t.category === 'Sous-traitance')
-        .reduce((sum, t) => sum + t.amount, 0),
-      location: transactions
-        .filter(t => t.category === 'Location')
-        .reduce((sum, t) => sum + t.amount, 0),
-      entretien_reparations: transactions
-        .filter(t => t.category === 'Entretien')
-        .reduce((sum, t) => sum + t.amount, 0),
-      assurances: transactions
-        .filter(t => t.category === 'Assurances')
-        .reduce((sum, t) => sum + t.amount, 0),
-      deplacements: transactions
-        .filter(t => t.category === 'Déplacements')
-        .reduce((sum, t) => sum + t.amount, 0),
-      honoraires: transactions
-        .filter(t => t.category === 'Honoraires')
-        .reduce((sum, t) => sum + t.amount, 0),
-      publicite: transactions
-        .filter(t => t.category === 'Publicité')
-        .reduce((sum, t) => sum + t.amount, 0),
-      frais_postaux: transactions
-        .filter(t => t.category === 'Télécommunications')
-        .reduce((sum, t) => sum + t.amount, 0),
-      services_bancaires: transactions
-        .filter(t => t.category === 'Services bancaires')
-        .reduce((sum, t) => sum + t.amount, 0),
-      divers: transactions
-        .filter(t => t.category === 'Divers')
-        .reduce((sum, t) => sum + t.amount, 0)
+      achats_fournitures_606: achats_fournitures,
+      sous_traitance_611: sous_traitance,
+      location_613: locations,
+      entretien_reparations_615: entretien_reparations,
+      assurances_616: assurances,
+      personnel_exterieur_617: personnel_exterieur,
+      documentation_621: documentation,
+      honoraires_622: honoraires,
+      publicite_623: publicite,
+      transports_624: transports,
+      missions_receptions_625: missions_receptions,
+      telecommunications_626: telecommunications,
+      services_bancaires_627: services_bancaires,
+      divers_628: divers_services
     };
 
     // Ratios Financiers
@@ -341,16 +406,30 @@ Deno.serve(async (req) => {
       },
       compte_resultat: {
         produits_exploitation: {
-          prestations_services,
+          ventes_marchandises_701: ventes_marchandises,
+          prestations_services_706: prestations_services,
           autres_produits: autres_produits_exploit,
           total: total_produits_exploit
         },
         charges_exploitation: {
-          achats_matieres,
-          autres_achats_charges,
-          salaires_traitements,
-          charges_sociales,
-          impots_taxes,
+          achats_matieres_601: achats_matieres,
+          achats_fournitures_606: achats_fournitures,
+          sous_traitance_611: sous_traitance,
+          locations_613: locations,
+          entretien_615: entretien_reparations,
+          assurances_616: assurances,
+          personnel_ext_617: personnel_exterieur,
+          documentation_621: documentation,
+          honoraires_622: honoraires,
+          publicite_623: publicite,
+          transports_624: transports,
+          missions_625: missions_receptions,
+          telecom_626: telecommunications,
+          banque_627: services_bancaires,
+          divers_628: divers_services,
+          impots_taxes_635: impots_taxes,
+          salaires_traitements_641: salaires_traitements,
+          charges_sociales_cnss: charges_sociales,
           dotations_amortissements,
           autres_charges,
           total: total_charges_exploit
