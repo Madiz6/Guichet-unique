@@ -92,6 +92,11 @@ export default function Layout({ children, currentPageName }) {
       icon: FileSpreadsheet,
     },
     {
+      title: "États Financiers",
+      url: createPageUrl("EtatsFinanciers"),
+      icon: FileText,
+    },
+    {
       title: "Gestion de Location",
       url: createPageUrl("Leasing"),
       icon: Building2,
