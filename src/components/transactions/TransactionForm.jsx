@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Upload, X, FileText, Image as ImageIcon, Sparkles, Check } from 'lucide-react';
+import { Upload, X, FileText, Image as ImageIcon, Sparkles, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const DEPARTMENTS = [
@@ -66,7 +66,13 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     department: '',
     payment_method: 'Espèces',
     notes: '',
-    attachments: []
+    attachments: [],
+    numero_facture: '',
+    date_echeance: '',
+    is_creance: false,
+    is_dette: false,
+    status: 'En attente',
+    accounting_period: new Date().toISOString().slice(0, 7).replace('-', '')
   });
   const [uploading, setUploading] = useState(false);
   const [suggestedCategory, setSuggestedCategory] = useState(null);
@@ -422,8 +428,61 @@ Répondez UNIQUEMENT avec le nom exact de la catégorie, rien d'autre.`;
         />
       </div>
 
+      {/* Accounting Details */}
+      <div className="grid grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div>
+          <Label>N° Facture {formData.type === 'Dépense' && <span className="text-red-500">*</span>}</Label>
+          <Input
+            value={formData.numero_facture}
+            onChange={(e) => setFormData({...formData, numero_facture: e.target.value})}
+            placeholder="INV-2024-001"
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label>Date d'échéance</Label>
+          <Input
+            type="date"
+            value={formData.date_echeance}
+            onChange={(e) => setFormData({...formData, date_echeance: e.target.value})}
+            className="mt-2"
+          />
+        </div>
+      </div>
+
+      {/* Dette/Créance Checkboxes */}
+      <div className="flex gap-6 p-4 bg-gray-50 rounded-lg">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={formData.is_dette}
+            onChange={(e) => setFormData({...formData, is_dette: e.target.checked, status: e.target.checked ? 'En attente' : formData.status})}
+            className="w-4 h-4 text-blue-600 rounded"
+          />
+          <span className="text-sm font-medium text-gray-700">Dette fournisseur (Note 7)</span>
+        </label>
+
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={formData.is_creance}
+            onChange={(e) => setFormData({...formData, is_creance: e.target.checked, status: e.target.checked ? 'En attente' : formData.status})}
+            className="w-4 h-4 text-blue-600 rounded"
+          />
+          <span className="text-sm font-medium text-gray-700">Créance client (Note 4)</span>
+        </label>
+      </div>
+
       <div>
         <Label>Pièces jointes</Label>
+        {formData.type === 'Dépense' && (!formData.attachments || formData.attachments.length === 0) && (
+          <div className="mb-2 p-3 bg-amber-50 border border-amber-300 rounded-lg flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-800">
+              <strong>Requis:</strong> Facture ou reçu obligatoire pour toute dépense (conformité NPCG)
+            </p>
+          </div>
+        )}
         <div className="mt-2 space-y-2">
           <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-[#D3DCE6] rounded-lg cursor-pointer hover:border-[#0066FF] transition-colors">
             <Upload className="w-5 h-5 text-[#697586]" />
