@@ -36,6 +36,7 @@ import Transactions from './pages/Transactions';
 import Contacts from './pages/Contacts';
 import BudgetManagement from './pages/BudgetManagement';
 import BusinessIntelligence from './pages/BusinessIntelligence';
+import EtatsFinanciers from './pages/EtatsFinanciers';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +79,7 @@ export const PAGES = {
     "Contacts": Contacts,
     "BudgetManagement": BudgetManagement,
     "BusinessIntelligence": BusinessIntelligence,
+    "EtatsFinanciers": EtatsFinanciers,
 }
 
 export const pagesConfig = {
