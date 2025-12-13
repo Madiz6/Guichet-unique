@@ -25,7 +25,6 @@ import { toast } from 'sonner';
 import { Toaster } from 'sonner';
 import DataPreparationGuide from "../components/financials/DataPreparationGuide";
 import DocumentTracker from "../components/financials/DocumentTracker";
-import LiveFinancialDashboard from "../components/financials/LiveFinancialDashboard";
 import DetailedNPCGView from "../components/financials/DetailedNPCGView";
 
 export default function EtatsFinanciers() {
@@ -130,11 +129,6 @@ export default function EtatsFinanciers() {
               Générer États Financiers
             </Button>
           </div>
-        </div>
-
-        {/* Live Financial Dashboard */}
-        <div className="mb-8">
-          <LiveFinancialDashboard fiscalYear={formData.fiscal_year} />
         </div>
 
         {/* Quick Stats */}
