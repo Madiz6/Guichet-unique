@@ -372,6 +372,127 @@ Deno.serve(async (req) => {
       divers_628: divers_services
     };
 
+    // ========== DÉTAILS PAR COMPTE NPCG ==========
+    const details_par_compte_npcg = {};
+    
+    // Group transactions by compte_comptable
+    transactions.forEach(t => {
+      const compte = t.compte_comptable || 'NON_CLASSE';
+      if (!details_par_compte_npcg[compte]) {
+        details_par_compte_npcg[compte] = {
+          code: compte,
+          transactions: [],
+          total: 0,
+          count: 0
+        };
+      }
+      details_par_compte_npcg[compte].transactions.push({
+        id: t.id,
+        date: t.date,
+        description: t.description,
+        contact_name: t.contact_name,
+        amount: t.amount,
+        category: t.category,
+        numero_facture: t.numero_facture
+      });
+      details_par_compte_npcg[compte].total += t.amount || 0;
+      details_par_compte_npcg[compte].count += 1;
+    });
+
+    // ========== DÉTAILS IMMOBILISATIONS ==========
+    const details_immobilisations = assets.map(asset => {
+      const acquisitionDate = new Date(asset.date_acquisition);
+      const yearStart = new Date(period_start);
+      const yearEnd = new Date(period_end);
+      
+      // Calculate depreciation for this year
+      let amort_annee = 0;
+      if (acquisitionDate <= yearEnd) {
+        const monthsInYear = Math.min(
+          12,
+          Math.ceil((yearEnd - Math.max(yearStart, acquisitionDate)) / (1000 * 60 * 60 * 24 * 30))
+        );
+        const annualAmort = (asset.valeur_acquisition * asset.taux_amortissement) / 100;
+        amort_annee = (annualAmort / 12) * monthsInYear;
+      }
+
+      return {
+        nom: asset.nom,
+        type: asset.type,
+        categorie: asset.categorie,
+        date_acquisition: asset.date_acquisition,
+        valeur_brute: asset.valeur_acquisition,
+        taux_amort: asset.taux_amortissement,
+        duree_ans: asset.duree_utilisation_ans,
+        amort_annee,
+        amort_cumule: asset.amortissement_cumule,
+        valeur_nette: asset.valeur_nette_comptable,
+        reference: asset.reference,
+        fournisseur: asset.fournisseur,
+        statut: asset.statut
+      };
+    });
+
+    // ========== DÉTAILS CRÉANCES ==========
+    const details_creances = transactions
+      .filter(t => t.is_creance && t.status === 'En attente')
+      .map(t => {
+        const factureDate = new Date(t.date);
+        const today = new Date();
+        const jours_retard = Math.floor((today - factureDate) / (1000 * 60 * 60 * 24));
+
+        return {
+          contact_name: t.contact_name,
+          numero_facture: t.numero_facture,
+          montant: t.amount,
+          date_facture: t.date,
+          date_echeance: t.date_echeance,
+          jours_retard,
+          categorie_risque: jours_retard > 90 ? 'Douteuse' : jours_retard > 60 ? 'Moyenne' : 'Normale'
+        };
+      });
+
+    // ========== DÉTAILS DETTES ==========
+    const details_dettes = transactions
+      .filter(t => t.is_dette && t.status === 'En attente')
+      .map(t => ({
+        contact_name: t.contact_name,
+        numero_facture: t.numero_facture,
+        montant: t.amount,
+        date_facture: t.date,
+        date_echeance: t.date_echeance,
+        compte_comptable: t.compte_comptable
+      }));
+
+    // ========== DÉTAILS EMPRUNTS ==========
+    const [loansData] = await Promise.all([
+      base44.asServiceRole.entities.Loan.filter({ statut: 'En cours' })
+    ]);
+
+    const details_emprunts = loansData.map(loan => ({
+      banque: loan.banque,
+      numero_pret: loan.numero_pret,
+      type_pret: loan.type_pret,
+      montant_initial: loan.montant_initial,
+      montant_restant: loan.montant_restant,
+      taux_interet: loan.taux_interet,
+      date_debut: loan.date_debut,
+      date_echeance: loan.date_echeance,
+      mensualite: loan.mensualite
+    }));
+
+    // ========== PROVISIONS ==========
+    const creances_douteuses = details_creances
+      .filter(c => c.categorie_risque === 'Douteuse')
+      .reduce((sum, c) => sum + c.montant * 0.5, 0); // 50% provision
+
+    const provisions = {
+      provisions_creances_douteuses: creances_douteuses,
+      provisions_charges_a_payer: 0,
+      provisions_impots: 0,
+      total_provisions: creances_douteuses
+    };
+
     // Ratios Financiers
     const actif_circulant = actif_creances.total + disponibilites;
     const dettes_court_terme = passif_dettes.fournisseurs + passif_dettes.dettes_fiscales_sociales;
@@ -383,12 +504,18 @@ Deno.serve(async (req) => {
       rentabilite_nette: total_produits_exploit > 0 ? (resultat_net / total_produits_exploit) * 100 : 0
     };
 
-    // Create Financial Statement
+    // Create Financial Statement with full details
     const financialStatement = await base44.asServiceRole.entities.FinancialStatement.create({
       fiscal_year,
       period_start,
       period_end,
       status: 'Validé',
+      details_par_compte_npcg,
+      details_immobilisations,
+      details_creances,
+      details_dettes,
+      details_emprunts,
+      provisions,
       actif: {
         immobilisations_incorporelles: actif_immob_incorp,
         immobilisations_corporelles: actif_immob_corp,

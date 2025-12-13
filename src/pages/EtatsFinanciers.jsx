@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import DataPreparationGuide from "../components/financials/DataPreparationGuide";
 import DocumentTracker from "../components/financials/DocumentTracker";
 import LiveFinancialDashboard from "../components/financials/LiveFinancialDashboard";
+import DetailedNPCGView from "../components/financials/DetailedNPCGView";
 
 export default function EtatsFinanciers() {
   const queryClient = useQueryClient();
@@ -308,6 +309,7 @@ export default function EtatsFinanciers() {
                       <TabsTrigger value="actif">Actif</TabsTrigger>
                       <TabsTrigger value="passif">Passif</TabsTrigger>
                       <TabsTrigger value="resultat">Compte de Résultat</TabsTrigger>
+                      <TabsTrigger value="details">📋 Détails NPCG</TabsTrigger>
                       <TabsTrigger value="ratios">Ratios</TabsTrigger>
                     </TabsList>
 
@@ -481,6 +483,11 @@ export default function EtatsFinanciers() {
                           </div>
                         </div>
                       </div>
+                    </TabsContent>
+
+                    {/* Details Tab */}
+                    <TabsContent value="details" className="mt-6">
+                      <DetailedNPCGView statement={statement} />
                     </TabsContent>
 
                     {/* Ratios Tab */}
