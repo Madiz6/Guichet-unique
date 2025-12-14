@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 import jsPDF from 'npm:jspdf@2.5.2';
-import autoTable from 'npm:jspdf-autotable@3.8.4';
+import 'npm:jspdf-autotable@3.8.4';
 
 Deno.serve(async (req) => {
   try {
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
       [{ content: 'TOTAL GENERAL (1 à 3)', styles: { fontStyle: 'bold', fillColor: [180, 180, 180] } }, '', { content: formatAmount(stmt.actif?.total_actif || 0), styles: { fontStyle: 'bold' } }, { content: formatAmount((stmt.actif?.immobilisations_incorporelles?.total_amort || 0) + (stmt.actif?.immobilisations_corporelles?.total_amort || 0)), styles: { fontStyle: 'bold' } }, { content: formatAmount(stmt.actif?.total_actif || 0), styles: { fontStyle: 'bold' } }]
     ];
 
-    autoTable(doc, {
+    doc.autoTable({
       startY: yPos,
       head: [['ACTIF', 'NOTES', 'BRUT', 'AMORTIS\nPROVISION', 'NET\n31/12/' + stmt.fiscal_year]],
       body: actifData,
@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
       [{ content: 'TOTAL GENERAL (I + II + III)', styles: { fontStyle: 'bold', fillColor: [180, 180, 180] } }, '', { content: formatAmount(stmt.passif?.total_passif || 0), styles: { fontStyle: 'bold' } }]
     ];
 
-    autoTable(doc, {
+    doc.autoTable({
       startY: yPos,
       head: [['PASSIF', 'NOTES', 'NET\n31/12/' + stmt.fiscal_year]],
       body: passifData,
@@ -210,7 +210,7 @@ Deno.serve(async (req) => {
       [{ content: 'RESULTAT NET', styles: { fontStyle: 'bold', fillColor: [180, 220, 180] } }, '', { content: formatAmount(stmt.compte_resultat?.resultat_net || 0), styles: { fontStyle: 'bold' } }]
     ];
 
-    autoTable(doc, {
+    doc.autoTable({
       startY: yPos,
       head: [['', 'NOTES', 'NET\n31/12/' + stmt.fiscal_year]],
       body: resultatData,
@@ -255,7 +255,7 @@ Deno.serve(async (req) => {
         formatAmount(immo.valeur_nette)
       ]);
 
-      autoTable(doc, {
+      doc.autoTable({
         startY: yPos,
         head: [['Éléments', 'Type', 'Date Acq.', 'Valeur Brute', 'Taux', 'Amort. ' + stmt.fiscal_year, 'Amort. Cumulé', 'VNC']],
         body: immoData,
@@ -284,7 +284,7 @@ Deno.serve(async (req) => {
         yPos += 8;
 
         const note8 = stmt.notes_annexes.note_8_dettes_fiscales_sociales;
-        autoTable(doc, {
+        doc.autoTable({
           startY: yPos,
           body: [
             ['CNSS', formatAmount(note8.cnss)],
@@ -312,7 +312,7 @@ Deno.serve(async (req) => {
         yPos += 8;
 
         const note10 = stmt.notes_annexes.note_10_charges_externes;
-        autoTable(doc, {
+        doc.autoTable({
           startY: yPos,
           body: [
             ['CARBURANT EAU ENERGIE', formatAmount(note10.carburant_energie)],
