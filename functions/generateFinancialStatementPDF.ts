@@ -28,40 +28,31 @@ Deno.serve(async (req) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
-    let yPos = 20;
 
-    const checkPageBreak = (neededSpace = 40) => {
-      if (yPos + neededSpace > pageHeight - 20) {
-        doc.addPage();
-        yPos = 20;
-        return true;
-      }
-      return false;
-    };
-
-    const addWatermark = () => {
-      doc.setFontSize(60);
-      doc.setTextColor(200, 200, 200);
-      doc.setFont('helvetica', 'bold');
-      doc.text('DRAFT', pageWidth / 2, pageHeight / 2, {
-        align: 'center',
-        angle: 45
-      });
-      doc.setTextColor(0, 0, 0);
+    const formatAmount = (amount) => {
+      if (!amount && amount !== 0) return '-';
+      const formatted = new Intl.NumberFormat('fr-FR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(Math.abs(amount));
+      return amount < 0 ? `- ${formatted}` : formatted;
     };
 
     const addFooter = (pageNum) => {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
       doc.text(`Les notes 1 à 11 sont une partie intégrante des états financiers`, 14, pageHeight - 10);
       doc.text(`Le gérant`, 14, pageHeight - 5);
       doc.text(`${pageNum}`, pageWidth - 20, pageHeight - 5);
     };
 
+    let yPos = 20;
+
     // ========== PAGE 1: BILAN ACTIF ==========
-    addWatermark();
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
     doc.text(company.nom_entreprise || 'ENTREPRISE', pageWidth / 2, yPos, { align: 'center' });
     yPos += 6;
     doc.setFontSize(11);
@@ -116,7 +107,6 @@ Deno.serve(async (req) => {
     // ========== PAGE 2: BILAN PASSIF ==========
     doc.addPage();
     yPos = 20;
-    addWatermark();
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -166,7 +156,6 @@ Deno.serve(async (req) => {
     // ========== PAGE 3: COMPTE DE RESULTAT ==========
     doc.addPage();
     yPos = 20;
-    addWatermark();
 
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -226,120 +215,10 @@ Deno.serve(async (req) => {
 
     addFooter(3);
 
-    // ========== NOTES AUX ETATS FINANCIERS ==========
-    if (stmt.details_immobilisations && stmt.details_immobilisations.length > 0) {
-      doc.addPage();
-      yPos = 20;
-      
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('NOTES AUX ETATS FINANCIERS', 14, yPos);
-      yPos += 10;
+    // Generate PDF buffer
+    const pdfBytes = doc.output('arraybuffer');
 
-      doc.setFontSize(11);
-      doc.text('NOTE 3 - Tableau des Immobilisations', 14, yPos);
-      yPos += 8;
-
-      doc.setFontSize(10);
-      doc.text('A- Immobilisations incorporelles / corporelles', 14, yPos);
-      yPos += 6;
-
-      const immoData = stmt.details_immobilisations.map(immo => [
-        immo.nom,
-        immo.type,
-        new Date(immo.date_acquisition).toLocaleDateString('fr-FR'),
-        formatAmount(immo.valeur_brute),
-        immo.taux_amort + '%',
-        formatAmount(immo.amort_annee),
-        formatAmount(immo.amort_cumule),
-        formatAmount(immo.valeur_nette)
-      ]);
-
-      doc.autoTable({
-        startY: yPos,
-        head: [['Éléments', 'Type', 'Date Acq.', 'Valeur Brute', 'Taux', 'Amort. ' + stmt.fiscal_year, 'Amort. Cumulé', 'VNC']],
-        body: immoData,
-        theme: 'grid',
-        styles: { fontSize: 6, cellPadding: 1 },
-        headStyles: { fillColor: [220, 220, 220], fontStyle: 'bold', halign: 'center' },
-        columnStyles: {
-          0: { cellWidth: 35 },
-          1: { cellWidth: 25 },
-          2: { cellWidth: 20, halign: 'center' },
-          3: { cellWidth: 20, halign: 'right' },
-          4: { cellWidth: 12, halign: 'center' },
-          5: { cellWidth: 20, halign: 'right' },
-          6: { cellWidth: 23, halign: 'right' },
-          7: { cellWidth: 20, halign: 'right' }
-        }
-      });
-
-      yPos = doc.lastAutoTable.finalY + 10;
-
-      // NOTE 8 - Dettes fiscales et sociales
-      if (stmt.notes_annexes?.note_8_dettes_fiscales_sociales) {
-        checkPageBreak(40);
-        doc.setFontSize(11);
-        doc.text('NOTE 8 - DETAIL DES DETTES FISCALES ET SOCIALES', 14, yPos);
-        yPos += 8;
-
-        const note8 = stmt.notes_annexes.note_8_dettes_fiscales_sociales;
-        doc.autoTable({
-          startY: yPos,
-          body: [
-            ['CNSS', formatAmount(note8.cnss)],
-            ['ITS', formatAmount(note8.its)],
-            ['Impôt sur les bénéfices / IMF', formatAmount(note8.impots)],
-            ['Personnel : rémunérations dues', formatAmount(note8.salaires_dus)],
-            [{ content: 'TOTAL', styles: { fontStyle: 'bold' } }, { content: formatAmount(note8.total), styles: { fontStyle: 'bold' } }]
-          ],
-          theme: 'grid',
-          styles: { fontSize: 8 },
-          columnStyles: {
-            0: { cellWidth: 120 },
-            1: { cellWidth: 45, halign: 'right' }
-          }
-        });
-
-        yPos = doc.lastAutoTable.finalY + 10;
-      }
-
-      // NOTE 10 - Charges externes
-      if (stmt.notes_annexes?.note_10_charges_externes) {
-        checkPageBreak(60);
-        doc.setFontSize(11);
-        doc.text('NOTE 10 - DETAILS DES CHARGES EXTERNES', 14, yPos);
-        yPos += 8;
-
-        const note10 = stmt.notes_annexes.note_10_charges_externes;
-        doc.autoTable({
-          startY: yPos,
-          body: [
-            ['CARBURANT EAU ENERGIE', formatAmount(note10.carburant_energie)],
-            ['SOUS-TRAITANCE', formatAmount(note10.sous_traitance)],
-            ['LOCATION', formatAmount(note10.location)],
-            ['ENTRETIEN ET REPARATIONS', formatAmount(note10.entretien)],
-            ['PRIMES D\'ASSURANCE', formatAmount(note10.assurances)],
-            ['HONORAIRES', formatAmount(note10.honoraires)],
-            ['ANNONCES, INSERTIONS ET PUBLICATIONS', formatAmount(note10.publicite)],
-            ['FRAIS POSTAUX ET DE TELECOMMUNICATION', formatAmount(note10.frais_postaux)],
-            ['SERVICES BANCAIRES ET ASSIMILES', formatAmount(note10.services_bancaires)],
-            ['DIVERS', formatAmount(note10.divers)],
-            [{ content: 'TOTAL', styles: { fontStyle: 'bold' } }, { content: formatAmount(Object.values(note10).reduce((sum, v) => sum + v, 0)), styles: { fontStyle: 'bold' } }]
-          ],
-          theme: 'grid',
-          styles: { fontSize: 8 },
-          columnStyles: {
-            0: { cellWidth: 120 },
-            1: { cellWidth: 45, halign: 'right' }
-          }
-        });
-      }
-    }
-
-    const pdfBuffer = doc.output('arraybuffer');
-
-    return new Response(pdfBuffer, {
+    return new Response(pdfBytes, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -352,12 +231,3 @@ Deno.serve(async (req) => {
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
-
-function formatAmount(amount) {
-  if (!amount && amount !== 0) return '-';
-  const formatted = new Intl.NumberFormat('fr-FR', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.abs(amount));
-  return amount < 0 ? `- ${formatted}` : formatted;
-}
