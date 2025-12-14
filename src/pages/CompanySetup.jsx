@@ -161,6 +161,11 @@ export default function CompanySetup() {
               </motion.div>
             )}
 
+            {/* Due Diligence Search */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+              <DueDiligenceSearch />
+            </motion.div>
+
             {/* Informations Générales */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="border-0 shadow-lg">
