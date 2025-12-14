@@ -8,6 +8,7 @@ import { Building2, CheckCircle, Plus, FileText, Calendar, AlertTriangle, Bell, 
 import { motion } from 'framer-motion';
 import { format, differenceInDays } from 'date-fns';
 import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
+import DueDiligenceSearch from "../components/company/DueDiligenceSearch";
 
 export default function CompanySetup() {
   const [showCompanyWizard, setShowCompanyWizard] = useState(false);
