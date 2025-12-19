@@ -1,24 +1,68 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
+// Rate limiting cache (simple in-memory for demo)
+const rateLimitCache = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const MAX_REQUESTS = 10;
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
     if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      return Response.json({ 
+        success: false,
+        error: 'Unauthorized',
+        code: 'AUTH_REQUIRED' 
+      }, { status: 401 });
     }
 
     const { company_name, registration_number } = await req.json();
 
+    // Input validation
     if (!company_name && !registration_number) {
       return Response.json({ 
-        error: 'Veuillez fournir le nom de l\'entreprise ou le numéro d\'enregistrement' 
+        success: false,
+        error: 'Veuillez fournir le nom de l\'entreprise ou le numéro d\'enregistrement',
+        code: 'MISSING_INPUT'
       }, { status: 400 });
     }
 
+    // Validate input format
+    if (company_name && (company_name.length < 2 || company_name.length > 200)) {
+      return Response.json({
+        success: false,
+        error: 'Le nom de l\'entreprise doit contenir entre 2 et 200 caractères',
+        code: 'INVALID_INPUT_LENGTH'
+      }, { status: 400 });
+    }
+
+    // Rate limiting
+    const rateLimitKey = user.email;
+    const now = Date.now();
+    const userRequests = rateLimitCache.get(rateLimitKey) || [];
+    const recentRequests = userRequests.filter(time => now - time < RATE_LIMIT_WINDOW);
+    
+    if (recentRequests.length >= MAX_REQUESTS) {
+      return Response.json({
+        success: false,
+        error: 'Trop de requêtes. Veuillez réessayer dans une minute.',
+        code: 'RATE_LIMIT_EXCEEDED'
+      }, { status: 429 });
+    }
+    
+    recentRequests.push(now);
+    rateLimitCache.set(rateLimitKey, recentRequests);
+
+    // Normalize input for better matching
+    const normalizedName = company_name ? normalizeCompanyName(company_name) : null;
+
+    console.log(`[KYC] Starting search for: ${company_name || registration_number} by ${user.email}`);
+
     // Step 1: Search for company on ODPIC registry
-    const searchUrl = `https://odpic.dj/publication-registre/?s=${encodeURIComponent(company_name || registration_number)}`;
+    const searchQuery = normalizedName || registration_number;
+    const searchUrl = `https://odpic.dj/publication-registre/?s=${encodeURIComponent(searchQuery)}`;
     
     try {
       const searchResponse = await fetch(searchUrl, {
@@ -30,21 +74,55 @@ Deno.serve(async (req) => {
       });
 
       if (!searchResponse.ok) {
+        console.error(`[KYC] Search failed with status: ${searchResponse.status}`);
         throw new Error(`HTTP error! status: ${searchResponse.status}`);
       }
 
       const searchHtml = await searchResponse.text();
 
-      // Step 2: Find the company detail page URL
-      const companyPageUrl = findCompanyPageUrl(searchHtml, company_name, registration_number);
+      // Step 2: Find the company detail page URL(s)
+      const matchResults = findCompanyPageUrl(searchHtml, normalizedName || company_name, registration_number);
 
-      if (!companyPageUrl) {
+      if (!matchResults || matchResults.length === 0) {
+        console.log(`[KYC] No results found for: ${searchQuery}`);
+        
+        await base44.asServiceRole.entities.AuditLog.create({
+          action: 'KYC Search - No Results',
+          entity_type: 'Company',
+          user_email: user.email,
+          details: {
+            search_query: searchQuery,
+            status: 'NOT_FOUND'
+          }
+        });
+
         return Response.json({
           success: false,
           message: 'Aucune entreprise trouvée avec ces critères',
+          code: 'NO_MATCH',
           search_criteria: { company_name, registration_number }
         });
       }
+
+      // Handle multiple matches
+      if (matchResults.length > 1) {
+        console.log(`[KYC] Multiple matches found: ${matchResults.length}`);
+        
+        return Response.json({
+          success: false,
+          message: 'Plusieurs entreprises correspondent à votre recherche',
+          code: 'MULTIPLE_MATCHES',
+          matches: matchResults.map(m => ({
+            company_name: m.title,
+            url: m.url,
+            similarity_score: m.score
+          })),
+          suggestion: 'Veuillez affiner votre recherche ou utiliser le numéro d\'enregistrement'
+        });
+      }
+
+      const companyPageUrl = matchResults[0].url;
+      console.log(`[KYC] Found match: ${companyPageUrl}`);
 
       // Step 3: Fetch the detailed company page
       const detailResponse = await fetch(companyPageUrl, {
@@ -64,55 +142,173 @@ Deno.serve(async (req) => {
       // Step 4: Parse the detailed company information
       const companyData = parseCompanyDetailPage(detailHtml);
 
-      if (!companyData) {
+      if (!companyData || !companyData.raison_sociale) {
+        console.error(`[KYC] Failed to parse company data`);
+        
         return Response.json({
           success: false,
           message: 'Impossible d\'extraire les données de l\'entreprise',
+          code: 'PARSE_ERROR',
           search_criteria: { company_name, registration_number }
         });
       }
 
-      // Log the search for audit trail
+      // Validate data quality
+      const dataQuality = assessDataQuality(companyData);
+      
+      // Enhanced structured output for KYC
+      const kycOutput = {
+        companyName: companyData.raison_sociale,
+        registrationNumber: companyData.numero_enregistrement || null,
+        legalForm: companyData.forme_juridique || null,
+        incorporationDate: companyData.date_immatriculation || null,
+        address: companyData.siege_social || null,
+        directors: companyData.dirigeants ? 
+          companyData.dirigeants.split(/[,;]/).map(d => ({
+            name: d.trim(),
+            role: 'Director'
+          })) : [],
+        capital: companyData.capital_social || null,
+        industry: companyData.activite_principale || null,
+        nif: companyData.nif || null,
+        status: companyData.statut || 'Actif',
+        sourceURL: companyPageUrl,
+        dataQuality: dataQuality,
+        verificationDate: new Date().toISOString()
+      };
+
+      // Log successful search for audit trail
       await base44.asServiceRole.entities.AuditLog.create({
-        action: 'Due Diligence Search',
+        action: 'KYC Search - Success',
         entity_type: 'Company',
-        entity_id: companyData.registration_number || 'unknown',
+        entity_id: kycOutput.registrationNumber || kycOutput.companyName,
         user_email: user.email,
         details: {
-          search_query: company_name || registration_number,
-          result_found: true
+          search_query: searchQuery,
+          company_found: kycOutput.companyName,
+          registration_number: kycOutput.registrationNumber,
+          data_quality: dataQuality.score,
+          source_url: companyPageUrl
+        }
+      });
+
+      console.log(`[KYC] Successfully retrieved data for: ${kycOutput.companyName}`);
+
+      return Response.json({
+        success: true,
+        data: kycOutput,
+        source: 'ODPIC Registry - Office Djiboutien de la Propriété Industrielle et Commerciale',
+        timestamp: new Date().toISOString(),
+        code: 'SUCCESS'
+      });
+
+    } catch (fetchError) {
+      console.error('[KYC] Network error:', fetchError);
+      
+      await base44.asServiceRole.entities.AuditLog.create({
+        action: 'KYC Search - Network Error',
+        entity_type: 'Company',
+        user_email: user.email,
+        details: {
+          error: fetchError.message,
+          search_query: searchQuery
         }
       });
 
       return Response.json({
-        success: true,
-        data: companyData,
-        source: 'ODPIC Registry',
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (fetchError) {
-      console.error('Fetch error:', fetchError);
-      
-      return Response.json({
         success: false,
         error: 'Impossible d\'accéder au registre ODPIC',
+        code: 'NETWORK_ERROR',
         details: fetchError.message,
         fallback_message: 'Veuillez vérifier manuellement sur https://odpic.dj/publication-registre/'
       }, { status: 503 });
     }
 
   } catch (error) {
-    console.error('Due diligence error:', error);
+    console.error('[KYC] Unexpected error:', error);
+    
     return Response.json({ 
       success: false,
-      error: error.message 
+      error: error.message,
+      code: 'INTERNAL_ERROR'
     }, { status: 500 });
   }
 });
 
 /**
- * Find company detail page URL from search results
+ * Normalize company name for better matching
+ */
+function normalizeCompanyName(name) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+(sarl|sa|sas|eurl|company)$/i, '');
+}
+
+/**
+ * Calculate similarity score between two strings (Levenshtein distance)
+ */
+function calculateSimilarity(str1, str2) {
+  const s1 = str1.toLowerCase();
+  const s2 = str2.toLowerCase();
+  
+  const costs = [];
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) {
+        costs[j] = j;
+      } else if (j > 0) {
+        let newValue = costs[j - 1];
+        if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+          newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+        }
+        costs[j - 1] = lastValue;
+        lastValue = newValue;
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  
+  const maxLength = Math.max(s1.length, s2.length);
+  return maxLength === 0 ? 1 : (maxLength - costs[s2.length]) / maxLength;
+}
+
+/**
+ * Assess data quality of extracted information
+ */
+function assessDataQuality(data) {
+  const fields = [
+    'raison_sociale',
+    'numero_enregistrement',
+    'forme_juridique',
+    'date_immatriculation',
+    'siege_social',
+    'capital_social',
+    'activite_principale',
+    'dirigeants',
+    'nif'
+  ];
+  
+  const filledFields = fields.filter(field => data[field] && data[field].toString().trim() !== '');
+  const completeness = (filledFields.length / fields.length) * 100;
+  
+  let score = 'HIGH';
+  if (completeness < 50) score = 'LOW';
+  else if (completeness < 75) score = 'MEDIUM';
+  
+  return {
+    score,
+    completeness: Math.round(completeness),
+    missingFields: fields.filter(field => !data[field] || data[field].toString().trim() === ''),
+    warnings: []
+  };
+}
+
+/**
+ * Find company detail page URL(s) from search results with fuzzy matching
  */
 function findCompanyPageUrl(html, searchName, searchNumber) {
   try {
@@ -131,33 +327,61 @@ function findCompanyPageUrl(html, searchName, searchNumber) {
       }
     }
 
-    // Match by company name
-    if (searchName && companies.length > 0) {
-      const normalizedSearch = searchName.toLowerCase().trim();
-      const exactMatch = companies.find(c => c.title.toLowerCase() === normalizedSearch);
-      if (exactMatch) return exactMatch.url;
-      
-      const partialMatch = companies.find(c => 
-        c.title.toLowerCase().includes(normalizedSearch) || 
-        normalizedSearch.includes(c.title.toLowerCase())
-      );
-      if (partialMatch) return partialMatch.url;
-    }
-
     // Fallback: extract all publication-registre links
-    const linkPattern = /<a[^>]*href="(https:\/\/odpic\.dj\/publication-registre\/[^"]+)"[^>]*>/gi;
-    const links = [];
-    while ((match = linkPattern.exec(cleanHtml)) !== null) {
-      const url = match[1];
-      if (url && url !== 'https://odpic.dj/publication-registre/' && !links.includes(url)) {
-        links.push(url);
+    if (companies.length === 0) {
+      const linkPattern = /<a[^>]*href="(https:\/\/odpic\.dj\/publication-registre\/[^"]+)"[^>]*>/gi;
+      while ((match = linkPattern.exec(cleanHtml)) !== null) {
+        const url = match[1];
+        if (url && url !== 'https://odpic.dj/publication-registre/') {
+          // Try to extract title from nearby text
+          const titleMatch = cleanHtml.substring(match.index - 200, match.index).match(/>([^<]+)<\/[^>]+>$/);
+          const title = titleMatch ? titleMatch[1].trim() : 'Unknown';
+          companies.push({ title, url });
+        }
       }
     }
 
-    return links.length > 0 ? links[0] : null;
+    if (companies.length === 0) {
+      return null;
+    }
+
+    // Match by registration number (exact)
+    if (searchNumber) {
+      const exactMatch = companies.find(c => 
+        c.title.includes(searchNumber) || c.url.includes(searchNumber)
+      );
+      if (exactMatch) return [{ ...exactMatch, score: 1.0 }];
+    }
+
+    // Match by company name with fuzzy matching
+    if (searchName) {
+      const normalizedSearch = normalizeCompanyName(searchName);
+      
+      // Calculate similarity scores
+      const scoredCompanies = companies.map(c => ({
+        ...c,
+        score: calculateSimilarity(normalizeCompanyName(c.title), normalizedSearch)
+      })).sort((a, b) => b.score - a.score);
+
+      // Exact match
+      const exactMatch = scoredCompanies.find(c => c.score === 1.0);
+      if (exactMatch) return [exactMatch];
+
+      // High confidence matches (>= 0.8)
+      const highConfidenceMatches = scoredCompanies.filter(c => c.score >= 0.8);
+      if (highConfidenceMatches.length === 1) return highConfidenceMatches;
+      if (highConfidenceMatches.length > 1) return highConfidenceMatches.slice(0, 3);
+
+      // Medium confidence matches (>= 0.6)
+      const mediumConfidenceMatches = scoredCompanies.filter(c => c.score >= 0.6);
+      if (mediumConfidenceMatches.length > 0) return mediumConfidenceMatches.slice(0, 5);
+    }
+
+    // Return first result if no good match found
+    return [{ ...companies[0], score: 0.5 }];
 
   } catch (error) {
-    console.error('Error finding company URL:', error);
+    console.error('[KYC] Error finding company URL:', error);
     return null;
   }
 }
