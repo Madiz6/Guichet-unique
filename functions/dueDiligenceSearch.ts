@@ -118,30 +118,42 @@ function findCompanyPageUrl(html, searchName, searchNumber) {
   try {
     const cleanHtml = html.replace(/\s+/g, ' ').trim();
     
-    // Extract all company links from search results
-    const linkPattern = /<a[^>]*href="(https:\/\/odpic\.dj\/publication-registre\/[^"]+)"[^>]*>/gi;
-    const links = [];
+    // Extract company cards with links and titles
+    const cardPattern = /<h2[^>]*class="elementor-heading-title[^"]*"[^>]*>(.*?)<\/h2>[\s\S]*?<a[^>]*href="(https:\/\/odpic\.dj\/publication-registre\/[^"]+)"[^>]*>/gi;
+    const companies = [];
     let match;
     
+    while ((match = cardPattern.exec(cleanHtml)) !== null) {
+      const title = match[1].replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').trim();
+      const url = match[2];
+      if (url && url !== 'https://odpic.dj/publication-registre/') {
+        companies.push({ title, url });
+      }
+    }
+
+    // Match by company name
+    if (searchName && companies.length > 0) {
+      const normalizedSearch = searchName.toLowerCase().trim();
+      const exactMatch = companies.find(c => c.title.toLowerCase() === normalizedSearch);
+      if (exactMatch) return exactMatch.url;
+      
+      const partialMatch = companies.find(c => 
+        c.title.toLowerCase().includes(normalizedSearch) || 
+        normalizedSearch.includes(c.title.toLowerCase())
+      );
+      if (partialMatch) return partialMatch.url;
+    }
+
+    // Fallback: extract all publication-registre links
+    const linkPattern = /<a[^>]*href="(https:\/\/odpic\.dj\/publication-registre\/[^"]+)"[^>]*>/gi;
+    const links = [];
     while ((match = linkPattern.exec(cleanHtml)) !== null) {
       const url = match[1];
-      if (url && url !== 'https://odpic.dj/publication-registre/') {
+      if (url && url !== 'https://odpic.dj/publication-registre/' && !links.includes(url)) {
         links.push(url);
       }
     }
 
-    // If searching by name, try to match the URL slug
-    if (searchName && links.length > 0) {
-      const normalizedSearch = searchName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      const matchedLink = links.find(link => {
-        const slug = link.toLowerCase();
-        return slug.includes(normalizedSearch) || normalizedSearch.includes(slug.split('/').pop().replace(/-/g, ''));
-      });
-      
-      if (matchedLink) return matchedLink;
-    }
-
-    // Return first link if found
     return links.length > 0 ? links[0] : null;
 
   } catch (error) {
@@ -155,11 +167,12 @@ function findCompanyPageUrl(html, searchName, searchNumber) {
  */
 function parseCompanyDetailPage(html) {
   try {
-    const cleanHtml = html.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+    const cleanHtml = html.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
     
     const extractText = (text) => {
+      if (!text) return '';
       return text
-        .replace(/<[^>]+>/g, '')
+        .replace(/<[^>]+>/g, ' ')
         .replace(/&nbsp;/g, ' ')
         .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
@@ -167,16 +180,25 @@ function parseCompanyDetailPage(html) {
         .replace(/&quot;/g, '"')
         .replace(/&rsquo;/g, "'")
         .replace(/&lsquo;/g, "'")
+        .replace(/&eacute;/g, 'é')
+        .replace(/&egrave;/g, 'è')
+        .replace(/&agrave;/g, 'à')
+        .replace(/\s{2,}/g, ' ')
         .trim();
     };
 
-    // Extract company name from title
-    const titleMatch = cleanHtml.match(/<h1[^>]*class="elementor-heading-title[^"]*"[^>]*>(.*?)<\/h1>/i) ||
-                      cleanHtml.match(/<title>(.*?)<\/title>/i);
-    const raison_sociale = titleMatch ? extractText(titleMatch[1]).replace(' - ODPIC', '') : '';
+    // Extract company name from h1 or title
+    let raison_sociale = '';
+    const h1Match = cleanHtml.match(/<h1[^>]*class="[^"]*elementor-heading-title[^"]*"[^>]*>(.*?)<\/h1>/i);
+    if (h1Match) {
+      raison_sociale = extractText(h1Match[1]);
+    } else {
+      const titleMatch = cleanHtml.match(/<title>([^<]+)<\/title>/i);
+      if (titleMatch) {
+        raison_sociale = extractText(titleMatch[1]).replace(/\s*-\s*ODPIC\s*$/i, '');
+      }
+    }
 
-    // Extract data from table rows
-    const tableMatch = cleanHtml.match(/<table[^>]*>(.*?)<\/table>/i);
     let companyData = {
       raison_sociale,
       numero_enregistrement: '',
@@ -190,63 +212,115 @@ function parseCompanyDetailPage(html) {
       statut: 'Actif'
     };
 
+    // Strategy 1: Parse structured table data
+    const tableMatch = cleanHtml.match(/<table[^>]*class="[^"]*table[^"]*"[^>]*>(.*?)<\/table>/i);
     if (tableMatch) {
       const tableContent = tableMatch[1];
-      const rowMatches = tableContent.match(/<tr[^>]*>(.*?)<\/tr>/gi);
+      const rowMatches = [...tableContent.matchAll(/<tr[^>]*>(.*?)<\/tr>/gi)];
 
-      if (rowMatches) {
-        rowMatches.forEach(row => {
-          const cellMatches = row.match(/<td[^>]*>(.*?)<\/td>/gi);
-          if (cellMatches && cellMatches.length >= 2) {
-            const label = extractText(cellMatches[0]).toLowerCase();
-            const value = extractText(cellMatches[1]);
+      rowMatches.forEach(rowMatch => {
+        const row = rowMatch[1];
+        const cells = [...row.matchAll(/<td[^>]*>(.*?)<\/td>/gi)];
+        
+        if (cells.length >= 2) {
+          const label = extractText(cells[0][1]).toLowerCase();
+          const value = extractText(cells[1][1]);
 
-            if (label.includes('numéro') || label.includes('enregistrement') || label.includes('immatriculation')) {
-              companyData.numero_enregistrement = value;
-            } else if (label.includes('forme') || label.includes('juridique')) {
-              companyData.forme_juridique = value;
-            } else if (label.includes('date')) {
-              companyData.date_immatriculation = value;
-            } else if (label.includes('siège') || label.includes('siege') || label.includes('adresse')) {
-              companyData.siege_social = value;
-            } else if (label.includes('capital')) {
-              companyData.capital_social = value;
-            } else if (label.includes('activité') || label.includes('activite') || label.includes('objet')) {
-              companyData.activite_principale = value;
-            } else if (label.includes('dirigeant') || label.includes('gérant') || label.includes('gerant') || label.includes('représentant')) {
-              companyData.dirigeants = value;
-            } else if (label.includes('nif') || label.includes('fiscal')) {
-              companyData.nif = value;
-            } else if (label.includes('statut')) {
-              companyData.statut = value;
+          if (!value || value === '-') return;
+
+          if (label.match(/num[eé]ro|n°|immatriculation|enregistrement/)) {
+            companyData.numero_enregistrement = value;
+          } else if (label.match(/forme.*juridique|type.*soci[eé]t[eé]/)) {
+            companyData.forme_juridique = value;
+          } else if (label.match(/date.*immatriculation|date.*cr[eé]ation/)) {
+            companyData.date_immatriculation = value;
+          } else if (label.match(/si[eè]ge|adresse/)) {
+            companyData.siege_social = value;
+          } else if (label.match(/capital/)) {
+            companyData.capital_social = value;
+          } else if (label.match(/activit[eé]|objet.*social/)) {
+            companyData.activite_principale = value;
+          } else if (label.match(/dirigeant|g[eé]rant|repr[eé]sentant|administrateur/)) {
+            companyData.dirigeants = value;
+          } else if (label.match(/nif|identif.*fiscal/)) {
+            companyData.nif = value;
+          } else if (label.match(/statut/)) {
+            companyData.statut = value;
+          }
+        }
+      });
+    }
+
+    // Strategy 2: Parse from paragraphs and divs (key:value patterns)
+    const contentMatch = cleanHtml.match(/<div[^>]*class="[^"]*elementor-widget-container[^"]*"[^>]*>(.*?)<\/div>/gi);
+    if (contentMatch) {
+      contentMatch.forEach(block => {
+        const text = extractText(block);
+        
+        // Pattern: "Label: Value" or "Label : Value"
+        const patterns = [
+          { regex: /Num[eé]ro\s*d['']?(?:immatriculation|enregistrement)\s*:?\s*([A-Z0-9\/\-\s]+)/i, field: 'numero_enregistrement' },
+          { regex: /Forme\s*juridique\s*:?\s*([A-Z\s]+)/i, field: 'forme_juridique' },
+          { regex: /Date\s*d['']?immatriculation\s*:?\s*([\d\/\-\.]+)/i, field: 'date_immatriculation' },
+          { regex: /Si[eè]ge\s*social\s*:?\s*([^\.]+)/i, field: 'siege_social' },
+          { regex: /Capital\s*social\s*:?\s*([^\.]+)/i, field: 'capital_social' },
+          { regex: /Activit[eé]\s*principale\s*:?\s*([^\.]+)/i, field: 'activite_principale' },
+          { regex: /Objet\s*social\s*:?\s*([^\.]+)/i, field: 'activite_principale' },
+          { regex: /Dirigeants?\s*:?\s*([^\.]+)/i, field: 'dirigeants' },
+          { regex: /G[eé]rants?\s*:?\s*([^\.]+)/i, field: 'dirigeants' },
+          { regex: /NIF\s*:?\s*([A-Z0-9\/\-]+)/i, field: 'nif' }
+        ];
+
+        patterns.forEach(({ regex, field }) => {
+          if (!companyData[field] || companyData[field] === '') {
+            const match = text.match(regex);
+            if (match && match[1]) {
+              companyData[field] = match[1].trim();
             }
           }
         });
+      });
+    }
+
+    // Strategy 3: Parse from list items
+    const listMatch = cleanHtml.match(/<li[^>]*>(.*?)<\/li>/gi);
+    if (listMatch) {
+      listMatch.forEach(item => {
+        const text = extractText(item);
+        if (text.includes(':')) {
+          const [label, ...valueParts] = text.split(':');
+          const value = valueParts.join(':').trim();
+          const normalizedLabel = label.toLowerCase().trim();
+
+          if (normalizedLabel.match(/num[eé]ro|immatriculation/) && !companyData.numero_enregistrement) {
+            companyData.numero_enregistrement = value;
+          } else if (normalizedLabel.match(/forme|juridique/) && !companyData.forme_juridique) {
+            companyData.forme_juridique = value;
+          } else if (normalizedLabel.match(/date/) && !companyData.date_immatriculation) {
+            companyData.date_immatriculation = value;
+          } else if (normalizedLabel.match(/si[eè]ge|adresse/) && !companyData.siege_social) {
+            companyData.siege_social = value;
+          } else if (normalizedLabel.match(/capital/) && !companyData.capital_social) {
+            companyData.capital_social = value;
+          } else if (normalizedLabel.match(/activit[eé]|objet/) && !companyData.activite_principale) {
+            companyData.activite_principale = value;
+          } else if (normalizedLabel.match(/dirigeant|g[eé]rant/) && !companyData.dirigeants) {
+            companyData.dirigeants = value;
+          } else if (normalizedLabel.match(/nif/) && !companyData.nif) {
+            companyData.nif = value;
+          }
+        }
+      });
+    }
+
+    // Clean up extracted data
+    Object.keys(companyData).forEach(key => {
+      if (typeof companyData[key] === 'string') {
+        companyData[key] = companyData[key].replace(/\s{2,}/g, ' ').trim();
       }
-    }
+    });
 
-    // Alternative: Extract from paragraphs if table parsing failed
-    if (!companyData.numero_enregistrement) {
-      const nifMatch = cleanHtml.match(/NIF[:\s]*([A-Z0-9\-\/]+)/i);
-      if (nifMatch) companyData.nif = extractText(nifMatch[1]);
-
-      const numeroMatch = cleanHtml.match(/N°?\s*(?:d')?(?:enregistrement|immatriculation)[:\s]*([A-Z0-9\-\/]+)/i);
-      if (numeroMatch) companyData.numero_enregistrement = extractText(numeroMatch[1]);
-
-      const formeMatch = cleanHtml.match(/Forme\s*juridique[:\s]*([^<]+)/i);
-      if (formeMatch) companyData.forme_juridique = extractText(formeMatch[1]);
-
-      const dateMatch = cleanHtml.match(/Date\s*(?:d')?immatriculation[:\s]*([0-9\/\-\.]+)/i);
-      if (dateMatch) companyData.date_immatriculation = extractText(dateMatch[1]);
-
-      const capitalMatch = cleanHtml.match(/Capital\s*social[:\s]*([^<]+)/i);
-      if (capitalMatch) companyData.capital_social = extractText(capitalMatch[1]);
-
-      const activiteMatch = cleanHtml.match(/Activité\s*principale[:\s]*([^<]+)/i);
-      if (activiteMatch) companyData.activite_principale = extractText(activiteMatch[1]);
-    }
-
-    // Return data if at least company name exists
+    // Validate we have at least company name
     return companyData.raison_sociale ? companyData : null;
 
   } catch (parseError) {
