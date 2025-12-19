@@ -251,34 +251,67 @@ function parseCompanyDetailPage(html) {
       });
     }
 
-    // Strategy 2: Parse from paragraphs and divs (key:value patterns)
-    const contentMatch = cleanHtml.match(/<div[^>]*class="[^"]*elementor-widget-container[^"]*"[^>]*>(.*?)<\/div>/gi);
+    // Strategy 2: Parse from text content blocks (ODPIC format)
+    const allText = extractText(cleanHtml);
+    
+    // ODPIC-specific patterns (exact labels)
+    const odpicPatterns = [
+      // Exact matches for ODPIC labels
+      { regex: /D[eé]nomination\s+sociale\s+([\s\S]+?)(?=Immatriculation|Date|$)/i, field: 'raison_sociale' },
+      { regex: /Immatriculation\s+(\d+)/i, field: 'numero_enregistrement' },
+      { regex: /Date\s+d['']?enregistrement\s+([\d\/\-\.]+)/i, field: 'date_immatriculation' },
+      { regex: /Dirigeants?\s+([\s\S]+?)(?=Adresses|Capital|Date|$)/i, field: 'dirigeants' },
+      { regex: /Adresses?\s+([\s\S]+?)(?=Capital|Date|Dirigeants|$)/i, field: 'siege_social' },
+      { regex: /Capital\s+([\d\s]+(?:FDJ|DJF)?)/i, field: 'capital_social' },
+      
+      // Alternative patterns
+      { regex: /Num[eé]ro\s*d['']?(?:immatriculation|enregistrement)\s*:?\s*([A-Z0-9\/\-\s]+)/i, field: 'numero_enregistrement' },
+      { regex: /Forme\s*juridique\s*:?\s*([A-Z\s]+)/i, field: 'forme_juridique' },
+      { regex: /Date\s*d['']?immatriculation\s*:?\s*([\d\/\-\.]+)/i, field: 'date_immatriculation' },
+      { regex: /Si[eè]ge\s*social\s*:?\s*([^<\n]+)/i, field: 'siege_social' },
+      { regex: /Capital\s*social\s*:?\s*([^<\n]+)/i, field: 'capital_social' },
+      { regex: /Activit[eé]\s*principale\s*:?\s*([^<\n]+)/i, field: 'activite_principale' },
+      { regex: /Objet\s*social\s*:?\s*([^<\n]+)/i, field: 'activite_principale' },
+      { regex: /G[eé]rants?\s*:?\s*([^<\n]+)/i, field: 'dirigeants' },
+      { regex: /NIF\s*:?\s*([A-Z0-9\/\-]+)/i, field: 'nif' }
+    ];
+
+    odpicPatterns.forEach(({ regex, field }) => {
+      if (!companyData[field] || companyData[field] === '') {
+        const match = allText.match(regex);
+        if (match && match[1]) {
+          let value = match[1].trim();
+          // Clean up multi-line extractions
+          value = value.replace(/\s{2,}/g, ' ').split(/(?:Immatriculation|Date|Dirigeants|Adresses|Capital|Forme|Activit[eé]|Objet|Si[eè]ge|NIF)/i)[0].trim();
+          if (value && value.length > 0 && value.length < 500) {
+            companyData[field] = value;
+          }
+        }
+      }
+    });
+
+    // Parse from structured divs/paragraphs
+    const contentMatch = cleanHtml.match(/<(?:p|div)[^>]*>(.*?)<\/(?:p|div)>/gi);
     if (contentMatch) {
       contentMatch.forEach(block => {
         const text = extractText(block);
+        if (!text || text.length < 3) return;
         
-        // Pattern: "Label: Value" or "Label : Value"
-        const patterns = [
-          { regex: /Num[eé]ro\s*d['']?(?:immatriculation|enregistrement)\s*:?\s*([A-Z0-9\/\-\s]+)/i, field: 'numero_enregistrement' },
-          { regex: /Forme\s*juridique\s*:?\s*([A-Z\s]+)/i, field: 'forme_juridique' },
-          { regex: /Date\s*d['']?immatriculation\s*:?\s*([\d\/\-\.]+)/i, field: 'date_immatriculation' },
-          { regex: /Si[eè]ge\s*social\s*:?\s*([^\.]+)/i, field: 'siege_social' },
-          { regex: /Capital\s*social\s*:?\s*([^\.]+)/i, field: 'capital_social' },
-          { regex: /Activit[eé]\s*principale\s*:?\s*([^\.]+)/i, field: 'activite_principale' },
-          { regex: /Objet\s*social\s*:?\s*([^\.]+)/i, field: 'activite_principale' },
-          { regex: /Dirigeants?\s*:?\s*([^\.]+)/i, field: 'dirigeants' },
-          { regex: /G[eé]rants?\s*:?\s*([^\.]+)/i, field: 'dirigeants' },
-          { regex: /NIF\s*:?\s*([A-Z0-9\/\-]+)/i, field: 'nif' }
-        ];
-
-        patterns.forEach(({ regex, field }) => {
-          if (!companyData[field] || companyData[field] === '') {
-            const match = text.match(regex);
-            if (match && match[1]) {
-              companyData[field] = match[1].trim();
-            }
-          }
-        });
+        // Check for label-value pattern
+        if (text.match(/^\s*[A-Za-zéèêàâ\s]+\s*$/)) {
+          // This might be a label, look for value in next block
+          return;
+        }
+        
+        // Direct field extraction from standalone values
+        const trimmed = text.trim();
+        if (trimmed.match(/^\d{5}$/) && !companyData.numero_enregistrement) {
+          companyData.numero_enregistrement = trimmed;
+        } else if (trimmed.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/) && !companyData.date_immatriculation) {
+          companyData.date_immatriculation = trimmed;
+        } else if (trimmed.match(/^[\d\s]+(?:FDJ|DJF)$/i) && !companyData.capital_social) {
+          companyData.capital_social = trimmed;
+        }
       });
     }
 
