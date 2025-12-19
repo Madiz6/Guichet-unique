@@ -17,11 +17,11 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Fetch ODPIC registry page
-    const searchUrl = 'https://odpic.dj/publication-registre/';
+    // Step 1: Search for company on ODPIC registry
+    const searchUrl = `https://odpic.dj/publication-registre/?s=${encodeURIComponent(company_name || registration_number)}`;
     
     try {
-      const response = await fetch(searchUrl, {
+      const searchResponse = await fetch(searchUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -29,19 +29,45 @@ Deno.serve(async (req) => {
         }
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!searchResponse.ok) {
+        throw new Error(`HTTP error! status: ${searchResponse.status}`);
       }
 
-      const html = await response.text();
+      const searchHtml = await searchResponse.text();
 
-      // Parse HTML to extract company information
-      const companyData = parseCompanyData(html, company_name, registration_number);
+      // Step 2: Find the company detail page URL
+      const companyPageUrl = findCompanyPageUrl(searchHtml, company_name, registration_number);
+
+      if (!companyPageUrl) {
+        return Response.json({
+          success: false,
+          message: 'Aucune entreprise trouvée avec ces critères',
+          search_criteria: { company_name, registration_number }
+        });
+      }
+
+      // Step 3: Fetch the detailed company page
+      const detailResponse = await fetch(companyPageUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8'
+        }
+      });
+
+      if (!detailResponse.ok) {
+        throw new Error(`HTTP error! status: ${detailResponse.status}`);
+      }
+
+      const detailHtml = await detailResponse.text();
+
+      // Step 4: Parse the detailed company information
+      const companyData = parseCompanyDetailPage(detailHtml);
 
       if (!companyData) {
         return Response.json({
           success: false,
-          message: 'Aucune entreprise trouvée avec ces critères',
+          message: 'Impossible d\'extraire les données de l\'entreprise',
           search_criteria: { company_name, registration_number }
         });
       }
@@ -86,87 +112,142 @@ Deno.serve(async (req) => {
 });
 
 /**
- * Parse company data from ODPIC HTML
- * This function extracts structured company information from the registry page
+ * Find company detail page URL from search results
  */
-function parseCompanyData(html, searchName, searchNumber) {
+function findCompanyPageUrl(html, searchName, searchNumber) {
   try {
-    // Remove all newlines and extra spaces for easier parsing
     const cleanHtml = html.replace(/\s+/g, ' ').trim();
-
-    // Extract table rows containing company data
-    const tableMatch = cleanHtml.match(/<table[^>]*>(.*?)<\/table>/i);
-    if (!tableMatch) {
-      console.log('No table found in HTML');
-      return null;
-    }
-
-    const tableContent = tableMatch[1];
-    const rowMatches = tableContent.match(/<tr[^>]*>(.*?)<\/tr>/gi);
-
-    if (!rowMatches || rowMatches.length === 0) {
-      console.log('No rows found in table');
-      return null;
-    }
-
-    const companies = [];
-
-    // Skip header row, start from index 1
-    for (let i = 1; i < rowMatches.length; i++) {
-      const row = rowMatches[i];
-      const cellMatches = row.match(/<td[^>]*>(.*?)<\/td>/gi);
-
-      if (!cellMatches || cellMatches.length < 4) continue;
-
-      const extractText = (cell) => {
-        return cell
-          .replace(/<[^>]+>/g, '')
-          .replace(/&nbsp;/g, ' ')
-          .replace(/&amp;/g, '&')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"')
-          .trim();
-      };
-
-      const companyInfo = {
-        numero_enregistrement: extractText(cellMatches[0] || ''),
-        raison_sociale: extractText(cellMatches[1] || ''),
-        forme_juridique: extractText(cellMatches[2] || ''),
-        date_immatriculation: extractText(cellMatches[3] || ''),
-        siege_social: extractText(cellMatches[4] || ''),
-        capital_social: extractText(cellMatches[5] || ''),
-        activite_principale: extractText(cellMatches[6] || ''),
-        dirigeants: extractText(cellMatches[7] || ''),
-        nif: extractText(cellMatches[8] || ''),
-        statut: extractText(cellMatches[9] || 'Actif')
-      };
-
-      // Only add if has minimum required data
-      if (companyInfo.raison_sociale || companyInfo.numero_enregistrement) {
-        companies.push(companyInfo);
+    
+    // Extract all company links from search results
+    const linkPattern = /<a[^>]*href="(https:\/\/odpic\.dj\/publication-registre\/[^"]+)"[^>]*>/gi;
+    const links = [];
+    let match;
+    
+    while ((match = linkPattern.exec(cleanHtml)) !== null) {
+      const url = match[1];
+      if (url && url !== 'https://odpic.dj/publication-registre/') {
+        links.push(url);
       }
     }
 
-    // Filter based on search criteria
-    if (searchName) {
-      const normalizedSearch = searchName.toLowerCase().trim();
-      const match = companies.find(c => 
-        c.raison_sociale.toLowerCase().includes(normalizedSearch)
-      );
-      if (match) return match;
+    // If searching by name, try to match the URL slug
+    if (searchName && links.length > 0) {
+      const normalizedSearch = searchName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const matchedLink = links.find(link => {
+        const slug = link.toLowerCase();
+        return slug.includes(normalizedSearch) || normalizedSearch.includes(slug.split('/').pop().replace(/-/g, ''));
+      });
+      
+      if (matchedLink) return matchedLink;
     }
 
-    if (searchNumber) {
-      const match = companies.find(c => 
-        c.numero_enregistrement.includes(searchNumber)
-      );
-      if (match) return match;
+    // Return first link if found
+    return links.length > 0 ? links[0] : null;
+
+  } catch (error) {
+    console.error('Error finding company URL:', error);
+    return null;
+  }
+}
+
+/**
+ * Parse company detail page to extract all information
+ */
+function parseCompanyDetailPage(html) {
+  try {
+    const cleanHtml = html.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    const extractText = (text) => {
+      return text
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&rsquo;/g, "'")
+        .replace(/&lsquo;/g, "'")
+        .trim();
+    };
+
+    // Extract company name from title
+    const titleMatch = cleanHtml.match(/<h1[^>]*class="elementor-heading-title[^"]*"[^>]*>(.*?)<\/h1>/i) ||
+                      cleanHtml.match(/<title>(.*?)<\/title>/i);
+    const raison_sociale = titleMatch ? extractText(titleMatch[1]).replace(' - ODPIC', '') : '';
+
+    // Extract data from table rows
+    const tableMatch = cleanHtml.match(/<table[^>]*>(.*?)<\/table>/i);
+    let companyData = {
+      raison_sociale,
+      numero_enregistrement: '',
+      forme_juridique: '',
+      date_immatriculation: '',
+      siege_social: '',
+      capital_social: '',
+      activite_principale: '',
+      dirigeants: '',
+      nif: '',
+      statut: 'Actif'
+    };
+
+    if (tableMatch) {
+      const tableContent = tableMatch[1];
+      const rowMatches = tableContent.match(/<tr[^>]*>(.*?)<\/tr>/gi);
+
+      if (rowMatches) {
+        rowMatches.forEach(row => {
+          const cellMatches = row.match(/<td[^>]*>(.*?)<\/td>/gi);
+          if (cellMatches && cellMatches.length >= 2) {
+            const label = extractText(cellMatches[0]).toLowerCase();
+            const value = extractText(cellMatches[1]);
+
+            if (label.includes('numéro') || label.includes('enregistrement') || label.includes('immatriculation')) {
+              companyData.numero_enregistrement = value;
+            } else if (label.includes('forme') || label.includes('juridique')) {
+              companyData.forme_juridique = value;
+            } else if (label.includes('date')) {
+              companyData.date_immatriculation = value;
+            } else if (label.includes('siège') || label.includes('siege') || label.includes('adresse')) {
+              companyData.siege_social = value;
+            } else if (label.includes('capital')) {
+              companyData.capital_social = value;
+            } else if (label.includes('activité') || label.includes('activite') || label.includes('objet')) {
+              companyData.activite_principale = value;
+            } else if (label.includes('dirigeant') || label.includes('gérant') || label.includes('gerant') || label.includes('représentant')) {
+              companyData.dirigeants = value;
+            } else if (label.includes('nif') || label.includes('fiscal')) {
+              companyData.nif = value;
+            } else if (label.includes('statut')) {
+              companyData.statut = value;
+            }
+          }
+        });
+      }
     }
 
-    // If no specific match but companies found, return first one
-    // (useful when scraping a specific company page)
-    return companies.length > 0 ? companies[0] : null;
+    // Alternative: Extract from paragraphs if table parsing failed
+    if (!companyData.numero_enregistrement) {
+      const nifMatch = cleanHtml.match(/NIF[:\s]*([A-Z0-9\-\/]+)/i);
+      if (nifMatch) companyData.nif = extractText(nifMatch[1]);
+
+      const numeroMatch = cleanHtml.match(/N°?\s*(?:d')?(?:enregistrement|immatriculation)[:\s]*([A-Z0-9\-\/]+)/i);
+      if (numeroMatch) companyData.numero_enregistrement = extractText(numeroMatch[1]);
+
+      const formeMatch = cleanHtml.match(/Forme\s*juridique[:\s]*([^<]+)/i);
+      if (formeMatch) companyData.forme_juridique = extractText(formeMatch[1]);
+
+      const dateMatch = cleanHtml.match(/Date\s*(?:d')?immatriculation[:\s]*([0-9\/\-\.]+)/i);
+      if (dateMatch) companyData.date_immatriculation = extractText(dateMatch[1]);
+
+      const capitalMatch = cleanHtml.match(/Capital\s*social[:\s]*([^<]+)/i);
+      if (capitalMatch) companyData.capital_social = extractText(capitalMatch[1]);
+
+      const activiteMatch = cleanHtml.match(/Activité\s*principale[:\s]*([^<]+)/i);
+      if (activiteMatch) companyData.activite_principale = extractText(activiteMatch[1]);
+    }
+
+    // Return data if at least company name exists
+    return companyData.raison_sociale ? companyData : null;
 
   } catch (parseError) {
     console.error('Parse error:', parseError);
