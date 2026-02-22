@@ -41,7 +41,10 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       const newAvailable = budget.amount_allocated - budget.amount_used - newCommitted;
 
       await base44.entities.Budget.update(budget.id, {
-        ...budget,
+        fiscal_year: budget.fiscal_year,
+        budget_type: budget.budget_type,
+        period: budget.period,
+        amount_allocated: budget.amount_allocated,
         amount_committed: newCommitted,
         amount_available: newAvailable
       });
@@ -110,7 +113,10 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       const newAvailable = budget.amount_allocated - newUsed - newCommitted;
 
       await base44.entities.Budget.update(budget.id, {
-        ...budget,
+        fiscal_year: budget.fiscal_year,
+        budget_type: budget.budget_type,
+        period: budget.period,
+        amount_allocated: budget.amount_allocated,
         amount_used: newUsed,
         amount_committed: newCommitted,
         amount_available: newAvailable
