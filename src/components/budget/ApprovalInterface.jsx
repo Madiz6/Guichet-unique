@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { meras } from "@/components/core/MerasClient";
+import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
