@@ -70,7 +70,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
 
   const rejectMutation = useMutation({
     mutationFn: async ({ requestId }) => {
-      return await meras.entities.ExpenseRequest.update(requestId, {
+      return await base44.entities.ExpenseRequest.update(requestId, {
         status: 'Rejetée',
         approved_by: currentUser?.email,
         approver_name: currentUser?.full_name,
