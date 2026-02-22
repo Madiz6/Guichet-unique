@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { base44 } from "@/api/base44Client";
 import { meras } from "@/components/core/MerasClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Toaster } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,22 +35,22 @@ export default function BudgetManagement() {
 
   const { data: budgets = [] } = useQuery({
     queryKey: ['budgets'],
-    queryFn: () => meras.entities.Budget.list('-created_date'),
+    queryFn: () => base44.entities.Budget.list('-created_date'),
   });
 
   const { data: departments = [] } = useQuery({
     queryKey: ['departments'],
-    queryFn: () => meras.entities.Department.list(),
+    queryFn: () => base44.entities.Department.list(),
   });
 
   const { data: expenseRequests = [] } = useQuery({
     queryKey: ['expense-requests'],
-    queryFn: () => meras.entities.ExpenseRequest.list('-created_date'),
+    queryFn: () => base44.entities.ExpenseRequest.list('-created_date'),
   });
 
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions'],
-    queryFn: () => meras.entities.Transaction.list(),
+    queryFn: () => base44.entities.Transaction.list(),
   });
 
   const isAdmin = user?.role === 'admin';

@@ -1,85 +1,134 @@
-import Dashboard from './pages/Dashboard';
-import Employees from './pages/Employees';
-import Payroll from './pages/Payroll';
-import Reports from './pages/Reports';
-import Employes from './pages/Employes';
-import Paie from './pages/Paie';
-import Declarations from './pages/Declarations';
-import Conges from './pages/Conges';
-import Visas from './pages/Visas';
-import Entreprise from './pages/Entreprise';
-import Parametres from './pages/Parametres';
-import Compliance from './pages/Compliance';
-import Expenses from './pages/Expenses';
-import Leasing from './pages/Leasing';
-import EmailTest from './pages/EmailTest';
-import EmailDNSSetup from './pages/EmailDNSSetup';
-import EmployeePortal from './pages/EmployeePortal';
-import PerformanceReviews from './pages/PerformanceReviews';
-import Training from './pages/Training';
-import ContractRenewals from './pages/ContractRenewals';
+/**
+ * pages.config.js - Page routing configuration
+ * 
+ * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.
+ * Pages are auto-registered when you create files in the ./pages/ folder.
+ * 
+ * THE ONLY EDITABLE VALUE: mainPage
+ * This controls which page is the landing page (shown when users visit the app).
+ * 
+ * Example file structure:
+ * 
+ *   import HomePage from './pages/HomePage';
+ *   import Dashboard from './pages/Dashboard';
+ *   import Settings from './pages/Settings';
+ *   
+ *   export const PAGES = {
+ *       "HomePage": HomePage,
+ *       "Dashboard": Dashboard,
+ *       "Settings": Settings,
+ *   }
+ *   
+ *   export const pagesConfig = {
+ *       mainPage: "HomePage",
+ *       Pages: PAGES,
+ *   };
+ * 
+ * Example with Layout (wraps all pages):
+ *
+ *   import Home from './pages/Home';
+ *   import Settings from './pages/Settings';
+ *   import __Layout from './Layout.jsx';
+ *
+ *   export const PAGES = {
+ *       "Home": Home,
+ *       "Settings": Settings,
+ *   }
+ *
+ *   export const pagesConfig = {
+ *       mainPage: "Home",
+ *       Pages: PAGES,
+ *       Layout: __Layout,
+ *   };
+ *
+ * To change the main page from HomePage to Dashboard, use find_replace:
+ *   Old: mainPage: "HomePage",
+ *   New: mainPage: "Dashboard",
+ *
+ * The mainPage value must match a key in the PAGES object exactly.
+ */
 import AuditLogs from './pages/AuditLogs';
-import SMSTest from './pages/SMSTest';
-import Home from './pages/Home';
-import SecurityDocumentation from './pages/SecurityDocumentation';
-import MigrationStrategy from './pages/MigrationStrategy';
-import InvitationProcess from './pages/InvitationProcess';
-import PaymentSuccess from './pages/PaymentSuccess';
-import PaymentFailure from './pages/PaymentFailure';
-import PaymentCancelled from './pages/PaymentCancelled';
-import MailManagement from './pages/MailManagement';
-import VirtualReceptionist from './pages/VirtualReceptionist';
-import TouristVisa from './pages/TouristVisa';
-import CompanySetup from './pages/CompanySetup';
 import AutresServices from './pages/AutresServices';
-import Transactions from './pages/Transactions';
-import Contacts from './pages/Contacts';
 import BudgetManagement from './pages/BudgetManagement';
 import BusinessIntelligence from './pages/BusinessIntelligence';
+import CompanySetup from './pages/CompanySetup';
+import Compliance from './pages/Compliance';
+import Conges from './pages/Conges';
+import Contacts from './pages/Contacts';
+import ContractRenewals from './pages/ContractRenewals';
+import Dashboard from './pages/Dashboard';
+import Declarations from './pages/Declarations';
+import EmailDNSSetup from './pages/EmailDNSSetup';
+import EmailTest from './pages/EmailTest';
+import EmployeePortal from './pages/EmployeePortal';
+import Employees from './pages/Employees';
+import Employes from './pages/Employes';
+import Entreprise from './pages/Entreprise';
 import EtatsFinanciers from './pages/EtatsFinanciers';
+import Expenses from './pages/Expenses';
+import Home from './pages/Home';
+import InvitationProcess from './pages/InvitationProcess';
+import Leasing from './pages/Leasing';
+import MailManagement from './pages/MailManagement';
+import MigrationStrategy from './pages/MigrationStrategy';
+import Paie from './pages/Paie';
+import Parametres from './pages/Parametres';
+import PaymentCancelled from './pages/PaymentCancelled';
+import PaymentFailure from './pages/PaymentFailure';
+import PaymentSuccess from './pages/PaymentSuccess';
+import Payroll from './pages/Payroll';
+import PerformanceReviews from './pages/PerformanceReviews';
+import Reports from './pages/Reports';
+import SMSTest from './pages/SMSTest';
+import SecurityDocumentation from './pages/SecurityDocumentation';
+import TouristVisa from './pages/TouristVisa';
+import Training from './pages/Training';
+import Transactions from './pages/Transactions';
+import VirtualReceptionist from './pages/VirtualReceptionist';
+import Visas from './pages/Visas';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Employees": Employees,
-    "Payroll": Payroll,
-    "Reports": Reports,
-    "Employes": Employes,
-    "Paie": Paie,
-    "Declarations": Declarations,
-    "Conges": Conges,
-    "Visas": Visas,
-    "Entreprise": Entreprise,
-    "Parametres": Parametres,
-    "Compliance": Compliance,
-    "Expenses": Expenses,
-    "Leasing": Leasing,
-    "EmailTest": EmailTest,
-    "EmailDNSSetup": EmailDNSSetup,
-    "EmployeePortal": EmployeePortal,
-    "PerformanceReviews": PerformanceReviews,
-    "Training": Training,
-    "ContractRenewals": ContractRenewals,
     "AuditLogs": AuditLogs,
-    "SMSTest": SMSTest,
-    "Home": Home,
-    "SecurityDocumentation": SecurityDocumentation,
-    "MigrationStrategy": MigrationStrategy,
-    "InvitationProcess": InvitationProcess,
-    "PaymentSuccess": PaymentSuccess,
-    "PaymentFailure": PaymentFailure,
-    "PaymentCancelled": PaymentCancelled,
-    "MailManagement": MailManagement,
-    "VirtualReceptionist": VirtualReceptionist,
-    "TouristVisa": TouristVisa,
-    "CompanySetup": CompanySetup,
     "AutresServices": AutresServices,
-    "Transactions": Transactions,
-    "Contacts": Contacts,
     "BudgetManagement": BudgetManagement,
     "BusinessIntelligence": BusinessIntelligence,
+    "CompanySetup": CompanySetup,
+    "Compliance": Compliance,
+    "Conges": Conges,
+    "Contacts": Contacts,
+    "ContractRenewals": ContractRenewals,
+    "Dashboard": Dashboard,
+    "Declarations": Declarations,
+    "EmailDNSSetup": EmailDNSSetup,
+    "EmailTest": EmailTest,
+    "EmployeePortal": EmployeePortal,
+    "Employees": Employees,
+    "Employes": Employes,
+    "Entreprise": Entreprise,
     "EtatsFinanciers": EtatsFinanciers,
+    "Expenses": Expenses,
+    "Home": Home,
+    "InvitationProcess": InvitationProcess,
+    "Leasing": Leasing,
+    "MailManagement": MailManagement,
+    "MigrationStrategy": MigrationStrategy,
+    "Paie": Paie,
+    "Parametres": Parametres,
+    "PaymentCancelled": PaymentCancelled,
+    "PaymentFailure": PaymentFailure,
+    "PaymentSuccess": PaymentSuccess,
+    "Payroll": Payroll,
+    "PerformanceReviews": PerformanceReviews,
+    "Reports": Reports,
+    "SMSTest": SMSTest,
+    "SecurityDocumentation": SecurityDocumentation,
+    "TouristVisa": TouristVisa,
+    "Training": Training,
+    "Transactions": Transactions,
+    "VirtualReceptionist": VirtualReceptionist,
+    "Visas": Visas,
 }
 
 export const pagesConfig = {
