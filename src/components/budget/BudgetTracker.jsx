@@ -45,10 +45,10 @@ export default function BudgetTracker({ budgets, transactions, expenseRequests }
       const usagePercentage = (totalUsed / budget.amount_allocated) * 100;
 
       // Burn rate / forecasting
-      const startDate = new Date(budget.period_start);
-      const endDate = new Date(budget.period_end);
       const today = new Date();
-      const totalDays = differenceInDays(endDate, startDate) || 1;
+      const startDate = budget.period_start ? new Date(budget.period_start) : today;
+      const endDate = budget.period_end ? new Date(budget.period_end) : today;
+      const totalDays = Math.max(differenceInDays(endDate, startDate), 1);
       const daysElapsed = Math.max(differenceInDays(today, startDate), 1);
       const burnRate = actualSpent / daysElapsed; // per day
       const projectedSpend = burnRate * totalDays;
