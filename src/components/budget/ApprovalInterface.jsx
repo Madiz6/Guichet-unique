@@ -121,10 +121,14 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       const newAvailable = budget.amount_allocated - newUsed - newCommitted;
 
       await base44.entities.Budget.update(budget.id, {
-        ...budget,
+        fiscal_year: budget.fiscal_year || new Date().getFullYear().toString(),
+        budget_type: budget.budget_type || 'Département',
+        period: budget.period || 'Annuel',
+        amount_allocated: budget.amount_allocated,
         amount_used: newUsed,
         amount_committed: newCommitted,
-        amount_available: newAvailable
+        amount_available: newAvailable,
+        status: budget.status || 'Actif',
       });
 
       // Update request to executed
