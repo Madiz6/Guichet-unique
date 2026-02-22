@@ -85,6 +85,7 @@ export default function BudgetManagement() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">
+      <Toaster position="top-right" />
       <div className="max-w-[1800px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
