@@ -209,7 +209,7 @@ export default function BudgetTracker({ budgets, transactions, expenseRequests }
                 {/* Period */}
                 <div className="pt-2 border-t flex items-center gap-2 text-xs text-gray-500">
                   <Calendar className="w-3 h-3" />
-                  {budget.period_start && format(new Date(budget.period_start), 'dd/MM/yyyy')} — {budget.period_end && format(new Date(budget.period_end), 'dd/MM/yyyy')}
+                  {budget.period_start ? format(new Date(budget.period_start), 'dd/MM/yyyy') : '—'} — {budget.period_end ? format(new Date(budget.period_end), 'dd/MM/yyyy') : '—'}
                 </div>
 
                 {budget.usagePercentage >= (budget.alert_threshold_percentage || 80) && (
