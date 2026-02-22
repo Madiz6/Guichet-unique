@@ -127,7 +127,7 @@ export default function Transactions() {
       }
     }
 
-    return matchesTab && matchesSearch && matchesCategory && matchesDepartment && matchesPayment && matchesPeriod;
+    return matchesTab && matchesSearch && matchesCategory && matchesDepartment && matchesPayment && matchesPeriod && matchesSource;
   });
 
   // Calculate totals
