@@ -28,23 +28,20 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
         throw new Error('Utilisateur non authentifié');
       }
 
-      const budget = budgets.find(b => b.id === request.budget_id);
+      // Fetch fresh budget from DB to get all required fields
+      const allBudgets = await base44.entities.Budget.list();
+      const budget = allBudgets.find(b => b.id === request.budget_id);
       
       if (!budget) {
         throw new Error('Budget introuvable');
       }
 
-      console.log('Approving request:', { requestId, request, budget, currentUser });
-      
       // Update budget - add to committed
       const newCommitted = (budget.amount_committed || 0) + request.amount_requested;
-      const newAvailable = budget.amount_allocated - budget.amount_used - newCommitted;
+      const newAvailable = budget.amount_allocated - (budget.amount_used || 0) - newCommitted;
 
       await base44.entities.Budget.update(budget.id, {
-        fiscal_year: budget.fiscal_year,
-        budget_type: budget.budget_type,
-        period: budget.period,
-        amount_allocated: budget.amount_allocated,
+        ...budget,
         amount_committed: newCommitted,
         amount_available: newAvailable
       });
@@ -97,7 +94,8 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
 
   const executeExpenseMutation = useMutation({
     mutationFn: async ({ requestId, request, receiptUrl, actualAmount }) => {
-      const budget = budgets.find(b => b.id === request.budget_id);
+      const allBudgets = await base44.entities.Budget.list();
+      const budget = allBudgets.find(b => b.id === request.budget_id);
       
       // If it was committed, reduce committed and add to used
       let newCommitted = budget.amount_committed || 0;
