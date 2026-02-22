@@ -108,14 +108,14 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
 
       const newAvailable = budget.amount_allocated - newUsed - newCommitted;
 
-      await meras.entities.Budget.update(budget.id, {
+      await base44.entities.Budget.update(budget.id, {
         amount_used: newUsed,
         amount_committed: newCommitted,
         amount_available: newAvailable
       });
 
       // Update request to executed
-      return await meras.entities.ExpenseRequest.update(requestId, {
+      return await base44.entities.ExpenseRequest.update(requestId, {
         status: 'Exécutée',
         amount_executed: actualAmount,
         receipt_url: receiptUrl,
