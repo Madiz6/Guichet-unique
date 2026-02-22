@@ -494,9 +494,9 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
             <Button variant="outline" onClick={() => { setIsEditing(false); setEditData(transaction); }} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={handleSave} className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC]">
-              Save Changes
-            </Button>
+            <Button onClick={handleSave} disabled={isSavingBudgetLink} className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC]">
+                {isSavingBudgetLink ? 'Mise à jour...' : 'Enregistrer'}
+              </Button>
           </div>
         )}
         </div>
