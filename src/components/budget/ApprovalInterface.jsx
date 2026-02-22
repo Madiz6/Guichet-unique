@@ -36,6 +36,11 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
         throw new Error('Budget introuvable');
       }
 
+      // Ensure fiscal_year is present (required field)
+      if (!budget.fiscal_year) {
+        budget.fiscal_year = new Date().getFullYear().toString();
+      }
+
       // Update budget - add to committed
       const newCommitted = (budget.amount_committed || 0) + request.amount_requested;
       const newAvailable = budget.amount_allocated - (budget.amount_used || 0) - newCommitted;
