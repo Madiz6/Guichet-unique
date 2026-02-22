@@ -89,7 +89,11 @@ export default function Transactions() {
   });
 
   // Get unique values for filters
-  const departments = [...new Set(employees.map(e => e.departement).filter(Boolean))];
+  const departments = [...new Set([
+    ...employees.map(e => e.departement).filter(Boolean),
+    ...deptEntities.map(d => d.name).filter(Boolean),
+    ...transactions.map(t => t.department).filter(Boolean),
+  ])];
   const categories = [...new Set(transactions.map(t => t.category).filter(Boolean))];
 
   // Apply filters
@@ -99,11 +103,13 @@ export default function Transactions() {
       (activeTab === 'expense' && transaction.type === 'Dépense');
 
     const matchesSearch = !filters.searchQuery || 
-      transaction.description?.toLowerCase().includes(filters.searchQuery.toLowerCase());
+      transaction.description?.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+      transaction.contact_name?.toLowerCase().includes(filters.searchQuery.toLowerCase());
 
     const matchesCategory = filters.category === 'all' || transaction.category === filters.category;
     const matchesDepartment = filters.department === 'all' || transaction.department === filters.department;
     const matchesPayment = filters.paymentMethod === 'all' || transaction.payment_method === filters.paymentMethod;
+    const matchesSource = filters.source === 'all' || transaction.source === filters.source;
 
     let matchesPeriod = true;
     if (filters.period !== 'all' && transaction.date) {
