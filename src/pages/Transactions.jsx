@@ -55,7 +55,7 @@ export default function Transactions() {
     queryFn: () => meras.entities.Budget.list(),
   });
 
-  const { data: departments: deptEntities = [] } = useQuery({
+  const { data: deptEntities = [] } = useQuery({
     queryKey: ['departments-list'],
     queryFn: () => meras.entities.Department.list(),
   });
