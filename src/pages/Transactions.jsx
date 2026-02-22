@@ -367,6 +367,15 @@ export default function Transactions() {
                           <td className="py-4 px-4 text-sm text-[#475569]">{transaction.category || '-'}</td>
                           <td className="py-4 px-4 text-sm text-[#475569]">{transaction.department || '-'}</td>
                           <td className="py-4 px-4 text-sm text-[#475569]">{transaction.payment_method || '-'}</td>
+                          <td className="py-4 px-4 text-sm">
+                            {transaction.budget_id ? (
+                              <Badge variant="outline" className="text-xs">
+                                {budgets.find(b => b.id === transaction.budget_id)?.department_name || 'Budget lié'}
+                              </Badge>
+                            ) : (
+                              <span className="text-gray-300">—</span>
+                            )}
+                          </td>
                           <td className="py-4 px-4">
                             <div className="flex justify-center gap-2">
                               <Button
