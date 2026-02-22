@@ -43,7 +43,17 @@ export default function BudgetTracker({ budgets, transactions, expenseRequests }
       const totalUsed = actualSpent + committed;
       const available = budget.amount_allocated - totalUsed;
       const usagePercentage = (totalUsed / budget.amount_allocated) * 100;
-      
+
+      // Burn rate / forecasting
+      const startDate = new Date(budget.period_start);
+      const endDate = new Date(budget.period_end);
+      const today = new Date();
+      const totalDays = differenceInDays(endDate, startDate) || 1;
+      const daysElapsed = Math.max(differenceInDays(today, startDate), 1);
+      const burnRate = actualSpent / daysElapsed; // per day
+      const projectedSpend = burnRate * totalDays;
+      const projectedOverrun = projectedSpend > budget.amount_allocated;
+
       const status = usagePercentage >= 100 ? 'Dépassé' 
         : usagePercentage >= budget.alert_threshold_percentage ? 'Alerte' 
         : 'Actif';
@@ -55,7 +65,11 @@ export default function BudgetTracker({ budgets, transactions, expenseRequests }
         totalUsed,
         available,
         usagePercentage,
-        status
+        status,
+        burnRate,
+        projectedSpend,
+        projectedOverrun,
+        relevantTransactions
       };
     });
   }, [budgets, transactions, expenseRequests]);
