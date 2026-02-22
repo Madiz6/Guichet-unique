@@ -141,7 +141,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       if (!file) return;
 
       try {
-        const { file_url } = await meras.integrations.Core.UploadFile({ file });
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
         const amount = parseFloat(receiptAmount) || request.amount_requested;
         
         executeExpenseMutation.mutate({
