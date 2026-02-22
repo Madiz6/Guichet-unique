@@ -281,6 +281,18 @@ export default function Transactions() {
                   <SelectItem value="Mobile Money">Mobile Money</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={filters.source} onValueChange={(value) => setFilters({...filters, source: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Source" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes sources</SelectItem>
+                  <SelectItem value="Manuel">Manuel</SelectItem>
+                  <SelectItem value="Budget">Budget</SelectItem>
+                  <SelectItem value="Paie">Paie</SelectItem>
+                  <SelectItem value="Autre">Autre</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
