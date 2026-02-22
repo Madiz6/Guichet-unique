@@ -8,6 +8,8 @@ import { AlertCircle, TrendingUp, TrendingDown, DollarSign, Calendar, Flame, Che
 import { format, differenceInDays } from 'date-fns';
 
 export default function BudgetTracker({ budgets, transactions, expenseRequests }) {
+  const [drillBudget, setDrillBudget] = useState(null);
+
   const budgetStats = useMemo(() => {
     return budgets.map(budget => {
       // Calculate real-time usage from transactions
