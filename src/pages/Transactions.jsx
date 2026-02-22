@@ -232,7 +232,7 @@ export default function Transactions() {
               <Filter className="w-5 h-5 text-[#0066FF]" />
               <h3 className="font-semibold text-[#0A2540]">Filtres</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               <Input
                 placeholder="Rechercher..."
                 value={filters.searchQuery}
