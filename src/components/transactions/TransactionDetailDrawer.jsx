@@ -344,9 +344,12 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                 {transaction.type === 'Dépense' && linkedBudget && (
                   <div className="p-4 bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F5] border border-[#E5E7EB] rounded-lg space-y-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-medium text-[#1A1A1A] uppercase tracking-wide">Budget Information</p>
+                      <p className="text-xs font-medium text-[#1A1A1A] uppercase tracking-wide flex items-center gap-1">
+                        <Link2 className="w-3 h-3" />
+                        Budget lié
+                      </p>
                       <Badge variant="outline" className="text-xs font-normal">
-                        {relevantBudget.department_name}
+                        {linkedBudget.department_name || linkedBudget.category || 'Global'}
                       </Badge>
                     </div>
                     
@@ -354,21 +357,21 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                       <div>
                         <p className="text-xs text-[#6B6B6B] mb-1">Alloué</p>
                         <p className="text-sm font-semibold text-[#1A1A1A]">
-                          {relevantBudget.amount_allocated?.toLocaleString()} DJF
+                          {linkedBudget.amount_allocated?.toLocaleString()} DJF
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-[#6B6B6B] mb-1">Utilisé</p>
                         <p className="text-sm font-semibold text-[#1A1A1A]">
-                          {relevantBudget.amount_used?.toLocaleString()} DJF
+                          {linkedBudget.amount_used?.toLocaleString()} DJF
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-[#6B6B6B] mb-1">Disponible</p>
                         <p className={`text-sm font-semibold ${
-                          budgetRemaining < relevantBudget.amount_allocated * 0.2 
+                          budgetRemaining < linkedBudget.amount_allocated * 0.2 
                             ? 'text-red-600' 
-                            : budgetRemaining < relevantBudget.amount_allocated * 0.5 
+                            : budgetRemaining < linkedBudget.amount_allocated * 0.5 
                             ? 'text-amber-600' 
                             : 'text-green-600'
                         }`}>
@@ -381,19 +384,20 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                       <div className="flex items-center justify-between mb-1 text-xs">
                         <span className="text-[#6B6B6B]">Utilisation</span>
                         <span className="font-medium text-[#1A1A1A]">
-                          {((relevantBudget.amount_used / relevantBudget.amount_allocated) * 100).toFixed(0)}%
+                          {((linkedBudget.amount_used / linkedBudget.amount_allocated) * 100).toFixed(0)}%
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                      <div className="w-full bg-gray-200 rounded-full h-1.5 flex overflow-hidden">
                         <div
-                          className={`h-1.5 rounded-full transition-all ${
-                            (relevantBudget.amount_used / relevantBudget.amount_allocated) >= 0.8
-                              ? 'bg-red-500'
-                              : (relevantBudget.amount_used / relevantBudget.amount_allocated) >= 0.5
-                              ? 'bg-amber-500'
-                              : 'bg-green-500'
+                          className={`h-1.5 transition-all ${
+                            (linkedBudget.amount_used / linkedBudget.amount_allocated) >= 0.8 ? 'bg-red-500' :
+                            (linkedBudget.amount_used / linkedBudget.amount_allocated) >= 0.5 ? 'bg-amber-500' : 'bg-green-500'
                           }`}
-                          style={{ width: `${Math.min((relevantBudget.amount_used / relevantBudget.amount_allocated) * 100, 100)}%` }}
+                          style={{ width: `${Math.min((linkedBudget.amount_used / linkedBudget.amount_allocated) * 100, 100)}%` }}
+                        />
+                        <div
+                          className="h-1.5 bg-blue-400 transition-all"
+                          style={{ width: `${Math.min((linkedBudget.amount_committed / linkedBudget.amount_allocated) * 100, 100)}%` }}
                         />
                       </div>
                     </div>
