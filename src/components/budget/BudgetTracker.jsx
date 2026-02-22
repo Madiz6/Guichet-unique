@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { AlertCircle, TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertCircle, TrendingUp, TrendingDown, DollarSign, Calendar, Flame, ChevronRight } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 
 export default function BudgetTracker({ budgets, transactions, expenseRequests }) {
   const budgetStats = useMemo(() => {
