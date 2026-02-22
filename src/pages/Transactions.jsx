@@ -60,6 +60,7 @@ export default function Transactions() {
     queryFn: () => meras.entities.Department.list(),
   });
 
+
   const createMutation = useMutation({
     mutationFn: (data) => meras.entities.Transaction.create(data),
     onSuccess: () => {
