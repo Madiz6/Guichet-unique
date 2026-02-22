@@ -341,7 +341,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
                 </div>
 
                 {/* Budget Information */}
-                {transaction.type === 'Dépense' && relevantBudget && (
+                {transaction.type === 'Dépense' && linkedBudget && (
                   <div className="p-4 bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F5] border border-[#E5E7EB] rounded-lg space-y-3">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-medium text-[#1A1A1A] uppercase tracking-wide">Budget Information</p>
