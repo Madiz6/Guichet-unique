@@ -15,20 +15,62 @@ import { toast } from 'sonner';
 export default function TransactionDetailDrawer({ transaction, onClose, onUpdate, onDelete, departments, categories, budgets = [] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(transaction);
+  const [isSavingBudgetLink, setIsSavingBudgetLink] = useState(false);
+
+  useEffect(() => {
+    setEditData(transaction);
+    setIsEditing(false);
+  }, [transaction]);
 
   if (!transaction) return null;
 
-  // Find relevant budget for this transaction
-  const relevantBudget = budgets.find(b => 
-    b.department_name === transaction.department || 
-    b.categories_allowed?.includes(transaction.category)
+  // Budgets filtered by department of this transaction
+  const filteredBudgets = budgets.filter(b =>
+    !editData?.department || !b.department_name || b.department_name === editData?.department
   );
 
-  const budgetRemaining = relevantBudget 
-    ? relevantBudget.amount_available || (relevantBudget.amount_allocated - relevantBudget.amount_used - relevantBudget.amount_committed)
+  // Find linked budget
+  const linkedBudget = budgets.find(b => b.id === transaction.budget_id) ||
+    budgets.find(b => b.department_name === transaction.department || b.categories_allowed?.includes(transaction.category));
+
+  const budgetRemaining = linkedBudget
+    ? linkedBudget.amount_available ?? (linkedBudget.amount_allocated - linkedBudget.amount_used - linkedBudget.amount_committed)
     : null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // If budget link changed and it's an expense, update budget spent amounts
+    if (editData.type === 'Dépense' && editData.budget_id !== transaction.budget_id) {
+      setIsSavingBudgetLink(true);
+      try {
+        // Remove from old budget
+        if (transaction.budget_id) {
+          const oldBudget = budgets.find(b => b.id === transaction.budget_id);
+          if (oldBudget) {
+            await base44.entities.Budget.update(oldBudget.id, {
+              ...oldBudget,
+              amount_used: Math.max(0, (oldBudget.amount_used || 0) - (transaction.amount || 0)),
+              amount_available: (oldBudget.amount_available || 0) + (transaction.amount || 0),
+            });
+          }
+        }
+        // Add to new budget
+        if (editData.budget_id) {
+          const newBudget = budgets.find(b => b.id === editData.budget_id);
+          if (newBudget) {
+            const newUsed = (newBudget.amount_used || 0) + (editData.amount || 0);
+            await base44.entities.Budget.update(newBudget.id, {
+              ...newBudget,
+              amount_used: newUsed,
+              amount_available: newBudget.amount_allocated - newUsed - (newBudget.amount_committed || 0),
+            });
+          }
+        }
+        toast.success('Lien budget mis à jour');
+      } catch (e) {
+        toast.error('Erreur mise à jour budget');
+      }
+      setIsSavingBudgetLink(false);
+    }
     onUpdate(editData);
     setIsEditing(false);
   };
