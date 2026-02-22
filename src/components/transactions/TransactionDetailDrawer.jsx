@@ -223,12 +223,32 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
               </div>
 
               <div>
+                <Label>Budget lié</Label>
+                <Select
+                  value={editData.budget_id || 'none'}
+                  onValueChange={(v) => setEditData({...editData, budget_id: v === 'none' ? null : v})}
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Aucun budget" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Aucun budget</SelectItem>
+                    {filteredBudgets.map(b => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.department_name || b.category || 'Global'} — {b.amount_available?.toLocaleString()} DJF dispo
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label>Notes</Label>
                 <Textarea
                   value={editData.notes || ''}
                   onChange={(e) => setEditData({...editData, notes: e.target.value})}
                   className="mt-2"
-                  rows={4}
+                  rows={3}
                 />
               </div>
             </>
