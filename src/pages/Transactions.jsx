@@ -34,6 +34,7 @@ export default function Transactions() {
     category: 'all',
     department: 'all',
     paymentMethod: 'all',
+    source: 'all',
     searchQuery: ''
   });
 
