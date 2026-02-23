@@ -227,8 +227,9 @@ export default function Layout({ children, currentPageName }) {
           </header>
 
           <div className="flex-1">
-            {children}
-          </div>
+              {children}
+            </div>
+            <AICopilot currentPage={currentPageName} />
         {/* Footer */}
         <footer className="bg-white border-t border-[#F0F0F0] px-6 py-3 text-center">
           <p className="text-xs text-[#6B6B6B] font-normal">© 2024 Paie360 • Powered by <span className="font-medium text-[#1A1A1A]">Meras PSP</span></p>
