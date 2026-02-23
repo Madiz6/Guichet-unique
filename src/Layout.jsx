@@ -17,6 +17,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
+import AICopilot from "@/components/ai/AICopilot";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
