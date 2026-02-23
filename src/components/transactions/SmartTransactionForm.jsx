@@ -98,6 +98,16 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
   
   const [uploading, setUploading] = useState(false);
   const [validationIssues, setValidationIssues] = useState([]);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+
+  const { data: allTransactions = [] } = useQuery({
+    queryKey: ['transactions-recent'],
+    queryFn: () => meras.entities.Transaction.list('-created_date', 50),
+  });
+
+  useEffect(() => {
+    setRecentTransactions(allTransactions);
+  }, [allTransactions]);
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
