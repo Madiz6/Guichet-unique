@@ -127,6 +127,32 @@ export default function Dashboard() {
     };
   });
   
+  // Holiday stats
+  const pendingHolidays = holidays.filter(h => h.status === 'En attente').length;
+  const approvedHolidays = holidays.filter(h => h.status === 'Approuvé').length;
+  const currentlyOnLeave = employees.filter(e => e.statut === 'En congé').length;
+
+  // Transaction stats (current month)
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthTransactions = transactions.filter(t => t.date && new Date(t.date) >= monthStart);
+  const monthRevenue = monthTransactions.filter(t => t.type === 'Revenu').reduce((s, t) => s + (t.amount || 0), 0);
+  const monthExpenses = monthTransactions.filter(t => t.type === 'Dépense').reduce((s, t) => s + (t.amount || 0), 0);
+  const pendingTransactions = transactions.filter(t => t.status === 'En attente').length;
+
+  // Budget stats
+  const activeBudgets = budgets.filter(b => b.status === 'Actif').length;
+  const alertBudgets = budgets.filter(b => b.status === 'Alerte' || b.status === 'Dépassé').length;
+  const totalAllocated = budgets.reduce((s, b) => s + (b.amount_allocated || 0), 0);
+  const totalUsed = budgets.reduce((s, b) => s + (b.amount_used || 0), 0);
+  const budgetUsagePct = totalAllocated > 0 ? Math.round((totalUsed / totalAllocated) * 100) : 0;
+
+  // Leasing stats
+  const activeLeases = leases.filter(l => l.status === 'Actif').length;
+  const rentedAssets = leaseAssets.filter(a => a.status === 'Loué').length;
+  const totalAssets = leaseAssets.length;
+  const monthlyLeaseRevenue = leases.filter(l => l.status === 'Actif').reduce((s, l) => s + (l.monthly_rent || 0), 0);
+
   // Department distribution
   const departmentData = activeEmployees.reduce((acc, emp) => {
     const dept = emp.departement || 'Non assigné';
