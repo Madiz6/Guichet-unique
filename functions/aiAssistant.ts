@@ -1,0 +1,226 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const body = await req.json();
+    const { action, data } = body;
+
+    if (action === 'analyze_dashboard') {
+      const { transactions = [], budgets = [], employees = [], expenseRequests = [] } = data;
+
+      const totalRevenue = transactions.filter(t => t.type === 'Revenu').reduce((s, t) => s + (t.amount || 0), 0);
+      const totalExpenses = transactions.filter(t => t.type === 'Dépense').reduce((s, t) => s + (t.amount || 0), 0);
+      const pendingPayments = transactions.filter(t => t.status === 'En attente').length;
+      const overdraftBudgets = budgets.filter(b => (b.amount_used || 0) > b.amount_allocated).length;
+      const alertBudgets = budgets.filter(b => b.status === 'Alerte').length;
+      const pendingRequests = expenseRequests.filter(r => r.status === 'En attente').length;
+
+      const prompt = `
+Tu es un assistant financier expert pour une entreprise djiboutienne (Paie360 / Meras PSP).
+
+Voici les données financières actuelles:
+- Transactions totales: ${transactions.length}
+- Revenus totaux: ${totalRevenue.toLocaleString()} DJF
+- Dépenses totales: ${totalExpenses.toLocaleString()} DJF
+- Résultat net: ${(totalRevenue - totalExpenses).toLocaleString()} DJF
+- Transactions en attente: ${pendingPayments}
+- Budgets dépassés: ${overdraftBudgets}
+- Budgets en alerte: ${alertBudgets}
+- Demandes de dépenses en attente: ${pendingRequests}
+- Employés actifs: ${employees.length}
+
+Génère exactement 4 insights actionnables et prioritaires en français, format JSON:
+{
+  "insights": [
+    {
+      "type": "warning|success|info|critical",
+      "title": "Titre court (max 8 mots)",
+      "message": "Explication claire et actionnable (max 20 mots)",
+      "action": "Action recommandée (max 6 mots)",
+      "priority": 1-4
+    }
+  ],
+  "summary": "Résumé global de la santé financière en 1 phrase"
+}`;
+
+      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            insights: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  type: { type: 'string' },
+                  title: { type: 'string' },
+                  message: { type: 'string' },
+                  action: { type: 'string' },
+                  priority: { type: 'number' }
+                }
+              }
+            },
+            summary: { type: 'string' }
+          }
+        }
+      });
+
+      return Response.json(result);
+    }
+
+    if (action === 'autocomplete_transaction') {
+      const { description, recentTransactions = [], contacts = [] } = data;
+
+      if (!description || description.length < 3) {
+        return Response.json({ suggestions: [] });
+      }
+
+      // Find pattern matches from history
+      const similar = recentTransactions
+        .filter(t => t.description?.toLowerCase().includes(description.toLowerCase()) ||
+                     t.contact_name?.toLowerCase().includes(description.toLowerCase()))
+        .slice(0, 5);
+
+      if (similar.length === 0) {
+        return Response.json({ suggestions: [] });
+      }
+
+      const prompt = `
+Tu es un assistant de saisie comptable pour une entreprise à Djibouti.
+
+L'utilisateur tape: "${description}"
+
+Transactions similaires dans l'historique:
+${similar.map(t => `- ${t.description} | ${t.contact_name || ''} | ${t.amount} DJF | ${t.category || ''} | ${t.type} | ${t.payment_method || ''}`).join('\n')}
+
+Génère jusqu'à 3 suggestions d'autocomplétion basées sur l'historique, format JSON:
+{
+  "suggestions": [
+    {
+      "description": "Description complète",
+      "contact_name": "Nom contact",
+      "amount": 0,
+      "type": "Revenu ou Dépense",
+      "category": "Catégorie",
+      "payment_method": "Méthode",
+      "confidence": 0.0-1.0,
+      "reason": "Basé sur... (max 5 mots)"
+    }
+  ]
+}`;
+
+      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            suggestions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  description: { type: 'string' },
+                  contact_name: { type: 'string' },
+                  amount: { type: 'number' },
+                  type: { type: 'string' },
+                  category: { type: 'string' },
+                  payment_method: { type: 'string' },
+                  confidence: { type: 'number' },
+                  reason: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      return Response.json(result);
+    }
+
+    if (action === 'detect_anomalies') {
+      const { transactions = [] } = data;
+
+      if (transactions.length < 5) {
+        return Response.json({ anomalies: [] });
+      }
+
+      // Calculate stats
+      const amounts = transactions.map(t => t.amount || 0);
+      const avg = amounts.reduce((a, b) => a + b, 0) / amounts.length;
+      const stdDev = Math.sqrt(amounts.map(a => Math.pow(a - avg, 2)).reduce((a, b) => a + b) / amounts.length);
+
+      const outliers = transactions
+        .filter(t => Math.abs((t.amount || 0) - avg) > 2.5 * stdDev)
+        .slice(0, 5);
+
+      const duplicates = [];
+      const seen = {};
+      for (const t of transactions) {
+        const key = `${t.amount}-${t.contact_name}-${t.date?.substring(0, 7)}`;
+        if (seen[key]) {
+          duplicates.push(t);
+        }
+        seen[key] = true;
+      }
+
+      const anomalies = [];
+
+      outliers.forEach(t => {
+        anomalies.push({
+          type: 'outlier',
+          severity: 'warning',
+          transaction_id: t.id,
+          description: t.description,
+          amount: t.amount,
+          date: t.date,
+          message: `Montant inhabituel: ${t.amount?.toLocaleString()} DJF (moy: ${Math.round(avg).toLocaleString()} DJF)`
+        });
+      });
+
+      duplicates.slice(0, 3).forEach(t => {
+        anomalies.push({
+          type: 'duplicate',
+          severity: 'critical',
+          transaction_id: t.id,
+          description: t.description,
+          amount: t.amount,
+          date: t.date,
+          message: `Transaction potentiellement en double: ${t.description}`
+        });
+      });
+
+      return Response.json({ anomalies });
+    }
+
+    if (action === 'chat') {
+      const { message, context = {} } = data;
+
+      const prompt = `
+Tu es Aria, l'assistante IA de Paie360 (système de gestion RH/financier pour entreprises djiboutiennes).
+Tu réponds en français, de façon concise, professionnelle et utile.
+Tu connais: gestion de paie, CNSS, ITS, budgets, transactions, comptabilité NPCG.
+
+Contexte de l'utilisateur:
+- Rôle: ${context.role || 'utilisateur'}
+- Page actuelle: ${context.page || 'Dashboard'}
+- ${context.stats ? `Données: ${JSON.stringify(context.stats)}` : ''}
+
+Question/demande: ${message}
+
+Réponds en 1-3 phrases maximum, et propose une action concrète si possible.`;
+
+      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt });
+      return Response.json({ reply: result });
+    }
+
+    return Response.json({ error: 'Unknown action' }, { status: 400 });
+
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
