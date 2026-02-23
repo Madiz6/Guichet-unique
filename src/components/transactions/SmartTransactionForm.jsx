@@ -311,9 +311,30 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
         ) : null}
       </div>
 
-      <div>
+      <div className="relative">
         <Label>Description *</Label>
-        <Input value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Détails de la transaction..." required className="mt-2" />
+        <Input
+          value={formData.description}
+          onChange={(e) => setFormData({...formData, description: e.target.value})}
+          placeholder="Détails de la transaction..."
+          required
+          className="mt-2"
+          autoComplete="off"
+        />
+        <AITransactionAutocomplete
+          value={formData.description}
+          recentTransactions={recentTransactions}
+          onSelect={(s) => setFormData(prev => ({
+            ...prev,
+            description: s.description || prev.description,
+            contact_name: s.contact_name || prev.contact_name,
+            amount: s.amount || prev.amount,
+            total_amount: s.amount || prev.total_amount,
+            type: s.type || prev.type,
+            category: s.category || prev.category,
+            payment_method: s.payment_method || prev.payment_method,
+          }))}
+        />
       </div>
 
       <div>
