@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
 import { useQuery } from "@tanstack/react-query";
-import { Users, TrendingUp, TrendingDown, FileText, DollarSign, ArrowRight, Building2, Plus } from 'lucide-react';
+import { Users, TrendingUp, TrendingDown, FileText, DollarSign, ArrowRight, Building2, Plus, Calendar, Wallet, LayoutGrid, Key } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
