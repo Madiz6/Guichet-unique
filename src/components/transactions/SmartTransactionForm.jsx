@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Upload, X, FileText, AlertCircle, CheckCircle, Info, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import AITransactionAutocomplete from '@/components/ai/AITransactionAutocomplete';
 
 // NPCG Account Mapping
 const NPCG_ACCOUNTS = {
