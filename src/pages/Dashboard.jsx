@@ -46,6 +46,31 @@ export default function Dashboard() {
     queryKey: ['declarations'],
     queryFn: () => meras.entities.Declaration.list('-created_date', 10),
   });
+
+  const { data: holidays = [] } = useQuery({
+    queryKey: ['holidays-dashboard'],
+    queryFn: () => meras.entities.Holiday.list('-created_date', 50),
+  });
+
+  const { data: transactions = [] } = useQuery({
+    queryKey: ['transactions-dashboard'],
+    queryFn: () => meras.entities.Transaction.list('-date', 100),
+  });
+
+  const { data: budgets = [] } = useQuery({
+    queryKey: ['budgets-dashboard'],
+    queryFn: () => meras.entities.Budget.list(),
+  });
+
+  const { data: leases = [] } = useQuery({
+    queryKey: ['leases-dashboard'],
+    queryFn: () => meras.entities.Lease.list(),
+  });
+
+  const { data: leaseAssets = [] } = useQuery({
+    queryKey: ['lease-assets-dashboard'],
+    queryFn: () => meras.entities.LeaseAsset.list(),
+  });
   
   const activeEmployees = employees.filter(e => e.statut === 'Actif');
   const onHolidayEmployees = employees.filter(e => e.statut === 'En congé');
