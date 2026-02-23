@@ -167,6 +167,14 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
       <div className="p-8 max-w-[1600px] mx-auto">
+        {/* AI Insights Banner */}
+        <AIInsightsBanner
+          transactions={[]}
+          budgets={[]}
+          employees={employees}
+          expenseRequests={[]}
+        />
+
         {/* No Company Alert */}
         {companies.length === 0 && (
           <motion.div
