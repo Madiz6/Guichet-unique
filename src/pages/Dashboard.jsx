@@ -472,6 +472,141 @@ export default function Dashboard() {
           </motion.div>
         </div>
         
+        {/* Summary Boxes: Holidays, Transactions, Budget, Leasing */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          {/* Holiday Overview */}
+          <Link to={createPageUrl('Conges')}>
+            <Card className="border border-[#E5E7EB] swan-shadow hover:swan-shadow-lg transition-all duration-300 bg-white cursor-pointer h-full">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] font-normal uppercase tracking-wide">Congés</p>
+                    <p className="text-xl font-semibold text-[#1A1A1A]">{currentlyOnLeave} en congé</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">En attente</span>
+                    <span className="font-medium text-amber-600">{pendingHolidays}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Approuvés</span>
+                    <span className="font-medium text-green-600">{approvedHolidays}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Total demandes</span>
+                    <span className="font-medium text-[#1A1A1A]">{holidays.length}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Transactions Overview */}
+          <Link to={createPageUrl('Transactions')}>
+            <Card className="border border-[#E5E7EB] swan-shadow hover:swan-shadow-lg transition-all duration-300 bg-white cursor-pointer h-full">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] font-normal uppercase tracking-wide">Transactions</p>
+                    <p className="text-xl font-semibold text-[#1A1A1A]">{monthTransactions.length} ce mois</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Revenus</span>
+                    <span className="font-medium text-green-600">+{(monthRevenue / 1000).toFixed(0)}K DJF</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Dépenses</span>
+                    <span className="font-medium text-red-500">-{(monthExpenses / 1000).toFixed(0)}K DJF</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">En attente</span>
+                    <span className="font-medium text-amber-600">{pendingTransactions}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Budget Overview */}
+          <Link to={createPageUrl('BudgetManagement')}>
+            <Card className="border border-[#E5E7EB] swan-shadow hover:swan-shadow-lg transition-all duration-300 bg-white cursor-pointer h-full">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                    <Wallet className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] font-normal uppercase tracking-wide">Budgets</p>
+                    <p className="text-xl font-semibold text-[#1A1A1A]">{activeBudgets} actifs</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Utilisation</span>
+                    <span className={`font-medium ${budgetUsagePct > 80 ? 'text-red-500' : 'text-green-600'}`}>{budgetUsagePct}%</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-1.5">
+                    <div className={`h-1.5 rounded-full ${budgetUsagePct > 80 ? 'bg-red-400' : 'bg-green-400'}`} style={{ width: `${Math.min(budgetUsagePct, 100)}%` }} />
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">En alerte</span>
+                    <span className="font-medium text-amber-600">{alertBudgets}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Alloué</span>
+                    <span className="font-medium text-[#1A1A1A]">{(totalAllocated / 1000).toFixed(0)}K DJF</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Leasing Overview */}
+          <Link to={createPageUrl('Leasing')}>
+            <Card className="border border-[#E5E7EB] swan-shadow hover:swan-shadow-lg transition-all duration-300 bg-white cursor-pointer h-full">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center">
+                    <Key className="w-5 h-5 text-teal-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6B6B6B] font-normal uppercase tracking-wide">Location</p>
+                    <p className="text-xl font-semibold text-[#1A1A1A]">{activeLeases} baux actifs</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Actifs loués</span>
+                    <span className="font-medium text-teal-600">{rentedAssets} / {totalAssets}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Revenu mensuel</span>
+                    <span className="font-medium text-green-600">{(monthlyLeaseRevenue / 1000).toFixed(0)}K DJF</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">Total baux</span>
+                    <span className="font-medium text-[#1A1A1A]">{leases.length}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </motion.div>
+
         {/* Declarations Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
