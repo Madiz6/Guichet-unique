@@ -11,6 +11,8 @@ import { calculatePayroll } from "../components/payroll/DjiboutiCalculator";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
+import AIInsightsBanner from "../components/ai/AIInsightsBanner";
+import AICopilot from "../components/ai/AICopilot";
 
 export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('12M');
