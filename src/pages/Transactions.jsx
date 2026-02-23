@@ -20,6 +20,7 @@ import TransactionWizard from '../components/transactions/TransactionWizard';
 import BulkUpload from '../components/transactions/BulkUpload';
 import TransactionDetailDrawer from '../components/transactions/TransactionDetailDrawer';
 import TransactionReports from '../components/transactions/TransactionReports';
+import AIAnomalyDetector from '../components/ai/AIAnomalyDetector';
 
 export default function Transactions() {
   const [showForm, setShowForm] = useState(false);
