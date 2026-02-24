@@ -1,5 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { calculatePayroll } from 'npm:@base44/sdk@0.8.6'; // NOT available - inline calc below
 
 Deno.serve(async (req) => {
   try {
