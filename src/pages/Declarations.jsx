@@ -232,6 +232,26 @@ export default function Declarations() {
     toast.success('Paiement effectué avec succès!');
   };
 
+  const handleDownloadBordereau = async (decl) => {
+    setDownloadingBordereau(decl.id);
+    try {
+      const response = await base44.functions.invoke('generateBordereauCNSS', {
+        declaration_id: decl.id
+      });
+      const html = response.data;
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = window.URL.createObjectURL(blob);
+      const win = window.open(url, '_blank');
+      if (win) setTimeout(() => win.print(), 600);
+      toast.success('Bordereau CNSS ouvert — prêt à imprimer / télécharger');
+    } catch (error) {
+      console.error(error);
+      toast.error('Erreur lors de la génération du bordereau');
+    } finally {
+      setDownloadingBordereau(null);
+    }
+  };
+
   const handleDownloadDeclarationPDF = async (decl) => {
     setDownloadingPDF(true);
     try {
