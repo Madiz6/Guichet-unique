@@ -37,21 +37,28 @@ export const CNSS_RATES = {
 };
 
 // ─── ZONE FRANCHE ──────────────────────────────────────────────────────────────
-// Same salariale as Général (6%), but patronale is Général minus Prestations familiales (5.5%)
-// = 15.7% - 5.5% = 10.2%
-// Breakdown: Retraite 4% + AT 1.2% + AMU 5% = 10.2% (NO Prestations familiales)
+// Source: Tableau détaillé de retenue de Cotisation - Régime Zone franche (16.2%)
+// Arrêté N°69-1883/SG/CG/ du 31.12.1969
+//
+// Formula (verified against official example table):
+//   Part Salariale  (6%):   6%   × min(salaire, 400 000) + 4% × max(salaire - 400 000, 0)
+//   Part Patronale (10.2%): 10.2% × min(salaire, 400 000) + 4% × max(salaire - 400 000, 0)
+//
+// Above the 400 000 FDJ cap only the Retraite portion (4%) applies to the excess.
+// Ventilation patronale: AT & Soins 6.2% — no, official text: AT 1.2% + AMU 5% + Retraite 4% = 10.2%
+//   (Prestations familiales: 0% — not applicable in Zone Franche)
 export const CNSS_RATES_ZONE_FRANCHE = {
   employee: {
     retraite: 0.04,
     amu: 0.02,
-    total: 0.06
+    total: 0.06   // on capped base; excess only 4%
   },
   employer: {
-    retraite: 0.04,          // 4%
-    accident_travail: 0.012, // 1.2%
-    amu: 0.05,               // 5%
-    allocations_familiales: 0, // NOT applicable in Zone Franche
-    total: 0.102             // 10.2%
+    retraite: 0.04,              // 4%
+    accident_travail: 0.012,     // 1.2%
+    amu: 0.05,                   // 5%
+    allocations_familiales: 0,   // NOT applicable in Zone Franche
+    total: 0.102                 // 10.2% on capped base; excess only 4%
   }
 };
 
