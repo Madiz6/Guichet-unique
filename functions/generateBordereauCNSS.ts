@@ -34,16 +34,6 @@ Deno.serve(async (req) => {
     // ─── INLINE PAYROLL CALCULATION (mirrors DjiboutiCalculator) ───────────────
     const RETRAITE_CAP = 400000;
 
-    const getRates = (regime) => {
-      if (regime === 'Zone Franche') return { empRetraite: 0.04, empAmu: 0.02, patRetraite: 0.04, patAt: 0.012, patFam: 0, patAmu: 0.05 };
-      if (regime === 'Fonctionnaire') return { empRetraite: 0.06, empAmu: 0.02, patRetraite: 0.14, patAt: 0, patFam: 0, patAmu: 0.05 };
-      if (regime === 'FNP')           return { empRetraite: 0.07, empAmu: 0.02, patRetraite: 0.15, patAt: 0, patFam: 0, patAmu: 0.05 };
-      if (regime === 'Gouvernement')  return { empRetraite: 0.17, empAmu: 0.02, patRetraite: 0.19, patAt: 0, patFam: 0, patAmu: 0.05 };
-      if (regime === 'Indépendant')   return { empRetraite: 0, empAmu: 0, patRetraite: 0, patAt: 0, patFam: 0, patAmu: 0.07 };
-      // Général (default)
-      return { empRetraite: 0.04, empAmu: 0.02, patRetraite: 0.04, patAt: 0.012, patFam: 0.055, patAmu: 0.05 };
-    };
-
     const ITS_TABLE = [
       [0,4999,0],[5000,9999,100],[10000,14999,200],[15000,19999,300],[20000,24999,400],
       [25000,29999,500],[30000,34999,1100],[35000,39999,1700],[40000,44999,2300],
@@ -63,6 +53,16 @@ Deno.serve(async (req) => {
       return Math.round(base * pct);
     };
 
+    // Zone Franche: on tranche ≤ 400 000 apply full rates; on excess only Retraite 4%
+    const calcCNSSZoneFranche = (gross) => {
+      const cap = 400000;
+      const capped = Math.min(gross, cap);
+      const excess = Math.max(0, gross - cap);
+      const cnssEmp = Math.round(capped * 0.04) + Math.round(excess * 0.04) + Math.round(capped * 0.02);
+      const cnssPat = Math.round(capped * 0.04) + Math.round(excess * 0.04) + Math.round(capped * 0.012) + Math.round(capped * 0.05);
+      return { cnssEmp, cnssPat };
+    };
+
     const calcEmployee = (emp) => {
       const absences = cycle.employee_absences?.[emp.id] || 0;
       const base = emp.salaire_base || 0;
@@ -74,11 +74,23 @@ Deno.serve(async (req) => {
         (emp.autres_primes||0) + (emp.primes_personnalisees||[]).reduce((s,p)=>s+(p.montant||0),0);
       const gross = Math.max(0, base + primes - absences);
       const regime = emp.regime_cnss || 'Général';
-      const r = getRates(regime);
-      const retBase = Math.min(gross, RETRAITE_CAP);
-      const cnssEmp = Math.round(retBase * r.empRetraite) + Math.round(gross * r.empAmu);
-      const cnssPat = Math.round(retBase * r.patRetraite) + Math.round(gross * r.patAt) +
-                      Math.round(gross * r.patFam) + Math.round(gross * r.patAmu);
+
+      let cnssEmp, cnssPat;
+      if (regime === 'Zone Franche') {
+        ({ cnssEmp, cnssPat } = calcCNSSZoneFranche(gross));
+      } else {
+        const rates = {
+          'Fonctionnaire': { eR:0.06, eA:0.02, pR:0.14, pAt:0, pF:0, pA:0.05 },
+          'FNP':           { eR:0.07, eA:0.02, pR:0.15, pAt:0, pF:0, pA:0.05 },
+          'Gouvernement':  { eR:0.17, eA:0.02, pR:0.19, pAt:0, pF:0, pA:0.05 },
+          'Indépendant':   { eR:0,    eA:0,    pR:0,    pAt:0, pF:0, pA:0.07 },
+        };
+        const r = rates[regime] || { eR:0.04, eA:0.02, pR:0.04, pAt:0.012, pF:0.055, pA:0.05 };
+        const cap = Math.min(gross, 400000);
+        cnssEmp = Math.round(cap * r.eR) + Math.round(gross * r.eA);
+        cnssPat = Math.round(cap * r.pR) + Math.round(gross * r.pAt) + Math.round(gross * r.pF) + Math.round(gross * r.pA);
+      }
+
       const netImp = Math.max(0, gross - cnssEmp);
       const its = calcITS(netImp);
       return { gross, cnssEmp, cnssPat, its, regime };
