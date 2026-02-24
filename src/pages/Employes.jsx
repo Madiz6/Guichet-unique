@@ -274,6 +274,15 @@ export default function Employes() {
     }
   };
   
+  const reactivateMutation = useMutation({
+    mutationFn: (emp) => base44.entities.Employee.update(emp.id, { statut: 'Actif' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['employees']);
+      toast.success('Employé réactivé avec succès !');
+    },
+    onError: () => toast.error('Erreur lors de la réactivation')
+  });
+
   const handleDownloadAttestation = (emp) => {
     setSignatureDialog({
       isOpen: true,
