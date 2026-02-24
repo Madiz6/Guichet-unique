@@ -200,20 +200,74 @@ Génère jusqu'à 3 suggestions d'autocomplétion basées sur l'historique, form
     if (action === 'chat') {
       const { message, context = {} } = data;
 
+      const cnssKnowledgeBase = `
+=== BASE DE CONNAISSANCES CNSS - DJIBOUTI ===
+
+## AFFILIATION DES EMPLOYEURS
+- L'affiliation à la CNSS est OBLIGATOIRE dans les 48h suivant l'ouverture de l'établissement.
+- Pour les employeurs de gens de maison: 48h suivant l'engagement du salarié.
+- Tout retard constitue un défaut d'immatriculation, passible des peines de l'Art 122 alinéa 2.
+- Base légale: Loi n°188/AN/85/1ère L du 31 décembre 1985 + Art 10 al 2.
+
+## VERSEMENT DES COTISATIONS
+- Délai d'exigibilité: les 10 PREMIERS JOURS du mois suivant les rémunérations payées.
+- Base légale: Article 134 de l'arrêté n°69.1883/SG/CG/1969 + Art 3 de l'arrêté n°89.1264/PR/MT du 04/11/1989.
+- Chaque versement DOIT être accompagné d'un relevé nominatif des salariés + déclaration des salaires, daté et signé par l'employeur.
+- La déclaration doit être adressée à la CNSS AVANT l'expiration du délai, même en l'absence de paiement (Art 135).
+- Pénalité de retard: 10% si non payé avant le 10 du mois suivant (Art 137) + 3% par mois supplémentaire.
+- Pénalité de déclaration: 400 FDJ par employé par mois de retard si pas de déclaration nominative (Art 136).
+
+## IMMATRICULATION DES SALARIÉS
+- Lors de l'affiliation, l'employeur DOIT immatriculer chaque travailleur et remplir un certificat d'emploi.
+- Si le salarié n'est pas immatriculé, il doit faire une demande d'immatriculation à la CNSS.
+- La CNSS établit une fiche anthropométrique + une carte d'immatriculation à 13 chiffres.
+- Ce numéro est conservé à vie pour identifier le travailleur.
+- La carte CNSS donne accès à: soins médicaux, allocations familiales.
+
+## AYANTS DROIT
+- L'immatriculation des ayants droit se fait à la demande du travailleur (après sa propre immatriculation).
+- Ayants droit admis: épouses + enfants à charge (légitimes, adoptifs ou naturels).
+- Droits ouverts: soins médicaux gratuits pour le travailleur et sa famille dans les Centres de Soins CNSS.
+- Prestations familiales: allocation familiale, allocation de mariage, allocation de maternité.
+
+## TAUX DE COTISATION CNSS
+### Régime Général
+- Part Salariale (6%): Retraite 4% + AMU 2%
+- Part Patronale (15.7%): Retraite 4% + AT 1.2% + Prestations familiales 5.5% + AMU 5%
+- Plafond retraite: 400 000 DJF
+
+### Zone Franche
+- Part Salariale (6%): Retraite 4% + AMU 2%
+- Part Patronale (10.2%): Retraite 4% + AT & Soins 6.2%
+- Pas de prestations familiales en Zone Franche
+- Plafond retraite: 400 000 DJF
+
+## ITS (IMPÔT SUR LES TRAITEMENTS ET SALAIRES)
+- Barème progressif par tranches (0 à 200 000+ DJF)
+- Calculé sur le net imposable (brut - cotisations salariales CNSS)
+- RETCIM: 400 DJF fixe
+
+## PRIMES D'ANCIENNETÉ (Décret 1969)
+- < 2 ans: 4% | 2-4.5 ans: 8% | 4.5-7.5 ans: 12% | 7.5-10.5 ans: 16% | > 10.5 ans: 20%
+
+## CONGÉ MATERNITÉ
+- Mois 1-3: Entreprise paie 50% du salaire
+- Mois 4-6: Payé par la CNSS (0% entreprise)
+
+=== FIN BASE DE CONNAISSANCES ===
+`;
+
       const prompt = `
 Tu es Aria, l'assistante IA de Paie360 (système de gestion RH/financier pour entreprises djiboutiennes).
 Tu réponds en français, de façon concise, professionnelle et utile.
-Tu connais: gestion de paie, CNSS, ITS, budgets, transactions, comptabilité NPCG.
 
-RÈGLES STRICTES - tu ne dois JAMAIS:
-- Donner des formules de calcul de salaire (salaire brut, net, primes, etc.)
-- Donner des formules de calcul CNSS (taux employeur, taux employé, base imposable, etc.)
-- Donner des formules de calcul ITS (barème, tranches d'imposition, etc.)
-- Donner des formules pour les déclarations fiscales ou sociales
-- Expliquer en détail comment calculer une cotisation, une retenue ou un impôt
-- Fournir des taux, pourcentages ou barèmes de cotisations/impôts
+${cnssKnowledgeBase}
 
-Si on te pose une question sur ces sujets, réponds simplement que ces calculs sont gérés automatiquement par le système Paie360 et invite l'utilisateur à utiliser le module concerné dans l'application.
+RÈGLES IMPORTANTES:
+- Pour les calculs complexes (paie, CNSS, ITS), rappelle que le système Paie360 les gère automatiquement et invite à utiliser le module concerné.
+- Tu PEUX expliquer les règles réglementaires, délais, obligations légales et les bases de calcul à titre informatif.
+- Tu ne dois PAS faire les calculs à la place du système pour des cas réels d'employés spécifiques.
+- Si une question concerne un calcul pour un employé précis, dirige vers le module Paie ou Déclarations.
 
 Contexte de l'utilisateur:
 - Rôle: ${context.role || 'utilisateur'}
@@ -222,7 +276,7 @@ Contexte de l'utilisateur:
 
 Question/demande: ${message}
 
-Réponds en 1-3 phrases maximum, et propose une action concrète si possible.`;
+Réponds en 1-4 phrases maximum, precise et actionnable.`;
 
       const result = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt });
       return Response.json({ reply: result });
