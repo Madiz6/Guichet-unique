@@ -34,6 +34,17 @@ export default function Employes() {
   const [viewingEmployee, setViewingEmployee] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [signatureDialog, setSignatureDialog] = useState({ isOpen: false, documentType: null, employee: null });
+  const [downloadedCertificats, setDownloadedCertificats] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('certificats_downloaded') || '{}'); } catch { return {}; }
+  });
+
+  const handleDownloadCertificatEmploi = (emp) => {
+    generateCertificatEmploi(emp, company);
+    const updated = { ...downloadedCertificats, [emp.id]: new Date().toISOString() };
+    setDownloadedCertificats(updated);
+    localStorage.setItem('certificats_downloaded', JSON.stringify(updated));
+    toast.success(`Certificat d'emploi généré pour ${emp.prenom} ${emp.nom}`);
+  };
   const queryClient = useQueryClient();
   
   const { data: employees = [], isLoading } = useQuery({
