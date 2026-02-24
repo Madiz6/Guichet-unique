@@ -672,7 +672,7 @@ export default function Employes() {
                               </span>
                             </TableCell>
                             <TableCell>
-                              <div className="flex gap-2">
+                              <div className="flex flex-wrap gap-1">
                                 <Button
                                   variant="ghost"
                                   size="icon"
