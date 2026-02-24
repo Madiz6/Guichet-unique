@@ -258,27 +258,15 @@ export default function Declarations() {
       const response = await base44.functions.invoke('generateCNSSDeclarationPDF', {
         declaration_id: decl.id
       });
-      
-      // Create blob from response data
-      // Assuming response.data is an ArrayBuffer or a base64 string that base44 client decodes
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const html = response.data;
+      const blob = new Blob([html], { type: 'text/html' });
       const url = window.URL.createObjectURL(blob);
-      
-      // Create download link
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Declaration_CNSS_ITS_${decl.periode.replace(/\s+/g, '_')}_${decl.numero_cotisation}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Cleanup
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast.success('PDF téléchargé avec succès!');
+      const win = window.open(url, '_blank');
+      if (win) setTimeout(() => win.print(), 600);
+      toast.success('Déclaration ouverte — prête à imprimer / sauvegarder en PDF');
     } catch (error) {
-      console.error('PDF download error:', error);
-      toast.error('Erreur lors du téléchargement du PDF');
+      console.error('Declaration download error:', error);
+      toast.error('Erreur lors de la génération de la déclaration');
     } finally {
       setDownloadingPDF(false);
     }
