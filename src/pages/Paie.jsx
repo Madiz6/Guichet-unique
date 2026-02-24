@@ -851,573 +851,294 @@ export default function Paie() {
         </div>
 
         <AnimatePresence>
-          {selectedEmployeeDrawer && (
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 h-full w-[600px] bg-white shadow-2xl z-50 flex flex-col"
-            >
-              <div className="p-6 flex-grow overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-[#0A2540]">Détails de l'Employé</h2>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedEmployeeDrawer(null);
-                      setSelectedEmployeeForPrime(null);
-                      setPrimeType('');
-                      setCustomPrimeName('');
-                      setPrimeMontant('');
-                      setAddAfterDeductions(false);
-                    }}
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
+          {selectedEmployeeDrawer && (() => {
+            const empId = selectedEmployeeDrawer.id;
+            const absences = employeeAbsences[empId] || 0;
+            const otherDeductions = employeeOtherDeductions[empId] || 0;
+            const cyclePrimes = employeeCyclePrimes[empId] || [];
+            const absenceAfterDeductions = employeeAbsenceTiming[empId] || false;
+            const otherDeductionFromGross = employeeOtherDeductionTiming[empId] || false;
+            const holidayStatus = getEmployeeHolidayStatus(empId, cycleData);
+            let effectiveAbsencesForGross = 0;
+            if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
+            if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
+            const empForCalc = { ...selectedEmployeeDrawer, absences_amount: effectiveAbsencesForGross };
+            const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
+            let netDeductions = 0;
+            if (absenceAfterDeductions) netDeductions += absences;
+            if (!otherDeductionFromGross) netDeductions += otherDeductions;
+            const finalNet = calc.netSalary - netDeductions;
+            const closeDrawer = (showToast = false) => {
+              setSelectedEmployeeDrawer(null);
+              setSelectedEmployeeForPrime(null);
+              setPrimeType(''); setCustomPrimeName(''); setPrimeMontant(''); setAddAfterDeductions(false);
+              if (showToast) toast.success('Modifications enregistrées!');
+            };
+            return (
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                className="fixed right-0 top-0 h-full w-[980px] bg-[#F7F9FC] shadow-2xl z-50 flex flex-col"
+              >
+                {/* ── HEADER ── */}
+                <div className="bg-white border-b border-[#E8ECF2] px-6 py-4 flex items-center gap-4 flex-shrink-0">
+                  {selectedEmployeeDrawer.photo_url ? (
+                    <img src={selectedEmployeeDrawer.photo_url} alt="" className="w-12 h-12 rounded-full object-cover ring-2 ring-[#E8ECF2]" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center text-white font-bold text-base flex-shrink-0">
+                      {selectedEmployeeDrawer.prenom?.[0]}{selectedEmployeeDrawer.nom?.[0]}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-[#0A2540] truncate">{selectedEmployeeDrawer.prenom} {selectedEmployeeDrawer.nom}</h2>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-sm text-[#697586]">{selectedEmployeeDrawer.fonction}</span>
+                      {selectedEmployeeDrawer.departement && <Badge variant="outline" className="text-xs">{selectedEmployeeDrawer.departement}</Badge>}
+                      <Badge className="text-xs bg-blue-100 text-blue-700 border-0">{selectedEmployeeDrawer.regime_cnss || 'Général'}</Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="text-right">
+                      <p className="text-xs text-[#697586]">Matricule CNSS</p>
+                      <p className="text-sm font-semibold text-[#0A2540]">{selectedEmployeeDrawer.matricule_cnss || '—'}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => closeDrawer(false)}><X className="w-5 h-5" /></Button>
+                  </div>
                 </div>
 
-                <div className="space-y-6 pb-24">
-                  <Card className="border border-[#E8ECF2]">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-4 mb-4">
-                        {selectedEmployeeDrawer.photo_url ? (
-                          <img src={selectedEmployeeDrawer.photo_url} alt={`${selectedEmployeeDrawer.prenom} ${selectedEmployeeDrawer.nom}`} className="w-16 h-16 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0052CC] flex items-center justify-center text-white font-bold text-xl">
-                            {selectedEmployeeDrawer.prenom?.[0]}{selectedEmployeeDrawer.nom?.[0]}
+                {/* ── BODY: 2 columns ── */}
+                <div className="flex-1 overflow-hidden flex gap-0">
+
+                  {/* LEFT — Salary breakdown (scrollable) */}
+                  <div className="flex-1 overflow-y-auto p-5 border-r border-[#E8ECF2]">
+                    <h3 className="text-sm font-bold text-[#0A2540] uppercase tracking-wide mb-4">Fiche de Salaire</h3>
+
+                    {holidayStatus && calc.holidayNote && (
+                      <div className={`mb-4 p-3 rounded-lg border text-sm font-medium ${
+                        calc.paidByCNSS ? 'bg-purple-50 border-purple-200 text-purple-800'
+                        : calc.salaryPercentage === 0 ? 'bg-red-50 border-red-200 text-red-800'
+                        : calc.salaryPercentage < 1 ? 'bg-amber-50 border-amber-200 text-amber-800'
+                        : 'bg-blue-50 border-blue-200 text-blue-800'
+                      }`}>
+                        {calc.holidayNote}
+                        {calc.paidByCNSS && <p className="text-xs mt-1 font-normal">💡 La CNSS prend en charge le salaire complet</p>}
+                      </div>
+                    )}
+
+                    {/* GAINS */}
+                    <div className="bg-white rounded-xl border border-[#E8ECF2] overflow-hidden mb-3">
+                      <div className="bg-green-50 px-4 py-2 border-b border-green-100">
+                        <p className="text-xs font-bold text-green-700 uppercase tracking-wide">Gains</p>
+                      </div>
+                      <div className="divide-y divide-[#F0F2F5]">
+                        <div className="flex justify-between px-4 py-2.5 text-sm">
+                          <span className="text-[#697586]">Salaire de Base</span>
+                          <span className="font-semibold text-[#0A2540]">{calc.breakdown.salaire_base.toLocaleString()} DJF</span>
+                        </div>
+                        {calc.breakdown.prime_anciennete > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Prime d'Ancienneté</span><span className="font-medium text-green-600">+{calc.breakdown.prime_anciennete.toLocaleString()} DJF</span></div>}
+                        {calc.breakdown.prime_fonction > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Prime de Fonction</span><span className="font-medium text-green-600">+{calc.breakdown.prime_fonction.toLocaleString()} DJF</span></div>}
+                        {calc.breakdown.prime_logement > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Prime de Logement</span><span className="font-medium text-green-600">+{calc.breakdown.prime_logement.toLocaleString()} DJF</span></div>}
+                        {calc.breakdown.prime_transport > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Prime de Transport</span><span className="font-medium text-green-600">+{calc.breakdown.prime_transport.toLocaleString()} DJF</span></div>}
+                        {calc.breakdown.prime_sujetion > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Prime de Sujétion</span><span className="font-medium text-green-600">+{calc.breakdown.prime_sujetion.toLocaleString()} DJF</span></div>}
+                        {calc.breakdown.prime_rendement > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Prime de Rendement</span><span className="font-medium text-green-600">+{calc.breakdown.prime_rendement.toLocaleString()} DJF</span></div>}
+                        {calc.breakdown.autres_primes > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Autres Primes</span><span className="font-medium text-green-600">+{calc.breakdown.autres_primes.toLocaleString()} DJF</span></div>}
+                        {calc.breakdown.primes_personnalisees > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Primes Personnalisées</span><span className="font-medium text-green-600">+{calc.breakdown.primes_personnalisees.toLocaleString()} DJF</span></div>}
+                        {calc.primesBeforeDeductions.map((p, i) => (
+                          <div key={i} className="flex justify-between px-4 py-2.5 text-sm">
+                            <span className="text-[#697586]">{p.nom} <span className="text-xs text-green-500">(cycle)</span></span>
+                            <span className="font-medium text-green-600">+{p.montant.toLocaleString()} DJF</span>
                           </div>
-                        )}
-                        <div>
-                          <h3 className="font-bold text-[#0A2540] text-lg">{selectedEmployeeDrawer.prenom} {selectedEmployeeDrawer.nom}</h3>
-                          <p className="text-sm text-[#697586]">{selectedEmployeeDrawer.fonction}</p>
-                          <Badge className="mt-1">{selectedEmployeeDrawer.departement}</Badge>
+                        ))}
+                        {absences > 0 && !absenceAfterDeductions && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Absences (du brut)</span><span className="font-medium text-red-500">-{absences.toLocaleString()} DJF</span></div>}
+                        {otherDeductions > 0 && otherDeductionFromGross && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Autres déductions (du brut)</span><span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span></div>}
+                        <div className="flex justify-between px-4 py-3 bg-slate-50 font-semibold text-sm">
+                          <span className="text-[#0A2540]">Salaire Brut Ajusté</span>
+                          <span className="text-[#0A2540]">{calc.grossSalary.toLocaleString()} DJF</span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <p className="text-[#697586]">Email</p>
-                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.email || '-'}</p>
-                        </div>
-                        <div>
-                          <p className="text-[#697586]">Téléphone</p>
-                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.telephone || '-'}</p>
-                        </div>
-                        <div>
-                          <p className="text-[#697586]">Matricule CNSS</p>
-                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.matricule_cnss || '-'}</p>
-                        </div>
-                        <div>
-                          <p className="text-[#697586]">Régime</p>
-                          <p className="font-medium text-[#0A2540]">{selectedEmployeeDrawer.regime_cnss || '-'}</p>
-                        </div>
+                    </div>
+
+                    {/* DÉDUCTIONS */}
+                    <div className="bg-white rounded-xl border border-[#E8ECF2] overflow-hidden mb-3">
+                      <div className="bg-red-50 px-4 py-2 border-b border-red-100">
+                        <p className="text-xs font-bold text-red-700 uppercase tracking-wide">Déductions</p>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border border-green-200 bg-gradient-to-r from-green-50 to-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Plus className="w-5 h-5 text-green-600" />
-                        <h4 className="font-semibold text-[#0A2540]">Ajouter une Prime</h4>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-xs">Type de Prime</Label>
-                          <Select
-                            value={selectedEmployeeForPrime === selectedEmployeeDrawer.id ? primeType : ''}
-                            onValueChange={(value) => {
-                              setSelectedEmployeeForPrime(selectedEmployeeDrawer.id);
-                              setPrimeType(value);
-                            }}
-                          >
-                            <SelectTrigger className="mt-1 border-[#D3DCE6]">
-                              <SelectValue placeholder="Sélectionner..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Prime des heures supplémentaires">Prime des heures supplémentaires</SelectItem>
-                              <SelectItem value="Prime de fonction">Prime de fonction</SelectItem>
-                              <SelectItem value="Prime de logement">Prime de logement</SelectItem>
-                              <SelectItem value="Prime de transport">Prime de transport</SelectItem>
-                              <SelectItem value="Prime de sujétion">Prime de sujétion</SelectItem>
-                              <SelectItem value="Prime de rendement">Prime de rendement</SelectItem>
-                              <SelectItem value="Autres primes">Autres primes</SelectItem>
-                              <SelectItem value="custom">Personnalisée...</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {selectedEmployeeForPrime === selectedEmployeeDrawer.id && primeType === 'custom' && (
+                      <div className="divide-y divide-[#F0F2F5]">
+                        <div className="flex justify-between px-4 py-2.5 text-sm">
                           <div>
-                            <Label className="text-xs">Nom de la Prime</Label>
-                            <Input
-                              value={customPrimeName}
-                              onChange={(e) => setCustomPrimeName(e.target.value)}
-                              placeholder="Ex: Prime de performance Q4"
-                              className="mt-1 border-[#D3DCE6]"
-                            />
+                            <span className="text-[#697586]">CNSS Salariale</span>
+                            <span className="ml-1 text-xs text-[#aaa]">({selectedEmployeeDrawer.regime_cnss || 'Général'})</span>
                           </div>
+                          <span className="font-medium text-red-500">-{calc.cnssEmployee.total.toLocaleString()} DJF</span>
+                        </div>
+                        {calc.cnssEmployee.retraite > 0 && <div className="flex justify-between px-6 py-1.5 text-xs bg-red-50/40"><span className="text-[#aaa]">↳ Retraite</span><span className="text-red-400">{calc.cnssEmployee.retraite.toLocaleString()} DJF</span></div>}
+                        {calc.cnssEmployee.amu > 0 && <div className="flex justify-between px-6 py-1.5 text-xs bg-red-50/40"><span className="text-[#aaa]">↳ AMU</span><span className="text-red-400">{calc.cnssEmployee.amu.toLocaleString()} DJF</span></div>}
+                        <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">ITS</span><span className="font-medium text-red-500">-{calc.its.toLocaleString()} DJF</span></div>
+                        {calc.aide > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">AIDE</span><span className="font-medium text-red-500">-{calc.aide.toLocaleString()} DJF</span></div>}
+                        {calc.retcim > 0 && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">RetCim</span><span className="font-medium text-red-500">-{calc.retcim.toLocaleString()} DJF</span></div>}
+                        {absences > 0 && absenceAfterDeductions && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Absences (après cotisations)</span><span className="font-medium text-red-500">-{absences.toLocaleString()} DJF</span></div>}
+                        {otherDeductions > 0 && !otherDeductionFromGross && <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">Autres déductions</span><span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span></div>}
+                        {calc.primesAfterDeductions.map((p, i) => (
+                          <div key={i} className="flex justify-between px-4 py-2.5 text-sm">
+                            <span className="text-[#697586]">{p.nom} <span className="text-xs text-green-500">(après déduc.)</span></span>
+                            <span className="font-medium text-green-600">+{p.montant.toLocaleString()} DJF</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* NET */}
+                    <div className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] rounded-xl p-4 flex justify-between items-center mb-3">
+                      <span className="text-white font-bold text-base">NET À PAYER</span>
+                      <span className="text-white font-bold text-2xl">{finalNet.toLocaleString()} DJF</span>
+                    </div>
+
+                    {/* CHARGE PATRONALE */}
+                    <div className="bg-white rounded-xl border border-orange-200 overflow-hidden">
+                      <div className="bg-orange-50 px-4 py-2 border-b border-orange-100">
+                        <p className="text-xs font-bold text-orange-700 uppercase tracking-wide">Charge Patronale</p>
+                      </div>
+                      <div className="divide-y divide-[#F0F2F5]">
+                        <div className="flex justify-between px-4 py-2.5 text-sm"><span className="text-[#697586]">CNSS Patronale</span><span className="font-medium text-orange-600">{calc.cnssEmployer.total.toLocaleString()} DJF</span></div>
+                        <div className="flex justify-between px-4 py-3 bg-orange-50 font-semibold text-sm"><span className="text-orange-800">Coût Total Employeur</span><span className="text-orange-800">{calc.totalCost.toLocaleString()} DJF</span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* RIGHT — Adjustments (scrollable) */}
+                  <div className="w-[360px] flex-shrink-0 overflow-y-auto p-5 bg-white">
+                    <h3 className="text-sm font-bold text-[#0A2540] uppercase tracking-wide mb-4">Ajustements du Cycle</h3>
+
+                    {/* ADD PRIME */}
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-7 h-7 bg-green-600 rounded-lg flex items-center justify-center"><Plus className="w-4 h-4 text-white" /></div>
+                        <h4 className="font-semibold text-[#0A2540] text-sm">Ajouter une Prime</h4>
+                      </div>
+                      <div className="space-y-2.5">
+                        <Select
+                          value={selectedEmployeeForPrime === empId ? primeType : ''}
+                          onValueChange={(v) => { setSelectedEmployeeForPrime(empId); setPrimeType(v); }}
+                        >
+                          <SelectTrigger className="bg-white border-green-200 text-sm"><SelectValue placeholder="Type de prime..." /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Prime des heures supplémentaires">Heures supplémentaires</SelectItem>
+                            <SelectItem value="Prime de fonction">Prime de fonction</SelectItem>
+                            <SelectItem value="Prime de logement">Prime de logement</SelectItem>
+                            <SelectItem value="Prime de transport">Prime de transport</SelectItem>
+                            <SelectItem value="Prime de sujétion">Prime de sujétion</SelectItem>
+                            <SelectItem value="Prime de rendement">Prime de rendement</SelectItem>
+                            <SelectItem value="Autres primes">Autres primes</SelectItem>
+                            <SelectItem value="custom">Personnalisée...</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {selectedEmployeeForPrime === empId && primeType === 'custom' && (
+                          <Input value={customPrimeName} onChange={(e) => setCustomPrimeName(e.target.value)} placeholder="Nom de la prime" className="bg-white border-green-200 text-sm" />
                         )}
-
-                        <div>
-                          <Label className="text-xs">Montant (DJF)</Label>
+                        <div className="flex gap-2">
                           <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={selectedEmployeeForPrime === selectedEmployeeDrawer.id ? primeMontant : ''}
-                            onChange={(e) => {
-                              setSelectedEmployeeForPrime(selectedEmployeeDrawer.id);
-                              setPrimeMontant(e.target.value);
-                            }}
-                            placeholder="0"
-                            className="mt-1 border-[#D3DCE6]"
+                            type="number" min="0" placeholder="Montant (DJF)"
+                            value={selectedEmployeeForPrime === empId ? primeMontant : ''}
+                            onChange={(e) => { setSelectedEmployeeForPrime(empId); setPrimeMontant(e.target.value); }}
+                            className="bg-white border-green-200 text-sm"
                           />
                         </div>
-
-                        <div className="flex items-center gap-2 p-2 bg-amber-50 rounded border border-amber-200">
-                          <input
-                            id={`drawer-prime-after-${selectedEmployeeDrawer.id}`}
-                            type="checkbox"
-                            checked={selectedEmployeeForPrime === selectedEmployeeDrawer.id ? addAfterDeductions : false}
-                            onChange={(e) => {
-                              setSelectedEmployeeForPrime(selectedEmployeeDrawer.id);
-                              setAddAfterDeductions(e.target.checked);
-                            }}
-                            className="w-4 h-4"
+                        <label className="flex items-start gap-2 p-2 bg-white rounded-lg border border-green-200 cursor-pointer">
+                          <input type="checkbox"
+                            checked={selectedEmployeeForPrime === empId ? addAfterDeductions : false}
+                            onChange={(e) => { setSelectedEmployeeForPrime(empId); setAddAfterDeductions(e.target.checked); }}
+                            className="w-4 h-4 mt-0.5 flex-shrink-0"
                           />
-                          <Label htmlFor={`drawer-prime-after-${selectedEmployeeDrawer.id}`} className="text-xs text-amber-800 cursor-pointer">
-                            Ajouter APRÈS les cotisations et ITS (n'affecte pas les cotisations)
-                          </Label>
-                        </div>
-
+                          <span className="text-xs text-amber-800">Ajouter après cotisations (n'affecte pas CNSS/ITS)</span>
+                        </label>
                         <Button
                           onClick={() => {
-                            if (!primeMontant || parseFloat(primeMontant) <= 0) {
-                              toast.error('Le montant de la prime doit être supérieur à zéro.');
-                              return;
-                            }
-
+                            if (!primeMontant || parseFloat(primeMontant) <= 0) { toast.error('Montant invalide.'); return; }
                             const primeName = primeType === 'custom' ? customPrimeName : primeType;
-                            if (!primeName) {
-                              toast.error('Veuillez spécifier le nom de la prime.');
-                              return;
-                            }
-
-                            const newPrime = {
-                              nom: primeName,
-                              montant: parseFloat(primeMontant),
-                              add_after_deductions: addAfterDeductions
-                            };
-
-                            setEmployeeCyclePrimes(prev => ({
-                              ...prev,
-                              [selectedEmployeeDrawer.id]: [...(prev[selectedEmployeeDrawer.id] || []), newPrime]
-                            }));
-
-                            setPrimeType('');
-                            setCustomPrimeName('');
-                            setPrimeMontant('');
-                            setAddAfterDeductions(false);
-                            setSelectedEmployeeForPrime(null);
-
-                            toast.success('Prime ajoutée avec succès!');
+                            if (!primeName) { toast.error('Veuillez nommer la prime.'); return; }
+                            setEmployeeCyclePrimes(prev => ({ ...prev, [empId]: [...(prev[empId] || []), { nom: primeName, montant: parseFloat(primeMontant), add_after_deductions: addAfterDeductions }] }));
+                            setPrimeType(''); setCustomPrimeName(''); setPrimeMontant(''); setAddAfterDeductions(false); setSelectedEmployeeForPrime(null);
+                            toast.success('Prime ajoutée!');
                           }}
                           disabled={!primeType || !primeMontant || parseFloat(primeMontant) <= 0 || (primeType === 'custom' && !customPrimeName)}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white text-sm"
                         >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Ajouter la Prime
+                          <Plus className="w-4 h-4 mr-1" /> Ajouter la Prime
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-red-50 to-white rounded-lg border border-red-200">
-                    <Minus className="w-4 h-4 text-red-600 mt-1" />
-                    <div className="flex-1">
-                      <Label className="text-xs text-[#697586] font-semibold">Absences</Label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={employeeAbsences[selectedEmployeeDrawer.id] || ''}
-                          onChange={(e) => handleAbsencesChange(selectedEmployeeDrawer.id, e.target.value)}
-                          placeholder="0"
-                          className="border-[#D3DCE6] h-9"
-                        />
-                        <span className="text-sm text-[#697586] whitespace-nowrap">DJF</span>
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-2 p-2 bg-white rounded border border-red-200">
-                        <input
-                          id={`absence-timing-${selectedEmployeeDrawer.id}`}
-                          type="checkbox"
-                          checked={employeeAbsenceTiming[selectedEmployeeDrawer.id] || false}
-                          onChange={(e) => setEmployeeAbsenceTiming(prev => ({
-                            ...prev,
-                            [selectedEmployeeDrawer.id]: e.target.checked
-                          }))}
-                          className="w-4 h-4"
-                        />
-                        <Label htmlFor={`absence-timing-${selectedEmployeeDrawer.id}`} className="text-xs text-red-800 cursor-pointer">
-                          Déduire APRÈS les cotisations (n'affecte pas CNSS/ITS)
-                        </Label>
-                      </div>
-
-                      <p className="text-xs mt-1 text-red-600">
-                        {(employeeAbsenceTiming[selectedEmployeeDrawer.id] || false)
-                          ? "⚠️ Déduction après cotisations - N'affecte pas CNSS/ITS"
-                          : "⚠️ Déduction du brut - Affecte le calcul CNSS et ITS"
-                        }
-                      </p>
                     </div>
-                  </div>
 
-                  <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-amber-50 to-white rounded-lg border border-amber-200">
-                    <Minus className="w-4 h-4 text-amber-600 mt-1" />
-                    <div className="flex-1">
-                      <Label className="text-xs text-[#697586] font-semibold">Autres déductions</Label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={employeeOtherDeductions[selectedEmployeeDrawer.id] || ''}
-                          onChange={(e) => handleOtherDeductionsChange(selectedEmployeeDrawer.id, e.target.value)}
-                          placeholder="0"
-                          className="border-[#D3DCE6] h-9"
-                        />
-                        <span className="text-sm text-[#697586] whitespace-nowrap">DJF</span>
+                    {/* ABSENCES */}
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-7 h-7 bg-red-500 rounded-lg flex items-center justify-center"><Minus className="w-4 h-4 text-white" /></div>
+                        <h4 className="font-semibold text-[#0A2540] text-sm">Absences</h4>
                       </div>
-
-                      <div className="flex items-center gap-2 mt-2 p-2 bg-white rounded border border-amber-200">
-                        <input
-                          id={`deduction-timing-${selectedEmployeeDrawer.id}`}
-                          type="checkbox"
-                          checked={employeeOtherDeductionTiming[selectedEmployeeDrawer.id] || false}
-                          onChange={(e) => setEmployeeOtherDeductionTiming(prev => ({
-                            ...prev,
-                            [selectedEmployeeDrawer.id]: e.target.checked
-                          }))}
-                          className="w-4 h-4"
-                        />
-                        <Label htmlFor={`deduction-timing-${selectedEmployeeDrawer.id}`} className="text-xs text-amber-800 cursor-pointer">
-                          Déduire du BRUT (affecte CNSS/ITS)
-                        </Label>
+                      <div className="flex gap-2 mb-2">
+                        <Input type="number" min="0" placeholder="0" value={employeeAbsences[empId] || ''} onChange={(e) => handleAbsencesChange(empId, e.target.value)} className="bg-white border-red-200 text-sm" />
+                        <span className="text-sm text-[#697586] self-center whitespace-nowrap">DJF</span>
                       </div>
-
-                      <p className="text-xs mt-1 text-amber-600">
-                        {(employeeOtherDeductionTiming[selectedEmployeeDrawer.id] || false)
-                          ? "⚠️ Déduction du brut - Affecte le calcul CNSS et ITS"
-                          : "ℹ️ Déduction après cotisations - N'affecte pas CNSS/ITS"
-                        }
-                      </p>
+                      <label className="flex items-start gap-2 p-2 bg-white rounded-lg border border-red-200 cursor-pointer">
+                        <input type="checkbox" checked={employeeAbsenceTiming[empId] || false} onChange={(e) => setEmployeeAbsenceTiming(prev => ({ ...prev, [empId]: e.target.checked }))} className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs text-red-800">Déduire après cotisations (n'affecte pas CNSS/ITS)</span>
+                      </label>
                     </div>
+
+                    {/* OTHER DEDUCTIONS */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center"><Minus className="w-4 h-4 text-white" /></div>
+                        <h4 className="font-semibold text-[#0A2540] text-sm">Autres Déductions</h4>
+                      </div>
+                      <div className="flex gap-2 mb-2">
+                        <Input type="number" min="0" placeholder="0" value={employeeOtherDeductions[empId] || ''} onChange={(e) => handleOtherDeductionsChange(empId, e.target.value)} className="bg-white border-amber-200 text-sm" />
+                        <span className="text-sm text-[#697586] self-center whitespace-nowrap">DJF</span>
+                      </div>
+                      <label className="flex items-start gap-2 p-2 bg-white rounded-lg border border-amber-200 cursor-pointer">
+                        <input type="checkbox" checked={employeeOtherDeductionTiming[empId] || false} onChange={(e) => setEmployeeOtherDeductionTiming(prev => ({ ...prev, [empId]: e.target.checked }))} className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs text-amber-800">Déduire du brut (affecte CNSS/ITS)</span>
+                      </label>
+                    </div>
+
+                    {/* CURRENT CYCLE PRIMES LIST */}
+                    {cyclePrimes.length > 0 && (
+                      <div className="bg-white border border-[#E8ECF2] rounded-xl overflow-hidden">
+                        <div className="bg-[#F7F9FC] px-4 py-2 border-b border-[#E8ECF2]">
+                          <p className="text-xs font-bold text-[#697586] uppercase tracking-wide">Primes du Cycle ({cyclePrimes.length})</p>
+                        </div>
+                        <div className="divide-y divide-[#F0F2F5]">
+                          {cyclePrimes.map((prime, idx) => (
+                            <div key={idx} className="flex items-center justify-between px-4 py-2.5">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-[#0A2540] truncate">{prime.nom}</p>
+                                <p className="text-xs text-[#697586]">{prime.add_after_deductions ? 'après déductions' : 'affecte le brut'}</p>
+                              </div>
+                              <div className="flex items-center gap-2 ml-2">
+                                <span className="text-sm font-semibold text-green-600 whitespace-nowrap">+{prime.montant.toLocaleString()}</span>
+                                <button type="button" onClick={() => handleRemovePrime(empId, idx)} className="text-red-400 hover:text-red-600 flex-shrink-0"><X className="w-4 h-4" /></button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                  {(() => {
-                    const empId = selectedEmployeeDrawer.id;
-                    const absences = employeeAbsences[empId] || 0;
-                    const otherDeductions = employeeOtherDeductions[empId] || 0;
-                    const primes = employeeCyclePrimes[empId] || [];
-
-                    return (absences > 0 || otherDeductions > 0 || primes.length > 0) && (
-                      <Card className="border border-blue-200 bg-blue-50">
-                        <CardContent className="p-4">
-                          <h4 className="font-semibold text-[#0A2540] mb-3">Modifications Actuelles</h4>
-                          <div className="space-y-2 text-sm">
-                            {primes.length > 0 && (
-                              <div>
-                                <p className="text-green-700 font-semibold mb-1">Primes:</p>
-                                {primes.map((prime, idx) => (
-                                  <div key={idx} className="flex justify-between items-center bg-white p-2 rounded">
-                                    <div className="flex-1">
-                                      <span className="text-[#0A2540] font-medium">{prime.nom}</span>
-                                      <p className="text-xs text-green-600">
-                                        {prime.add_after_deductions ? '(après déductions)' : '(avant déductions - affecte brut)'}
-                                      </p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-semibold text-green-700">+{prime.montant.toLocaleString()} DJF</span>
-                                      <button type="button" onClick={() => handleRemovePrime(empId, idx)} className="text-red-500 hover:text-red-700">
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            {absences > 0 && (
-                              <div className="flex justify-between items-center bg-white p-2 rounded">
-                                <div>
-                                  <span className="text-red-700 font-semibold">Absences:</span>
-                                  <p className="text-xs text-red-600">
-                                    {employeeAbsenceTiming[empId] ? '(après déductions)' : '(du brut)'}
-                                  </p>
-                                </div>
-                                <span className="font-semibold text-red-700">-{absences.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {otherDeductions > 0 && (
-                              <div className="flex justify-between items-center bg-white p-2 rounded">
-                                <div>
-                                  <span className="text-amber-700 font-semibold">Autres déductions:</span>
-                                  <p className="text-xs text-amber-600">
-                                    {employeeOtherDeductionTiming[empId] ? '(du brut)' : '(après déductions)'}
-                                  </p>
-                                </div>
-                                <span className="font-semibold text-amber-700">-{otherDeductions.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })()}
-
-                  <Card className="border border-[#E8ECF2]">
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold text-[#0A2540] mb-3">Détails du Salaire</h4>
-                      {(() => {
-                        const empId = selectedEmployeeDrawer.id;
-                        const absences = employeeAbsences[empId] || 0;
-                        const otherDeductions = employeeOtherDeductions[empId] || 0;
-                        const cyclePrimes = employeeCyclePrimes[empId] || [];
-                        const absenceAfterDeductions = employeeAbsenceTiming[empId] || false;
-                        const otherDeductionFromGross = employeeOtherDeductionTiming[empId] || false;
-                        const holidayStatus = getEmployeeHolidayStatus(empId, cycleData);
-
-                        let effectiveAbsencesForGross = 0;
-                        if (!absenceAfterDeductions) effectiveAbsencesForGross += absences;
-                        if (otherDeductionFromGross) effectiveAbsencesForGross += otherDeductions;
-
-                        const empForCalc = { ...selectedEmployeeDrawer, absences_amount: effectiveAbsencesForGross };
-                        const calc = calculatePayroll(empForCalc, holidayStatus, cyclePrimes);
-
-                        let netDeductions = 0;
-                        if (absenceAfterDeductions) netDeductions += absences;
-                        if (!otherDeductionFromGross) netDeductions += otherDeductions;
-
-                        const finalNet = calc.netSalary - netDeductions;
-
-                        return (
-                          <div className="space-y-1.5 text-sm">
-                           {holidayStatus && calc.holidayNote && (
-                             <div className={`mb-3 p-3 rounded-lg border ${
-                               calc.paidByCNSS
-                                 ? 'bg-purple-50 border-purple-200'
-                                 : calc.salaryPercentage === 0
-                                   ? 'bg-red-50 border-red-200'
-                                   : calc.salaryPercentage < 1
-                                     ? 'bg-amber-50 border-amber-200'
-                                   : 'bg-blue-50 border-blue-200'
-                             }`}>
-                               <p className="text-sm font-semibold">{calc.holidayNote}</p>
-                               {calc.paidByCNSS && (
-                                 <p className="text-xs mt-1 text-purple-700">💡 La CNSS prend en charge le salaire complet de l'employée</p>
-                               )}
-                             </div>
-                           )}
-
-                           {/* ── GAINS ── */}
-                           <p className="text-xs font-bold text-[#697586] uppercase tracking-wide pt-1">Gains</p>
-                           <div className="flex justify-between">
-                             <span className="text-[#697586]">Salaire de Base</span>
-                             <span className="font-medium text-[#0A2540]">{calc.breakdown.salaire_base.toLocaleString()} DJF</span>
-                           </div>
-                           {calc.breakdown.prime_anciennete > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Prime d'Ancienneté</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.prime_anciennete.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.breakdown.prime_fonction > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Prime de Fonction</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.prime_fonction.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.breakdown.prime_logement > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Prime de Logement</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.prime_logement.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.breakdown.prime_transport > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Prime de Transport</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.prime_transport.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.breakdown.prime_sujetion > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Prime de Sujétion</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.prime_sujetion.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.breakdown.prime_rendement > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Prime de Rendement</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.prime_rendement.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.breakdown.autres_primes > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Autres Primes</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.autres_primes.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.breakdown.primes_personnalisees > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Primes Personnalisées</span>
-                               <span className="font-medium text-green-600">+{calc.breakdown.primes_personnalisees.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.primesBeforeDeductions.map((p, i) => (
-                             <div key={i} className="flex justify-between">
-                               <span className="text-[#697586]">{p.nom} <span className="text-xs">(cycle)</span></span>
-                               <span className="font-medium text-green-600">+{p.montant.toLocaleString()} DJF</span>
-                             </div>
-                           ))}
-                           {absences > 0 && !absenceAfterDeductions && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Absences (du brut)</span>
-                               <span className="font-medium text-red-500">-{absences.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {otherDeductions > 0 && otherDeductionFromGross && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Autres déductions (du brut)</span>
-                               <span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-
-                           {/* ── BRUT AJUSTÉ ── */}
-                           <div className="flex justify-between py-2 mt-1 border-t border-b border-[#E8ECF2] bg-[#F7F9FC] px-2 rounded">
-                             <span className="font-semibold text-[#0A2540]">Brut Ajusté</span>
-                             <span className="font-bold text-[#0A2540]">{calc.grossSalary.toLocaleString()} DJF</span>
-                           </div>
-
-                           {/* ── DÉDUCTIONS ── */}
-                           <p className="text-xs font-bold text-[#697586] uppercase tracking-wide pt-1">Déductions</p>
-                           <div className="flex justify-between">
-                             <span className="text-[#697586]">CNSS Salariale <span className="text-xs">({selectedEmployeeDrawer.regime_cnss || 'Général'})</span></span>
-                             <span className="font-medium text-red-500">-{calc.cnssEmployee.total.toLocaleString()} DJF</span>
-                           </div>
-                           {calc.cnssEmployee.retraite > 0 && (
-                             <div className="flex justify-between pl-4">
-                               <span className="text-[#aaa] text-xs">dont Retraite</span>
-                               <span className="text-xs text-red-400">{calc.cnssEmployee.retraite.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.cnssEmployee.amu > 0 && (
-                             <div className="flex justify-between pl-4">
-                               <span className="text-[#aaa] text-xs">dont AMU</span>
-                               <span className="text-xs text-red-400">{calc.cnssEmployee.amu.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           <div className="flex justify-between">
-                             <span className="text-[#697586]">ITS</span>
-                             <span className="font-medium text-red-500">-{calc.its.toLocaleString()} DJF</span>
-                           </div>
-                           {calc.aide > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">AIDE</span>
-                               <span className="font-medium text-red-500">-{calc.aide.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.retcim > 0 && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">RetCim</span>
-                               <span className="font-medium text-red-500">-{calc.retcim.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {absences > 0 && absenceAfterDeductions && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Absences (après cotisations)</span>
-                               <span className="font-medium text-red-500">-{absences.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {otherDeductions > 0 && !otherDeductionFromGross && (
-                             <div className="flex justify-between">
-                               <span className="text-[#697586]">Autres déductions</span>
-                               <span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
-                             </div>
-                           )}
-                           {calc.primesAfterDeductions.map((p, i) => (
-                             <div key={i} className="flex justify-between">
-                               <span className="text-[#697586]">{p.nom} <span className="text-xs">(après déduc.)</span></span>
-                               <span className="font-medium text-green-600">+{p.montant.toLocaleString()} DJF</span>
-                             </div>
-                           ))}
-
-                           {/* ── NET ── */}
-                           <div className="flex justify-between pt-2 mt-1 border-t-2 border-[#0066FF]">
-                             <span className="font-bold text-[#0A2540] text-base">NET À PAYER</span>
-                             <span className="font-bold text-[#0066FF] text-lg">{finalNet.toLocaleString()} DJF</span>
-                           </div>
-
-                           {/* ── CHARGE PATRONALE INFO ── */}
-                           <div className="mt-3 p-2 bg-orange-50 rounded border border-orange-200">
-                             <p className="text-xs font-semibold text-orange-700 mb-1">Charge Patronale (non déduite du salarié)</p>
-                             <div className="flex justify-between text-xs text-orange-600">
-                               <span>CNSS Patronale</span>
-                               <span>{calc.cnssEmployer.total.toLocaleString()} DJF</span>
-                             </div>
-                             <div className="flex justify-between text-xs font-semibold text-orange-700 mt-1 border-t border-orange-200 pt-1">
-                               <span>Coût Total Employeur</span>
-                               <span>{calc.totalCost.toLocaleString()} DJF</span>
-                             </div>
-                           </div>
-                          </div>
-                        );
-                      })()}
-                    </CardContent>
-                  </Card>
                 </div>
-              </div>
 
-              <div className="border-t-2 border-[#E8ECF2] bg-white p-6 shadow-lg">
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setSelectedEmployeeDrawer(null);
-                      setSelectedEmployeeForPrime(null);
-                      setPrimeType('');
-                      setCustomPrimeName('');
-                      setPrimeMontant('');
-                      setAddAfterDeductions(false);
-                      toast.info('Modifications conservées');
-                    }}
-                    className="flex-1 border-[#D3DCE6] hover:bg-gray-50"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Fermer
+                {/* ── FOOTER ── */}
+                <div className="bg-white border-t border-[#E8ECF2] px-6 py-4 flex gap-3 flex-shrink-0">
+                  <Button variant="outline" onClick={() => closeDrawer(false)} className="flex-1 border-[#D3DCE6]">
+                    <X className="w-4 h-4 mr-2" /> Fermer
                   </Button>
-                  <Button
-                    onClick={() => {
-                      setSelectedEmployeeDrawer(null);
-                      setSelectedEmployeeForPrime(null);
-                      setPrimeType('');
-                      setCustomPrimeName('');
-                      setPrimeMontant('');
-                      setAddAfterDeductions(false);
-                      toast.success('Modifications enregistrées avec succès!');
-                    }}
-                    className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Enregistrer
+                  <Button onClick={() => closeDrawer(true)} className="flex-1 bg-gradient-to-r from-[#0066FF] to-[#0052CC]">
+                    <CheckCircle2 className="w-4 h-4 mr-2" /> Enregistrer
                   </Button>
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            );
+          })()}
         </AnimatePresence>
       </div>
     );
