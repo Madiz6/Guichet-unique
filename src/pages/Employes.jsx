@@ -12,7 +12,7 @@ import { PersonalInfoSection, DocumentsSection, ProfessionalInfoSection, Remuner
 import SuspensionModal from "../components/employees/SuspensionModal";
 import EmployeeDetailsModal from "../components/employees/EmployeeDetailsModal";
 import { calculatePayroll } from "../components/payroll/DjiboutiCalculator";
-import { generateWorkAttestation } from "../components/payroll/PDFGenerator";
+import { generateWorkAttestation, generateCertificatEmploi } from "../components/payroll/PDFGenerator";
 import SignatureDialog from "../components/documents/SignatureDialog";
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
