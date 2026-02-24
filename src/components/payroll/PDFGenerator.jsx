@@ -1,4 +1,3 @@
-
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { calculatePayroll } from './DjiboutiCalculator';
@@ -233,7 +232,9 @@ export const generatePayslip = async (employee, company, cycle, signatory = null
             </tr>
           </thead>
           <tbody>
-            <tr><td>CNSS Salariale (4%)</td><td class="text-right">${calc.cnssEmployee.total.toLocaleString()}</td></tr>
+            <tr><td>CNSS Salariale – Retraite (4%)</td><td class="text-right">${calc.cnssEmployee.retraite.toLocaleString()}</td></tr>
+            <tr><td>CNSS Salariale – Assurance Maladie (2%)</td><td class="text-right">${calc.cnssEmployee.amu.toLocaleString()}</td></tr>
+            <tr><td style="font-weight:600;">Total CNSS Salariale (6%)</td><td class="text-right" style="font-weight:600;">${calc.cnssEmployee.total.toLocaleString()}</td></tr>
             <tr><td>ITS (Impôt sur les Traitements et Salaires)</td><td class="text-right">${calc.its.toLocaleString()}</td></tr>
             ${calc.aide > 0 ? `<tr><td>AIDE</td><td class="text-right">${calc.aide.toLocaleString()}</td></tr>` : ''}
             <tr><td>RetCim</td><td class="text-right">400</td></tr>
