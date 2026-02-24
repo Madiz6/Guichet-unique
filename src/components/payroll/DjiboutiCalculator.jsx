@@ -63,28 +63,38 @@ export const CNSS_RATES_ZONE_FRANCHE = {
 };
 
 // ─── RÉGIMES SPÉCIAUX ─────────────────────────────────────────────────────────
-// Fonctionnaire: Patronale 19% (Retraite 14% + AMU 5%) | Salariale 8% (Retraite 6% + AMU 2%)
+// Fonctionnaire: Sal 8% (Retraite 6% + AMU 2%) | Pat 19% (Retraite 14% + AMU 5%)
+// Plafond retraite: 390 000 DJF (salaire indiciaire max)
+// Cotisation = salaire_base × 27% (plafonné à 390 000)
 export const CNSS_RATES_FONCTIONNAIRE = {
   employee: { retraite: 0.06, amu: 0.02, total: 0.08 },
-  employer: { retraite: 0.14, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.19 }
+  employer: { retraite: 0.14, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.19 },
+  cap: 390000
 };
 
-// FNP: Patronale 20% (Retraite 15% + AMU 5%) | Salariale 9% (Retraite 7% + AMU 2%)
+// FNP: Sal 9% (Retraite 7% + AMU 2%) | Pat 20% (Retraite 15% + AMU 5%)
+// Plafond retraite: 390 000 DJF (salaire indiciaire max)
+// Cotisation = salaire_base × 29% (plafonné à 390 000)
 export const CNSS_RATES_FNP = {
   employee: { retraite: 0.07, amu: 0.02, total: 0.09 },
-  employer: { retraite: 0.15, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.20 }
+  employer: { retraite: 0.15, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.20 },
+  cap: 390000
 };
 
-// Gouvernement/Député: Patronale 24% (Retraite 19% + AMU 5%) | Salariale 19% (Retraite 17% + AMU 2%)
+// Gouvernement/Député: Sal 19% (Retraite 17% + AMU 2%) | Pat 24% (Retraite 19% + AMU 5%)
+// Pas de plafond — cotisation sur salaire brut total × 43%
 export const CNSS_RATES_GOUVERNEMENT = {
   employee: { retraite: 0.17, amu: 0.02, total: 0.19 },
-  employer: { retraite: 0.19, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.24 }
+  employer: { retraite: 0.19, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.24 },
+  cap: null // pas de plafond
 };
 
-// Indépendant: Patronale 7% (AMU uniquement) | Salariale 0%
+// Indépendant: Sal 0% | Pat (versement propre) 7% sur brut
+// Pas de plafond — mensuel ou trimestriel selon le choix de l'indépendant
 export const CNSS_RATES_INDEPENDANT = {
   employee: { retraite: 0, amu: 0, total: 0 },
-  employer: { retraite: 0, amu: 0.07, allocations_familiales: 0, accident_travail: 0, total: 0.07 }
+  employer: { retraite: 0, amu: 0.07, allocations_familiales: 0, accident_travail: 0, total: 0.07 },
+  cap: null // pas de plafond
 };
 
 export const RETRAITE_CAP = 400000;     // Plafond retraite Régime Général & Zone Franche
