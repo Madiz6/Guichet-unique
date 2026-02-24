@@ -1,352 +1,263 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.7.1';
-import { jsPDF } from 'npm:jspdf@2.5.1';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
     const { declaration_id } = body;
-    
-    if (!declaration_id) {
-      return Response.json({ error: 'Missing declaration_id' }, { status: 400 });
-    }
+    if (!declaration_id) return Response.json({ error: 'Missing declaration_id' }, { status: 400 });
 
-    // Fetch declaration
-    const declarations = await base44.asServiceRole.entities.Declaration.filter({ id: declaration_id });
+    const [declarations, companies] = await Promise.all([
+      base44.asServiceRole.entities.Declaration.filter({ id: declaration_id }),
+      base44.asServiceRole.entities.Company.list(),
+    ]);
+
     const declaration = declarations[0];
-    
-    if (!declaration) {
-      return Response.json({ error: 'Declaration not found' }, { status: 404 });
-    }
+    if (!declaration) return Response.json({ error: 'Declaration not found' }, { status: 404 });
 
-    // Fetch company
-    const companies = await base44.asServiceRole.entities.Company.list();
     const company = companies[0] || {};
 
-    // Generate PDF
-    const doc = new jsPDF();
-    const pageWidth = 210;
-    const pageHeight = 297;
-    
-    // ===== HEADER SECTION =====
-    // Background header
-    doc.setFillColor(245, 247, 250);
-    doc.rect(0, 0, pageWidth, 50, 'F');
-    
-    // CNSS Logo (Blue Circle)
-    doc.setFillColor(0, 102, 255);
-    doc.circle(30, 25, 15, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('CNSS', 30, 27, { align: 'center' });
-    
-    // Company Logo (if available)
-    if (company.logo_url) {
-      try {
-        const logoResponse = await fetch(company.logo_url);
-        const logoBlob = await logoResponse.blob();
-        const logoBase64 = await blobToBase64(logoBlob);
-        doc.addImage(logoBase64, 'PNG', 50, 12, 25, 25);
-      } catch (e) {
-        console.error('Logo load error:', e);
-      }
-    }
-    
-    // QR Code Placeholder (Enhanced)
-    doc.setDrawColor(0, 102, 255);
-    doc.setLineWidth(1);
-    doc.rect(85, 10, 30, 30);
-    doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139);
-    doc.text('QR CODE', 100, 27, { align: 'center' });
-    doc.setFontSize(6);
-    doc.text('Scan pour vérifier', 100, 31, { align: 'center' });
-    
-    // Official Government Header
-    doc.setTextColor(15, 23, 42);
-    doc.setFontSize(16);
-    doc.setFont(undefined, 'bold');
-    doc.text('RÉPUBLIQUE DE DJIBOUTI', 150, 15);
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
-    doc.text('Unité-Égalité-Paix', 150, 21);
-    doc.setDrawColor(0, 102, 255);
-    doc.setLineWidth(0.5);
-    doc.line(120, 23, 200, 23);
-    doc.setFontSize(9);
-    doc.text('Ministère du Travail', 150, 28);
-    doc.text('chargé de la', 150, 33);
-    doc.text('Réforme de l\'administration', 150, 38);
-    
-    // Receipt Info Bar
-    doc.setFillColor(0, 102, 255);
-    doc.rect(0, 50, pageWidth, 12, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'bold');
-    doc.text('N° de caisse: Recettes des Cotisations 6', 15, 57);
-    doc.text(`REÇU N°: ${declaration.numero_cotisation}`, 120, 57);
-    
     const now = new Date();
-    const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} - ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(8);
-    doc.text(`Djibouti, le: ${dateStr}`, 15, 60.5);
-    
-    // ===== COMPANY & PAYMENT INFO SECTION =====
-    let y = 72;
-    doc.setTextColor(15, 23, 42);
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(10);
-    
-    // Left Column
-    doc.setFont(undefined, 'bold');
-    doc.text('N° Employeur:', 15, y);
-    doc.setFont(undefined, 'normal');
-    doc.text(company.numero_affiliation || 'N/A', 55, y);
-    
-    doc.setFont(undefined, 'bold');
-    doc.text('Cotisation Total Due:', 115, y);
-    doc.setFont(undefined, 'normal');
-    doc.setTextColor(220, 38, 38);
-    doc.text(`${declaration.total?.toLocaleString() || 0} DJF`, 165, y);
-    
-    y += 7;
-    doc.setTextColor(15, 23, 42);
-    doc.setFont(undefined, 'bold');
-    doc.text('Nom ou Raison sociale:', 15, y);
-    doc.setFont(undefined, 'normal');
-    doc.text(company.nom_entreprise || 'N/A', 55, y);
-    
-    doc.setFont(undefined, 'bold');
-    doc.text('Règlement:', 115, y);
-    doc.setFont(undefined, 'normal');
-    doc.setTextColor(34, 197, 94);
-    doc.text(`${declaration.total?.toLocaleString() || 0} DJF`, 165, y);
-    
-    y += 7;
-    doc.setTextColor(15, 23, 42);
-    const createdDate = declaration.created_date ? new Date(declaration.created_date).toLocaleDateString('fr-FR') : 'N/A';
-    doc.setFont(undefined, 'bold');
-    doc.text('Date de règlement:', 15, y);
-    doc.setFont(undefined, 'normal');
-    doc.text(createdDate, 55, y);
-    
-    doc.setFont(undefined, 'bold');
-    doc.text('Référence de paiement:', 115, y);
-    doc.setFont(undefined, 'normal');
-    doc.text(declaration.transaction_id || declaration.numero_cotisation, 165, y);
-    
-    y += 7;
-    doc.setFont(undefined, 'bold');
-    doc.text('Mode de paiement:', 15, y);
-    doc.setFont(undefined, 'normal');
-    doc.text(declaration.statut === 'Payé' ? 'Payé' : 'En attente', 55, y);
-    
-    doc.setFont(undefined, 'bold');
-    doc.text('Compte de contrepartie:', 115, y);
-    doc.setFont(undefined, 'normal');
-    doc.text(company.numero_compte || '5309000000', 165, y);
-    
-    y += 7;
-    doc.setFont(undefined, 'bold');
-    doc.text('Type de compte:', 15, y);
-    doc.setFont(undefined, 'normal');
-    doc.text('Ledger', 55, y);
-    
-    const resteAPayer = declaration.statut === 'Payé' ? '0.00' : (declaration.total?.toLocaleString() || '0');
-    doc.setFont(undefined, 'bold');
-    doc.text('Reste à Payer:', 115, y);
-    doc.setFont(undefined, 'normal');
-    doc.setTextColor(resteAPayer === '0.00' ? 34 : 220, resteAPayer === '0.00' ? 197 : 38, resteAPayer === '0.00' ? 94 : 38);
-    doc.text(`${resteAPayer} DJF`, 165, y);
-    
-    // ===== TABLE SECTION =====
-    y += 15;
-    doc.setTextColor(15, 23, 42);
-    
-    // Table Header
-    doc.setFillColor(241, 245, 249);
-    doc.rect(15, y, 180, 10, 'F');
-    doc.setDrawColor(203, 213, 225);
-    doc.setLineWidth(0.5);
-    doc.rect(15, y, 180, 10);
-    
-    doc.setFont(undefined, 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(51, 65, 85);
-    doc.text('Type', 20, y + 6);
-    doc.text('Période', 45, y + 6);
-    doc.text('CNSS', 70, y + 6);
-    doc.text('ITS', 90, y + 6);
-    doc.text('Nb', 105, y + 6);
-    doc.text('M.Salariale', 118, y + 6);
-    doc.text('M.Salariale', 145, y + 6);
-    doc.text('Échéance', 170, y + 6);
-    doc.setFontSize(7);
-    doc.text('Salariés', 105, y + 8.5);
-    doc.text('de Base', 118, y + 8.5);
-    doc.text('Brut', 145, y + 8.5);
-    doc.text('N° Appel', 170, y + 8.5);
-    
-    // Table Content
-    y += 10;
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    
-    const periode = declaration.mois_annee || declaration.periode || 'N/A';
-    const dateLimite = declaration.date_limite ? new Date(declaration.date_limite).toLocaleDateString('fr-FR') : '';
-    
-    // CNSS Row
-    doc.setDrawColor(226, 232, 240);
-    doc.rect(15, y, 180, 8);
-    doc.text('Cotisation', 20, y + 5);
-    doc.text(periode, 45, y + 5);
-    doc.text(`${declaration.total_cnss?.toLocaleString() || 0}`, 70, y + 5);
-    doc.text('-', 90, y + 5);
-    doc.text(`${declaration.nombre_employes || 0}`, 107, y + 5);
-    doc.text(`${declaration.masse_salariale?.toLocaleString() || 0}`, 118, y + 5);
-    doc.text(`${declaration.masse_salariale?.toLocaleString() || 0}`, 145, y + 5);
-    doc.text(dateLimite, 170, y + 5);
-    
-    // ITS Row
-    y += 8;
-    doc.rect(15, y, 180, 8);
-    doc.text('ITS', 20, y + 5);
-    doc.text(periode, 45, y + 5);
-    doc.text('-', 70, y + 5);
-    doc.text(`${declaration.total_its?.toLocaleString() || 0}`, 90, y + 5);
-    doc.text('-', 107, y + 5);
-    doc.text('-', 118, y + 5);
-    doc.text('-', 145, y + 5);
-    doc.text(dateLimite, 170, y + 5);
-    
-    // Totals Row
-    y += 8;
-    doc.setFillColor(241, 245, 249);
-    doc.rect(15, y, 180, 8, 'F');
-    doc.rect(15, y, 180, 8);
-    doc.setFont(undefined, 'bold');
-    doc.text('Somme', 20, y + 5);
-    doc.text(`${declaration.total_cnss?.toLocaleString() || 0} DJF`, 70, y + 5);
-    doc.text(`${declaration.total_its?.toLocaleString() || 0} DJF`, 90, y + 5);
-    doc.text(`${declaration.masse_salariale?.toLocaleString() || 0} DJF`, 118, y + 5);
-    doc.text(`${declaration.masse_salariale?.toLocaleString() || 0} DJF`, 145, y + 5);
-    
-    // ===== FINANCIAL SUMMARY SECTION =====
-    y += 18;
-    doc.setDrawColor(59, 130, 246);
-    doc.setLineWidth(2);
-    doc.setFillColor(239, 246, 255);
-    doc.roundedRect(15, y, 180, 30, 3, 3, 'FD');
-    
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.setTextColor(37, 99, 235);
-    doc.text('RÉCAPITULATIF FINANCIER', 20, y + 8);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(15, 23, 42);
-    doc.setFont(undefined, 'normal');
-    doc.text('Total CNSS (Salarié + Patronal):', 20, y + 16);
-    doc.setFont(undefined, 'bold');
-    doc.text(`${declaration.total_cnss?.toLocaleString() || 0} DJF`, 175, y + 16, { align: 'right' });
-    
-    doc.setFont(undefined, 'normal');
-    doc.text('Total ITS (Impôt sur les Traitements et Salaires):', 20, y + 22);
-    doc.setFont(undefined, 'bold');
-    doc.text(`${declaration.total_its?.toLocaleString() || 0} DJF`, 175, y + 22, { align: 'right' });
-    
-    // Grand Total
-    doc.setFillColor(37, 99, 235);
-    doc.roundedRect(15, y + 25, 180, 10, 2, 2, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('MONTANT TOTAL À PAYER:', 20, y + 32);
-    doc.setFontSize(16);
-    doc.text(`${declaration.total?.toLocaleString() || 0} DJF`, 175, y + 32, { align: 'right' });
-    
-    // ===== SIGNATURE SECTION =====
-    y += 45;
-    doc.setTextColor(15, 23, 42);
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'bold');
-    doc.text(`Caissier: ${company.signatory_payslip_name || company.nom_entreprise || 'Administrateur'}`, 15, y);
-    doc.text('Visa du caissier', 140, y);
-    
-    // Signature Box
-    doc.setDrawColor(203, 213, 225);
-    doc.setLineWidth(0.5);
-    doc.rect(140, y + 5, 50, 30);
-    doc.setFontSize(7);
-    doc.setFont(undefined, 'italic');
-    doc.setTextColor(148, 163, 184);
-    doc.text('Signature et cachet', 165, y + 22, { align: 'center' });
-    
-    // ===== FOOTER =====
-    y = pageHeight - 20;
-    doc.setFillColor(0, 102, 255);
-    doc.rect(0, y, pageWidth, 15, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(8);
-    doc.setFont(undefined, 'normal');
-    const footerText = `${company.nom_entreprise || 'Paie360'} - Déclaration CNSS générée le ${dateStr}`;
-    doc.text(footerText, pageWidth / 2, y + 8, { align: 'center' });
-    
-    doc.setFontSize(7);
-    doc.text('Document officiel généré par Paie360 - Conforme aux normes CNSS Djibouti', pageWidth / 2, y + 12, { align: 'center' });
-    
-    // Watermark if not paid
-    if (declaration.statut !== 'Payé') {
-      doc.setTextColor(239, 68, 68);
-      doc.setFontSize(60);
-      doc.setFont(undefined, 'bold');
-      doc.saveGraphicsState();
-      doc.setGState(new doc.GState({ opacity: 0.1 }));
-      doc.text('NON PAYÉ', pageWidth / 2, pageHeight / 2, { 
-        align: 'center',
-        angle: 45 
-      });
-      doc.restoreGraphicsState();
-    }
+    const dateStr = now.toLocaleDateString('fr-FR') + ' - ' + now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-    // Get PDF as ArrayBuffer
-    const pdfArrayBuffer = doc.output('arraybuffer');
-    
-    return new Response(pdfArrayBuffer, {
+    const fmt = (n) => n != null ? Math.round(n).toLocaleString('fr-FR') : '0';
+
+    const periode = declaration.periode || declaration.mois_annee || 'N/A';
+    const dateLimite = declaration.date_limite
+      ? new Date(declaration.date_limite).toLocaleDateString('fr-FR')
+      : '';
+    const dateReglement = declaration.payment_date || declaration.created_date
+      ? new Date(declaration.payment_date || declaration.created_date).toLocaleDateString('fr-FR')
+      : 'N/A';
+
+    const isPaid = declaration.statut === 'Payé';
+    const resteAPayer = isPaid ? 0 : (declaration.total || 0);
+
+    const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Déclaration CNSS - ${periode}</title>
+<style>
+  @page { size: A4; margin: 12mm 10mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+  body { font-size: 9pt; color: #1a1a2e; background: #fff; }
+
+  /* ── Header ── */
+  .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 2px solid #0044cc; margin-bottom: 8px; }
+  .header-logo img { height: 64px; }
+  .header-center { text-align: center; flex: 1; padding: 0 20px; }
+  .republic { font-size: 13pt; font-weight: bold; color: #0044cc; letter-spacing: 0.5px; }
+  .republic-sub { font-size: 8pt; color: #444; margin-top: 2px; }
+  .ministry { font-size: 8pt; color: #444; margin-top: 4px; line-height: 1.5; }
+  .header-qr { text-align: center; width: 80px; }
+  .qr-box { border: 2px solid #0044cc; width: 60px; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto; }
+  .qr-box span { font-size: 7pt; font-weight: bold; color: #0044cc; }
+  .qr-box small { font-size: 5.5pt; color: #666; margin-top: 2px; }
+
+  /* ── Receipt bar ── */
+  .receipt-bar { background: #0044cc; color: #fff; padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-radius: 2px; }
+  .receipt-bar .left { font-size: 8.5pt; }
+  .receipt-bar .right { font-size: 9pt; font-weight: bold; }
+
+  /* ── Info grid ── */
+  .info-section { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #bbb; margin-bottom: 10px; }
+  .info-cell { padding: 5px 10px; border-bottom: 1px solid #e0e0e0; font-size: 9pt; display: flex; gap: 6px; }
+  .info-cell:nth-child(odd) { border-right: 1px solid #e0e0e0; }
+  .info-cell b { white-space: nowrap; color: #333; }
+  .info-cell .val { color: #1a1a2e; }
+  .info-cell .val.red { color: #cc2200; font-weight: bold; }
+  .info-cell .val.green { color: #007700; font-weight: bold; }
+
+  /* ── Table ── */
+  .section-title { font-size: 9.5pt; font-weight: bold; color: #0044cc; border-bottom: 1px solid #0044cc; padding-bottom: 3px; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 10px; }
+  thead tr { background: #e8eef8; }
+  th { border: 1px solid #aab; padding: 5px 6px; text-align: center; font-size: 8pt; vertical-align: middle; color: #222; line-height: 1.4; }
+  td { border: 1px solid #ccd; padding: 5px 6px; text-align: center; vertical-align: middle; }
+  td.left { text-align: left; }
+  td.right { text-align: right; }
+  tr.total-row td { background: #e8eef8; font-weight: bold; }
+
+  /* ── Financial summary ── */
+  .recap-box { border: 1.5px solid #0044cc; border-radius: 4px; padding: 10px 14px; margin-bottom: 14px; background: #f4f7ff; }
+  .recap-box .recap-title { font-size: 11pt; font-weight: bold; color: #0044cc; margin-bottom: 8px; }
+  .recap-line { display: flex; justify-content: space-between; font-size: 9.5pt; padding: 3px 0; border-bottom: 1px solid #d8e2f8; }
+  .recap-line:last-child { border-bottom: none; }
+  .recap-line .label { color: #333; }
+  .recap-line .amount { font-weight: bold; color: #1a1a2e; }
+  .total-row-main { background: #0044cc; color: #fff; border-radius: 3px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .total-row-main .t-label { font-size: 11pt; font-weight: bold; }
+  .total-row-main .t-amount { font-size: 14pt; font-weight: bold; }
+
+  /* ── Signatures ── */
+  .sig-section { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 10px; }
+  .sig-left { font-size: 9pt; }
+  .sig-right { text-align: center; }
+  .sig-box { border: 1px solid #bbb; width: 150px; height: 60px; display: flex; align-items: center; justify-content: center; margin-top: 4px; }
+  .sig-box span { font-size: 7.5pt; font-style: italic; color: #999; }
+
+  /* ── Footer ── */
+  .footer { background: #0044cc; color: #fff; text-align: center; padding: 6px; font-size: 7.5pt; margin-top: 14px; border-radius: 2px; }
+
+  /* ── Watermark ── */
+  .watermark { position: fixed; top: 40%; left: 15%; font-size: 72pt; font-weight: bold; color: rgba(200, 0, 0, 0.08); transform: rotate(-35deg); z-index: 0; pointer-events: none; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+${!isPaid ? '<div class="watermark">NON PAYÉ</div>' : ''}
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">
+    <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f3e5141d4077e1d8eef84e/249ba593d_Logo-75-x-21-pixels-couleur-3-1-1.png" alt="CNSS Logo" />
+  </div>
+  <div class="header-center">
+    <div class="republic">REPUBLIQUE DE DJIBOUTI</div>
+    <div class="republic-sub">Unité - Egalité - Paix</div>
+    <div class="ministry">Ministère du Travail chargé de la<br>Réforme de l'Administration</div>
+  </div>
+  <div class="header-qr">
+    <div class="qr-box">
+      <span>QR CODE</span>
+      <small>Scan pour vérifier</small>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT BAR -->
+<div class="receipt-bar">
+  <div class="left">
+    <strong>N° de caisse : Recettes des Cotisations 6</strong><br>
+    <span style="font-size:7.5pt; font-weight:normal;">Djibouti, le : ${dateStr}</span>
+  </div>
+  <div class="right">REÇU N° : ${declaration.numero_cotisation || (company.numero_affiliation || '') + '-' + (periode.replace(' ', '') || '')}</div>
+</div>
+
+<!-- INFO GRID -->
+<div class="info-section">
+  <div class="info-cell"><b>N° Employeur :</b> <span class="val">${company.numero_affiliation || 'N/A'}</span></div>
+  <div class="info-cell"><b>Cotisation Total Due :</b> <span class="val red">${fmt(declaration.total)} DJF</span></div>
+
+  <div class="info-cell"><b>Nom ou Raison sociale :</b> <span class="val">${company.nom_entreprise || 'N/A'}</span></div>
+  <div class="info-cell"><b>Règlement :</b> <span class="val ${isPaid ? 'green' : 'red'}">${fmt(declaration.total)} DJF</span></div>
+
+  <div class="info-cell"><b>Date de règlement :</b> <span class="val">${dateReglement}</span></div>
+  <div class="info-cell"><b>Référence de paiement :</b> <span class="val">${declaration.transaction_id || declaration.numero_cotisation || 'N/A'}</span></div>
+
+  <div class="info-cell"><b>Mode de paiement :</b> <span class="val">${isPaid ? 'Payé' : 'En attente'}</span></div>
+  <div class="info-cell"><b>Compte de contrepartie :</b> <span class="val">5309000000</span></div>
+
+  <div class="info-cell"><b>Type de compte :</b> <span class="val">Ledger</span></div>
+  <div class="info-cell"><b>Reste à Payer :</b> <span class="val ${isPaid ? 'green' : 'red'}">${fmt(resteAPayer)} DJF</span></div>
+</div>
+
+<!-- DETAIL TABLE -->
+<div class="section-title">Détail des cotisations</div>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Période</th>
+      <th>CNSS</th>
+      <th>ITS</th>
+      <th>Nb<br>Salariés</th>
+      <th>M. Salariale<br>de Base</th>
+      <th>M. Salariale<br>Brut</th>
+      <th>Echéance<br>N° Appel</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="left">Cotisation</td>
+      <td>${periode}</td>
+      <td class="right">${fmt(declaration.total_cnss)}</td>
+      <td>—</td>
+      <td>${declaration.nombre_employes || 0}</td>
+      <td class="right">${fmt(declaration.masse_salariale)}</td>
+      <td class="right">${fmt(declaration.masse_salariale)}</td>
+      <td>${dateLimite}</td>
+    </tr>
+    <tr>
+      <td class="left">ITS</td>
+      <td>${periode}</td>
+      <td>—</td>
+      <td class="right">${fmt(declaration.total_its)}</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>${dateLimite}</td>
+    </tr>
+    <tr class="total-row">
+      <td class="left"><strong>Somme</strong></td>
+      <td></td>
+      <td class="right">${fmt(declaration.total_cnss)} DJF</td>
+      <td class="right">${fmt(declaration.total_its)} DJF</td>
+      <td></td>
+      <td class="right">${fmt(declaration.masse_salariale)} DJF</td>
+      <td class="right">${fmt(declaration.masse_salariale)} DJF</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- FINANCIAL RECAP -->
+<div class="recap-box">
+  <div class="recap-title">RÉCAPITULATIF FINANCIER</div>
+  <div class="recap-line">
+    <span class="label">Total CNSS (Salarié + Patronal) :</span>
+    <span class="amount">${fmt(declaration.total_cnss)} DJF</span>
+  </div>
+  <div class="recap-line">
+    <span class="label">Total ITS (Impôt sur les Traitements et Salaires) :</span>
+    <span class="amount">${fmt(declaration.total_its)} DJF</span>
+  </div>
+  ${(declaration.penalite > 0) ? `
+  <div class="recap-line">
+    <span class="label" style="color:#cc2200;">Pénalités / Majorations :</span>
+    <span class="amount" style="color:#cc2200;">${fmt(declaration.penalite)} DJF</span>
+  </div>` : ''}
+  <div class="total-row-main">
+    <span class="t-label">MONTANT TOTAL À PAYER :</span>
+    <span class="t-amount">${fmt(declaration.total)} DJF</span>
+  </div>
+</div>
+
+<!-- SIGNATURE -->
+<div class="sig-section">
+  <div class="sig-left">
+    <strong>Caissier : ${company.signatory_payslip_name || company.nom_entreprise || 'Administrateur'}</strong>
+  </div>
+  <div class="sig-right">
+    <strong>Visa du caissier</strong>
+    <div class="sig-box"><span>Signature et cachet</span></div>
+    <div style="font-size:7.5pt; margin-top:4px;">${company.signatory_payslip_name || ''}</div>
+    <div style="font-size:7.5pt;">${company.signatory_payslip_position || ''}</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  ${company.nom_entreprise || 'Paie360'} — Déclaration CNSS générée le ${dateStr}<br>
+  Document officiel généré par Paie360 · Conforme aux normes CNSS Djibouti
+</div>
+
+</body>
+</html>`;
+
+    return new Response(html, {
       status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename=Declaration_CNSS_${declaration.periode}_${declaration.numero_cotisation}.pdf`
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Disposition': `attachment; filename=Declaration_CNSS_${periode.replace(/\s+/g, '_')}_${declaration.numero_cotisation || ''}.html`
       }
     });
-    
+
   } catch (error) {
-    console.error('PDF generation error:', error);
-    return Response.json({ 
-      error: 'Failed to generate PDF', 
-      details: error.message 
-    }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
-
-// Helper function to convert blob to base64
-async function blobToBase64(blob) {
-  const arrayBuffer = await blob.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return 'data:image/png;base64,' + btoa(binary);
-}
