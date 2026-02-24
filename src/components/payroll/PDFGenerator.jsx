@@ -256,7 +256,15 @@ export const generatePayslip = async (employee, company, cycle, signatory = null
         </table>
         
         <div class="employer-info">
-          <p style="margin: 5px 0;"><strong>Charges Patronales (CNSS Employeur):</strong> ${calc.cnssEmployer.total.toLocaleString()} DJF</p>
+          <p style="margin: 5px 0; font-weight: 600;">Charges Patronales (Part Patronale ${calc.regime === 'Zone Franche' ? '10.2%' : '15.7%'}):</p>
+          <p style="margin: 3px 0 3px 15px;">• Retraite (4%): ${(calc.cnssEmployer.retraite || 0).toLocaleString()} DJF</p>
+          ${calc.regime === 'Zone Franche'
+            ? `<p style="margin: 3px 0 3px 15px;">• Accident de Travail & Soins (6.2%): ${(calc.cnssEmployer.accident_travail_soins || 0).toLocaleString()} DJF</p>`
+            : `<p style="margin: 3px 0 3px 15px;">• Accident de Travail (1.2%): ${(calc.cnssEmployer.accident_travail || 0).toLocaleString()} DJF</p>
+               <p style="margin: 3px 0 3px 15px;">• Prestations Familiales (5.5%): ${(calc.cnssEmployer.allocations_familiales || 0).toLocaleString()} DJF</p>
+               <p style="margin: 3px 0 3px 15px;">• Assurance Maladie (5%): ${(calc.cnssEmployer.amu || 0).toLocaleString()} DJF</p>`
+          }
+          <p style="margin: 5px 0;"><strong>Total Charges Patronales:</strong> ${calc.cnssEmployer.total.toLocaleString()} DJF</p>
           <p style="margin: 5px 0;"><strong>Coût Total Employeur:</strong> ${calc.totalCost.toLocaleString()} DJF</p>
           <p style="margin: 5px 0;"><strong>Banque:</strong> ${employee.banque || 'N/A'} | <strong>Compte:</strong> ${employee.numero_compte || 'N/A'}</p>
         </div>
