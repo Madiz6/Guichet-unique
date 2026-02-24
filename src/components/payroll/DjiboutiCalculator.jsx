@@ -1,6 +1,48 @@
-// Djibouti Payroll Calculator - Enhanced with Holiday Calculations
+// Djibouti Payroll Calculator
+// Based on Arrêté N°69-1883/SG/CG/ du 31.12.1969 & modifications
+
+/**
+ * CNSS RATES - Régime Général
+ * Part Salariale (6%):  Retraite 4% + Assurance Maladie 2%
+ * Part Patronale (15.7%): Prestations familiales 5.5% + Assurance Maladie 5% + Accident de travail 1.2% + Retraite 4%
+ *
+ * CNSS RATES - Zone Franche
+ * Part Salariale (6%):  Retraite 4% + Assurance Maladie 2%
+ * Part Patronale (10.2%): Accident de travail & Soins 6.2% + Assurance Maladie (included in 6.2%) + Retraite 4%
+ * NOTE: Zone Franche total patronale = 6.2% (AT&Soins) + 4% (Retraite) = 10.2%
+ *       No Prestations familiales (5.5%) for Zone Franche
+ *
+ * LATE PAYMENT PENALTIES (Art 137):
+ *  - 10% surcharge if not paid by the 10th of the following month
+ *  - Additional 3% per month thereafter
+ *
+ * DECLARATION PENALTY (Art 136):
+ *  - 400 FDJ per employee per month of delay if no nominative declaration submitted
+ */
 
 export const CNSS_RATES = {
+  // Régime Général - Part Salariale 6%
+  employee: {
+    retraite: 0.04,        // 4%
+    amu: 0.02,             // Assurance Maladie 2%
+    total: 0.06            // Total 6%
+  },
+  // Régime Général - Part Patronale 15.7%
+  employer: {
+    retraite: 0.04,                  // 4%
+    accident_travail: 0.012,         // Accident de travail 1.2% (formerly opsat)
+    allocations_familiales: 0.055,   // Prestations familiales 5.5%
+    amu: 0.05,                       // Assurance Maladie 5%
+    total: 0.157                     // Total 15.7%
+  }
+};
+
+/**
+ * Zone Franche rates
+ * Part Patronale (10.2%): AT & Soins 6.2% + Retraite 4%
+ * Part Salariale (6%): Same as Général
+ */
+export const CNSS_RATES_ZONE_FRANCHE = {
   employee: {
     retraite: 0.04,
     amu: 0.02,
@@ -8,10 +50,9 @@ export const CNSS_RATES = {
   },
   employer: {
     retraite: 0.04,
-    opsat: 0.012,
-    allocations_familiales: 0.055,
-    amu: 0.05,
-    total: 0.157
+    accident_travail_soins: 0.062,  // Accident de travail & Soins 6.2%
+    // No allocations_familiales for Zone Franche
+    total: 0.102                    // Total 10.2%
   }
 };
 
