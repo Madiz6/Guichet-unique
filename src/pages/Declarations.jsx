@@ -33,6 +33,7 @@ export default function Declarations() {
   const [showPaymentGateway, setShowPaymentGateway] = useState(false);
   const [selectedDeclarationForPayment, setSelectedDeclarationForPayment] = useState(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [downloadingBordereau, setDownloadingBordereau] = useState(null);
   
   const queryClient = useQueryClient();
   
