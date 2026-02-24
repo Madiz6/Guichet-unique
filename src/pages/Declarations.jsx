@@ -600,6 +600,20 @@ export default function Declarations() {
                           >
                             <Table2 className="w-4 h-4" />
                           </Button>
+
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            title="Bordereau CNSS (Relevé nominatif)"
+                            className="border-[#D3DCE6]"
+                            onClick={() => handleDownloadBordereau(decl)}
+                            disabled={downloadingBordereau === decl.id}
+                          >
+                            {downloadingBordereau === decl.id
+                              ? <div className="w-4 h-4 border-2 border-[#0066FF] border-t-transparent rounded-full animate-spin" />
+                              : <ClipboardList className="w-4 h-4" />
+                            }
+                          </Button>
                           
                           {canPay && decl.statut !== 'Payé' && (
                             <Button
