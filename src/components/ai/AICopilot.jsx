@@ -182,18 +182,39 @@ export default function AICopilot({ currentPage }) {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick prompts */}
+            {/* Quick prompts - category menu */}
             {messages.length <= 1 && (
-              <div className="px-3 pb-2 flex flex-wrap gap-1.5">
-                {quickPrompts.map(p => (
-                  <button
-                    key={p}
-                    onClick={() => send(p)}
-                    className="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 transition"
-                  >
-                    {p}
-                  </button>
-                ))}
+              <div className="px-3 pb-2 space-y-2">
+                {/* Category pills */}
+                <div className="flex flex-wrap gap-1.5">
+                  {categories.map(cat => (
+                    <button
+                      key={cat.label}
+                      onClick={() => setSelectedCategory(selectedCategory?.label === cat.label ? null : cat)}
+                      className={`text-xs px-2.5 py-1 rounded-full border transition font-medium ${
+                        selectedCategory?.label === cat.label
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+                {/* Sub-prompts for selected category */}
+                {selectedCategory && (
+                  <div className="flex flex-col gap-1">
+                    {selectedCategory.prompts.map(p => (
+                      <button
+                        key={p}
+                        onClick={() => { setSelectedCategory(null); send(p); }}
+                        className="text-xs text-left px-3 py-1.5 bg-indigo-50 text-indigo-800 rounded-lg hover:bg-indigo-100 transition"
+                      >
+                        → {p}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
