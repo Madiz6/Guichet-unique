@@ -309,6 +309,9 @@ export const generatePayslip = async (employee, company, cycle, signatory = null
 };
 
 export const generateWorkAttestation = (employee, company, signatory = null) => {
+  const signatoryName = signatory?.name || company.signatory_work_attestation_name || '[NOM DU SIGNATAIRE]';
+  const signatoryPosition = signatory?.position || company.signatory_work_attestation_position || '[FONCTION]';
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -316,95 +319,174 @@ export const generateWorkAttestation = (employee, company, signatory = null) => 
       <meta charset="UTF-8">
       <title>Attestation de Travail - ${employee.prenom} ${employee.nom}</title>
       <style>
-        @media print {
-          body { margin: 0; padding: 20px; }
-          @page { margin: 1cm; }
-        }
+        @page { size: A4; margin: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
-          color: #0A2540;
-          line-height: 1.8;
+          font-family: 'Segoe UI', Arial, sans-serif;
+          width: 210mm;
+          height: 297mm;
+          padding: 14mm 18mm;
+          color: #1a2740;
+          font-size: 11pt;
+          line-height: 1.5;
+          position: relative;
+          overflow: hidden;
         }
-        h1 {
+
+        /* ── Header ── */
+        .header {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding-bottom: 10px;
+          border-bottom: 2.5px solid #0066FF;
+          margin-bottom: 18px;
+        }
+        .header img {
+          width: 52px; height: 52px;
+          object-fit: contain; border-radius: 6px;
+        }
+        .header-logo-placeholder {
+          width: 52px; height: 52px;
+          background: #e8f0fe; border-radius: 6px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 9pt; color: #0066FF; font-weight: 700; text-align: center;
+        }
+        .header-info h2 { font-size: 15pt; color: #0A2540; font-weight: 700; }
+        .header-info p  { font-size: 8.5pt; color: #425466; margin-top: 2px; }
+
+        /* ── Title ── */
+        .doc-title {
           text-align: center;
+          font-size: 19pt;
+          font-weight: 700;
           color: #0066FF;
-          font-size: 28px;
-          margin: 40px 0 20px 0;
-          font-weight: bold;
           text-decoration: underline;
           text-decoration-color: #0066FF;
-          text-decoration-thickness: 3px;
-          text-underline-offset: 8px;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 5px;
+          margin: 18px 0 20px;
+          letter-spacing: 1px;
         }
-        .content {
-          margin: 40px 0;
-          font-size: 14px;
-          color: #425466;
-        }
-        .content p {
-          margin: 15px 0;
-        }
-        .employee-info {
-          background: #F7F9FC;
-          padding: 20px;
+
+        /* ── Body text ── */
+        .intro p { margin-bottom: 6px; font-size: 11pt; color: #1a2740; }
+
+        /* ── Employee card ── */
+        .employee-card {
           border-left: 4px solid #0066FF;
-          margin: 25px 0;
+          background: #f4f7fd;
           border-radius: 4px;
+          padding: 10px 16px;
+          margin: 14px 0;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 5px 20px;
         }
-        .employee-info p {
-          margin: 8px 0;
-          font-size: 14px;
-          color: #0A2540;
-        }
-        .employee-info strong {
-          color: #0066FF;
-        }
-        .footer {
-          text-align: center;
-          font-size: 11px;
-          color: #697586;
+        .employee-card .field { font-size: 10.5pt; color: #1a2740; }
+        .employee-card .field span { color: #0066FF; font-weight: 600; }
+
+        /* ── Employment line ── */
+        .employment-line { margin: 14px 0 8px; font-size: 11pt; }
+        .mention {
+          margin-top: 10px;
           font-style: italic;
-          margin-top: 60px;
-          padding-top: 20px;
+          color: #425466;
+          font-size: 10pt;
+        }
+
+        /* ── Signature block ── */
+        .signature-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-top: 24px;
+        }
+        .sig-date { font-size: 10pt; color: #425466; }
+        .sig-block { text-align: right; }
+        .sig-line {
+          width: 160px;
+          border-bottom: 1.5px solid #1a2740;
+          margin-bottom: 6px;
+          margin-left: auto;
+        }
+        .sig-name { font-size: 11pt; font-weight: 700; color: #0A2540; }
+        .sig-pos  { font-size: 9.5pt; color: #697586; }
+
+        /* ── Footer ── */
+        .footer {
+          position: absolute;
+          bottom: 10mm;
+          left: 18mm; right: 18mm;
           border-top: 1px solid #E8ECF2;
+          padding-top: 6px;
+          text-align: center;
+          font-size: 8pt;
+          color: #9aacbf;
+          font-style: italic;
         }
       </style>
     </head>
     <body>
-      ${getCompanyHeader(company)}
-      
-      <h1>ATTESTATION DE TRAVAIL</h1>
-      
-      <div class="content">
-        <p>Je soussigné(e), <strong>${signatory?.name || company.signatory_work_attestation_name || '[NOM DU SIGNATAIRE]'}</strong>,</p>
-        <p><strong>${signatory?.position || company.signatory_work_attestation_position || '[FONCTION]'}</strong>,</p>
-        <p>de l'entreprise <strong>${company.nom_entreprise || 'Paie360'}</strong>,</p>
-        
-        <p style="margin-top: 30px; font-weight: 600; color: #0A2540;">Certifie par la présente que:</p>
-        
-        <div class="employee-info">
-          <p><strong>Nom:</strong> ${employee.prenom} ${employee.nom}</p>
-          <p><strong>Fonction:</strong> ${employee.fonction || 'N/A'}</p>
-          <p><strong>Département:</strong> ${employee.departement || 'N/A'}</p>
-          <p><strong>Matricule CNSS:</strong> ${employee.matricule_cnss || 'N/A'}</p>
+
+      <!-- HEADER -->
+      <div class="header">
+        ${company.logo_url
+          ? `<img src="${company.logo_url}" alt="Logo" />`
+          : `<div class="header-logo-placeholder">${(company.nom_entreprise || 'P').substring(0,2).toUpperCase()}</div>`}
+        <div class="header-info">
+          <h2>${company.nom_entreprise || 'Paie360'}</h2>
+          <p>${company.adresse || ''}</p>
+          <p><strong>NIF:</strong> ${company.nif || 'N/A'} &nbsp;|&nbsp; <strong>CNSS:</strong> ${company.numero_affiliation || 'N/A'}</p>
+          <p><strong>Tél:</strong> ${company.telephone || 'N/A'} &nbsp;|&nbsp; <strong>Email:</strong> ${company.email || 'N/A'}</p>
         </div>
-        
-        <p>Est employé(e) dans notre entreprise depuis le <strong>${employee.date_embauche ? format(new Date(employee.date_embauche), 'dd MMMM yyyy', { locale: fr }) : 'N/A'}</strong>.</p>
-        
-        <p style="margin-top: 30px; font-style: italic;">Cette attestation est délivrée à l'intéressé(e) pour servir et valoir ce que de droit.</p>
       </div>
-      
-      ${getSignatureSection(signatory || {
-        name: company.signatory_work_attestation_name || 'Directeur RH',
-        position: company.signatory_work_attestation_position || 'Directeur des Ressources Humaines'
-      })}
-      
+
+      <!-- TITLE -->
+      <div class="doc-title">ATTESTATION DE TRAVAIL</div>
+
+      <!-- INTRO -->
+      <div class="intro">
+        <p>Je soussigné(e), <strong>${signatoryName}</strong>, <strong>${signatoryPosition}</strong>,</p>
+        <p>de l'entreprise <strong>${company.nom_entreprise || 'Paie360'}</strong>,</p>
+        <p style="margin-top:10px; font-weight:700;">Certifie par la présente que :</p>
+      </div>
+
+      <!-- EMPLOYEE CARD -->
+      <div class="employee-card">
+        <div class="field"><span>Nom complet :</span> ${employee.prenom} ${employee.nom}</div>
+        <div class="field"><span>Matricule CNSS :</span> ${employee.matricule_cnss || 'N/A'}</div>
+        <div class="field"><span>Fonction :</span> ${employee.fonction || 'N/A'}</div>
+        <div class="field"><span>Type de contrat :</span> ${employee.type_contrat || 'N/A'}</div>
+        <div class="field"><span>Département :</span> ${employee.departement || 'N/A'}</div>
+        <div class="field"><span>Date d'embauche :</span> ${employee.date_embauche ? format(new Date(employee.date_embauche), 'dd MMMM yyyy', { locale: fr }) : 'N/A'}</div>
+      </div>
+
+      <!-- EMPLOYMENT STATEMENT -->
+      <p class="employment-line">
+        Est employé(e) au sein de notre entreprise depuis le
+        <strong>${employee.date_embauche ? format(new Date(employee.date_embauche), 'dd MMMM yyyy', { locale: fr }) : 'N/A'}</strong>,
+        en qualité de <strong>${employee.fonction || 'N/A'}</strong>.
+      </p>
+      <p class="mention">
+        Cette attestation est délivrée à l'intéressé(e) pour servir et valoir ce que de droit.
+      </p>
+
+      <!-- SIGNATURE -->
+      <div class="signature-section">
+        <div class="sig-date">Fait à Djibouti, le ${format(new Date(), 'dd MMMM yyyy', { locale: fr })}</div>
+        <div class="sig-block">
+          <div class="sig-line"></div>
+          <div class="sig-name">${signatoryName}</div>
+          <div class="sig-pos">${signatoryPosition}</div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
       <div class="footer">
-        Ce document est officiel et ne nécessite pas de signature manuscrite.
+        Ce document est officiel et ne nécessite pas de signature manuscrite. &nbsp;•&nbsp; ${company.nom_entreprise || 'Paie360'} &nbsp;•&nbsp; Généré le ${format(new Date(), 'dd/MM/yyyy')}
       </div>
+
     </body>
     </html>
   `;
