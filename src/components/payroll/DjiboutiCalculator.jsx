@@ -87,7 +87,8 @@ export const CNSS_RATES_INDEPENDANT = {
   employer: { retraite: 0, amu: 0.07, allocations_familiales: 0, accident_travail: 0, total: 0.07 }
 };
 
-export const RETRAITE_CAP = 400000; // Plafond retraite
+export const RETRAITE_CAP = 400000;     // Plafond retraite Régime Général & Zone Franche
+export const RETRAITE_CAP_FONCTIONNAIRE = 390000; // Plafond retraite Fonctionnaire, FNP
 export const RETCIM = 400;          // Retenue complémentaire fixe
 
 // ─── ITS TABLE (Barème progressif) ─────────────────────────────────────────────
