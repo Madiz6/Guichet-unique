@@ -1205,102 +1205,174 @@ export default function Paie() {
                         const finalNet = calc.netSalary - netDeductions;
 
                         return (
-                          <div className="space-y-2 text-sm">
-                            {holidayStatus && calc.holidayNote && (
-                              <div className={`mb-3 p-3 rounded-lg border ${
-                                calc.paidByCNSS
-                                  ? 'bg-purple-50 border-purple-200'
-                                  : calc.salaryPercentage === 0
-                                    ? 'bg-red-50 border-red-200'
-                                    : calc.salaryPercentage < 1
-                                      ? 'bg-amber-50 border-amber-200'
-                                    : 'bg-blue-50 border-blue-200'
-                              }`}>
-                                <p className="text-sm font-semibold">
-                                  {calc.holidayNote}
-                                </p>
-                                {calc.paidByCNSS && (
-                                  <p className="text-xs mt-1 text-purple-700">
-                                    💡 La CNSS prend en charge le salaire complet de l'employée
-                                  </p>
-                                )}
-                              </div>
-                            )}
+                          <div className="space-y-1.5 text-sm">
+                           {holidayStatus && calc.holidayNote && (
+                             <div className={`mb-3 p-3 rounded-lg border ${
+                               calc.paidByCNSS
+                                 ? 'bg-purple-50 border-purple-200'
+                                 : calc.salaryPercentage === 0
+                                   ? 'bg-red-50 border-red-200'
+                                   : calc.salaryPercentage < 1
+                                     ? 'bg-amber-50 border-amber-200'
+                                   : 'bg-blue-50 border-blue-200'
+                             }`}>
+                               <p className="text-sm font-semibold">{calc.holidayNote}</p>
+                               {calc.paidByCNSS && (
+                                 <p className="text-xs mt-1 text-purple-700">💡 La CNSS prend en charge le salaire complet de l'employée</p>
+                               )}
+                             </div>
+                           )}
 
-                            <div className="flex justify-between">
-                              <span className="text-[#697586]">Salaire de Base:</span>
-                              <span className="font-medium text-[#0A2540]">{calc.breakdown.salaire_base.toLocaleString()} DJF</span>
-                            </div>
-                            {calc.breakdown.prime_anciennete > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Prime Ancienneté:</span>
-                                <span className="font-medium text-green-600">+{calc.breakdown.prime_anciennete.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {calc.totalPrimesBeforeDeductions > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Primes (affectant brut):</span>
-                                <span className="font-medium text-green-600">+{calc.totalPrimesBeforeDeductions.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {absences > 0 && !absenceAfterDeductions && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Absences (brut):</span>
-                                <span className="font-medium text-red-600">-{absences.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {otherDeductions > 0 && otherDeductionFromGross && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Autres déduc. (brut):</span>
-                                <span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            <div className="flex justify-between py-2 border-t border-[#E8ECF2]">
-                              <span className="text-[#697586] font-semibold">Brut Ajusté:</span>
-                              <span className="font-semibold text-[#0A2540]">{calc.grossSalary.toLocaleString()} DJF</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[#697586]">CNSS Salariale:</span>
-                              <span className="font-medium text-red-600">-{calc.cnssEmployee.total.toLocaleString()} DJF</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[#697586]">ITS:</span>
-                              <span className="font-medium text-red-600">-{calc.its.toLocaleString()} DJF</span>
-                            </div>
-                            {calc.aide > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">AIDE:</span>
-                                <span className="font-medium text-red-600">-{calc.aide.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {calc.retcim > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">RetCim:</span>
-                                <span className="font-medium text-red-600">-{calc.retcim.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {absences > 0 && absenceAfterDeductions && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Absences (net):</span>
-                                <span className="font-bold text-red-600">-{absences.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {otherDeductions > 0 && !otherDeductionFromGross && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Autres déduc. (net):</span>
-                                <span className="font-bold text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            {calc.totalPrimesAfterDeductions > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-[#697586]">Primes (après déduc.):</span>
-                                <span className="font-bold text-green-600">+{calc.totalPrimesAfterDeductions.toLocaleString()} DJF</span>
-                              </div>
-                            )}
-                            <div className="flex justify-between pt-2 border-t-2 border-[#0066FF]">
-                              <span className="font-bold text-[#0A2540]">NET À PAYER:</span>
-                              <span className="font-bold text-[#0066FF] text-lg">{finalNet.toLocaleString()} DJF</span>
-                            </div>
+                           {/* ── GAINS ── */}
+                           <p className="text-xs font-bold text-[#697586] uppercase tracking-wide pt-1">Gains</p>
+                           <div className="flex justify-between">
+                             <span className="text-[#697586]">Salaire de Base</span>
+                             <span className="font-medium text-[#0A2540]">{calc.breakdown.salaire_base.toLocaleString()} DJF</span>
+                           </div>
+                           {calc.breakdown.prime_anciennete > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Prime d'Ancienneté</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.prime_anciennete.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.breakdown.prime_fonction > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Prime de Fonction</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.prime_fonction.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.breakdown.prime_logement > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Prime de Logement</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.prime_logement.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.breakdown.prime_transport > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Prime de Transport</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.prime_transport.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.breakdown.prime_sujetion > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Prime de Sujétion</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.prime_sujetion.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.breakdown.prime_rendement > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Prime de Rendement</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.prime_rendement.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.breakdown.autres_primes > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Autres Primes</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.autres_primes.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.breakdown.primes_personnalisees > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Primes Personnalisées</span>
+                               <span className="font-medium text-green-600">+{calc.breakdown.primes_personnalisees.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.primesBeforeDeductions.map((p, i) => (
+                             <div key={i} className="flex justify-between">
+                               <span className="text-[#697586]">{p.nom} <span className="text-xs">(cycle)</span></span>
+                               <span className="font-medium text-green-600">+{p.montant.toLocaleString()} DJF</span>
+                             </div>
+                           ))}
+                           {absences > 0 && !absenceAfterDeductions && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Absences (du brut)</span>
+                               <span className="font-medium text-red-500">-{absences.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {otherDeductions > 0 && otherDeductionFromGross && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Autres déductions (du brut)</span>
+                               <span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+
+                           {/* ── BRUT AJUSTÉ ── */}
+                           <div className="flex justify-between py-2 mt-1 border-t border-b border-[#E8ECF2] bg-[#F7F9FC] px-2 rounded">
+                             <span className="font-semibold text-[#0A2540]">Brut Ajusté</span>
+                             <span className="font-bold text-[#0A2540]">{calc.grossSalary.toLocaleString()} DJF</span>
+                           </div>
+
+                           {/* ── DÉDUCTIONS ── */}
+                           <p className="text-xs font-bold text-[#697586] uppercase tracking-wide pt-1">Déductions</p>
+                           <div className="flex justify-between">
+                             <span className="text-[#697586]">CNSS Salariale <span className="text-xs">({selectedEmployeeDrawer.regime_cnss || 'Général'})</span></span>
+                             <span className="font-medium text-red-500">-{calc.cnssEmployee.total.toLocaleString()} DJF</span>
+                           </div>
+                           {calc.cnssEmployee.retraite > 0 && (
+                             <div className="flex justify-between pl-4">
+                               <span className="text-[#aaa] text-xs">dont Retraite</span>
+                               <span className="text-xs text-red-400">{calc.cnssEmployee.retraite.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.cnssEmployee.amu > 0 && (
+                             <div className="flex justify-between pl-4">
+                               <span className="text-[#aaa] text-xs">dont AMU</span>
+                               <span className="text-xs text-red-400">{calc.cnssEmployee.amu.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           <div className="flex justify-between">
+                             <span className="text-[#697586]">ITS</span>
+                             <span className="font-medium text-red-500">-{calc.its.toLocaleString()} DJF</span>
+                           </div>
+                           {calc.aide > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">AIDE</span>
+                               <span className="font-medium text-red-500">-{calc.aide.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.retcim > 0 && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">RetCim</span>
+                               <span className="font-medium text-red-500">-{calc.retcim.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {absences > 0 && absenceAfterDeductions && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Absences (après cotisations)</span>
+                               <span className="font-medium text-red-500">-{absences.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {otherDeductions > 0 && !otherDeductionFromGross && (
+                             <div className="flex justify-between">
+                               <span className="text-[#697586]">Autres déductions</span>
+                               <span className="font-medium text-amber-600">-{otherDeductions.toLocaleString()} DJF</span>
+                             </div>
+                           )}
+                           {calc.primesAfterDeductions.map((p, i) => (
+                             <div key={i} className="flex justify-between">
+                               <span className="text-[#697586]">{p.nom} <span className="text-xs">(après déduc.)</span></span>
+                               <span className="font-medium text-green-600">+{p.montant.toLocaleString()} DJF</span>
+                             </div>
+                           ))}
+
+                           {/* ── NET ── */}
+                           <div className="flex justify-between pt-2 mt-1 border-t-2 border-[#0066FF]">
+                             <span className="font-bold text-[#0A2540] text-base">NET À PAYER</span>
+                             <span className="font-bold text-[#0066FF] text-lg">{finalNet.toLocaleString()} DJF</span>
+                           </div>
+
+                           {/* ── CHARGE PATRONALE INFO ── */}
+                           <div className="mt-3 p-2 bg-orange-50 rounded border border-orange-200">
+                             <p className="text-xs font-semibold text-orange-700 mb-1">Charge Patronale (non déduite du salarié)</p>
+                             <div className="flex justify-between text-xs text-orange-600">
+                               <span>CNSS Patronale</span>
+                               <span>{calc.cnssEmployer.total.toLocaleString()} DJF</span>
+                             </div>
+                             <div className="flex justify-between text-xs font-semibold text-orange-700 mt-1 border-t border-orange-200 pt-1">
+                               <span>Coût Total Employeur</span>
+                               <span>{calc.totalCost.toLocaleString()} DJF</span>
+                             </div>
+                           </div>
                           </div>
                         );
                       })()}
