@@ -201,56 +201,116 @@ Génère jusqu'à 3 suggestions d'autocomplétion basées sur l'historique, form
       const { message, context = {} } = data;
 
       const cnssKnowledgeBase = `
-=== BASE DE CONNAISSANCES CNSS - DJIBOUTI ===
+=== BASE DE CONNAISSANCES CNSS - DJIBOUTI (Arrêté N°69-1883/SG/CG du 31.12.1969) ===
 
-## AFFILIATION DES EMPLOYEURS
-- L'affiliation à la CNSS est OBLIGATOIRE dans les 48h suivant l'ouverture de l'établissement.
-- Pour les employeurs de gens de maison: 48h suivant l'engagement du salarié.
-- Tout retard constitue un défaut d'immatriculation, passible des peines de l'Art 122 alinéa 2.
-- Base légale: Loi n°188/AN/85/1ère L du 31 décembre 1985 + Art 10 al 2.
+## 1. AFFILIATION DES EMPLOYEURS
+- L'affiliation à la CNSS est OBLIGATOIRE dans les 48 heures suivant l'ouverture de l'établissement.
+- Pour les employeurs de gens de maison: 48 heures suivant l'engagement du salarié.
+- Tout retard = défaut d'immatriculation, passible des peines de l'Art 122 al.2.
+- Tout changement de raison sociale, d'adresse ou d'activité principale doit être déclaré par courrier déposé au bureau d'ordre de la CNSS.
 
-## VERSEMENT DES COTISATIONS
+## 2. MODALITÉS DE RÈGLEMENT DES COTISATIONS
 - Délai d'exigibilité: les 10 PREMIERS JOURS du mois suivant les rémunérations payées.
-- Base légale: Article 134 de l'arrêté n°69.1883/SG/CG/1969 + Art 3 de l'arrêté n°89.1264/PR/MT du 04/11/1989.
-- Chaque versement DOIT être accompagné d'un relevé nominatif des salariés + déclaration des salaires, daté et signé par l'employeur.
+- Base légale: Article 134 de l'arrêté n°69.1883/SG/CG/1969, modifié par l'arrêté n°89.1264/PR/MT du 04/11/1989.
+- L'employeur est DÉBITEUR de la cotisation TOTALE (part patronale + salariale).
+- La cotisation est précomptée sur la rémunération lors de chaque paie; le salarié ne peut s'y opposer.
+- Si un salarié travaille pour plusieurs employeurs, chacun verse les cotisations correspondant au salaire qu'il paie.
+- Chaque versement DOIT être accompagné d'un relevé nominatif des salariés + déclaration des salaires, daté et signé.
 - La déclaration doit être adressée à la CNSS AVANT l'expiration du délai, même en l'absence de paiement (Art 135).
-- Pénalité de retard: 10% si non payé avant le 10 du mois suivant (Art 137) + 3% par mois supplémentaire.
-- Pénalité de déclaration: 400 FDJ par employé par mois de retard si pas de déclaration nominative (Art 136).
 
-## IMMATRICULATION DES SALARIÉS
-- Lors de l'affiliation, l'employeur DOIT immatriculer chaque travailleur et remplir un certificat d'emploi.
-- Si le salarié n'est pas immatriculé, il doit faire une demande d'immatriculation à la CNSS.
-- La CNSS établit une fiche anthropométrique + une carte d'immatriculation à 13 chiffres.
-- Ce numéro est conservé à vie pour identifier le travailleur.
-- La carte CNSS donne accès à: soins médicaux, allocations familiales.
+## 3. ASSIETTE DES COTISATIONS
+Sont considérées comme rémunérations toutes les sommes versées en contrepartie du travail, notamment:
+- Allocations de congés payés
+- Indemnités, primes, gratifications et tout avantage en argent (indemnités de fin de service, de licenciement, de logement, de fonction, de sujétion, primes d'ancienneté, d'assiduité, de rendement, etc.)
+- Contre-valeur des avantages en nature prévus par règlements, conventions collectives ou contrats individuels.
 
-## AYANTS DROIT
+## 4. PÉNALITÉS DE RETARD (Art 136 & 137)
+- Retard de paiement (après le 10 du mois): MAJORATION DE 10% sur les cotisations.
+- Retard supplémentaire (après un mois de délai): MAJORATION SUPPLÉMENTAIRE DE 3% par mois.
+- Absence de déclaration nominative: ASTREINTE DE 400 FDJ par salarié et par mois de retard (Art 136).
+
+## 5. RECOUVREMENT FORCÉ
+- Recouvrement amiable d'abord; si échec, le Directeur envoie une Mise en Demeure.
+- L'employeur dispose de 15 jours pour payer la Mise en Demeure (Art 51).
+- Si sans effet: le Directeur délivre une Contrainte (ART 3, Loi n°188/AN/1ère L du 31/12/1985).
+- La CNSS peut recourir à: saisie-arrêt de compte bancaire, saisie-exécution sur biens meubles et immeubles.
+
+## 6. CONTRÔLE DES EMPLOYEURS (Art 144 & 146)
+- Contrôle assuré par des agents assermentés ayant qualité pour dresser des procès-verbaux.
+- L'employeur DOIT recevoir les agents de contrôle et leur communiquer tous documents comptables.
+- Il incombe à l'employeur de prouver la contre-preuve des rapports dressés par les contrôleurs.
+
+## 7. CESSATION D'ACTIVITÉ (Art 123)
+- En cas de fermeture ou cessation d'emploi: déclaration à la CNSS dans les 8 JOURS suivant la fermeture.
+- À défaut, les cotisations continuent d'être exigibles sur les bases antérieures.
+
+## 8. MARCHÉS PUBLICS
+- L'attestation générale ou de non-redevabilité délivrée par la CNSS est une PIÈCE OBLIGATOIRE du dossier de soumission aux appels d'offres publics et privés.
+
+## 9. TAUX DE COTISATION - LES DIFFÉRENTS TAUX APPLICABLES
+
+### RÉGIME GÉNÉRAL (Total: 21.7%)
+| Catégorie               | Part Patronale | Part Salariale | Total |
+|-------------------------|---------------|----------------|-------|
+| Prestations familiales  | 5.5%          | -              | 5.5%  |
+| Accident de travail     | 1.2%          | -              | 1.2%  |
+| Retraite                | 4%            | 4%             | 8%    |
+| Assurance maladie (AMU) | 5%            | 2%             | 7%    |
+| **TOTAL**               | **15.7%**     | **6%**         | **21.7%** |
+
+### RÉGIME ZONE FRANCHE (Total: 16.2%)
+| Catégorie               | Part Patronale | Part Salariale | Total |
+|-------------------------|---------------|----------------|-------|
+| Prestations familiales  | -             | -              | -     |
+| Accident travail & Soins| 1.2%          | -              | 1.2%  |
+| Retraite                | 4%            | 4%             | 8%    |
+| Assurance maladie (AMU) | 5%            | 2%             | 7%    |
+| **TOTAL**               | **10.2%**     | **6%**         | **16.2%** |
+Note: En Zone Franche, il n'y a PAS de prestations familiales.
+
+### RÉGIME INDÉPENDANT (Total: 7%)
+- Assurance maladie seulement: 7% (Part Patronale uniquement)
+
+### RÉGIME FONCTIONNAIRE (Total: 27%)
+| Catégorie               | Part Patronale | Part Salariale | Total |
+|-------------------------|---------------|----------------|-------|
+| Retraite                | 14%           | 6%             | 20%   |
+| Assurance maladie (AMU) | 5%            | 2%             | 7%    |
+| **TOTAL**               | **19%**       | **8%**         | **27%** |
+
+### RÉGIME FNP (Total: 29%)
+| Catégorie               | Part Patronale | Part Salariale | Total |
+|-------------------------|---------------|----------------|-------|
+| Retraite                | 15%           | 7%             | 22%   |
+| Assurance maladie (AMU) | 5%            | 2%             | 7%    |
+| **TOTAL**               | **20%**       | **9%**         | **29%** |
+
+### RÉGIME DÉPUTÉ / MEMBRE DU GOUVERNEMENT (Total: 43%)
+| Catégorie               | Part Patronale | Part Salariale | Total |
+|-------------------------|---------------|----------------|-------|
+| Retraite                | 19%           | 17%            | 36%   |
+| Assurance maladie (AMU) | 5%            | 2%             | 7%    |
+| **TOTAL**               | **24%**       | **19%**        | **43%** |
+
+## 10. IMMATRICULATION DES SALARIÉS
+- L'employeur DOIT immatriculer chaque travailleur lors de l'affiliation et remplir un certificat d'emploi CNSS.
+- La CNSS établit une fiche anthropométrique + une carte d'immatriculation à 13 chiffres (numéro conservé à vie).
+- La carte CNSS donne accès aux soins médicaux et allocations familiales.
+
+## 11. AYANTS DROIT
 - L'immatriculation des ayants droit se fait à la demande du travailleur (après sa propre immatriculation).
 - Ayants droit admis: épouses + enfants à charge (légitimes, adoptifs ou naturels).
-- Droits ouverts: soins médicaux gratuits pour le travailleur et sa famille dans les Centres de Soins CNSS.
-- Prestations familiales: allocation familiale, allocation de mariage, allocation de maternité.
+- Droits: soins médicaux gratuits dans les Centres de Soins CNSS + prestations familiales (allocation familiale, mariage, maternité).
 
-## TAUX DE COTISATION CNSS
-### Régime Général
-- Part Salariale (6%): Retraite 4% + AMU 2%
-- Part Patronale (15.7%): Retraite 4% + AT 1.2% + Prestations familiales 5.5% + AMU 5%
-- Plafond retraite: 400 000 DJF
-
-### Zone Franche
-- Part Salariale (6%): Retraite 4% + AMU 2%
-- Part Patronale (10.2%): Retraite 4% + AT & Soins 6.2%
-- Pas de prestations familiales en Zone Franche
-- Plafond retraite: 400 000 DJF
-
-## ITS (IMPÔT SUR LES TRAITEMENTS ET SALAIRES)
+## 12. ITS (IMPÔT SUR LES TRAITEMENTS ET SALAIRES)
 - Barème progressif par tranches (0 à 200 000+ DJF)
 - Calculé sur le net imposable (brut - cotisations salariales CNSS)
-- RETCIM: 400 DJF fixe
+- RETCIM: 400 DJF fixe par mois
 
-## PRIMES D'ANCIENNETÉ (Décret 1969)
+## 13. PRIMES D'ANCIENNETÉ (Décret 1969)
 - < 2 ans: 4% | 2-4.5 ans: 8% | 4.5-7.5 ans: 12% | 7.5-10.5 ans: 16% | > 10.5 ans: 20%
 
-## CONGÉ MATERNITÉ
+## 14. CONGÉ MATERNITÉ
 - Mois 1-3: Entreprise paie 50% du salaire
 - Mois 4-6: Payé par la CNSS (0% entreprise)
 
