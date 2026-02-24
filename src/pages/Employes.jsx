@@ -686,10 +686,19 @@ export default function Employes() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => handleDownloadAttestation(emp)}
-                                  title="Télécharger attestation"
+                                  title="Télécharger attestation de travail"
                                   className="text-[#697586] hover:text-[#0066FF] hover:bg-[#F7F9FC]"
                                 >
                                   <Download className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDownloadCertificatEmploi(emp)}
+                                  title={downloadedCertificats[emp.id] ? `Certificat d'emploi CNSS (téléchargé le ${format(new Date(downloadedCertificats[emp.id]), 'dd/MM/yyyy')})` : "Télécharger certificat d'emploi CNSS"}
+                                  className={downloadedCertificats[emp.id] ? "text-[#00C48C] hover:text-[#00A876] hover:bg-[#E5F8F3]" : "text-[#697586] hover:text-[#FA6400] hover:bg-[#FFF4E5]"}
+                                >
+                                  <FileCheck className="w-4 h-4" />
                                 </Button>
                                 {emp.statut === 'Suspendu' ? (
                                  <Button
