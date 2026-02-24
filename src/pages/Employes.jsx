@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Trash2, ArrowLeft, ArrowRight, Check, Download, Ban, Eye, Phone, RefreshCw } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, ArrowLeft, ArrowRight, Check, Download, Ban, Eye, Phone, RefreshCw, FileCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { PersonalInfoSection, DocumentsSection, ProfessionalInfoSection, RemunerationSection } from "../components/employees/EmployeeFormSections";
