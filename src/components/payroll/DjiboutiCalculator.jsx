@@ -101,55 +101,40 @@ export const RETRAITE_CAP = 400000;     // Plafond retraite Régime Général & 
 export const RETRAITE_CAP_FONCTIONNAIRE = 390000; // Plafond retraite Fonctionnaire, FNP
 export const RETCIM = 400;          // Retenue complémentaire fixe
 
-// ─── ITS TABLE (Barème progressif) ─────────────────────────────────────────────
-export const ITS_TABLE = [
-  { min: 0, max: 4999, tax: 0 },
-  { min: 5000, max: 9999, tax: 100 },
-  { min: 10000, max: 14999, tax: 200 },
-  { min: 15000, max: 19999, tax: 300 },
-  { min: 20000, max: 24999, tax: 400 },
-  { min: 25000, max: 29999, tax: 500 },
-  { min: 30000, max: 34999, tax: 1100 },
-  { min: 35000, max: 39999, tax: 1700 },
-  { min: 40000, max: 44999, tax: 2300 },
-  { min: 45000, max: 49999, tax: 2900 },
-  { min: 50000, max: 54999, tax: 3650 },
-  { min: 55000, max: 59999, tax: 4400 },
-  { min: 60000, max: 64999, tax: 5150 },
-  { min: 65000, max: 69999, tax: 5900 },
-  { min: 70000, max: 74999, tax: 6650 },
-  { min: 75000, max: 79999, tax: 7400 },
-  { min: 80000, max: 84999, tax: 8150 },
-  { min: 85000, max: 89999, tax: 8900 },
-  { min: 90000, max: 94999, tax: 9650 },
-  { min: 95000, max: 99999, tax: 10400 },
-  { min: 100000, max: 104999, tax: 11150 },
-  { min: 105000, max: 109999, tax: 11900 },
-  { min: 110000, max: 114999, tax: 12650 },
-  { min: 115000, max: 119999, tax: 13400 },
-  { min: 120000, max: 124999, tax: 14150 },
-  { min: 125000, max: 129999, tax: 14900 },
-  { min: 130000, max: 134999, tax: 15650 },
-  { min: 135000, max: 139999, tax: 16400 },
-  { min: 140000, max: 144999, tax: 17150 },
-  { min: 145000, max: 149999, tax: 17900 },
-  { min: 150000, max: 154999, tax: 18650 },
-  { min: 155000, max: 159999, tax: 19400 },
-  { min: 160000, max: 164999, tax: 20150 },
-  { min: 165000, max: 169999, tax: 20900 },
-  { min: 170000, max: 174999, tax: 21650 },
-  { min: 175000, max: 179999, tax: 22400 },
-  { min: 180000, max: 184999, tax: 23150 },
-  { min: 185000, max: 189999, tax: 23900 },
-  { min: 190000, max: 194999, tax: 24650 },
-  { min: 195000, max: 199999, tax: 25400 },
-  { min: 200000, max: Infinity, tax: 26150 }
+// ─── ITS (Impôt sur les Traitements et Salaires) ───────────────────────────────
+// Source: Barème progressif officiel Djibouti
+// Each bracket rate applies ONLY to the portion of income within that bracket.
+//
+//  Tranche                          Taux
+//  < 30 000 FD                       2%
+//  30 001 – 50 000 FD               12%
+//  50 001 – 150 000 FD              15%
+//  150 001 – 300 000 FD             22%
+//  300 001 – 600 000 FD             25%
+//  600 001 – 1 000 000 FD           30%
+//  1 000 001 – 2 000 000 FD         35%
+//  > 2 000 000 FD                   45%
+
+export const ITS_BRACKETS = [
+  { min: 0,         max: 30000,    rate: 0.02 },
+  { min: 30000,     max: 50000,    rate: 0.12 },
+  { min: 50000,     max: 150000,   rate: 0.15 },
+  { min: 150000,    max: 300000,   rate: 0.22 },
+  { min: 300000,    max: 600000,   rate: 0.25 },
+  { min: 600000,    max: 1000000,  rate: 0.30 },
+  { min: 1000000,   max: 2000000,  rate: 0.35 },
+  { min: 2000000,   max: Infinity, rate: 0.45 },
 ];
 
 export const calculateITS = (netImposable) => {
   if (netImposable <= 0) return 0;
-  const bracket = ITS_TABLE.find(b => netImposable >= b.min && netImposable <= b.max);
-  return bracket ? bracket.tax : 26150;
+  let tax = 0;
+  for (const bracket of ITS_BRACKETS) {
+    if (netImposable <= bracket.min) break;
+    const taxable = Math.min(netImposable, bracket.max) - bracket.min;
+    tax += taxable * bracket.rate;
+  }
+  return Math.round(tax);
 };
 
 // ─── PRIME D'ANCIENNETÉ ────────────────────────────────────────────────────────
