@@ -625,6 +625,23 @@ export default function Declarations() {
             )}
           </div>
           
+          {/* CNSS Contribution Table Modal */}
+          {showContribTable && contribTableDecl && (
+            <Dialog open={showContribTable} onOpenChange={() => setShowContribTable(false)}>
+              <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    Tableau de Cotisation — {contribTableDecl.decl.periode} ({contribTableDecl.decl.regime})
+                  </DialogTitle>
+                </DialogHeader>
+                <CNSSContributionTable
+                  employees={contribTableDecl.employees}
+                  regime={contribTableDecl.decl.regime === 'Zone Franche' ? 'Zone Franche' : 'Régime Général'}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+
           {/* View Declaration Details */}
           {viewingDeclaration && (
             <Dialog open={!!viewingDeclaration} onOpenChange={() => setViewingDeclaration(null)}>
