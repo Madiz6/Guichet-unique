@@ -136,6 +136,11 @@ export const calculatePrimeAnciennete = (baseSalary, yearsOfService, monthsOfSer
   return Math.round(baseSalary * percentage);
 };
 
+/**
+ * Calculate employee CNSS contribution (Part Salariale)
+ * Same for all regimes: 6% (Retraite 4% + AMU 2%)
+ * Note: Retraite capped at RETRAITE_CAP (Art. 33,35,36 Loi n°212/AN/07)
+ */
 export const calculateCNSSEmployee = (grossSalary, regimeName = 'Général') => {
   const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
   
@@ -146,19 +151,38 @@ export const calculateCNSSEmployee = (grossSalary, regimeName = 'Général') => 
   };
 };
 
+/**
+ * Calculate employer CNSS contribution (Part Patronale)
+ * Régime Général: 15.7% (Prestations familiales 5.5% + AMU 5% + AT 1.2% + Retraite 4%)
+ * Zone Franche:   10.2% (AT & Soins 6.2% + Retraite 4%) - No Prestations familiales
+ * Other regimes (FNP, Gouvernement, Fonctionnaire, Indépendant): treated as Général
+ */
 export const calculateCNSSEmployer = (grossSalary, regimeName = 'Général') => {
   const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
-  
+
+  if (regimeName === 'Zone Franche') {
+    const r = CNSS_RATES_ZONE_FRANCHE.employer;
+    return {
+      retraite: Math.round(retraiteBase * r.retraite),
+      accident_travail_soins: Math.round(grossSalary * r.accident_travail_soins),
+      allocations_familiales: 0, // Not applicable for Zone Franche
+      amu: 0,                    // Included in AT & Soins for Zone Franche
+      total: Math.round(retraiteBase * r.retraite + grossSalary * r.accident_travail_soins)
+    };
+  }
+
+  // Default: Régime Général (and all other regimes)
+  const r = CNSS_RATES.employer;
   return {
-    retraite: Math.round(retraiteBase * CNSS_RATES.employer.retraite),
-    opsat: Math.round(grossSalary * CNSS_RATES.employer.opsat),
-    allocations_familiales: Math.round(grossSalary * CNSS_RATES.employer.allocations_familiales),
-    amu: Math.round(grossSalary * CNSS_RATES.employer.amu),
+    retraite: Math.round(retraiteBase * r.retraite),
+    accident_travail: Math.round(grossSalary * r.accident_travail),
+    allocations_familiales: Math.round(grossSalary * r.allocations_familiales),
+    amu: Math.round(grossSalary * r.amu),
     total: Math.round(
-      retraiteBase * CNSS_RATES.employer.retraite +
-      grossSalary * CNSS_RATES.employer.opsat +
-      grossSalary * CNSS_RATES.employer.allocations_familiales +
-      grossSalary * CNSS_RATES.employer.amu
+      retraiteBase * r.retraite +
+      grossSalary * r.accident_travail +
+      grossSalary * r.allocations_familiales +
+      grossSalary * r.amu
     )
   };
 };
