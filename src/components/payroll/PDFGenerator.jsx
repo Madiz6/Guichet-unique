@@ -496,61 +496,79 @@ export const generateWorkAttestation = (employee, company, signatory = null) => 
 
 export const generateCertificatEmploi = (employee, company) => {
   const today = format(new Date(), 'dd MMMM yyyy', { locale: fr });
+  const CNSS_LOGO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f3e5141d4077e1d8eef84e/9f55d1615_Logo-75-x-21-pixels-couleur-3-1-1.png';
 
-  // Two copies on one A4 page (as per official CNSS form)
+  const dot = ' : ………………………………………';
+  const dot2 = ' : ………………………………….';
+
   const oneCopy = () => `
-    <div style="border: 1px solid #333; padding: 16px 20px; margin-bottom: 10px; font-size: 10pt; font-family: Arial, sans-serif;">
-      <!-- HEADER -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-        <div style="text-align: center; flex: 1;">
-          <div style="font-size: 13pt; font-weight: bold; letter-spacing: 1px;">REPUBLIQUE DE DJIBOUTI</div>
+    <div style="font-family: Arial, sans-serif; font-size: 10pt; color: #000; padding: 10mm 12mm 6mm 12mm;">
+
+      <!-- TOP HEADER: 3 columns -->
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px;">
+
+        <!-- LEFT: CNSS logo -->
+        <div style="flex: 0 0 auto; width: 120px;">
+          <img src="${CNSS_LOGO}" alt="CNSS Logo" style="width: 120px; object-fit: contain;" />
+        </div>
+
+        <!-- CENTER: République -->
+        <div style="flex: 1; text-align: center; padding: 0 10px;">
+          <div style="font-weight: bold; font-size: 11pt; letter-spacing: 0.5px;">REPUBLIQUE DE DJIBOUTI</div>
           <div style="font-size: 9pt;">Unité - Egalité - Paix</div>
-          <div style="margin-top: 6px; font-size: 9pt;">Ministère du Travail<br>chargé de la<br>Reforme de l'Administration</div>
+          <div style="border-bottom: 1px solid #000; width: 60px; margin: 3px auto;"></div>
+          <div style="font-size: 9pt; margin-top: 4px;">Ministère du Travail<br>chargé de la<br>Reforme de l'Administration</div>
         </div>
-        <div style="text-align: center; flex: 1; font-size: 13pt; font-weight: bold; text-decoration: underline; display: flex; align-items: center; justify-content: center;">
-          CERTIFICAT D'EMPLOI
-        </div>
-        <div style="text-align: center; flex: 1; direction: rtl; font-size: 9pt;">
+
+        <!-- RIGHT: Arabic -->
+        <div style="flex: 0 0 auto; width: 140px; text-align: right; direction: rtl; font-size: 9pt; line-height: 1.6;">
           <div style="font-weight: bold;">جمهورية جيبوتي</div>
           <div>وحدة ـ مساواة ـ سلام</div>
-          <div style="margin-top: 6px;">وزارة العمل والادماج<br>والتدريب المهني</div>
-          <div style="font-weight: bold; margin-top: 4px;">لصندوق الوطني للضمان الاجتماعي</div>
+          <div style="border-bottom: 1px solid #000; width: 60px; margin: 3px 0 3px auto;"></div>
+          <div style="margin-top: 4px;">وزارة العمل والادماج<br>والتدريب المهني</div>
+          <div style="border-bottom: 1px solid #000; width: 60px; margin: 3px 0 3px auto;"></div>
+          <div style="font-weight: bold;">لصندوق الوطني للضمان الاجتماعي</div>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0 16px; border-top: 1px solid #888; padding-top: 10px;">
-        <!-- LEFT: Employeur -->
-        <div>
-          <div style="font-weight: bold; text-decoration: underline; font-size: 10.5pt; margin-bottom: 8px;">EMPLOYEUR</div>
-          <div style="margin-bottom: 6px;">N° matricule : <strong>${company.numero_affiliation || '……………………'}</strong></div>
-          <div style="margin-bottom: 6px;">Nom : <strong>${company.nom_entreprise || '…………………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">Adresse : <strong>${company.adresse || '…………………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">BP : <strong>${company.bp || '…………………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">Tél. : <strong>${company.telephone || '…………………………………'}</strong></div>
-          <div style="margin-top: 16px; font-weight: bold;">Fait à Djibouti, le ${today}</div>
-          <div style="margin-top: 12px; font-weight: bold; text-decoration: underline;">Signature et cachet de l'employeur</div>
-          <div style="height: 50px; border-bottom: 1px solid #333; width: 160px; margin-top: 8px;"></div>
+      <!-- TITLE -->
+      <div style="text-align: center; margin: 8px 0 10px 0;">
+        <span style="font-size: 13pt; font-weight: bold; font-style: italic; text-decoration: underline;">CERTIFICAT D'EMPLOI</span>
+      </div>
+
+      <!-- BODY: Two columns EMPLOYEUR | SALARIE -->
+      <div style="display: flex; gap: 0; border-top: none;">
+
+        <!-- LEFT: EMPLOYEUR -->
+        <div style="flex: 1; padding-right: 16px; border-right: 1px solid #000;">
+          <div style="font-weight: bold; text-decoration: underline; margin-bottom: 8px;">EMPLOYEUR</div>
+          <div style="margin-bottom: 5px;">N° matricule : <strong>${company.numero_affiliation || '……………………..'}</strong></div>
+          <div style="margin-bottom: 5px;">Nom : <strong>${company.nom_entreprise || '……………………………….'}</strong></div>
+          <div style="margin-bottom: 5px;">Adresse : <strong>${company.adresse || '…………………………….'}</strong></div>
+          <div style="margin-bottom: 5px;">BP : <strong>${company.bp || '……………………………….'}</strong></div>
+          <div style="margin-bottom: 5px;">Tél. : <strong>${company.telephone || '………………………………….'}</strong></div>
+          <div style="margin-top: 14px; margin-bottom: 5px;"><strong>Fait à Djibouti, le</strong> ${today}</div>
+          <div style="margin-top: 10px;"><span style="font-weight: bold; text-decoration: underline;">Signature et cachet de l'employeur</span></div>
+          <div style="height: 55px;"></div>
         </div>
 
-        <!-- Divider -->
-        <div style="background: #888;"></div>
-
-        <!-- RIGHT: Salarié -->
-        <div>
-          <div style="font-weight: bold; text-decoration: underline; font-size: 10.5pt; margin-bottom: 8px;">SALARIE</div>
-          <div style="margin-bottom: 6px;">Nom et prénom : <strong>${employee.prenom} ${employee.nom}</strong></div>
-          <div style="margin-bottom: 6px;">Salaire brut mensuel : <strong>${(employee.salaire_base || 0).toLocaleString()} DJF</strong></div>
-          <div style="margin-bottom: 6px; font-weight: 600;">Matricule de l'assuré social : <strong>${employee.matricule_cnss || '…………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">Date et lieu de naissance : <strong>${employee.date_naissance ? format(new Date(employee.date_naissance), 'dd/MM/yyyy') : '……………'} ${employee.ville || ''}</strong></div>
-          <div style="margin-bottom: 6px;">Adresse : <strong>${employee.adresse || '……………………………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">N° C.N.I, passeport ou C.I.Etrangère : <strong>${employee.numero_identite || '………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">Emploi occupé : <strong>${employee.fonction || '…………………………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">Date d'embauche : <strong>${employee.date_embauche ? format(new Date(employee.date_embauche), 'dd/MM/yyyy') : '………………………………'}</strong></div>
-          <div style="margin-bottom: 6px;">Date fin de service : <strong>${employee.date_fin_contrat ? format(new Date(employee.date_fin_contrat), 'dd/MM/yyyy') : '…………………………………'}</strong></div>
+        <!-- RIGHT: SALARIE -->
+        <div style="flex: 1; padding-left: 16px;">
+          <div style="font-weight: bold; text-decoration: underline; margin-bottom: 8px;">SALARIE</div>
+          <div style="margin-bottom: 5px;">Nom et prénom : <strong>${employee.prenom} ${employee.nom}</strong></div>
+          <div style="margin-bottom: 5px;">Salaire brut mensuel : <strong>${(employee.salaire_base || 0).toLocaleString()} DJF</strong></div>
+          <div style="margin-bottom: 5px;"><strong>Matricule de l'assuré social</strong> : <strong>${employee.matricule_cnss || '…………………………….'}</strong></div>
+          <div style="margin-bottom: 5px;">Date et lieu de naissance : <strong>${employee.date_naissance ? format(new Date(employee.date_naissance), 'dd/MM/yyyy') : '……………'} ${employee.ville || ''}</strong></div>
+          <div style="margin-bottom: 5px;">Adresse : <strong>${employee.adresse || '……………………………………..'}</strong></div>
+          <div style="margin-bottom: 5px;">N° C.N.I, passeport ou C.I.Etrangère : <strong>${employee.numero_identite || '………………………'}</strong></div>
+          <div style="margin-bottom: 5px;">Emploi occupé : <strong>${employee.fonction || '………………………………………..'}</strong></div>
+          <div style="margin-bottom: 5px;">Date d'embauche : <strong>${employee.date_embauche ? format(new Date(employee.date_embauche), 'dd/MM/yyyy') : '………………………………………'}</strong></div>
+          <div style="margin-bottom: 5px;">Date fin de service : <strong>${employee.date_fin_contrat ? format(new Date(employee.date_fin_contrat), 'dd/MM/yyyy') : '………………………………………'}</strong></div>
         </div>
       </div>
 
-      <div style="border-top: 1px solid #888; margin-top: 10px; padding-top: 8px; font-size: 9pt; font-style: italic; text-align: center;">
+      <!-- FOOTER NOTE -->
+      <div style="margin-top: 14px; font-weight: bold; font-size: 9.5pt;">
         L'employeur atteste sous sa responsabilité la conformité des renseignements concernant le salarié (e)
       </div>
     </div>
@@ -563,24 +581,18 @@ export const generateCertificatEmploi = (employee, company) => {
       <meta charset="UTF-8">
       <title>Certificat d'Emploi - ${employee.prenom} ${employee.nom}</title>
       <style>
-        @page { size: A4; margin: 10mm; }
-        * { box-sizing: border-box; }
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          width: 210mm;
-        }
-        @media print {
-          body { margin: 0; }
-        }
+        @page { size: A4; margin: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: white; width: 210mm; }
+        @media print { body { margin: 0; } }
       </style>
     </head>
     <body>
       ${oneCopy()}
-      <div style="border-top: 3px dashed #555; margin: 8px 0; display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 18px;">✂</span>
-        <span style="font-size: 8pt; color: #666;">Couper ici — Copie à conserver par le salarié</span>
+      <!-- Cut line -->
+      <div style="display: flex; align-items: center; gap: 6px; padding: 0 12mm; border-top: 1px dashed #555; border-bottom: 1px dashed #555; margin: 2px 0;">
+        <span style="font-size: 16px;">✂</span>
+        <span style="font-size: 7pt; color: #555;">_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _</span>
       </div>
       ${oneCopy()}
     </body>
