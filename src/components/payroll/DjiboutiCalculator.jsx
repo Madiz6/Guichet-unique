@@ -219,7 +219,11 @@ export const calculateCNSSEmployer = (grossSalary, regimeName = 'Général') => 
   }
 
   const { pat } = getRates(regimeName);
-  const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
+  // Fonctionnaire & FNP: plafond 390 000; Gouvernement & Indépendant: pas de plafond
+  const regimeCap = (regimeName === 'Fonctionnaire' || regimeName === 'FNP')
+    ? RETRAITE_CAP_FONCTIONNAIRE
+    : RETRAITE_CAP;
+  const retraiteBase = (pat.retraite > 0) ? Math.min(grossSalary, regimeCap) : 0;
 
   const retraite               = Math.round(retraiteBase * (pat.retraite || 0));
   const accident_travail       = Math.round(grossSalary  * (pat.accident_travail || 0));
