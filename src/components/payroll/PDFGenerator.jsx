@@ -211,18 +211,26 @@ export const generatePayslip = async (employee, company, cycle, signatory = null
             </tr>
           </thead>
           <tbody>
-            <tr><td>Salaire de Base</td><td class="text-right">${(employee.salaire_base || 0).toLocaleString()}</td></tr>
-            <tr><td>Prime d'Ancienneté</td><td class="text-right">${(employee.prime_anciennete || 0).toLocaleString()}</td></tr>
-            <tr><td>Prime de Rendement</td><td class="text-right">${(employee.prime_rendement || 0).toLocaleString()}</td></tr>
-            <tr><td>Prime de Sujétion</td><td class="text-right">${(employee.prime_sujetion || 0).toLocaleString()}</td></tr>
-            <tr><td>Prime de Logement</td><td class="text-right">${(employee.prime_logement || 0).toLocaleString()}</td></tr>
-            <tr><td>Prime de Voiture</td><td class="text-right">${(employee.prime_voiture || 0).toLocaleString()}</td></tr>
-            <tr><td>Autres Primes</td><td class="text-right">${(employee.autres_primes || 0).toLocaleString()}</td></tr>
-            ${cyclePrimes.map(prime => `<tr><td>${prime.nom_prime}</td><td class="text-right">${prime.montant.toLocaleString()}</td></tr>`).join('')}
-            ${absences > 0 ? `<tr><td>❌ Absences</td><td class="text-right" style="color: #EF4444;">-${absences.toLocaleString()}</td></tr>` : ''}
+            <tr><td>Salaire de Base</td><td class="text-right">${calc.breakdown.salaire_base.toLocaleString()}</td></tr>
+            ${calc.breakdown.prime_anciennete > 0 ? `<tr><td>Prime d'Ancienneté</td><td class="text-right">${calc.breakdown.prime_anciennete.toLocaleString()}</td></tr>` : ''}
+            ${calc.breakdown.prime_rendement > 0 ? `<tr><td>Prime de Rendement</td><td class="text-right">${calc.breakdown.prime_rendement.toLocaleString()}</td></tr>` : ''}
+            ${calc.breakdown.prime_sujetion > 0 ? `<tr><td>Prime de Sujétion</td><td class="text-right">${calc.breakdown.prime_sujetion.toLocaleString()}</td></tr>` : ''}
+            ${calc.breakdown.prime_logement > 0 ? `<tr><td>Prime de Logement</td><td class="text-right">${calc.breakdown.prime_logement.toLocaleString()}</td></tr>` : ''}
+            ${calc.breakdown.prime_fonction > 0 ? `<tr><td>Prime de Fonction</td><td class="text-right">${calc.breakdown.prime_fonction.toLocaleString()}</td></tr>` : ''}
+            ${calc.breakdown.prime_transport > 0 ? `<tr><td>Prime de Transport</td><td class="text-right">${calc.breakdown.prime_transport.toLocaleString()}</td></tr>` : ''}
+            ${calc.breakdown.autres_primes > 0 ? `<tr><td>Autres Primes</td><td class="text-right">${calc.breakdown.autres_primes.toLocaleString()}</td></tr>` : ''}
+            ${calc.breakdown.primes_personnalisees > 0 ? `<tr><td>Primes Personnalisées</td><td class="text-right">${calc.breakdown.primes_personnalisees.toLocaleString()}</td></tr>` : ''}
+            ${calc.primesBeforeDeductions.map(p => `<tr><td>${p.nom || p.nom_prime || 'Prime'}</td><td class="text-right">${(p.montant || 0).toLocaleString()}</td></tr>`).join('')}
+            ${absences > 0 ? `<tr><td>❌ Absences (${employee.absence_days || ''} j.)</td><td class="text-right" style="color: #EF4444;">-${absences.toLocaleString()}</td></tr>` : ''}
+            ${calc.holidayNote ? `<tr><td colspan="2" style="font-style:italic; color:#6B7280; font-size:11px;">${calc.holidayNote}</td></tr>` : ''}
             <tr class="total-row"><td>SALAIRE BRUT</td><td class="text-right">${calc.grossSalary.toLocaleString()}</td></tr>
           </tbody>
         </table>
+
+        <!-- Net Imposable line -->
+        <p style="font-size:12px; color:#425466; margin: 4px 0 12px 0;">
+          Net Imposable (Brut – CNSS salariale) : <strong>${calc.netImposable.toLocaleString()} DJF</strong>
+        </p>
         
         <table>
           <thead>
@@ -232,40 +240,45 @@ export const generatePayslip = async (employee, company, cycle, signatory = null
             </tr>
           </thead>
           <tbody>
-            <tr><td>CNSS Salariale – Retraite (4%)</td><td class="text-right">${calc.cnssEmployee.retraite.toLocaleString()}</td></tr>
+            <tr><td>CNSS Salariale – Retraite (${calc.regime === 'Fonctionnaire' ? '6%' : calc.regime === 'FNP' ? '7%' : calc.regime === 'Gouvernement' ? '17%' : '4%'})</td><td class="text-right">${calc.cnssEmployee.retraite.toLocaleString()}</td></tr>
             <tr><td>CNSS Salariale – Assurance Maladie (2%)</td><td class="text-right">${calc.cnssEmployee.amu.toLocaleString()}</td></tr>
-            <tr><td style="font-weight:600;">Total CNSS Salariale (6%)</td><td class="text-right" style="font-weight:600;">${calc.cnssEmployee.total.toLocaleString()}</td></tr>
+            <tr><td style="font-weight:600;">Total CNSS Salariale</td><td class="text-right" style="font-weight:600;">${calc.cnssEmployee.total.toLocaleString()}</td></tr>
             <tr><td>ITS (Impôt sur les Traitements et Salaires)</td><td class="text-right">${calc.its.toLocaleString()}</td></tr>
             ${calc.aide > 0 ? `<tr><td>AIDE</td><td class="text-right">${calc.aide.toLocaleString()}</td></tr>` : ''}
-            <tr><td>RetCim</td><td class="text-right">400</td></tr>
+            ${calc.retcim > 0 ? `<tr><td>RetCim</td><td class="text-right">${calc.retcim.toLocaleString()}</td></tr>` : ''}
             ${otherDeductions > 0 ? `<tr><td>Autres Déductions</td><td class="text-right">${otherDeductions.toLocaleString()}</td></tr>` : ''}
             <tr class="total-row" style="background: #FFE5E5; color: #EF4444;">
               <td>TOTAL RETENUES</td>
-              <td class="text-right">${(calc.cnssEmployee.total + calc.its + calc.aide + 400 + otherDeductions).toLocaleString()}</td>
+              <td class="text-right">${(calc.cnssEmployee.total + calc.its + calc.aide + calc.retcim + otherDeductions).toLocaleString()}</td>
             </tr>
           </tbody>
         </table>
         
+        ${calc.primesAfterDeductions.length > 0 ? `
+        <table>
+          <thead><tr><th style="background:#6366F1;">PRIMES APRÈS DÉDUCTIONS</th><th class="text-right" style="background:#6366F1;">MONTANT (DJF)</th></tr></thead>
+          <tbody>
+            ${calc.primesAfterDeductions.map(p => `<tr><td>${p.nom || p.nom_prime || 'Prime'}</td><td class="text-right">${(p.montant || 0).toLocaleString()}</td></tr>`).join('')}
+          </tbody>
+        </table>` : ''}
+
         <table>
           <tbody>
             <tr class="net-pay">
               <td>NET À PAYER</td>
-              <td class="text-right">${finalNet.toLocaleString()} DJF</td>
+              <td class="text-right">${Math.max(0, finalNet).toLocaleString()} DJF</td>
             </tr>
           </tbody>
         </table>
         
         <div class="employer-info">
-          <p style="margin: 5px 0; font-weight: 600;">Charges Patronales (Part Patronale ${calc.regime === 'Zone Franche' ? '10.2%' : '15.7%'}):</p>
-          <p style="margin: 3px 0 3px 15px;">• Retraite (4%): ${(calc.cnssEmployer.retraite || 0).toLocaleString()} DJF</p>
-          ${calc.regime === 'Zone Franche'
-            ? `<p style="margin: 3px 0 3px 15px;">• Accident de Travail & Soins (6.2%): ${(calc.cnssEmployer.accident_travail_soins || 0).toLocaleString()} DJF</p>`
-            : `<p style="margin: 3px 0 3px 15px;">• Accident de Travail (1.2%): ${(calc.cnssEmployer.accident_travail || 0).toLocaleString()} DJF</p>
-               <p style="margin: 3px 0 3px 15px;">• Prestations Familiales (5.5%): ${(calc.cnssEmployer.allocations_familiales || 0).toLocaleString()} DJF</p>
-               <p style="margin: 3px 0 3px 15px;">• Assurance Maladie (5%): ${(calc.cnssEmployer.amu || 0).toLocaleString()} DJF</p>`
-          }
+          <p style="margin: 5px 0; font-weight: 600;">Charges Patronales – Régime ${calc.regime}:</p>
+          <p style="margin: 3px 0 3px 15px;">• Retraite: ${(calc.cnssEmployer.retraite || 0).toLocaleString()} DJF</p>
+          ${(calc.cnssEmployer.accident_travail || 0) > 0 ? `<p style="margin: 3px 0 3px 15px;">• Accident de Travail (1.2%): ${calc.cnssEmployer.accident_travail.toLocaleString()} DJF</p>` : ''}
+          ${(calc.cnssEmployer.allocations_familiales || 0) > 0 ? `<p style="margin: 3px 0 3px 15px;">• Prestations Familiales (5.5%): ${calc.cnssEmployer.allocations_familiales.toLocaleString()} DJF</p>` : ''}
+          ${(calc.cnssEmployer.amu || 0) > 0 ? `<p style="margin: 3px 0 3px 15px;">• Assurance Maladie: ${calc.cnssEmployer.amu.toLocaleString()} DJF</p>` : ''}
           <p style="margin: 5px 0;"><strong>Total Charges Patronales:</strong> ${calc.cnssEmployer.total.toLocaleString()} DJF</p>
-          <p style="margin: 5px 0;"><strong>Coût Total Employeur:</strong> ${calc.totalCost.toLocaleString()} DJF</p>
+          <p style="margin: 5px 0;"><strong>Coût Total Employeur (Brut + Part Patronale):</strong> ${calc.totalCost.toLocaleString()} DJF</p>
           <p style="margin: 5px 0;"><strong>Banque:</strong> ${employee.banque || 'N/A'} | <strong>Compte:</strong> ${employee.numero_compte || 'N/A'}</p>
         </div>
         
