@@ -32,11 +32,11 @@ export default function NotificationCenter() {
     queryFn: () => base44.entities.ComplianceItem.list(),
   });
   
-  useEffect(() => {
+  // Compute notifications as derived data (no useEffect/setState needed — avoids infinite re-render loop)
+  const notifications = React.useMemo(() => {
     const alerts = [];
     const today = new Date();
     
-    // Visa expiring soon
     employees.forEach(emp => {
       if (emp.est_etranger && emp.date_expiration_visa) {
         const daysUntilExpiry = differenceInDays(new Date(emp.date_expiration_visa), today);
@@ -52,8 +52,6 @@ export default function NotificationCenter() {
           });
         }
       }
-      
-      // Work permit expiring
       if (emp.est_etranger && emp.date_expiration_permis) {
         const daysUntilExpiry = differenceInDays(new Date(emp.date_expiration_permis), today);
         if (daysUntilExpiry >= 0 && daysUntilExpiry <= 30) {
@@ -70,7 +68,6 @@ export default function NotificationCenter() {
       }
     });
     
-    // Pending holidays
     const pendingHolidays = holidays.filter(h => h.statut === 'En attente');
     if (pendingHolidays.length > 0) {
       alerts.push({
@@ -83,7 +80,6 @@ export default function NotificationCenter() {
       });
     }
     
-    // Overdue declarations
     declarations.forEach(decl => {
       if (decl.statut === 'Non payé' && decl.date_limite) {
         const daysOverdue = differenceInDays(today, new Date(decl.date_limite));
@@ -101,7 +97,6 @@ export default function NotificationCenter() {
       }
     });
     
-    // Compliance expiring
     compliance.forEach(item => {
       if (item.date_expiration) {
         const daysUntilExpiry = differenceInDays(new Date(item.date_expiration), today);
@@ -119,10 +114,10 @@ export default function NotificationCenter() {
       }
     });
     
-    setNotifications(alerts.sort((a, b) => {
+    return alerts.sort((a, b) => {
       const typeOrder = { error: 0, warning: 1, info: 2 };
       return typeOrder[a.type] - typeOrder[b.type];
-    }));
+    });
   }, [employees, holidays, declarations, compliance]);
   
   const unreadCount = notifications.length;
