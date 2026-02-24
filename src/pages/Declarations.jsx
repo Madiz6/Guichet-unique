@@ -28,6 +28,8 @@ export default function Declarations() {
     regime: 'RG',
     statut: 'Non payé'
   });
+  const [showContribTable, setShowContribTable] = useState(false);
+  const [contribTableDecl, setContribTableDecl] = useState(null);
   const [showPaymentGateway, setShowPaymentGateway] = useState(false);
   const [selectedDeclarationForPayment, setSelectedDeclarationForPayment] = useState(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
