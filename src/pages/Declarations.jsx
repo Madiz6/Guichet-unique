@@ -561,8 +561,23 @@ export default function Declarations() {
                             size="icon"
                             onClick={() => setViewingDeclaration(decl)}
                             className="border-[#D3DCE6]"
+                            title="Voir détails"
                           >
                             <Eye className="w-4 h-4" />
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            title="Tableau de cotisations"
+                            className="border-[#D3DCE6]"
+                            onClick={() => {
+                              const declEmployees = employees.filter(e => decl.employee_ids?.includes(e.id));
+                              setContribTableDecl({ decl, employees: declEmployees });
+                              setShowContribTable(true);
+                            }}
+                          >
+                            <Table2 className="w-4 h-4" />
                           </Button>
                           
                           {canPay && decl.statut !== 'Payé' && (
