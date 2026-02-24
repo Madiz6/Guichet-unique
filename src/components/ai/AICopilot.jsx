@@ -25,12 +25,75 @@ export default function AICopilot({ currentPage }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const quickPrompts = [
-    'Résume ma situation financière',
-    'Quelles tâches sont urgentes ?',
-    'Comment calculer la CNSS ?',
-    'Statut des budgets',
+  const categories = [
+    {
+      label: '💰 Paie & CNSS',
+      prompts: [
+        'Comment calculer les cotisations CNSS ?',
+        'Quels sont les taux CNSS par régime ?',
+        'Comment calculer l\'ITS ?',
+        'Expliquer les pénalités de retard CNSS',
+        'Délai de déclaration CNSS ?',
+      ]
+    },
+    {
+      label: '🤰 Congé Maternité',
+      prompts: [
+        'Durée du congé maternité à Djibouti ?',
+        'Comment est indemnisé le congé maternité ?',
+        'Quelle est la part payée par la CNSS vs employeur ?',
+        'Quelles pièces fournir pour le congé maternité ?',
+        'Protections légales pendant la grossesse ?',
+      ]
+    },
+    {
+      label: '👨‍👩‍👧 Prestations Familiales',
+      prompts: [
+        'Montant des allocations familiales ?',
+        'Conditions pour l\'allocation de mariage ?',
+        'Qui a droit aux allocations familiales ?',
+        'Comment immatriculer ses ayants droit ?',
+      ]
+    },
+    {
+      label: '🏥 Accident & Maladie',
+      prompts: [
+        'Comment déclarer un accident de travail ?',
+        'Indemnités journalières accident de travail ?',
+        'Qu\'est-ce qu\'une maladie professionnelle ?',
+        'Délais de déclaration accident de travail ?',
+      ]
+    },
+    {
+      label: '🎓 Retraite',
+      prompts: [
+        'Conditions pour la retraite normale ?',
+        'Comment calculer le montant de ma retraite ?',
+        'Qu\'est-ce que la retraite anticipée ?',
+        'Comment fonctionne la pension de réversion ?',
+      ]
+    },
+    {
+      label: '📊 Finance & Budget',
+      prompts: [
+        'Résume ma situation financière',
+        'Statut des budgets en cours',
+        'Quelles transactions sont en attente ?',
+        'Quelles tâches sont urgentes ?',
+      ]
+    },
+    {
+      label: '⚕️ AMU / Assurance Maladie',
+      prompts: [
+        'Qu\'est-ce que l\'AMU à Djibouti ?',
+        'Qui est couvert par l\'AMO ?',
+        'Quels soins sont pris en charge ?',
+        'Comment obtenir la carte de sécurité sociale ?',
+      ]
+    },
   ];
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const send = async (text) => {
     if (!text.trim() || isLoading) return;
