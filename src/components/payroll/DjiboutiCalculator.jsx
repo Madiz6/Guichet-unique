@@ -170,6 +170,17 @@ const getRates = (regimeName) => {
 
 // ─── CNSS EMPLOYEE (Part Salariale) ────────────────────────────────────────────
 export const calculateCNSSEmployee = (grossSalary, regimeName = 'Général') => {
+  if (regimeName === 'Zone Franche') {
+    // Official formula (verified against CNSS table):
+    // On tranche ≤ 400 000: full 6% (retraite 4% + AMU 2%)
+    // On tranche > 400 000: only retraite 4% (no AMU on excess)
+    const cappedBase = Math.min(grossSalary, RETRAITE_CAP);
+    const excess = Math.max(0, grossSalary - RETRAITE_CAP);
+    const retraite = Math.round(cappedBase * 0.04) + Math.round(excess * 0.04);
+    const amu      = Math.round(cappedBase * 0.02); // AMU only on capped base
+    return { retraite, amu, total: retraite + amu };
+  }
+
   const { emp } = getRates(regimeName);
   const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
   const retraite = Math.round(retraiteBase * emp.retraite);
@@ -179,6 +190,19 @@ export const calculateCNSSEmployee = (grossSalary, regimeName = 'Général') => 
 
 // ─── CNSS EMPLOYER (Part Patronale) ────────────────────────────────────────────
 export const calculateCNSSEmployer = (grossSalary, regimeName = 'Général') => {
+  if (regimeName === 'Zone Franche') {
+    // On tranche ≤ 400 000: full 10.2% (retraite 4% + AT 1.2% + AMU 5%)
+    // On tranche > 400 000: only retraite 4% (no AT/AMU on excess)
+    const cappedBase = Math.min(grossSalary, RETRAITE_CAP);
+    const excess = Math.max(0, grossSalary - RETRAITE_CAP);
+    const retraite               = Math.round(cappedBase * 0.04) + Math.round(excess * 0.04);
+    const accident_travail       = Math.round(cappedBase * 0.012); // AT only on capped base
+    const amu                    = Math.round(cappedBase * 0.05);  // AMU only on capped base
+    const allocations_familiales = 0;
+    const total = retraite + accident_travail + amu + allocations_familiales;
+    return { retraite, accident_travail, allocations_familiales, amu, total };
+  }
+
   const { pat } = getRates(regimeName);
   const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
 
