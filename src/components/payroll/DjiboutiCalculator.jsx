@@ -1,47 +1,45 @@
 // Djibouti Payroll Calculator
 // Based on Arrêté N°69-1883/SG/CG/ du 31.12.1969 & modifications
+// Source: Tableau "Les différents taux applicables" - CNSS Djibouti
 
 /**
- * CNSS RATES - Régime Général
- * Part Salariale (6%):  Retraite 4% + Assurance Maladie 2%
- * Part Patronale (15.7%): Prestations familiales 5.5% + Assurance Maladie 5% + Accident de travail 1.2% + Retraite 4%
+ * TAUX DE COTISATION PAR RÉGIME (source: tableau officiel CNSS)
  *
- * CNSS RATES - Zone Franche
- * Part Salariale (6%):  Retraite 4% + Assurance Maladie 2%
- * Part Patronale (10.2%): Accident de travail & Soins 6.2% + Assurance Maladie (included in 6.2%) + Retraite 4%
- * NOTE: Zone Franche total patronale = 6.2% (AT&Soins) + 4% (Retraite) = 10.2%
- *       No Prestations familiales (5.5%) for Zone Franche
+ * Régime Général     : Patronale 15.7% | Salariale 6% | Total 21.7%
+ * Zone Franche       : Patronale 10.2% | Salariale 6% | Total 16.2%
+ * Indépendant        : Patronale  7%   | Salariale 0% | Total  7%
+ * Fonctionnaire      : Patronale 19%   | Salariale 8% | Total 27%
+ * FNP                : Patronale 20%   | Salariale 9% | Total 29%
+ * Député/Gouvernement: Patronale 24%   | Salariale 19%| Total 43%
  *
  * LATE PAYMENT PENALTIES (Art 137):
  *  - 10% surcharge if not paid by the 10th of the following month
  *  - Additional 3% per month thereafter
  *
  * DECLARATION PENALTY (Art 136):
- *  - 400 FDJ per employee per month of delay if no nominative declaration submitted
+ *  - 400 FDJ per employee per month of delay
  */
 
+// ─── RÉGIME GÉNÉRAL ────────────────────────────────────────────────────────────
 export const CNSS_RATES = {
-  // Régime Général - Part Salariale 6%
   employee: {
-    retraite: 0.04,        // 4%
-    amu: 0.02,             // Assurance Maladie 2%
-    total: 0.06            // Total 6%
+    retraite: 0.04,   // 4%
+    amu: 0.02,        // Assurance Maladie 2%
+    total: 0.06       // 6%
   },
-  // Régime Général - Part Patronale 15.7%
   employer: {
-    retraite: 0.04,                  // 4%
-    accident_travail: 0.012,         // Accident de travail 1.2% (formerly opsat)
-    allocations_familiales: 0.055,   // Prestations familiales 5.5%
-    amu: 0.05,                       // Assurance Maladie 5%
-    total: 0.157                     // Total 15.7%
+    retraite: 0.04,              // 4%
+    accident_travail: 0.012,     // 1.2%
+    allocations_familiales: 0.055, // 5.5%
+    amu: 0.05,                   // 5%
+    total: 0.157                 // 15.7%
   }
 };
 
-/**
- * Zone Franche rates
- * Part Patronale (10.2%): AT & Soins 6.2% + Retraite 4%
- * Part Salariale (6%): Same as Général
- */
+// ─── ZONE FRANCHE ──────────────────────────────────────────────────────────────
+// Same salariale as Général (6%), but patronale is Général minus Prestations familiales (5.5%)
+// = 15.7% - 5.5% = 10.2%
+// Breakdown: Retraite 4% + AT 1.2% + AMU 5% = 10.2% (NO Prestations familiales)
 export const CNSS_RATES_ZONE_FRANCHE = {
   employee: {
     retraite: 0.04,
@@ -49,16 +47,43 @@ export const CNSS_RATES_ZONE_FRANCHE = {
     total: 0.06
   },
   employer: {
-    retraite: 0.04,
-    accident_travail_soins: 0.062,  // Accident de travail & Soins 6.2%
-    // No allocations_familiales for Zone Franche
-    total: 0.102                    // Total 10.2%
+    retraite: 0.04,          // 4%
+    accident_travail: 0.012, // 1.2%
+    amu: 0.05,               // 5%
+    allocations_familiales: 0, // NOT applicable in Zone Franche
+    total: 0.102             // 10.2%
   }
 };
 
-export const RETRAITE_CAP = 400000;
-export const RETCIM = 400;
+// ─── RÉGIMES SPÉCIAUX ─────────────────────────────────────────────────────────
+// Fonctionnaire: Patronale 19% (Retraite 14% + AMU 5%) | Salariale 8% (Retraite 6% + AMU 2%)
+export const CNSS_RATES_FONCTIONNAIRE = {
+  employee: { retraite: 0.06, amu: 0.02, total: 0.08 },
+  employer: { retraite: 0.14, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.19 }
+};
 
+// FNP: Patronale 20% (Retraite 15% + AMU 5%) | Salariale 9% (Retraite 7% + AMU 2%)
+export const CNSS_RATES_FNP = {
+  employee: { retraite: 0.07, amu: 0.02, total: 0.09 },
+  employer: { retraite: 0.15, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.20 }
+};
+
+// Gouvernement/Député: Patronale 24% (Retraite 19% + AMU 5%) | Salariale 19% (Retraite 17% + AMU 2%)
+export const CNSS_RATES_GOUVERNEMENT = {
+  employee: { retraite: 0.17, amu: 0.02, total: 0.19 },
+  employer: { retraite: 0.19, amu: 0.05, allocations_familiales: 0, accident_travail: 0, total: 0.24 }
+};
+
+// Indépendant: Patronale 7% (AMU uniquement) | Salariale 0%
+export const CNSS_RATES_INDEPENDANT = {
+  employee: { retraite: 0, amu: 0, total: 0 },
+  employer: { retraite: 0, amu: 0.07, allocations_familiales: 0, accident_travail: 0, total: 0.07 }
+};
+
+export const RETRAITE_CAP = 400000; // Plafond retraite
+export const RETCIM = 400;          // Retenue complémentaire fixe
+
+// ─── ITS TABLE (Barème progressif) ─────────────────────────────────────────────
 export const ITS_TABLE = [
   { min: 0, max: 4999, tax: 0 },
   { min: 5000, max: 9999, tax: 100 },
@@ -100,35 +125,23 @@ export const ITS_TABLE = [
   { min: 185000, max: 189999, tax: 23900 },
   { min: 190000, max: 194999, tax: 24650 },
   { min: 195000, max: 199999, tax: 25400 },
-  { min: 200000, max: 1999999, tax: 26150 }
+  { min: 200000, max: Infinity, tax: 26150 }
 ];
 
 export const calculateITS = (netImposable) => {
-  for (const bracket of ITS_TABLE) {
-    if (netImposable >= bracket.min && netImposable <= bracket.max) {
-      return bracket.tax;
-    }
-  }
-  
-  if (netImposable >= 2000000) {
-    const base = 595900;
-    const extraSteps = Math.floor((netImposable - 2000000) / 5000);
-    return base + (extraSteps * 1750);
-  }
-  
-  return 0;
+  if (netImposable <= 0) return 0;
+  const bracket = ITS_TABLE.find(b => netImposable >= b.min && netImposable <= b.max);
+  return bracket ? bracket.tax : 26150;
 };
 
+// ─── PRIME D'ANCIENNETÉ ────────────────────────────────────────────────────────
 export const calculatePrimeAnciennetePercentage = (yearsOfService, monthsOfService = 0) => {
-  const totalMonths = (yearsOfService * 12) + monthsOfService;
-  const totalYears = totalMonths / 12;
-  
-  if (totalYears < 2) return 0.04;
-  if (totalYears < 4.5) return 0.08;
-  if (totalYears < 7.5) return 0.12;
-  if (totalYears < 10.5) return 0.16;
-  if (totalYears < 15) return 0.20;
-  return 0.20;
+  const totalYears = yearsOfService + (monthsOfService / 12);
+  if (totalYears < 2)   return 0.04;  // 4%
+  if (totalYears < 4.5) return 0.08;  // 8%
+  if (totalYears < 7.5) return 0.12;  // 12%
+  if (totalYears < 10.5) return 0.16; // 16%
+  return 0.20;                         // 20% (max)
 };
 
 export const calculatePrimeAnciennete = (baseSalary, yearsOfService, monthsOfService = 0) => {
@@ -136,193 +149,152 @@ export const calculatePrimeAnciennete = (baseSalary, yearsOfService, monthsOfSer
   return Math.round(baseSalary * percentage);
 };
 
-/**
- * Calculate employee CNSS contribution (Part Salariale)
- * Same for all regimes: 6% (Retraite 4% + AMU 2%)
- * Note: Retraite capped at RETRAITE_CAP (Art. 33,35,36 Loi n°212/AN/07)
- */
-export const calculateCNSSEmployee = (grossSalary, regimeName = 'Général') => {
-  const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
-  
-  return {
-    retraite: Math.round(retraiteBase * CNSS_RATES.employee.retraite),
-    amu: Math.round(grossSalary * CNSS_RATES.employee.amu),
-    total: Math.round(retraiteBase * CNSS_RATES.employee.retraite + grossSalary * CNSS_RATES.employee.amu)
-  };
-};
-
-/**
- * Calculate employer CNSS contribution (Part Patronale)
- * Régime Général: 15.7% (Prestations familiales 5.5% + AMU 5% + AT 1.2% + Retraite 4%)
- * Zone Franche:   10.2% (AT & Soins 6.2% + Retraite 4%) - No Prestations familiales
- * Other regimes (FNP, Gouvernement, Fonctionnaire, Indépendant): treated as Général
- */
-export const calculateCNSSEmployer = (grossSalary, regimeName = 'Général') => {
-  const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
-
-  if (regimeName === 'Zone Franche') {
-    const r = CNSS_RATES_ZONE_FRANCHE.employer;
-    return {
-      retraite: Math.round(retraiteBase * r.retraite),
-      accident_travail_soins: Math.round(grossSalary * r.accident_travail_soins),
-      allocations_familiales: 0, // Not applicable for Zone Franche
-      amu: 0,                    // Included in AT & Soins for Zone Franche
-      total: Math.round(retraiteBase * r.retraite + grossSalary * r.accident_travail_soins)
-    };
+// ─── CNSS RATE SELECTOR ────────────────────────────────────────────────────────
+const getRates = (regimeName) => {
+  switch (regimeName) {
+    case 'Zone Franche':  return { emp: CNSS_RATES_ZONE_FRANCHE.employee,   pat: CNSS_RATES_ZONE_FRANCHE.employer };
+    case 'Fonctionnaire': return { emp: CNSS_RATES_FONCTIONNAIRE.employee,   pat: CNSS_RATES_FONCTIONNAIRE.employer };
+    case 'FNP':           return { emp: CNSS_RATES_FNP.employee,             pat: CNSS_RATES_FNP.employer };
+    case 'Gouvernement':  return { emp: CNSS_RATES_GOUVERNEMENT.employee,    pat: CNSS_RATES_GOUVERNEMENT.employer };
+    case 'Indépendant':   return { emp: CNSS_RATES_INDEPENDANT.employee,     pat: CNSS_RATES_INDEPENDANT.employer };
+    default:              return { emp: CNSS_RATES.employee,                  pat: CNSS_RATES.employer }; // Général
   }
-
-  // Default: Régime Général (and all other regimes)
-  const r = CNSS_RATES.employer;
-  return {
-    retraite: Math.round(retraiteBase * r.retraite),
-    accident_travail: Math.round(grossSalary * r.accident_travail),
-    allocations_familiales: Math.round(grossSalary * r.allocations_familiales),
-    amu: Math.round(grossSalary * r.amu),
-    total: Math.round(
-      retraiteBase * r.retraite +
-      grossSalary * r.accident_travail +
-      grossSalary * r.allocations_familiales +
-      grossSalary * r.amu
-    )
-  };
 };
 
+// ─── CNSS EMPLOYEE (Part Salariale) ────────────────────────────────────────────
+export const calculateCNSSEmployee = (grossSalary, regimeName = 'Général') => {
+  const { emp } = getRates(regimeName);
+  const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
+  const retraite = Math.round(retraiteBase * emp.retraite);
+  const amu      = Math.round(grossSalary * emp.amu);
+  return { retraite, amu, total: retraite + amu };
+};
+
+// ─── CNSS EMPLOYER (Part Patronale) ────────────────────────────────────────────
+export const calculateCNSSEmployer = (grossSalary, regimeName = 'Général') => {
+  const { pat } = getRates(regimeName);
+  const retraiteBase = Math.min(grossSalary, RETRAITE_CAP);
+
+  const retraite               = Math.round(retraiteBase * (pat.retraite || 0));
+  const accident_travail       = Math.round(grossSalary  * (pat.accident_travail || 0));
+  const allocations_familiales = Math.round(grossSalary  * (pat.allocations_familiales || 0));
+  const amu                    = Math.round(grossSalary  * (pat.amu || 0));
+  const total = retraite + accident_travail + allocations_familiales + amu;
+
+  return { retraite, accident_travail, allocations_familiales, amu, total };
+};
+
+// ─── MAIN PAYROLL CALCULATION ───────────────────────────────────────────────────
 /**
- * Calculate payroll with holiday-specific rules
- * @param {Object} employee - Employee data
- * @param {Object} holidayStatus - {type: string, month_number: number} for maternity leave tracking
- * @param {Array} cyclePrimes - [{nom, montant, add_after_deductions}] primes added during payroll cycle
- * @returns {Object} Payroll calculation result
+ * @param {Object} employee      - Employee record
+ * @param {Object} holidayStatus - {type, month_number} or null
+ * @param {Array}  cyclePrimes   - [{nom, montant, add_after_deductions}]
  */
 export const calculatePayroll = (employee, holidayStatus = null, cyclePrimes = []) => {
   const baseSalary = employee.salaire_base || 0;
-  
-  // Calculate ancienneté
+
+  // ── Prime d'ancienneté ──
   let primeAnciennete = employee.prime_anciennete || 0;
   if (employee.prime_anciennete_auto !== false && employee.anciennete_annees !== undefined) {
     primeAnciennete = calculatePrimeAnciennete(
-      baseSalary, 
+      baseSalary,
       employee.anciennete_annees || 0,
       employee.anciennete_mois || 0
     );
   }
-  
-  // Calculate base primes
+
+  // ── Base primes ──
   const primesPersonnalisees = employee.primes_personnalisees || [];
   const totalPrimesPersonnalisees = primesPersonnalisees.reduce((sum, p) => sum + (p.montant || 0), 0);
-  
-  const basePrimes = (
+
+  const basePrimes =
     primeAnciennete +
-    (employee.prime_fonction || 0) +
-    (employee.prime_logement || 0) +
+    (employee.prime_fonction  || 0) +
+    (employee.prime_logement  || 0) +
     (employee.prime_transport || 0) +
-    (employee.prime_sujetion || 0) +
+    (employee.prime_sujetion  || 0) +
     (employee.prime_rendement || 0) +
-    (employee.autres_primes || 0) +
-    totalPrimesPersonnalisees
-  );
-  
-  // Filter cycle primes that are BEFORE deductions
+    (employee.autres_primes   || 0) +
+    totalPrimesPersonnalisees;
+
+  // ── Cycle primes split ──
   const primesBeforeDeductions = cyclePrimes.filter(p => !p.add_after_deductions);
+  const primesAfterDeductions  = cyclePrimes.filter(p =>  p.add_after_deductions);
   const totalPrimesBeforeDeductions = primesBeforeDeductions.reduce((sum, p) => sum + (p.montant || 0), 0);
-  
-  // Calculate initial gross with base primes and cycle primes (before deductions)
+  const totalPrimesAfterDeductions  = primesAfterDeductions.reduce((sum, p)  => sum + (p.montant || 0), 0);
+
+  // ── Initial gross ──
   let initialGross = baseSalary + basePrimes + totalPrimesBeforeDeductions;
-  
-  // Handle holiday-specific salary adjustments
-  let salaryPercentage = 1.0; // 100% by default
-  let applyCNSS = true;
-  let applyITS = true;
+
+  // ── Holiday rules ──
+  let salaryPercentage = 1.0;
+  let applyCNSS  = true;
+  let applyITS   = true;
   let paidByCNSS = false;
   let holidayNote = null;
-  
+
   if (holidayStatus) {
     switch (holidayStatus.type) {
       case 'Congé payé':
-        // Normal calculation (100%)
-        salaryPercentage = 1.0;
-        applyCNSS = true;
-        applyITS = true;
         holidayNote = '✅ Congé payé - Salaire normal (100%)';
         break;
-      
       case 'Congé maladie':
-        // Normal calculation with CNSS and ITS
-        salaryPercentage = 1.0;
-        applyCNSS = true;
-        applyITS = true;
         holidayNote = '🏥 Congé maladie - Salaire normal avec cotisations';
         break;
-      
       case 'Congé paternité':
-        // Normal calculation
-        salaryPercentage = 1.0;
-        applyCNSS = true;
-        applyITS = true;
         holidayNote = '👨‍👶 Congé paternité - Salaire normal';
         break;
-        
       case 'Congé sans solde':
-        // No salary, no CNSS, no ITS
         salaryPercentage = 0;
         applyCNSS = false;
-        applyITS = false;
+        applyITS  = false;
         holidayNote = '⛔ Congé sans solde - Aucun salaire ni cotisation';
         break;
-        
-      case 'Congé maternité':
+      case 'Congé maternité': {
         const monthNumber = holidayStatus.month_number || 1;
         if (monthNumber <= 3) {
-          // First 3 months: company pays 50%
           salaryPercentage = 0.5;
-          applyCNSS = true;
-          applyITS = true;
           holidayNote = `🤰 Congé maternité (Mois ${monthNumber}/6) - Entreprise paie 50%`;
         } else {
-          // Months 4-6: CNSS pays (company pays nothing)
           salaryPercentage = 0;
-          applyCNSS = false;
-          applyITS = false;
+          applyCNSS  = false;
+          applyITS   = false;
           paidByCNSS = true;
           holidayNote = `🤰 Congé maternité (Mois ${monthNumber}/6) - Payé par CNSS (0% entreprise)`;
         }
         break;
+      }
     }
   }
-  
-  // Apply holiday percentage
+
+  // ── Apply holiday percentage & absences ──
   initialGross = Math.round(initialGross * salaryPercentage);
-  
-  // Apply absences to gross (only if not on unpaid leave)
-  const absences = (salaryPercentage > 0) ? (employee.absences_amount || 0) : 0;
-  const grossSalary = initialGross - absences;
-  
+  const absences   = (salaryPercentage > 0) ? (employee.absences_amount || 0) : 0;
+  const grossSalary = Math.max(0, initialGross - absences);
+
   const regimeName = employee.regime_cnss || 'Général';
-  
-  // Calculate CNSS if applicable
-  const cnssEmployee = applyCNSS ? calculateCNSSEmployee(grossSalary, regimeName) : { retraite: 0, amu: 0, total: 0 };
-  const cnssEmployer = applyCNSS ? calculateCNSSEmployer(grossSalary, regimeName) : { retraite: 0, opsat: 0, allocations_familiales: 0, amu: 0, total: 0 };
-  
-  // Calculate Net Imposable
-  const netImposable = grossSalary - cnssEmployee.total;
-  
-  // Calculate ITS if applicable
-  const its = applyITS ? calculateITS(netImposable) : 0;
-  
-  // Apply AIDE and RetCim (only if salary > 0)
-  const aide = (grossSalary > 0) ? (employee.aide || 0) : 0;
+
+  // ── CNSS contributions ──
+  const cnssEmployee = applyCNSS
+    ? calculateCNSSEmployee(grossSalary, regimeName)
+    : { retraite: 0, amu: 0, total: 0 };
+
+  const cnssEmployer = applyCNSS
+    ? calculateCNSSEmployer(grossSalary, regimeName)
+    : { retraite: 0, accident_travail: 0, allocations_familiales: 0, amu: 0, total: 0 };
+
+  // ── Net imposable & ITS ──
+  const netImposable = Math.max(0, grossSalary - cnssEmployee.total);
+  const its   = applyITS ? calculateITS(netImposable) : 0;
+
+  // ── Deductions ──
+  const aide   = (grossSalary > 0) ? (employee.aide || 0) : 0;
   const retcim = (grossSalary > 0) ? RETCIM : 0;
-  
-  // Calculate net BEFORE primes added after deductions
-  let netBeforeCyclePrimes = grossSalary - cnssEmployee.total - its - aide - retcim;
-  
-  // Filter cycle primes that are AFTER deductions
-  const primesAfterDeductions = cyclePrimes.filter(p => p.add_after_deductions);
-  const totalPrimesAfterDeductions = primesAfterDeductions.reduce((sum, p) => sum + (p.montant || 0), 0);
-  
-  // Final net salary = net before cycle primes + primes after deductions
+
+  // ── Net salary ──
+  const netBeforeCyclePrimes = grossSalary - cnssEmployee.total - its - aide - retcim;
   const netSalary = netBeforeCyclePrimes + totalPrimesAfterDeductions;
-  
+
   return {
     grossSalary,
     cnssEmployee,
@@ -343,14 +315,14 @@ export const calculatePayroll = (employee, holidayStatus = null, cyclePrimes = [
     totalPrimesBeforeDeductions,
     totalPrimesAfterDeductions,
     breakdown: {
-      salaire_base: Math.round(baseSalary * salaryPercentage),
-      prime_anciennete: Math.round(primeAnciennete * salaryPercentage),
-      prime_fonction: Math.round((employee.prime_fonction || 0) * salaryPercentage),
-      prime_logement: Math.round((employee.prime_logement || 0) * salaryPercentage),
-      prime_transport: Math.round((employee.prime_transport || 0) * salaryPercentage),
-      prime_sujetion: Math.round((employee.prime_sujetion || 0) * salaryPercentage),
-      prime_rendement: Math.round((employee.prime_rendement || 0) * salaryPercentage),
-      autres_primes: Math.round((employee.autres_primes || 0) * salaryPercentage),
+      salaire_base:          Math.round(baseSalary           * salaryPercentage),
+      prime_anciennete:      Math.round(primeAnciennete       * salaryPercentage),
+      prime_fonction:        Math.round((employee.prime_fonction  || 0) * salaryPercentage),
+      prime_logement:        Math.round((employee.prime_logement  || 0) * salaryPercentage),
+      prime_transport:       Math.round((employee.prime_transport || 0) * salaryPercentage),
+      prime_sujetion:        Math.round((employee.prime_sujetion  || 0) * salaryPercentage),
+      prime_rendement:       Math.round((employee.prime_rendement || 0) * salaryPercentage),
+      autres_primes:         Math.round((employee.autres_primes   || 0) * salaryPercentage),
       primes_personnalisees: Math.round(totalPrimesPersonnalisees * salaryPercentage)
     }
   };
