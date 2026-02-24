@@ -680,18 +680,34 @@ export default function Employes() {
                                 >
                                   <Download className="w-4 h-4" />
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    setSelectedEmployee(emp);
-                                    setShowSuspension(true);
-                                  }}
-                                  title="Suspendre"
-                                  className="text-[#697586] hover:text-[#FA6400] hover:bg-[#FFF4E5]"
-                                >
-                                  <Ban className="w-4 h-4" />
-                                </Button>
+                                {emp.statut === 'Suspendu' ? (
+                                 <Button
+                                   variant="ghost"
+                                   size="icon"
+                                   onClick={() => {
+                                     if (confirm(`Réactiver ${emp.prenom} ${emp.nom} ?`)) {
+                                       reactivateMutation.mutate(emp);
+                                     }
+                                   }}
+                                   title="Réactiver l'employé"
+                                   className="text-[#697586] hover:text-[#00C48C] hover:bg-[#E5F8F3]"
+                                 >
+                                   <RefreshCw className="w-4 h-4" />
+                                 </Button>
+                                ) : (
+                                 <Button
+                                   variant="ghost"
+                                   size="icon"
+                                   onClick={() => {
+                                     setSelectedEmployee(emp);
+                                     setShowSuspension(true);
+                                   }}
+                                   title="Suspendre"
+                                   className="text-[#697586] hover:text-[#FA6400] hover:bg-[#FFF4E5]"
+                                 >
+                                   <Ban className="w-4 h-4" />
+                                 </Button>
+                                )}
                                 {canEdit && (
                                   <Button
                                     variant="ghost"
