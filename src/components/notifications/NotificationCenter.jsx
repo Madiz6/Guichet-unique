@@ -10,7 +10,6 @@ import { createPageUrl } from '@/utils';
 
 export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
   
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
