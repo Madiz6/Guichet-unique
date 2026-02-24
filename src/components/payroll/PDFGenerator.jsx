@@ -494,6 +494,102 @@ export const generateWorkAttestation = (employee, company, signatory = null) => 
   generateHTMLDocument(html, `Attestation_Travail_${employee.prenom}_${employee.nom}.pdf`);
 };
 
+export const generateCertificatEmploi = (employee, company) => {
+  const today = format(new Date(), 'dd MMMM yyyy', { locale: fr });
+
+  // Two copies on one A4 page (as per official CNSS form)
+  const oneCopy = () => `
+    <div style="border: 1px solid #333; padding: 16px 20px; margin-bottom: 10px; font-size: 10pt; font-family: Arial, sans-serif;">
+      <!-- HEADER -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+        <div style="text-align: center; flex: 1;">
+          <div style="font-size: 13pt; font-weight: bold; letter-spacing: 1px;">REPUBLIQUE DE DJIBOUTI</div>
+          <div style="font-size: 9pt;">Unité - Egalité - Paix</div>
+          <div style="margin-top: 6px; font-size: 9pt;">Ministère du Travail<br>chargé de la<br>Reforme de l'Administration</div>
+        </div>
+        <div style="text-align: center; flex: 1; font-size: 13pt; font-weight: bold; text-decoration: underline; display: flex; align-items: center; justify-content: center;">
+          CERTIFICAT D'EMPLOI
+        </div>
+        <div style="text-align: center; flex: 1; direction: rtl; font-size: 9pt;">
+          <div style="font-weight: bold;">جمهورية جيبوتي</div>
+          <div>وحدة ـ مساواة ـ سلام</div>
+          <div style="margin-top: 6px;">وزارة العمل والادماج<br>والتدريب المهني</div>
+          <div style="font-weight: bold; margin-top: 4px;">لصندوق الوطني للضمان الاجتماعي</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0 16px; border-top: 1px solid #888; padding-top: 10px;">
+        <!-- LEFT: Employeur -->
+        <div>
+          <div style="font-weight: bold; text-decoration: underline; font-size: 10.5pt; margin-bottom: 8px;">EMPLOYEUR</div>
+          <div style="margin-bottom: 6px;">N° matricule : <strong>${company.numero_affiliation || '……………………'}</strong></div>
+          <div style="margin-bottom: 6px;">Nom : <strong>${company.nom_entreprise || '…………………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">Adresse : <strong>${company.adresse || '…………………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">BP : <strong>${company.bp || '…………………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">Tél. : <strong>${company.telephone || '…………………………………'}</strong></div>
+          <div style="margin-top: 16px; font-weight: bold;">Fait à Djibouti, le ${today}</div>
+          <div style="margin-top: 12px; font-weight: bold; text-decoration: underline;">Signature et cachet de l'employeur</div>
+          <div style="height: 50px; border-bottom: 1px solid #333; width: 160px; margin-top: 8px;"></div>
+        </div>
+
+        <!-- Divider -->
+        <div style="background: #888;"></div>
+
+        <!-- RIGHT: Salarié -->
+        <div>
+          <div style="font-weight: bold; text-decoration: underline; font-size: 10.5pt; margin-bottom: 8px;">SALARIE</div>
+          <div style="margin-bottom: 6px;">Nom et prénom : <strong>${employee.prenom} ${employee.nom}</strong></div>
+          <div style="margin-bottom: 6px;">Salaire brut mensuel : <strong>${(employee.salaire_base || 0).toLocaleString()} DJF</strong></div>
+          <div style="margin-bottom: 6px; font-weight: 600;">Matricule de l'assuré social : <strong>${employee.matricule_cnss || '…………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">Date et lieu de naissance : <strong>${employee.date_naissance ? format(new Date(employee.date_naissance), 'dd/MM/yyyy') : '……………'} ${employee.ville || ''}</strong></div>
+          <div style="margin-bottom: 6px;">Adresse : <strong>${employee.adresse || '……………………………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">N° C.N.I, passeport ou C.I.Etrangère : <strong>${employee.numero_identite || '………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">Emploi occupé : <strong>${employee.fonction || '…………………………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">Date d'embauche : <strong>${employee.date_embauche ? format(new Date(employee.date_embauche), 'dd/MM/yyyy') : '………………………………'}</strong></div>
+          <div style="margin-bottom: 6px;">Date fin de service : <strong>${employee.date_fin_contrat ? format(new Date(employee.date_fin_contrat), 'dd/MM/yyyy') : '…………………………………'}</strong></div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #888; margin-top: 10px; padding-top: 8px; font-size: 9pt; font-style: italic; text-align: center;">
+        L'employeur atteste sous sa responsabilité la conformité des renseignements concernant le salarié (e)
+      </div>
+    </div>
+  `;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Certificat d'Emploi - ${employee.prenom} ${employee.nom}</title>
+      <style>
+        @page { size: A4; margin: 10mm; }
+        * { box-sizing: border-box; }
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          width: 210mm;
+        }
+        @media print {
+          body { margin: 0; }
+        }
+      </style>
+    </head>
+    <body>
+      ${oneCopy()}
+      <div style="border-top: 3px dashed #555; margin: 8px 0; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 18px;">✂</span>
+        <span style="font-size: 8pt; color: #666;">Couper ici — Copie à conserver par le salarié</span>
+      </div>
+      ${oneCopy()}
+    </body>
+    </html>
+  `;
+
+  generateHTMLDocument(html, `Certificat_Emploi_${employee.prenom}_${employee.nom}.pdf`);
+};
+
 export const generateHolidayAttestation = (holiday, employee, company, signatory = null) => {
   const html = `
     <!DOCTYPE html>
