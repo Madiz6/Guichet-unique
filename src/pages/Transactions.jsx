@@ -383,6 +383,22 @@ export default function Transactions() {
                             )}
                           </td>
                           <td className="py-4 px-4">
+                            {transaction.booking_status ? (
+                              <div className="flex items-center gap-1.5">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <span className="text-xs text-green-700 font-medium">Comptabilisé</span>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setSelectedTransaction(transaction)}
+                                className="flex items-center gap-1.5 text-xs text-amber-600 hover:text-amber-800 font-medium"
+                              >
+                                <Clock className="w-4 h-4" />
+                                À comptabiliser
+                              </button>
+                            )}
+                          </td>
+                          <td className="py-4 px-4">
                             <div className="flex justify-center gap-2">
                               <Button
                                 size="sm"
