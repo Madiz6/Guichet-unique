@@ -78,6 +78,11 @@ export default function Layout({ children, currentPageName }) {
       icon: DollarSign,
     },
     {
+      title: "Comptabilisation",
+      url: createPageUrl("Comptabilisation"),
+      icon: BookOpen,
+    },
+    {
       title: "Gestion Budgétaire",
       url: createPageUrl("BudgetManagement"),
       icon: DollarSign,
