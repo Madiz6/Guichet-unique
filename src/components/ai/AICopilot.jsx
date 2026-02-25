@@ -255,7 +255,7 @@ export default function AICopilot({ currentPage }) {
               <div className="px-3 pb-2 space-y-2 border-t border-gray-100 pt-2">
                 <p className="text-[10px] text-gray-400 uppercase tracking-wide font-semibold">Choisir un sujet</p>
                 {/* Category pills - scrollable */}
-                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1">
                   {categories.map(cat => (
                     <button
                       key={cat.label}
