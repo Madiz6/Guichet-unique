@@ -7,10 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { X, Edit2, Trash2, Download, FileText, Image as ImageIcon, CreditCard, Calendar, CheckCircle, Link2 } from 'lucide-react';
+import { X, Edit2, Trash2, Download, FileText, Image as ImageIcon, CreditCard, Calendar, CheckCircle, Link2, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import BookingWorkflow from './BookingWorkflow';
 
 export default function TransactionDetailDrawer({ transaction, onClose, onUpdate, onDelete, departments, categories, budgets = [] }) {
   const [isEditing, setIsEditing] = useState(false);
