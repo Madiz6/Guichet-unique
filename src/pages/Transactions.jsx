@@ -136,6 +136,8 @@ export default function Transactions() {
   const stats = {
     totalIncome: filteredTransactions.filter(t => t.type === 'Revenu').reduce((sum, t) => sum + (t.amount || 0), 0),
     totalExpenses: filteredTransactions.filter(t => t.type === 'Dépense').reduce((sum, t) => sum + (t.amount || 0), 0),
+    booked: transactions.filter(t => t.booking_status === 'booked').length,
+    toBook: transactions.filter(t => !t.booking_status).length,
   };
   stats.netProfit = stats.totalIncome - stats.totalExpenses;
 
