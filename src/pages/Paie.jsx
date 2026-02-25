@@ -162,6 +162,8 @@ export default function Paie() {
       setStatusFilter('Actif');
       setCurrentPage(1);
 
+      // Auto-register the payroll as a pending transaction
+      await registerPayrollTransaction(newCycle);
       toast.success('Cycle de paie créé avec succès');
     },
   });
@@ -276,6 +278,8 @@ export default function Paie() {
 
   const handlePaymentSuccess = async (paymentData) => {
     if (selectedCycleForPayment) {
+      // Auto-update the payroll transaction to Payé
+      await markPayrollTransactionPaid(selectedCycleForPayment, paymentData);
       await logAuditAction(
         AUDIT_ACTIONS.PAYROLL_PAID,
         'PayrollCycle',

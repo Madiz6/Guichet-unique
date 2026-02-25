@@ -78,6 +78,8 @@ export default function Declarations() {
         `${newDeclaration.numero_cotisation} - ${newDeclaration.periode}`
       );
       
+      // Auto-register the declaration as a pending expense transaction
+      await registerDeclarationTransaction(newDeclaration);
       setShowForm(false);
       setSelectedCycle(null);
       toast.success('Déclaration créée avec succès');
@@ -203,6 +205,8 @@ export default function Declarations() {
 
   const handlePaymentSuccess = async (paymentData) => {
     if (selectedDeclarationForPayment) {
+      // Auto-update the declaration transaction to Payé
+      await markDeclarationTransactionPaid(selectedDeclarationForPayment, paymentData);
       await updateDeclarationMutation.mutateAsync({
         id: selectedDeclarationForPayment.id,
         data: {
