@@ -252,14 +252,15 @@ export default function AICopilot({ currentPage }) {
 
             {/* Quick prompts - category menu */}
             {messages.length <= 1 && (
-              <div className="px-3 pb-2 space-y-2">
-                {/* Category pills */}
-                <div className="flex flex-wrap gap-1.5">
+              <div className="px-3 pb-2 space-y-2 border-t border-gray-100 pt-2">
+                <p className="text-[10px] text-gray-400 uppercase tracking-wide font-semibold">Choisir un sujet</p>
+                {/* Category pills - scrollable */}
+                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
                   {categories.map(cat => (
                     <button
                       key={cat.label}
                       onClick={() => setSelectedCategory(selectedCategory?.label === cat.label ? null : cat)}
-                      className={`text-xs px-2.5 py-1 rounded-full border transition font-medium ${
+                      className={`text-xs px-2.5 py-1 rounded-full border transition font-medium whitespace-nowrap ${
                         selectedCategory?.label === cat.label
                           ? 'bg-indigo-600 text-white border-indigo-600'
                           : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
@@ -271,7 +272,7 @@ export default function AICopilot({ currentPage }) {
                 </div>
                 {/* Sub-prompts for selected category */}
                 {selectedCategory && (
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 max-h-32 overflow-y-auto">
                     {selectedCategory.prompts.map(p => (
                       <button
                         key={p}
