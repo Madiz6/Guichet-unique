@@ -34,6 +34,8 @@ export default function Leasing() {
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [viewingAssetMaintenance, setViewingAssetMaintenance] = useState(null);
+  const [paymentDialog, setPaymentDialog] = useState(null); // { payment, lease, asset }
+  const [paymentForm, setPaymentForm] = useState({ methode: '', numero_cheque: '', cheque_url: '', uploadingCheque: false });
   
   const queryClient = useQueryClient();
   
