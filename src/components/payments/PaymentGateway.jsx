@@ -115,6 +115,113 @@ export default function PaymentGateway({
     return v;
   };
   
+  const handleOfflineConfirm = () => {
+    if (gatewayType === 'cheque' && !chequeRef.trim()) {
+      toast.error('Veuillez entrer le numéro de chèque');
+      return;
+    }
+    setOfflineProcessing(true);
+    const transactionId = `${gatewayType.toUpperCase()}-${Date.now()}`;
+    const note = gatewayType === 'cheque'
+      ? `Chèque N° ${chequeRef}`
+      : `Espèces${cashNote ? ' — ' + cashNote : ''}`;
+    setTimeout(() => {
+      setOfflineProcessing(false);
+      setOfflineSuccess(true);
+      toast.success('Paiement enregistré!');
+      setTimeout(() => {
+        onSuccess({ transaction_id: transactionId, payment_method: gatewayType === 'cheque' ? 'Chèque' : 'Espèces', note });
+        onClose();
+      }, 1500);
+    }, 600);
+  };
+
+  // Cheque or Cash — fully separate manual confirmation flow
+  if (gatewayType === 'cheque' || gatewayType === 'cash') {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${gatewayType === 'cheque' ? 'bg-gradient-to-br from-[#F59E0B] to-[#D97706]' : 'bg-gradient-to-br from-[#64748B] to-[#475569]'}`}>
+                {gatewayType === 'cheque' ? <FileText className="w-5 h-5 text-white" /> : <Banknote className="w-5 h-5 text-white" />}
+              </div>
+              Paiement par {gatewayType === 'cheque' ? 'Chèque' : 'Espèces'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {offlineSuccess ? (
+            <div className="text-center py-8">
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-12 h-12 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-[#0F172A] mb-2">Paiement Enregistré!</h3>
+              <p className="text-[#64748B]">Le paiement a été confirmé manuellement</p>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
+                <p className="text-sm text-[#64748B] mb-1">Montant à payer</p>
+                <p className="text-3xl font-bold text-[#0F172A]">{amount.toLocaleString()} DJF</p>
+                <p className="text-sm text-[#64748B] mt-2">{description}</p>
+              </div>
+
+              {gatewayType === 'cheque' ? (
+                <div>
+                  <Label htmlFor="chequeRef">Numéro de chèque *</Label>
+                  <Input
+                    id="chequeRef"
+                    placeholder="Ex: 000123456"
+                    value={chequeRef}
+                    onChange={(e) => setChequeRef(e.target.value)}
+                    className="mt-2"
+                  />
+                  <p className="text-xs text-[#64748B] mt-1">Indiquez le numéro figurant sur le chèque</p>
+                </div>
+              ) : (
+                <div>
+                  <Label htmlFor="cashNote">Note (optionnel)</Label>
+                  <Input
+                    id="cashNote"
+                    placeholder="Ex: Remis en caisse le 25/02/2026"
+                    value={cashNote}
+                    onChange={(e) => setCashNote(e.target.value)}
+                    className="mt-2"
+                  />
+                  <p className="text-xs text-[#64748B] mt-1">Confirmez que vous avez reçu les espèces</p>
+                </div>
+              )}
+
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-800">
+                ⚠️ Ce paiement est enregistré manuellement. Aucune transaction en ligne ne sera effectuée.
+              </div>
+
+              <div className="flex gap-3 pt-2 border-t border-[#E5E7EB]">
+                <Button variant="outline" onClick={onClose} disabled={offlineProcessing} className="flex-1">
+                  Annuler
+                </Button>
+                <Button
+                  onClick={handleOfflineConfirm}
+                  disabled={offlineProcessing || (gatewayType === 'cheque' && !chequeRef.trim())}
+                  className={`flex-1 ${gatewayType === 'cheque' ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706]' : 'bg-gradient-to-r from-[#64748B] to-[#475569]'}`}
+                >
+                  {offlineProcessing ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Traitement...</>
+                  ) : (
+                    <>
+                      {gatewayType === 'cheque' ? <FileText className="w-4 h-4 mr-2" /> : <Banknote className="w-4 h-4 mr-2" />}
+                      Confirmer le Paiement
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   // Use Meras if selected
   if (gatewayType === 'meras') {
     return (
