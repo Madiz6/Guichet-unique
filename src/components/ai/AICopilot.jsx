@@ -34,6 +34,9 @@ export default function AICopilot({ currentPage }) {
         'Comment calculer l\'ITS ?',
         'Expliquer les pénalités de retard CNSS',
         'Délai de déclaration CNSS ?',
+        'Qu\'est-ce que la prime d\'ancienneté ?',
+        'Comment calculer le salaire net ?',
+        'Qu\'est-ce que le RETCIM ?',
       ]
     },
     {
@@ -44,6 +47,8 @@ export default function AICopilot({ currentPage }) {
         'Quelle est la part payée par la CNSS vs employeur ?',
         'Quelles pièces fournir pour le congé maternité ?',
         'Protections légales pendant la grossesse ?',
+        'Comment calculer l\'indemnité des 8 premières semaines ?',
+        'Quand commence le congé maternité ?',
       ]
     },
     {
@@ -53,6 +58,8 @@ export default function AICopilot({ currentPage }) {
         'Conditions pour l\'allocation de mariage ?',
         'Qui a droit aux allocations familiales ?',
         'Comment immatriculer ses ayants droit ?',
+        'Jusqu\'à quel âge les enfants sont couverts ?',
+        'Quand sont payées les allocations ?',
       ]
     },
     {
@@ -62,6 +69,9 @@ export default function AICopilot({ currentPage }) {
         'Indemnités journalières accident de travail ?',
         'Qu\'est-ce qu\'une maladie professionnelle ?',
         'Délais de déclaration accident de travail ?',
+        'Qu\'est-ce qu\'une rente d\'incapacité permanente ?',
+        'Accident de trajet : est-ce couvert ?',
+        'Que faire si l\'employeur ne déclare pas l\'accident ?',
       ]
     },
     {
@@ -71,6 +81,52 @@ export default function AICopilot({ currentPage }) {
         'Comment calculer le montant de ma retraite ?',
         'Qu\'est-ce que la retraite anticipée ?',
         'Comment fonctionne la pension de réversion ?',
+        'Quand faut-il déposer le dossier retraite ?',
+        'Quels sont les taux d\'annuité de retraite ?',
+        'Quel est le minimum de pension garanti ?',
+      ]
+    },
+    {
+      label: '⚕️ AMU / Assurance Maladie',
+      prompts: [
+        'Qu\'est-ce que l\'AMU à Djibouti ?',
+        'Qui est couvert par l\'AMO ?',
+        'Quels soins sont pris en charge gratuitement ?',
+        'Comment obtenir la carte de sécurité sociale ?',
+        'Qu\'est-ce que le PASS (programme d\'assistance) ?',
+        'Qu\'est-ce que le tiers-payant CNSS ?',
+      ]
+    },
+    {
+      label: '🏢 Affiliation & Employeur',
+      prompts: [
+        'Comment s\'affilier à la CNSS ?',
+        'Délai d\'affiliation obligatoire ?',
+        'Comment immatriculer un nouveau salarié ?',
+        'Que faire en cas de cessation d\'activité ?',
+        'Comment obtenir l\'attestation CNSS pour appel d\'offres ?',
+        'Quels documents fournir pour l\'affiliation ?',
+      ]
+    },
+    {
+      label: '⚖️ Contrôle & Pénalités',
+      prompts: [
+        'Quelles sont les pénalités de retard CNSS ?',
+        'Comment se déroule un contrôle CNSS ?',
+        'Qu\'est-ce qu\'une mise en demeure CNSS ?',
+        'Qu\'est-ce qu\'une contrainte CNSS ?',
+        'Quels sont mes droits lors d\'un contrôle ?',
+      ]
+    },
+    {
+      label: '👥 RH & Employés',
+      prompts: [
+        'Comment gérer les absences sur la paie ?',
+        'Qu\'est-ce que la prime de sujétion ?',
+        'Comment calculer la prime de transport ?',
+        'Quelles primes sont soumises à la CNSS ?',
+        'Comment suspendre un employé ?',
+        'Différence CDI vs CDD à Djibouti ?',
       ]
     },
     {
@@ -80,15 +136,27 @@ export default function AICopilot({ currentPage }) {
         'Statut des budgets en cours',
         'Quelles transactions sont en attente ?',
         'Quelles tâches sont urgentes ?',
+        'Comment analyser mes dépenses par catégorie ?',
+        'Quels sont les ratios financiers importants ?',
       ]
     },
     {
-      label: '⚕️ AMU / Assurance Maladie',
+      label: '📋 Déclarations CNSS',
       prompts: [
-        'Qu\'est-ce que l\'AMU à Djibouti ?',
-        'Qui est couvert par l\'AMO ?',
-        'Quels soins sont pris en charge ?',
-        'Comment obtenir la carte de sécurité sociale ?',
+        'Comment faire une déclaration CNSS mensuelle ?',
+        'Qu\'est-ce que le relevé nominatif des salaires ?',
+        'Que faire si j\'ai oublié de déclarer ?',
+        'Puis-je corriger une déclaration déjà soumise ?',
+        'Comment lire le bordereau de cotisation CNSS ?',
+      ]
+    },
+    {
+      label: '🔎 Recherche & Diligence',
+      prompts: [
+        'Comment vérifier la conformité d\'une entreprise ?',
+        'Quels documents légaux sont obligatoires ?',
+        'Comment faire une due diligence entreprise ?',
+        'Quels sont les risques de non-conformité CNSS ?',
       ]
     },
   ];
