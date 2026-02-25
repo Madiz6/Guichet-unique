@@ -73,7 +73,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onSave, 
       }
       setIsSavingBudgetLink(false);
     }
-    onUpdate(editData);
+    onSave(editData.id || transaction.id, editData);
     setIsEditing(false);
   };
 
