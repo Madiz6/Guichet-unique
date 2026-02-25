@@ -128,7 +128,7 @@ const DEFAULT_TEMPLATE = {
   }
 };
 
-export default function BookingWorkflow({ transaction, onUpdate }) {
+export default function BookingWorkflow({ transaction, onSave }) {
   const isBooked = !!transaction.booking_status;
   const [step, setStep] = useState(isBooked ? 3 : 1);
   const [expanded, setExpanded] = useState({ 1: true, 2: false, 3: false, 4: false });
