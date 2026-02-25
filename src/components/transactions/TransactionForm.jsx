@@ -84,6 +84,9 @@ export default function TransactionForm({ transaction, onSubmit, onCancel, depar
     accounting_period: new Date().toISOString().slice(0, 7).replace('-', '')
   });
   const [uploading, setUploading] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
+  const [duplicateAlert, setDuplicateAlert] = useState(null);
   const [suggestedCategory, setSuggestedCategory] = useState(null);
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
 
