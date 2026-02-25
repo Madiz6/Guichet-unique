@@ -89,22 +89,7 @@ export default function MerasPaymentGateway({
     }
   };
 
-  const handleOfflinePayment = () => {
-    setProcessing(true);
-    const transactionId = `${paymentMethod.toUpperCase()}-${Date.now()}`;
-    const note = paymentMethod === 'cheque'
-      ? `Chèque N° ${chequeRef}`
-      : `Espèces${cashNote ? ' — ' + cashNote : ''}`;
-    setTimeout(() => {
-      setPaymentStatus('success');
-      toast.success('Paiement enregistré!');
-      setTimeout(() => {
-        if (onSuccess) onSuccess({ transaction_id: transactionId, payment_method: paymentMethod === 'cheque' ? 'Chèque' : 'Espèces', note });
-        onClose();
-      }, 1500);
-      setProcessing(false);
-    }, 600);
-  };
+
 
   const checkPaymentStatus = async (transactionId) => {
     try {
