@@ -471,6 +471,11 @@ export default function Transactions() {
         transaction={selectedTransaction}
         onClose={() => setSelectedTransaction(null)}
         onSave={(id, data) => updateMutation.mutate({ id, data })}
+        onBooked={(updatedRecord) => {
+          // BookingWorkflow already wrote to DB — just sync state + refresh list
+          setSelectedTransaction(updatedRecord);
+          queryClient.invalidateQueries({ queryKey: ['transactions'] });
+        }}
         onDelete={(id) => {
           if (confirm('Supprimer cette transaction?')) {
             deleteMutation.mutate(id);
