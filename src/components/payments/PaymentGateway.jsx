@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreditCard, Smartphone, Building2, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { CreditCard, Smartphone, Building2, Loader2, CheckCircle, XCircle, Banknote, FileText } from 'lucide-react';
 import { base44 } from "@/api/base44Client";
 import { toast } from 'sonner';
 import MerasPaymentGateway from './MerasPaymentGateway';
