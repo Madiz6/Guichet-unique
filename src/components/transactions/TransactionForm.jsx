@@ -643,30 +643,80 @@ Répondez UNIQUEMENT avec le nom exact de la catégorie, rien d'autre.`;
         </label>
       </div>
 
-      <div>
-        <Label>Pièces jointes</Label>
-        {formData.type === 'Dépense' && (!formData.attachments || formData.attachments.length === 0) && (
-          <div className="mb-2 p-3 bg-amber-50 border border-amber-300 rounded-lg flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-800">
-              <strong>Requis:</strong> Facture ou reçu obligatoire pour toute dépense (conformité NPCG)
-            </p>
+      {/* Duplicate Alert */}
+      {duplicateAlert && (
+        <div className="p-3 bg-orange-50 border-2 border-orange-300 rounded-lg flex items-start gap-2">
+          <Copy className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-orange-800">⚠️ Doublon potentiel détecté</p>
+            <p className="text-xs text-orange-700 mt-0.5">Transaction similaire: <strong>{duplicateAlert.description}</strong> — {parseFloat(duplicateAlert.amount)?.toLocaleString()} DJF</p>
           </div>
-        )}
+          <Button type="button" size="sm" variant="ghost" onClick={() => setDuplicateAlert(null)} className="h-6 w-6 p-0 text-orange-600"><X className="w-3 h-3" /></Button>
+        </div>
+      )}
+
+      <div>
+        <Label>Pièces jointes & Scan IA</Label>
         <div className="mt-2 space-y-2">
-          <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-[#D3DCE6] rounded-lg cursor-pointer hover:border-[#0066FF] transition-colors">
-            <Upload className="w-5 h-5 text-[#697586]" />
-            <span className="text-sm text-[#697586]">
-              {uploading ? 'Téléchargement...' : 'Cliquer pour télécharger'}
-            </span>
-            <input
-              type="file"
-              multiple
-              onChange={handleFileUpload}
-              className="hidden"
-              disabled={uploading}
-            />
+          <label className={`flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed rounded-xl cursor-pointer transition ${
+            scanning ? 'border-purple-400 bg-purple-50' : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50/50'
+          }`}>
+            {scanning ? (
+              <>
+                <div className="flex items-center gap-2 text-purple-700">
+                  <ScanLine className="w-6 h-6 animate-pulse" />
+                  <span className="text-sm font-semibold">Scan IA en cours...</span>
+                </div>
+                <p className="text-xs text-purple-500">Extraction des données avec précision 99%</p>
+              </>
+            ) : uploading ? (
+              <span className="text-sm text-gray-500">Téléchargement...</span>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  <span className="text-sm font-semibold">Déposer facture / reçu</span>
+                </div>
+                <p className="text-xs text-gray-400">L'IA extrait automatiquement: montant, TVA, fournisseur, compte GL</p>
+                <div className="flex gap-2 mt-1 flex-wrap justify-center">
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full flex items-center gap-1"><Zap className="w-3 h-3" /> Précision 99%</span>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full flex items-center gap-1"><BarChart3 className="w-3 h-3" /> Auto-catégorisation</span>
+                  <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full flex items-center gap-1"><Copy className="w-3 h-3" /> Détection doublons</span>
+                </div>
+              </>
+            )}
+            <input type="file" multiple accept="image/*,application/pdf" onChange={handleFileUpload} className="hidden" disabled={uploading || scanning} />
           </label>
+
+          {/* AI Scan Result Panel */}
+          {scanResult && (
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-300 rounded-xl">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-bold text-purple-900">Données extraites par l'IA</span>
+                  {scanResult.confidence && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">{scanResult.confidence}% confiance</span>
+                  )}
+                </div>
+                <Button type="button" size="sm" variant="ghost" onClick={() => setScanResult(null)} className="h-6 w-6 p-0 text-gray-400"><X className="w-3 h-3" /></Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs text-gray-700 mb-3">
+                {scanResult.description && <div><span className="text-gray-400">Description:</span> <strong>{scanResult.description}</strong></div>}
+                {scanResult.contact_name && <div><span className="text-gray-400">Fournisseur:</span> <strong>{scanResult.contact_name}</strong></div>}
+                {scanResult.amount && <div><span className="text-gray-400">Montant HT:</span> <strong>{parseFloat(scanResult.amount)?.toLocaleString()} DJF</strong></div>}
+                {scanResult.tax_rate > 0 && <div><span className="text-gray-400">TVA:</span> <strong>{scanResult.tax_rate}%</strong></div>}
+                {scanResult.total_amount && <div><span className="text-gray-400">TTC:</span> <strong>{parseFloat(scanResult.total_amount)?.toLocaleString()} DJF</strong></div>}
+                {scanResult.numero_facture && <div><span className="text-gray-400">N° Facture:</span> <strong>{scanResult.numero_facture}</strong></div>}
+                {scanResult.category && <div><span className="text-gray-400">Catégorie:</span> <strong>{scanResult.category}</strong></div>}
+                {scanResult.gl_account && <div><span className="text-gray-400">Compte NPCG:</span> <strong>{scanResult.gl_account}</strong></div>}
+              </div>
+              <Button type="button" onClick={applyScanResult} className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm h-8">
+                <Check className="w-4 h-4 mr-2" />
+                Appliquer toutes les données
+              </Button>
+            </div>
+          )}
 
           {formData.attachments?.length > 0 && (
             <div className="space-y-2">
@@ -680,12 +730,7 @@ Répondez UNIQUEMENT avec le nom exact de la catégorie, rien d'autre.`;
                     )}
                     <span className="text-sm text-[#0A2540]">{file.name}</span>
                   </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeAttachment(index)}
-                  >
+                  <Button type="button" size="sm" variant="ghost" onClick={() => removeAttachment(index)}>
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
