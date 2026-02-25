@@ -194,31 +194,7 @@ export default function MerasPaymentGateway({
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 p-4 border-2 border-[#E5E7EB] rounded-lg cursor-pointer hover:border-[#6366F1] transition-all">
-                    <RadioGroupItem value="cheque" />
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#0F172A]">Chèque</p>
-                        <p className="text-xs text-[#64748B]">Paiement par chèque bancaire</p>
-                      </div>
-                    </div>
-                  </label>
 
-                  <label className="flex items-center gap-3 p-4 border-2 border-[#E5E7EB] rounded-lg cursor-pointer hover:border-[#6366F1] transition-all">
-                    <RadioGroupItem value="cash" />
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#64748B] to-[#475569] flex items-center justify-center">
-                        <Banknote className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#0F172A]">Espèces</p>
-                        <p className="text-xs text-[#64748B]">Paiement en cash</p>
-                      </div>
-                    </div>
-                  </label>
                 </div>
               </RadioGroup>
             </div>
