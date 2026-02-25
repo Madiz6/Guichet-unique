@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import PermissionGuard, { usePermission } from "../components/permissions/PermissionGuard";
 import { logAuditAction, AUDIT_ACTIONS } from "../components/security/AuditLogger";
+import { registerDeclarationTransaction, markDeclarationTransactionPaid } from "../components/transactions/autoTransactions";
 import PaymentGateway from "../components/payments/PaymentGateway";
 
 export default function Declarations() {

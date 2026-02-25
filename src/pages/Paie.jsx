@@ -22,6 +22,7 @@ import SignatureDialog from "../components/documents/SignatureDialog";
 import PayslipEmailModal from "../components/payroll/PayslipEmailModal";
 import PaymentGateway from "../components/payments/PaymentGateway";
 import { logAuditAction, AUDIT_ACTIONS } from "../components/security/AuditLogger";
+import { registerPayrollTransaction, markPayrollTransactionPaid } from "../components/transactions/autoTransactions";
 
 export default function Paie() {
   const [showForm, setShowForm] = useState(false);
