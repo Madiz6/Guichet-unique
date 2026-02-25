@@ -364,7 +364,7 @@ export default function Transactions() {
                       </tr>
                     ) : (
                       filteredTransactions.map(transaction => (
-                        <tr key={transaction.id} className="border-b border-[#F1F5F9] hover:bg-[#F8FAFC]">
+                        <tr key={transaction.id} className={`border-b border-[#F1F5F9] hover:bg-[#F8FAFC] ${transaction.booking_status === 'booked' ? 'bg-green-50/40' : ''}`}>
                           <td className="py-4 px-4 text-sm text-[#475569]">
                             {transaction.date && format(new Date(transaction.date), 'dd/MM/yyyy')}
                           </td>
