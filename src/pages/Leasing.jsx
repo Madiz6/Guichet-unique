@@ -822,36 +822,11 @@ export default function Leasing() {
                                       {isAdmin && (
                                         <Button
                                           size="sm"
-                                          onClick={async () => {
-                                            const methode = prompt('Méthode de paiement (Virement, Chèque, Espèces, Mobile Money, Carte bancaire):');
-                                            if (methode) {
-                                              try {
-                                                     await base44.functions.invoke('processPayment', {
-                                                       payment_id: payment.id,
-                                                       methode_paiement: methode,
-                                                       transaction_id: `MAN-${Date.now()}`
-                                                     });
-                                                     // Auto-register the lease payment as income transaction
-                                                     const leaseTmp = leases.find(l => l.id === payment.lease_id);
-                                                     const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
-                                                     await registerLeasePaymentTransaction(
-                                                       { ...payment, date_paiement: new Date().toISOString().split('T')[0], methode_paiement: methode },
-                                                       leaseTmp,
-                                                       assetTmp
-                                                     );
-                                                     toast.success('Paiement enregistré');
-                                                     queryClient.invalidateQueries(['lease-payments']);
-                                              } catch (error) {
-                                                console.error('Erreur lors de l\'enregistrement du paiement:', error);
-                                                let errorMessage = 'Erreur lors de l\'enregistrement du paiement.';
-                                                if (error && error.response && error.response.data && error.response.data.message) {
-                                                  errorMessage = error.response.data.message;
-                                                } else if (error && error.message) {
-                                                  errorMessage = error.message;
-                                                }
-                                                toast.error(errorMessage);
-                                              }
-                                            }
+                                          onClick={() => {
+                                            const leaseTmp = leases.find(l => l.id === payment.lease_id);
+                                            const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
+                                            setPaymentDialog({ payment, lease: leaseTmp, asset: assetTmp });
+                                            setPaymentForm({ methode: '', numero_cheque: '', cheque_url: '', uploadingCheque: false });
                                           }}
                                           className="bg-green-600 hover:bg-green-700 text-white"
                                           title="Marquer comme payé manuellement"
