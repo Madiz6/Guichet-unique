@@ -132,9 +132,15 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
         <Tabs defaultValue="payment" className="px-6 py-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="payment">Payment Information</TabsTrigger>
-            <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="payment">Détails</TabsTrigger>
+            <TabsTrigger value="booking" className="flex items-center gap-1">
+              <BookOpen className="w-3 h-3" />
+              Comptabilisation
+              {!transaction.booking_status && <span className="ml-1 w-2 h-2 rounded-full bg-amber-400 inline-block" />}
+              {transaction.booking_status && <span className="ml-1 w-2 h-2 rounded-full bg-green-500 inline-block" />}
+            </TabsTrigger>
+            <TabsTrigger value="events">Historique</TabsTrigger>
           </TabsList>
 
           <TabsContent value="payment" className="space-y-4 mt-4">
