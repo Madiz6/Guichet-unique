@@ -1191,6 +1191,140 @@ export default function Leasing() {
           </DialogContent>
         </Dialog>
         
+        {/* Manual Payment Dialog */}
+        <Dialog open={!!paymentDialog} onOpenChange={(open) => { if (!open) setPaymentDialog(null); }}>
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-lg text-[#0F172A] flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-green-600" />
+                Enregistrer le paiement
+              </DialogTitle>
+            </DialogHeader>
+
+            {paymentDialog && (
+              <div className="space-y-4">
+                <div className="p-3 bg-[#F8FAFC] rounded-lg text-sm">
+                  <p className="font-medium text-[#0F172A]">{paymentDialog.asset?.nom} — {paymentDialog.payment.periode}</p>
+                  <p className="text-[#64748B]">{paymentDialog.lease?.locataire_nom}</p>
+                  <p className="text-xl font-bold text-green-600 mt-1">{paymentDialog.payment.montant?.toLocaleString()} DJF</p>
+                </div>
+
+                <div>
+                  <Label className="font-semibold text-[#374151]">Méthode de paiement *</Label>
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {['Espèces', 'Chèque', 'Virement', 'Mobile Money', 'Carte bancaire'].map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setPaymentForm({ ...paymentForm, methode: m, numero_cheque: '', cheque_url: '' })}
+                        className={`p-2 rounded-lg border-2 text-xs font-medium transition-all ${
+                          paymentForm.methode === m
+                            ? 'border-green-500 bg-green-50 text-green-700'
+                            : 'border-[#E5E7EB] text-[#64748B] hover:border-[#9CA3AF]'
+                        }`}
+                      >
+                        {m === 'Espèces' ? '💵' : m === 'Chèque' ? '📄' : m === 'Virement' ? '🏦' : m === 'Mobile Money' ? '📱' : '💳'} {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {paymentForm.methode === 'Chèque' && (
+                  <div className="space-y-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div>
+                      <Label className="font-semibold text-[#374151]">Numéro de chèque *</Label>
+                      <Input
+                        value={paymentForm.numero_cheque}
+                        onChange={(e) => setPaymentForm({ ...paymentForm, numero_cheque: e.target.value })}
+                        placeholder="Ex: 0012345"
+                        className="mt-1 border-amber-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="font-semibold text-[#374151]">Photo du chèque *</Label>
+                      {paymentForm.cheque_url ? (
+                        <div className="mt-1 flex items-center gap-2">
+                          <img src={paymentForm.cheque_url} alt="Chèque" className="w-24 h-16 object-cover rounded border" />
+                          <button type="button" onClick={() => setPaymentForm({ ...paymentForm, cheque_url: '' })} className="text-xs text-red-500 underline">Supprimer</button>
+                        </div>
+                      ) : (
+                        <label className="mt-1 flex items-center gap-2 cursor-pointer p-2 border-2 border-dashed border-amber-300 rounded-lg hover:border-amber-500 transition">
+                          {paymentForm.uploadingCheque ? (
+                            <span className="text-xs text-amber-600">Upload en cours...</span>
+                          ) : (
+                            <span className="text-xs text-amber-700">📷 Cliquer pour uploader la photo du chèque</span>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={paymentForm.uploadingCheque}
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (!file) return;
+                              setPaymentForm(f => ({ ...f, uploadingCheque: true }));
+                              const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                              setPaymentForm(f => ({ ...f, cheque_url: file_url, uploadingCheque: false }));
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {paymentForm.methode === 'Espèces' && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-sm text-green-700">
+                    <CheckCircle className="w-4 h-4" />
+                    Paiement en espèces — aucun document requis. Approbation immédiate.
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-2">
+                  <Button variant="outline" className="flex-1" onClick={() => setPaymentDialog(null)}>
+                    Annuler
+                  </Button>
+                  <Button
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    disabled={
+                      !paymentForm.methode ||
+                      (paymentForm.methode === 'Chèque' && (!paymentForm.numero_cheque || !paymentForm.cheque_url)) ||
+                      paymentForm.uploadingCheque
+                    }
+                    onClick={async () => {
+                      const { payment, lease, asset } = paymentDialog;
+                      try {
+                        await base44.functions.invoke('processPayment', {
+                          payment_id: payment.id,
+                          methode_paiement: paymentForm.methode,
+                          transaction_id: `MAN-${Date.now()}`,
+                          ...(paymentForm.methode === 'Chèque' && {
+                            numero_cheque: paymentForm.numero_cheque,
+                            cheque_url: paymentForm.cheque_url,
+                          }),
+                        });
+                        await registerLeasePaymentTransaction(
+                          { ...payment, date_paiement: new Date().toISOString().split('T')[0], methode_paiement: paymentForm.methode },
+                          lease,
+                          asset
+                        );
+                        toast.success('Paiement enregistré avec succès');
+                        queryClient.invalidateQueries(['lease-payments']);
+                        setPaymentDialog(null);
+                      } catch (error) {
+                        toast.error(error?.message || 'Erreur lors de l\'enregistrement');
+                      }
+                    }}
+                  >
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Confirmer
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Lease Form Dialog */}
         <Dialog open={showLeaseForm} onOpenChange={setShowLeaseForm}>
           <DialogContent className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
