@@ -61,14 +61,20 @@ export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
   const [entries, setEntries] = useState(transaction.journal_entries || null);
   const [loading, setLoading] = useState(false);
 
+  const queryClient = useQueryClient();
+
   const toggle = (n) => setOpen(prev => ({ ...prev, [n]: !prev[n] }));
 
-  // Central save: writes to DB, then notifies parent with the full updated record
+  // Central save: writes to DB, refreshes all relevant queries, notifies parent
   const persist = async (fields) => {
     const updated = await meras.entities.Transaction.update(transaction.id, {
       ...transaction,
       ...fields,
     });
+    // Invalidate all queries that show transaction/financial data
+    queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    queryClient.invalidateQueries({ queryKey: ['transactions-dashboard'] });
+    queryClient.invalidateQueries({ queryKey: ['budgets-dashboard'] });
     onTransactionUpdated(updated);
     return updated;
   };
