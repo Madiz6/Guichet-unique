@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +21,7 @@ import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import PermissionGuard from "../components/permissions/PermissionGuard";
 import MaintenanceTracker from "../components/maintenance/MaintenanceTracker";
+import { registerLeasePaymentTransaction } from "../components/transactions/autoTransactions";
 
 export default function Leasing() {
   const [showAssetForm, setShowAssetForm] = useState(false);
