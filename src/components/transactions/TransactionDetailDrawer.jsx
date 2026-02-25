@@ -13,9 +13,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import BookingWorkflow from './BookingWorkflow';
 
-// onSave(id, data)  — for the edit form
-// onBooked(updatedRecord) — called by BookingWorkflow after a successful DB write
-export default function TransactionDetailDrawer({ transaction, onClose, onSave, onBooked, onDelete, departments, categories, budgets = [] }) {
+// onSave(id, data) — for the edit form in Détails tab
+// onTransactionUpdated(updatedRecord) — called by BookingWorkflow after saving to DB
+export default function TransactionDetailDrawer({ transaction, onClose, onSave, onTransactionUpdated, onDelete, departments, categories, budgets = [] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(transaction);
   const [isSavingBudgetLink, setIsSavingBudgetLink] = useState(false);
