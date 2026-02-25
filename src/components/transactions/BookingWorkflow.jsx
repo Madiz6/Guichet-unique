@@ -217,8 +217,7 @@ Règles:
   const handleBookEntry = async () => {
     setLoading(true);
     try {
-      await onUpdate({
-        ...transaction,
+      await onSave({
         booking_status: 'booked',
         booking_type: bookingType,
         journal_entries: journalEntries,
@@ -238,12 +237,10 @@ Règles:
   const handleRegisterPayment = async () => {
     setLoading(true);
     try {
-      await onUpdate({
-        ...transaction,
+      await onSave({
         payment_registered: true,
         status: 'Payé',
         booking_status: 'booked',
-        journal_entries: journalEntries,
       });
       setPaymentStep('done');
       toast.success('✅ Paiement enregistré');
@@ -255,8 +252,7 @@ Règles:
   };
 
   const handleReset = async () => {
-    await onUpdate({
-      ...transaction,
+    await onSave({
       booking_status: null,
       booking_type: null,
       journal_entries: null,
