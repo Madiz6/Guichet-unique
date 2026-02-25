@@ -488,10 +488,43 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
             )}
           </TabsContent>
 
+          <TabsContent value="booking" className="mt-4">
+            <BookingWorkflow transaction={transaction} onUpdate={onUpdate} />
+          </TabsContent>
+
           <TabsContent value="events" className="mt-4">
-            <div className="text-center py-8 text-[#697586]">
-              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No events recorded</p>
+            <div className="space-y-3">
+              {transaction.booking_status && (
+                <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-green-800">Écriture comptable créée</p>
+                    <p className="text-xs text-green-600">{transaction.booking_type} — {transaction.booked_at ? format(new Date(transaction.booked_at), 'dd/MM/yyyy HH:mm') : ''}</p>
+                  </div>
+                </div>
+              )}
+              {transaction.payment_registered && (
+                <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <CreditCard className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-blue-800">Paiement enregistré</p>
+                    <p className="text-xs text-blue-600">{transaction.payment_method}</p>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">Transaction créée</p>
+                  <p className="text-xs text-gray-500">{transaction.created_date ? format(new Date(transaction.created_date), 'dd/MM/yyyy HH:mm') : ''}</p>
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
