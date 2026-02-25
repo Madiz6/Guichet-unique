@@ -824,13 +824,21 @@ export default function Leasing() {
                                             const methode = prompt('Méthode de paiement (Virement, Chèque, Espèces, Mobile Money, Carte bancaire):');
                                             if (methode) {
                                               try {
-                                                await base44.functions.invoke('processPayment', {
-                                                  payment_id: payment.id,
-                                                  methode_paiement: methode,
-                                                  transaction_id: `MAN-${Date.now()}`
-                                                });
-                                                toast.success('Paiement enregistré');
-                                                queryClient.invalidateQueries(['lease-payments']);
+                                                     await base44.functions.invoke('processPayment', {
+                                                       payment_id: payment.id,
+                                                       methode_paiement: methode,
+                                                       transaction_id: `MAN-${Date.now()}`
+                                                     });
+                                                     // Auto-register the lease payment as income transaction
+                                                     const leaseTmp = leases.find(l => l.id === payment.lease_id);
+                                                     const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
+                                                     await registerLeasePaymentTransaction(
+                                                       { ...payment, date_paiement: new Date().toISOString().split('T')[0], methode_paiement: methode },
+                                                       leaseTmp,
+                                                       assetTmp
+                                                     );
+                                                     toast.success('Paiement enregistré');
+                                                     queryClient.invalidateQueries(['lease-payments']);
                                               } catch (error) {
                                                 console.error('Erreur lors de l\'enregistrement du paiement:', error);
                                                 let errorMessage = 'Erreur lors de l\'enregistrement du paiement.';
