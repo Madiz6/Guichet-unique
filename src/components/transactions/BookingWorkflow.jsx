@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
