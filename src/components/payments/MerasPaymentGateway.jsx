@@ -236,8 +236,12 @@ export default function MerasPaymentGateway({
                 Annuler
               </Button>
               <Button
-                onClick={paymentMethod === 'checkout' ? handleCheckoutPayment : handleDirectPayment}
-                disabled={processing || (paymentMethod === 'direct' && !phoneNumber)}
+                onClick={() => {
+                  if (paymentMethod === 'checkout') handleCheckoutPayment();
+                  else if (paymentMethod === 'direct') handleDirectPayment();
+                  else handleOfflinePayment();
+                }}
+                disabled={processing || (paymentMethod === 'direct' && !phoneNumber) || (paymentMethod === 'cheque' && !chequeRef)}
                 className="flex-1 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]"
               >
                 {processing ? (
@@ -248,7 +252,9 @@ export default function MerasPaymentGateway({
                 ) : (
                   <>
                     <CreditCard className="w-4 h-4 mr-2" />
-                    {paymentMethod === 'checkout' ? 'Continuer' : 'Payer Maintenant'}
+                    {paymentMethod === 'checkout' ? 'Continuer' :
+                     paymentMethod === 'direct' ? 'Payer Maintenant' :
+                     'Confirmer Paiement'}
                   </>
                 )}
               </Button>
