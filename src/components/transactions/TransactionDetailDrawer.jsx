@@ -489,7 +489,7 @@ export default function TransactionDetailDrawer({ transaction, onClose, onUpdate
           </TabsContent>
 
           <TabsContent value="booking" className="mt-4">
-            <BookingWorkflow transaction={transaction} onUpdate={onUpdate} />
+            <BookingWorkflow transaction={transaction} onUpdate={(data) => onUpdate({ ...transaction, ...data })} />
           </TabsContent>
 
           <TabsContent value="events" className="mt-4">
