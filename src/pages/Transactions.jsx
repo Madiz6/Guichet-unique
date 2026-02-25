@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Upload, Download, Filter, TrendingUp, TrendingDown, DollarSign, FileText, X, Paperclip, Eye, Trash2, Edit2, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
+import { Plus, Upload, Download, Filter, TrendingUp, TrendingDown, DollarSign, FileText, X, Paperclip, Eye, Trash2, Edit2, Calendar as CalendarIcon, ArrowLeft, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
