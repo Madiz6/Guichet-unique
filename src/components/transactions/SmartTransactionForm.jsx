@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Upload, X, FileText, AlertCircle, CheckCircle, Info, Sparkles } from 'lucide-react';
+import { Upload, X, FileText, AlertCircle, CheckCircle, Info, Sparkles, ScanLine, Copy, Zap, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import AITransactionAutocomplete from '@/components/ai/AITransactionAutocomplete';
 
