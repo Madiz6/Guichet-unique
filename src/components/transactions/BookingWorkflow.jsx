@@ -65,17 +65,13 @@ export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
 
   const toggle = (n) => setOpen(prev => ({ ...prev, [n]: !prev[n] }));
 
-  // Central save: writes to DB, refreshes all relevant queries, notifies parent
+  // Central save: writes only the changed fields, refreshes queries, notifies parent
   const persist = async (fields) => {
-    const updated = await meras.entities.Transaction.update(transaction.id, {
-      ...transaction,
-      ...fields,
-    });
-    // Invalidate all queries that show transaction/financial data
+    const updated = await meras.entities.Transaction.update(transaction.id, fields);
     queryClient.invalidateQueries({ queryKey: ['transactions'] });
     queryClient.invalidateQueries({ queryKey: ['transactions-dashboard'] });
     queryClient.invalidateQueries({ queryKey: ['budgets-dashboard'] });
-    onTransactionUpdated(updated);
+    onTransactionUpdated({ ...transaction, ...fields, ...updated });
     return updated;
   };
 
