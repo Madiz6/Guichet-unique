@@ -97,6 +97,9 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
   });
   
   const [uploading, setUploading] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
+  const [duplicateAlert, setDuplicateAlert] = useState(null);
   const [validationIssues, setValidationIssues] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
 
