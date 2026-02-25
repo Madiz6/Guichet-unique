@@ -278,8 +278,15 @@ export default function Paie() {
 
   const handlePaymentSuccess = async (paymentData) => {
     if (selectedCycleForPayment) {
+      // Mark cycle as Payé
+      await meras.entities.PayrollCycle.update(selectedCycleForPayment.id, {
+        statut: 'Payé',
+        date_paiement: format(new Date(), 'yyyy-MM-dd'),
+      });
+
       // Auto-update the payroll transaction to Payé
       await markPayrollTransactionPaid(selectedCycleForPayment, paymentData);
+
       await logAuditAction(
         AUDIT_ACTIONS.PAYROLL_PAID,
         'PayrollCycle',
@@ -287,7 +294,8 @@ export default function Paie() {
         {
           periode: selectedCycleForPayment.periode,
           montant: selectedCycleForPayment.salaire_net_total,
-          transaction_id: paymentData.transaction_id
+          transaction_id: paymentData.transaction_id,
+          payment_method: paymentData.payment_method || 'Meras'
         },
         selectedCycleForPayment.periode
       );

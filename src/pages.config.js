@@ -68,7 +68,6 @@ import EtatsFinanciers from './pages/EtatsFinanciers';
 import Expenses from './pages/Expenses';
 import Home from './pages/Home';
 import InvitationProcess from './pages/InvitationProcess';
-import Leasing from './pages/Leasing';
 import MailManagement from './pages/MailManagement';
 import MigrationStrategy from './pages/MigrationStrategy';
 import Paie from './pages/Paie';
@@ -86,6 +85,7 @@ import Training from './pages/Training';
 import Transactions from './pages/Transactions';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import Visas from './pages/Visas';
+import Leasing from './pages/Leasing';
 import __Layout from './Layout.jsx';
 
 
@@ -111,7 +111,6 @@ export const PAGES = {
     "Expenses": Expenses,
     "Home": Home,
     "InvitationProcess": InvitationProcess,
-    "Leasing": Leasing,
     "MailManagement": MailManagement,
     "MigrationStrategy": MigrationStrategy,
     "Paie": Paie,
@@ -129,6 +128,7 @@ export const PAGES = {
     "Transactions": Transactions,
     "VirtualReceptionist": VirtualReceptionist,
     "Visas": Visas,
+    "Leasing": Leasing,
 }
 
 export const pagesConfig = {
