@@ -13,7 +13,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import BookingWorkflow from './BookingWorkflow';
 
-export default function TransactionDetailDrawer({ transaction, onClose, onUpdate, onDelete, departments, categories, budgets = [] }) {
+export default function TransactionDetailDrawer({ transaction, onClose, onSave, onDelete, departments, categories, budgets = [] }) {
+  // onSave(id, data) — called with the transaction id and the fields to update
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(transaction);
   const [isSavingBudgetLink, setIsSavingBudgetLink] = useState(false);
