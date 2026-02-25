@@ -329,6 +329,7 @@ export default function Transactions() {
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Département</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Paiement</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Budget</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Comptabilisation</th>
                       <th className="text-center py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Actions</th>
                     </tr>
                   </thead>
