@@ -23,6 +23,10 @@ export default function PaymentGateway({
 }) {
   const [gatewayType, setGatewayType] = useState('meras');
   const [paymentMethod, setPaymentMethod] = useState('card');
+  const [chequeRef, setChequeRef] = useState('');
+  const [cashNote, setCashNote] = useState('');
+  const [offlineProcessing, setOfflineProcessing] = useState(false);
+  const [offlineSuccess, setOfflineSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(null); // 'success', 'failed', null
   
