@@ -248,9 +248,11 @@ export default function PaymentGateway({
 
         {/* Gateway Selection */}
         <Tabs value={gatewayType} onValueChange={setGatewayType} className="mb-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="meras">Meras (Djibouti)</TabsTrigger>
-            <TabsTrigger value="manual">Manuel</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="meras">Meras</TabsTrigger>
+            <TabsTrigger value="manual">Virement/Carte</TabsTrigger>
+            <TabsTrigger value="cheque">Chèque</TabsTrigger>
+            <TabsTrigger value="cash">Espèces</TabsTrigger>
           </TabsList>
         </Tabs>
         
