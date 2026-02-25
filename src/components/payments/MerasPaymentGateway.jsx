@@ -19,8 +19,6 @@ export default function MerasPaymentGateway({
 }) {
   const [paymentMethod, setPaymentMethod] = useState('checkout');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [chequeRef, setChequeRef] = useState('');
-  const [cashNote, setCashNote] = useState('');
   const [processing, setProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(null);
 
