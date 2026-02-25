@@ -240,24 +240,55 @@ export default function MerasPaymentGateway({
               </RadioGroup>
             </div>
 
-            {/* Phone Number Input */}
-            <div>
-              <Label htmlFor="phone">Numéro de téléphone {paymentMethod === 'direct' && '*'}</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+253XXXXXXXX"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="mt-2"
-                required={paymentMethod === 'direct'}
-              />
-              <p className="text-xs text-[#64748B] mt-1">
-                {paymentMethod === 'checkout' 
-                  ? 'Optionnel - sera pré-rempli sur la page de paiement' 
-                  : 'Requis - vous recevrez une demande de confirmation'}
-              </p>
-            </div>
+            {/* Dynamic input based on payment method */}
+            {(paymentMethod === 'checkout' || paymentMethod === 'direct') && (
+              <div>
+                <Label htmlFor="phone">Numéro de téléphone {paymentMethod === 'direct' && '*'}</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+253XXXXXXXX"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="mt-2"
+                  required={paymentMethod === 'direct'}
+                />
+                <p className="text-xs text-[#64748B] mt-1">
+                  {paymentMethod === 'checkout'
+                    ? 'Optionnel - sera pré-rempli sur la page de paiement'
+                    : 'Requis - vous recevrez une demande de confirmation'}
+                </p>
+              </div>
+            )}
+
+            {paymentMethod === 'cheque' && (
+              <div>
+                <Label htmlFor="chequeRef">Numéro de chèque *</Label>
+                <Input
+                  id="chequeRef"
+                  placeholder="Ex: 000123456"
+                  value={chequeRef}
+                  onChange={(e) => setChequeRef(e.target.value)}
+                  className="mt-2"
+                  required
+                />
+                <p className="text-xs text-[#64748B] mt-1">Indiquez le numéro figurant sur le chèque</p>
+              </div>
+            )}
+
+            {paymentMethod === 'cash' && (
+              <div>
+                <Label htmlFor="cashNote">Note (optionnel)</Label>
+                <Input
+                  id="cashNote"
+                  placeholder="Ex: Remis en caisse le 25/02/2026"
+                  value={cashNote}
+                  onChange={(e) => setCashNote(e.target.value)}
+                  className="mt-2"
+                />
+                <p className="text-xs text-[#64748B] mt-1">Confirmez la réception des espèces</p>
+              </div>
+            )}
 
             {/* Payment Status */}
             {paymentStatus === 'pending' && (
