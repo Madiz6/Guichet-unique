@@ -73,11 +73,11 @@ export default function Transactions() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => meras.entities.Transaction.update(id, data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries(['transactions']);
       setEditingTransaction(null);
-      setSelectedTransaction(null);
-      toast.success('Transaction mise à jour');
+      // Keep drawer open but update local state so booking status reflects immediately
+      setSelectedTransaction(prev => prev ? { ...prev, ...variables.data } : null);
     },
   });
 
