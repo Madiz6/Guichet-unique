@@ -75,8 +75,10 @@ export default function Transactions() {
     mutationFn: ({ id, data }) => meras.entities.Transaction.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries(['transactions']);
+      queryClient.invalidateQueries(['dashboard-transactions']);
+      queryClient.invalidateQueries(['budgets']);
       setEditingTransaction(null);
-      // Keep drawer open but update local state so booking status reflects immediately
+      // Keep drawer open and reflect updated data immediately
       setSelectedTransaction(prev => prev ? { ...prev, ...variables.data } : null);
     },
   });
