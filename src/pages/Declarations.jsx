@@ -205,17 +205,19 @@ export default function Declarations() {
 
   const handlePaymentSuccess = async (paymentData) => {
     if (selectedDeclarationForPayment) {
-      // Auto-update the declaration transaction to Payé
-      await markDeclarationTransactionPaid(selectedDeclarationForPayment, paymentData);
+      // Mark declaration as Payée regardless of payment method
       await updateDeclarationMutation.mutateAsync({
         id: selectedDeclarationForPayment.id,
         data: {
           ...selectedDeclarationForPayment,
           statut: 'Payé',
           date_paiement: format(new Date(), 'yyyy-MM-dd'),
-          transaction_id: paymentData.transaction_id
+          transaction_id: paymentData.transaction_id || `MANUAL-${Date.now()}`
         }
       });
+
+      // Auto-update the declaration transaction to Payé
+      await markDeclarationTransactionPaid(selectedDeclarationForPayment, paymentData);
       
       // ✅ AUDIT LOG
       await logAuditAction(
