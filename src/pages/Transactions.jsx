@@ -471,7 +471,7 @@ export default function Transactions() {
       <TransactionDetailDrawer
         transaction={selectedTransaction}
         onClose={() => setSelectedTransaction(null)}
-        onUpdate={(data) => updateMutation.mutate({ id: data.id || selectedTransaction.id, data })}
+        onSave={(id, data) => updateMutation.mutate({ id, data })}
         onDelete={(id) => {
           if (confirm('Supprimer cette transaction?')) {
             deleteMutation.mutate(id);
