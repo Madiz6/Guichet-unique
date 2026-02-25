@@ -185,6 +185,98 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
     }
   }, [formData.category]);
 
+  const checkForDuplicates = (amount, description, date) => {
+    if (!amount || !description) return null;
+    const similar = recentTransactions.filter(t => {
+      const sameAmount = parseFloat(t.amount) === parseFloat(amount);
+      const descWords = description.toLowerCase().split(' ').filter(w => w.length > 3);
+      const descMatch = descWords.some(w => t.description?.toLowerCase().includes(w));
+      const recentDate = new Date(t.created_date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      return sameAmount && descMatch && recentDate;
+    });
+    return similar.length > 0 ? similar[0] : null;
+  };
+
+  const scanReceiptWithAI = async (file, fileUrl) => {
+    setScanning(true);
+    setScanResult(null);
+    try {
+      const result = await meras.integrations.Core.InvokeLLM({
+        prompt: `Tu es un expert comptable. Analyse ce justificatif (reçu, facture ou relevé) et extrait les données suivantes avec une précision maximale.
+
+Retourne UNIQUEMENT un JSON avec ces champs:
+- description: description courte de la transaction (max 80 chars)
+- contact_name: nom du fournisseur ou émetteur
+- amount: montant HT en chiffres uniquement (sans symbole)
+- tax_rate: taux TVA en % (0 si non indiqué)
+- tax_amount: montant TVA en chiffres
+- total_amount: montant TTC en chiffres
+- numero_facture: numéro de facture ou reçu (vide si absent)
+- date: date de la transaction au format YYYY-MM-DD
+- type: "Revenu" ou "Dépense" selon le document
+- category: l'une de ces catégories exactes: "Payroll & Benefits", "Office & Administrative", "Marketing & Advertising", "Travel & Entertainment", "IT / Software / Tools", "Professional Services", "Training & Development", "Procurement / Inventory", "Maintenance & Repairs", "Taxes & Regulatory Fees", "Insurance", "Bank Charges & Interest", "Product Sales / Services Revenue", "Subscription Income / Recurring Revenue"
+- gl_account: numéro de compte NPCG correspondant (ex: 641, 606, 701...)
+- confidence: score de confiance de 0 à 100
+
+Si une donnée est illisible ou absente, utilise null.`,
+        file_urls: [fileUrl],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            description: { type: "string" },
+            contact_name: { type: "string" },
+            amount: { type: "number" },
+            tax_rate: { type: "number" },
+            tax_amount: { type: "number" },
+            total_amount: { type: "number" },
+            numero_facture: { type: "string" },
+            date: { type: "string" },
+            type: { type: "string" },
+            category: { type: "string" },
+            gl_account: { type: "string" },
+            confidence: { type: "number" }
+          }
+        }
+      });
+
+      if (result && result.amount) {
+        setScanResult(result);
+        // Check for duplicates immediately
+        const dup = checkForDuplicates(result.amount, result.description, result.date);
+        if (dup) {
+          setDuplicateAlert(dup);
+        }
+        toast.success(`✅ Scan IA terminé — Confiance: ${result.confidence || '—'}%`);
+      } else {
+        toast.error('Impossible de lire le document');
+      }
+    } catch (err) {
+      toast.error('Erreur lors du scan IA');
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const applyScanResult = () => {
+    if (!scanResult) return;
+    setFormData(prev => ({
+      ...prev,
+      description: scanResult.description || prev.description,
+      contact_name: scanResult.contact_name || prev.contact_name,
+      amount: scanResult.amount || prev.amount,
+      tax_rate: scanResult.tax_rate ?? prev.tax_rate,
+      tax_amount: scanResult.tax_amount ?? prev.tax_amount,
+      total_amount: scanResult.total_amount || scanResult.amount || prev.total_amount,
+      numero_facture: scanResult.numero_facture || prev.numero_facture,
+      date: scanResult.date || prev.date,
+      type: scanResult.type || prev.type,
+      category: scanResult.category || prev.category,
+      compte_comptable: scanResult.gl_account || prev.compte_comptable,
+    }));
+    setScanResult(null);
+    toast.success('Données appliquées depuis le scan IA');
+  };
+
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
     setUploading(true);
@@ -196,12 +288,20 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
       });
 
       const uploadedFiles = await Promise.all(uploadPromises);
-      setFormData({
-        ...formData,
-        attachments: [...(formData.attachments || []), ...uploadedFiles],
+      setFormData(prev => ({
+        ...prev,
+        attachments: [...(prev.attachments || []), ...uploadedFiles],
         document_validated: false
-      });
-      toast.success(`${uploadedFiles.length} document(s) ajouté(s)`);
+      }));
+
+      // Auto-scan the first image/PDF with AI
+      const firstScannable = uploadedFiles.find(f => f.type?.startsWith('image/') || f.type === 'application/pdf');
+      if (firstScannable) {
+        toast.info('🤖 Scan IA en cours...');
+        await scanReceiptWithAI(files[0], firstScannable.url);
+      } else {
+        toast.success(`${uploadedFiles.length} document(s) ajouté(s)`);
+      }
     } catch (error) {
       toast.error('Erreur upload');
     } finally {
