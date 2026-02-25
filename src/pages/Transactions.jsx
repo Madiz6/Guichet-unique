@@ -73,12 +73,12 @@ export default function Transactions() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => meras.entities.Transaction.update(id, data),
-    onSuccess: (_, variables) => {
+    onSuccess: (updatedRecord, variables) => {
       queryClient.invalidateQueries(['transactions']);
       queryClient.invalidateQueries(['dashboard-transactions']);
       queryClient.invalidateQueries(['budgets']);
       setEditingTransaction(null);
-      // Keep drawer open and reflect updated data immediately
+      // Immediately reflect the update in the open drawer
       setSelectedTransaction(prev => prev ? { ...prev, ...variables.data } : null);
     },
   });
