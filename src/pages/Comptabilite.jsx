@@ -454,6 +454,14 @@ export default function Comptabilite() {
               </CardContent>
             </Card>
           </TabsContent>
+          {/* États Financiers Annuels */}
+          <TabsContent value="etats" className="mt-4">
+            <EtatFinancierAnnuel
+              transactions={transactions}
+              loans={loans}
+              bankAccounts={bankAccounts}
+            />
+          </TabsContent>
         </Tabs>
 
         {/* Quick actions footer */}
