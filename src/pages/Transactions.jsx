@@ -33,14 +33,8 @@ export default function Transactions() {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
   
-  const [filters, setFilters] = useState({
-    period: 'all',
-    category: 'all',
-    department: 'all',
-    paymentMethod: 'all',
-    source: 'all',
-    searchQuery: ''
-  });
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const queryClient = useQueryClient();
 
