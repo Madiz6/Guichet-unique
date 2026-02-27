@@ -470,7 +470,8 @@ export default function Transactions() {
       {/* Transaction Detail Drawer */}
       <TransactionDetailDrawer
         transaction={selectedTransaction}
-        onClose={() => setSelectedTransaction(null)}
+        initialTab={selectedTransactionTab}
+        onClose={() => { setSelectedTransaction(null); setSelectedTransactionTab('payment'); }}
         onSave={(id, data) => updateMutation.mutate({ id, data })}
         onTransactionUpdated={(updatedRecord) => {
           setSelectedTransaction(updatedRecord);
