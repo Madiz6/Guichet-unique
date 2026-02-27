@@ -224,6 +224,12 @@ export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
   const [entries, setEntries] = useState(transaction.journal_entries || null);
   const [loading, setLoading] = useState(false);
 
+  // derived: which scenario is currently selected
+  const scenarios = SCENARIOS[transaction.type] || SCENARIOS['Dépense'];
+  const selectedScenario = scenarios.flatMap(g => g.items).find(
+    s => s.bookingType === bookingType && s.operationType === operationType
+  );
+
   const queryClient = useQueryClient();
 
   const toggle = (n) => setOpen(prev => ({ ...prev, [n]: !prev[n] }));
