@@ -15,15 +15,17 @@ import BookingWorkflow from './BookingWorkflow';
 
 // onSave(id, data) — for the edit form in Détails tab
 // onTransactionUpdated(updatedRecord) — called by BookingWorkflow after saving to DB
-export default function TransactionDetailDrawer({ transaction, onClose, onSave, onTransactionUpdated, onDelete, departments, categories, budgets = [] }) {
+export default function TransactionDetailDrawer({ transaction, initialTab = 'payment', onClose, onSave, onTransactionUpdated, onDelete, departments, categories, budgets = [] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(transaction);
   const [isSavingBudgetLink, setIsSavingBudgetLink] = useState(false);
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     setEditData(transaction);
     setIsEditing(false);
-  }, [transaction]);
+    setActiveTab(initialTab);
+  }, [transaction, initialTab]);
 
   if (!transaction) return null;
 
