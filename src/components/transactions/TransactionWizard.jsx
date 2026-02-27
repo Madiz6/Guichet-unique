@@ -277,6 +277,73 @@ export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
                   </Select>
                 </div>
               </div>
+
+              {/* Loan-specific fields */}
+              {formData.source === 'Remboursement Prêt' && (
+                <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4">
+                  <p className="text-sm font-semibold text-purple-800">🏦 Détails du remboursement</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Capital remboursé (DJF)</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={formData.loan_capital_amount || ''}
+                        onChange={(e) => {
+                          const capital = parseFloat(e.target.value) || 0;
+                          const interest = parseFloat(formData.loan_interest_amount) || 0;
+                          setFormData({...formData, loan_capital_amount: e.target.value, amount: capital + interest, total_amount: capital + interest});
+                        }}
+                        placeholder="Ex: 80000"
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label>Intérêts (DJF)</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={formData.loan_interest_amount || ''}
+                        onChange={(e) => {
+                          const interest = parseFloat(e.target.value) || 0;
+                          const capital = parseFloat(formData.loan_capital_amount) || 0;
+                          setFormData({...formData, loan_interest_amount: e.target.value, amount: capital + interest, total_amount: capital + interest});
+                        }}
+                        placeholder="Ex: 5000"
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
+                  {(formData.loan_capital_amount || formData.loan_interest_amount) && (
+                    <div className="flex justify-between text-sm p-2 bg-white rounded border border-purple-200">
+                      <span className="text-purple-700">Total mensualité:</span>
+                      <strong className="text-purple-900">{((parseFloat(formData.loan_capital_amount)||0) + (parseFloat(formData.loan_interest_amount)||0)).toLocaleString()} DJF</strong>
+                    </div>
+                  )}
+                  <p className="text-xs text-purple-600">Le capital sera imputé sur 164-Emprunts, les intérêts sur 661-Charges d'intérêts</p>
+                </div>
+              )}
+
+              {formData.source === 'Prêt Bancaire' && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm font-semibold text-blue-800 mb-1">🏦 Prêt bancaire reçu</p>
+                  <p className="text-xs text-blue-600">Écriture: Débit 512-Banque / Crédit 164-Emprunts — le montant sera le déblocage total reçu</p>
+                </div>
+              )}
+
+              {formData.source === 'Apport Capital' && (
+                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <p className="text-sm font-semibold text-emerald-800 mb-1">💼 Apport en capital</p>
+                  <p className="text-xs text-emerald-600">Écriture: Débit 512-Banque / Crédit 101-Capital social</p>
+                </div>
+              )}
+
+              {formData.source === 'Compte Courant Associé' && (
+                <div className="p-4 bg-violet-50 border border-violet-200 rounded-lg">
+                  <p className="text-sm font-semibold text-violet-800 mb-1">👤 Compte courant associé</p>
+                  <p className="text-xs text-violet-600">Écriture: Débit 512-Banque / Crédit 455-Associés comptes courants</p>
+                </div>
+              )}
             </div>
           )}
 
