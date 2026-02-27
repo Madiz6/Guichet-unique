@@ -414,7 +414,7 @@ export default function Transactions() {
                               </div>
                             ) : (
                               <button
-                                onClick={() => setSelectedTransaction(transaction)}
+                                onClick={() => { setSelectedTransaction(transaction); setSelectedTransactionTab('booking'); }}
                                 className="flex items-center gap-1.5 text-xs text-amber-600 hover:text-amber-800 font-medium"
                               >
                                 <Clock className="w-4 h-4" />
