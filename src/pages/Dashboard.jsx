@@ -535,8 +535,12 @@ export default function Dashboard() {
                     <span className="font-medium text-red-500">-{(monthExpenses / 1000).toFixed(0)}K DJF</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#6B6B6B]">En attente</span>
-                    <span className="font-medium text-amber-600">{pendingTransactions}</span>
+                    <span className="text-[#6B6B6B]">Comptabilisées</span>
+                    <span className="font-medium text-green-600">{bookedTransactions}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#6B6B6B]">À comptabiliser</span>
+                    <span className="font-medium text-amber-600">{toBookTransactions}</span>
                   </div>
                 </div>
               </CardContent>
