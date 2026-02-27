@@ -73,7 +73,13 @@ export default function BulkUpload({ onClose }) {
     }
 
     try {
-      await meras.entities.Transaction.bulkCreate(previewData);
+      const enriched = previewData.map(t => ({
+        ...t,
+        source: t.source || 'Manuel',
+        status: t.status || 'En attente',
+        is_financing: ['Prêt Bancaire', 'Remboursement Prêt', 'Apport Capital', 'Compte Courant Associé'].includes(t.source),
+      }));
+      await meras.entities.Transaction.bulkCreate(enriched);
       queryClient.invalidateQueries(['transactions']);
       toast.success(`${previewData.length} transactions importées`);
       onClose();
