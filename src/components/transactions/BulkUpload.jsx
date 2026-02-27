@@ -107,12 +107,13 @@ export default function BulkUpload({ onClose }) {
   };
 
   const downloadTemplate = () => {
-    const template = `date,description,amount,type,source,category,department,payment_method,notes,loan_capital_amount,loan_interest_amount
-2025-01-10,Vente produit,50000,Revenu,Manuel,Ventes,Commercial,Virement,,
-2025-01-11,Achat fournitures,15000,Dépense,Manuel,Fournitures,Administration,Espèces,,
-2025-01-15,Déblocage prêt BCI,5000000,Revenu,Prêt Bancaire,Financement,,,5000000,0
-2025-01-20,Remboursement prêt janvier,85000,Dépense,Remboursement Prêt,Charges financières,,,80000,5000
-2025-01-25,Apport capital associé Ahmed,2000000,Revenu,Apport Capital,Capital,,,`;
+    // Template uses debit/credit columns — same format as real bank exports
+    const template = `date,description,debit,credit,source,category,payment_method,notes,loan_capital_amount,loan_interest_amount
+2025-01-10,Vente produit,,50000,Manuel,Ventes,Virement,,
+2025-01-11,Achat fournitures,15000,,Manuel,Fournitures,Espèces,,
+2025-01-15,Déblocage prêt BCI,,5000000,Prêt Bancaire,Financement,Virement,,
+2025-01-20,Remboursement prêt janvier,85000,,Remboursement Prêt,Charges financières,Virement,80000,5000
+2025-01-25,Apport capital associé Ahmed,,2000000,Apport Capital,Capital,Virement,,`;
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
