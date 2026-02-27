@@ -93,6 +93,11 @@ export default function Layout({ children, currentPageName }) {
       icon: FileSpreadsheet,
     },
     {
+      title: "Comptabilité",
+      url: createPageUrl("Comptabilite"),
+      icon: BarChart3,
+    },
+    {
       title: "États Financiers",
       url: createPageUrl("EtatsFinanciers"),
       icon: FileText,
