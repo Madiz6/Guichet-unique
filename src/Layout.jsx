@@ -93,11 +93,7 @@ export default function Layout({ children, currentPageName }) {
       url: createPageUrl("Comptabilite"),
       icon: BarChart3,
     },
-    {
-      title: "États Financiers",
-      url: createPageUrl("EtatsFinanciers"),
-      icon: FileText,
-    },
+
     {
       title: "Gestion de Location",
       url: createPageUrl("Leasing"),
