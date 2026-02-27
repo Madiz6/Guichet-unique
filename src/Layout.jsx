@@ -87,11 +87,7 @@ export default function Layout({ children, currentPageName }) {
       url: createPageUrl("Contacts"),
       icon: Users,
     },
-    {
-      title: "Business Intelligence",
-      url: createPageUrl("BusinessIntelligence"),
-      icon: FileSpreadsheet,
-    },
+
     {
       title: "Comptabilité",
       url: createPageUrl("Comptabilite"),
