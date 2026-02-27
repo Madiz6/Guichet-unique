@@ -367,23 +367,20 @@ Si une donnée est illisible ou absente, utilise null.`,
       </div>
 
       {/* Source/Financing */}
-      <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-        <Label className="font-bold text-purple-900 mb-3 block flex items-center gap-2">
-          <Sparkles className="w-4 h-4" />
-          Source de la Transaction *
-        </Label>
-        <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value, is_financing: ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt'].includes(value)})}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Manuel">📝 Transaction Standard</SelectItem>
-            <SelectItem value="Apport Capital">💎 Apport en Capital</SelectItem>
-            <SelectItem value="Prêt Bancaire">🏦 Prêt Bancaire (Déblocage)</SelectItem>
-            <SelectItem value="Remboursement Prêt">💳 Remboursement Prêt</SelectItem>
-            <SelectItem value="Compte Courant Associé">👤 Compte Courant Associé</SelectItem>
-            <SelectItem value="Paie">👥 Paie (Auto)</SelectItem>
-            <SelectItem value="Declaration CNSS">📋 Déclaration CNSS (Auto)</SelectItem>
-          </SelectContent>
-        </Select>
+       <div>
+         <Label className="font-semibold text-gray-700 mb-2 block">Enregistrer comme *</Label>
+         <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value, is_financing: ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt'].includes(value)})}>
+           <SelectTrigger className="bg-purple-50 border-purple-200"><SelectValue /></SelectTrigger>
+           <SelectContent>
+             <SelectItem value="Manuel">📝 Transaction Standard</SelectItem>
+             <SelectItem value="Apport Capital">💎 Apport en Capital</SelectItem>
+             <SelectItem value="Prêt Bancaire">🏦 Prêt Bancaire (Déblocage)</SelectItem>
+             <SelectItem value="Remboursement Prêt">💳 Remboursement Prêt</SelectItem>
+             <SelectItem value="Compte Courant Associé">👤 Compte Courant Associé</SelectItem>
+             <SelectItem value="Paie">👥 Paie (Auto)</SelectItem>
+             <SelectItem value="Declaration CNSS">📋 Déclaration CNSS (Auto)</SelectItem>
+           </SelectContent>
+         </Select>
 
         {formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt' ? (
           <div className="mt-3">
