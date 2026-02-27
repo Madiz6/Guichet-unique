@@ -144,11 +144,6 @@ export default function Comptabilite() {
                 </button>
               ))}
             </div>
-            <Link to={createPageUrl('EtatsFinanciers')}>
-              <Button variant="outline" size="sm">
-                <FileText className="w-4 h-4 mr-2" /> États Financiers
-              </Button>
-            </Link>
             <Link to={createPageUrl('Transactions')}>
               <Button className="bg-[#1A1A1A] text-white" size="sm">
                 <BookOpen className="w-4 h-4 mr-2" /> Transactions
