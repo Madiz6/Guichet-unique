@@ -398,54 +398,33 @@ IMPORTANT: total débit DOIT égaler total crédit.`,
         </div>
       )}
 
-      {/* STEP 1 — Type de document + Nature de l'opération */}
+      {/* STEP 1 — Choisir le scénario */}
       <div className="space-y-2">
-        <StepHeader num={1} title="Type de document & nature de l'opération" done={step > 1} active={step === 1} />
+        <StepHeader num={1} title={selectedScenario ? selectedScenario.label : 'Que souhaitez-vous enregistrer ?'} done={step > 1} active={step === 1} />
         {open[1] && (
-          <div className="pl-3 space-y-4">
-
-            {/* Document type */}
-            <div>
-              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">📎 Type de document</p>
-              <div className="space-y-1.5">
-                {docTypes.map(opt => (
-                  <button
-                    key={opt.key}
-                    onClick={() => setBookingType(opt.key)}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition border ${
-                      bookingType === opt.key
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white border-gray-200 hover:border-blue-400 text-gray-700'
-                    }`}
-                  >
-                    <div className="font-medium">{opt.label}</div>
-                    <div className={`text-xs mt-0.5 ${bookingType === opt.key ? 'text-blue-100' : 'text-gray-400'}`}>{opt.desc}</div>
-                  </button>
-                ))}
+          <div className="pl-2 space-y-4">
+            {scenarios.map(group => (
+              <div key={group.group}>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 px-1">{group.group}</p>
+                <div className="space-y-1.5">
+                  {group.items.map(item => {
+                    const isSelected = bookingType === item.bookingType && operationType === item.operationType;
+                    return (
+                      <button
+                        key={item.bookingType + item.operationType}
+                        onClick={() => { setBookingType(item.bookingType); setOperationType(item.operationType); }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition border-2 ${
+                          isSelected ? COLOR_ACTIVE[item.color] : COLOR_IDLE[item.color]
+                        }`}
+                      >
+                        <div className="font-medium">{item.label}</div>
+                        <div className={`text-xs mt-0.5 leading-relaxed ${isSelected ? 'opacity-80' : 'text-gray-400'}`}>{item.desc}</div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-
-            {/* Operation type */}
-            <div>
-              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">🔖 Nature de l'opération</p>
-              <div className="space-y-1.5">
-                {relevantOpTypes.map(op => {
-                  const selected = operationType === op.key;
-                  return (
-                    <button
-                      key={op.key}
-                      onClick={() => setOperationType(op.key)}
-                      className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition border-2 ${
-                        selected ? colorMapSelected[op.color] : colorMap[op.color]
-                      }`}
-                    >
-                      <div className="font-medium">{op.label}</div>
-                      <div className={`text-xs mt-0.5 ${selected ? 'opacity-80' : 'opacity-70'}`}>{op.desc}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            ))}
 
             <Button
               type="button"
