@@ -297,12 +297,28 @@ export default function TransactionDetailDrawer({ transaction, initialTab = 'pay
 
                 {/* Department & Payment Method */}
                 <div className="grid grid-cols-2 gap-3">
-                  {transaction.department && (
-                    <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
-                      <p className="text-xs font-medium text-[#697586] uppercase">Department</p>
+                  <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
+                    <p className="text-xs font-medium text-[#697586] uppercase">Département</p>
+                    {transaction.department ? (
                       <p className="text-sm text-[#0A2540]">{transaction.department}</p>
-                    </div>
-                  )}
+                    ) : (
+                      <Select
+                        value=""
+                        onValueChange={(value) => {
+                          onSave(transaction.id, { ...transaction, department: value });
+                        }}
+                      >
+                        <SelectTrigger className="h-7 text-xs border-dashed border-[#D3DCE6] bg-white">
+                          <SelectValue placeholder="Assigner..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(departments || []).map(dept => (
+                            <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
                   <div className="p-3 bg-[#F7F9FC] rounded-lg space-y-1">
                     <p className="text-xs font-medium text-[#697586] uppercase">Payment Method</p>
                     <p className="text-sm text-[#0A2540]">{transaction.payment_method || '-'}</p>
