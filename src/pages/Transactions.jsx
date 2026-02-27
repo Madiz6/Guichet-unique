@@ -27,6 +27,7 @@ export default function Transactions() {
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showReports, setShowReports] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedTransactionTab, setSelectedTransactionTab] = useState('payment');
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
   
