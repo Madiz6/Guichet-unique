@@ -304,6 +304,13 @@ export default function Transactions() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#E8ECF2]">
+                      <th className="py-3 px-3">
+                        <button onClick={toggleSelectAll} className="text-[#64748B] hover:text-[#0066FF]">
+                          {selectedIds.length === filteredTransactions.length && filteredTransactions.length > 0
+                            ? <CheckSquare className="w-4 h-4 text-[#0066FF]" />
+                            : <Square className="w-4 h-4" />}
+                        </button>
+                      </th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Date</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Description</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase">Contact</th>
