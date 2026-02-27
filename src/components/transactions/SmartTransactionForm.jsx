@@ -382,9 +382,9 @@ Si une donnée est illisible ou absente, utilise null.`,
            </SelectContent>
          </Select>
 
-        {formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt' ? (
+        {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt') && (
           <div className="mt-3">
-            <Label>Prêt concerné *</Label>
+            <Label className="text-sm">Prêt concerné *</Label>
             <Select value={formData.loan_id} onValueChange={(v) => setFormData({...formData, loan_id: v})}>
               <SelectTrigger className="mt-2"><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
               <SelectContent>
@@ -394,11 +394,11 @@ Si une donnée est illisible ou absente, utilise null.`,
               </SelectContent>
             </Select>
           </div>
-        ) : null}
+        )}
 
-        {formData.source === 'Apport Capital' || formData.source === 'Compte Courant Associé' ? (
+        {(formData.source === 'Apport Capital' || formData.source === 'Compte Courant Associé') && (
           <div className="mt-3">
-            <Label>Associé *</Label>
+            <Label className="text-sm">Associé *</Label>
             <Select value={formData.shareholder_id} onValueChange={(v) => setFormData({...formData, shareholder_id: v})}>
               <SelectTrigger className="mt-2"><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
               <SelectContent>
@@ -408,8 +408,8 @@ Si une donnée est illisible ou absente, utilise null.`,
               </SelectContent>
             </Select>
           </div>
-        ) : null}
-      </div>
+        )}
+        </div>
 
       <div className="relative">
         <Label>Description *</Label>
