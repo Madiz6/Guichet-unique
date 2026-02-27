@@ -71,17 +71,10 @@ const SCENARIOS = {
       items: [
         {
           bookingType: 'Paie',
-          operationType: 'Salaires versés',
-          label: '👥 Salaires versés (net employé)',
-          desc: "Paiement des rémunérations nettes aux employés (411/421)",
+          operationType: 'Dépense payée',
+          label: '👥 Salaires versés (bulletin de paie)',
+          desc: "Paiement des rémunérations et charges sociales du personnel",
           color: 'blue',
-        },
-        {
-          bookingType: 'Charges sociales',
-          operationType: 'Charges sociales du personnel',
-          label: '🏛️ Charges sociales CNSS (cotisations)',
-          desc: "Cotisations CNSS (employeur + employé retenu) et ITS à payer",
-          color: 'red',
         },
         {
           bookingType: 'Note de frais',
