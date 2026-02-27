@@ -172,6 +172,12 @@ export default function Transactions() {
             <h1 className="text-3xl font-bold text-[#0A2540]">Gestion des Transactions</h1>
             <p className="text-[#697586] mt-1">Suivi complet des revenus et dépenses</p>
           </div>
+          <Link to={createPageUrl('FinancialForecasting')}>
+            <Button variant="outline" className="border-purple-500 text-purple-700">
+              <Cpu className="w-4 h-4 mr-2" />
+              Prévisions IA
+            </Button>
+          </Link>
           <Button onClick={() => setShowReports(true)} variant="outline" className="border-[#0066FF] text-[#0066FF]">
             <FileText className="w-4 h-4 mr-2" />
             Rapports
