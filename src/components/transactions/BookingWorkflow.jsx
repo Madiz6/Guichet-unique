@@ -356,8 +356,7 @@ IMPORTANT: total débit DOIT égaler total crédit.`,
   const totalCredit = entries?.reduce((s, e) => s + (e.credit || 0), 0) || 0;
   const balanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
-  const relevantOpTypes = OPERATION_TYPES.filter(op => op.forTypes.includes(transaction.type));
-  const docTypes = DOCUMENT_TYPES[transaction.type] || DOCUMENT_TYPES['Dépense'];
+  // (no longer needed — using SCENARIOS directly)
 
   const StepHeader = ({ num, title, done, active }) => (
     <button
