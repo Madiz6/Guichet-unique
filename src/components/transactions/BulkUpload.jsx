@@ -33,10 +33,14 @@ export default function BulkUpload({ onClose }) {
                   description: { type: 'string' },
                   amount: { type: 'number' },
                   type: { type: 'string' },
+                  source: { type: 'string' },
                   category: { type: 'string' },
                   department: { type: 'string' },
                   payment_method: { type: 'string' },
-                  notes: { type: 'string' }
+                  notes: { type: 'string' },
+                  loan_capital_amount: { type: 'number' },
+                  loan_interest_amount: { type: 'number' },
+                  is_financing: { type: 'boolean' }
                 }
               }
             }
