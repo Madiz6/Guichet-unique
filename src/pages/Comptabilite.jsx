@@ -243,6 +243,7 @@ export default function Comptabilite() {
               {unbookedCount > 0 && <span className="mr-1 w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] inline-flex items-center justify-center">{unbookedCount}</span>}
               📋 À Comptabiliser
             </TabsTrigger>
+            <TabsTrigger value="etats">📑 États Financiers</TabsTrigger>
           </TabsList>
 
           {/* P&L */}
