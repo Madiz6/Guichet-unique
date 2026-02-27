@@ -136,6 +136,62 @@ export default function PaymentGateway({
     }, 600);
   };
 
+  // Gateway selector — shown first if no method chosen
+  if (!gatewayType) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-[#0F172A]">💳 Choisir le mode de paiement</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-[#64748B] mb-1">Montant : <strong className="text-[#0F172A]">{amount?.toLocaleString()} DJF</strong></p>
+          <p className="text-xs text-[#64748B] mb-4">{description}</p>
+          <div className="grid grid-cols-1 gap-3">
+            <button
+              onClick={() => setGatewayType('meras')}
+              className="flex items-center gap-4 p-4 rounded-xl border-2 border-[#6366F1] bg-white hover:bg-[#6366F1]/5 transition text-left"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center flex-shrink-0">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-[#0F172A]">Meras (En ligne)</p>
+                <p className="text-xs text-[#64748B]">Carte, Mobile Money, Virement — paiement sécurisé en ligne</p>
+              </div>
+            </button>
+            <button
+              onClick={() => setGatewayType('cheque')}
+              className="flex items-center gap-4 p-4 rounded-xl border-2 border-amber-400 bg-white hover:bg-amber-50 transition text-left"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center flex-shrink-0">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-[#0F172A]">Chèque</p>
+                <p className="text-xs text-[#64748B]">Paiement par chèque — confirmation manuelle avec numéro de chèque</p>
+              </div>
+            </button>
+            <button
+              onClick={() => setGatewayType('cash')}
+              className="flex items-center gap-4 p-4 rounded-xl border-2 border-slate-400 bg-white hover:bg-slate-50 transition text-left"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#64748B] to-[#475569] flex items-center justify-center flex-shrink-0">
+                <Banknote className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-[#0F172A]">Espèces</p>
+                <p className="text-xs text-[#64748B]">Paiement en espèces — confirmation manuelle sans appel API</p>
+              </div>
+            </button>
+          </div>
+          <div className="pt-2 border-t border-[#E5E7EB] mt-2">
+            <Button variant="outline" onClick={onClose} className="w-full">Annuler</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   // Cheque or Cash — fully separate manual confirmation flow
   if (gatewayType === 'cheque' || gatewayType === 'cash') {
     return (
