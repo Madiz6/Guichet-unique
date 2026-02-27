@@ -268,77 +268,23 @@ export default function Transactions() {
           </motion.div>
         </div>
 
-        {/* Filters */}
+        {/* Advanced Filters */}
         <Card className="border-0 shadow-lg mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="w-5 h-5 text-[#0066FF]" />
-              <h3 className="font-semibold text-[#0A2540]">Filtres</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-              <Input
-                placeholder="Rechercher..."
-                value={filters.searchQuery}
-                onChange={(e) => setFilters({...filters, searchQuery: e.target.value})}
-              />
-              <Select value={filters.period} onValueChange={(value) => setFilters({...filters, period: value})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les périodes</SelectItem>
-                  <SelectItem value="today">Aujourd'hui</SelectItem>
-                  <SelectItem value="week">Cette semaine</SelectItem>
-                  <SelectItem value="month">Ce mois</SelectItem>
-                  <SelectItem value="year">Cette année</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filters.category} onValueChange={(value) => setFilters({...filters, category: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Catégorie" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes catégories</SelectItem>
-                  {categories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filters.department} onValueChange={(value) => setFilters({...filters, department: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Département" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous départements</SelectItem>
-                  {departments.map(dept => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filters.paymentMethod} onValueChange={(value) => setFilters({...filters, paymentMethod: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Méthode" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes méthodes</SelectItem>
-                  <SelectItem value="Espèces">Espèces</SelectItem>
-                  <SelectItem value="Chèque">Chèque</SelectItem>
-                  <SelectItem value="Virement">Virement</SelectItem>
-                  <SelectItem value="Carte bancaire">Carte bancaire</SelectItem>
-                  <SelectItem value="Mobile Money">Mobile Money</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filters.source} onValueChange={(value) => setFilters({...filters, source: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Source" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes sources</SelectItem>
-                  <SelectItem value="Manuel">Manuel</SelectItem>
-                  <SelectItem value="Budget">Budget</SelectItem>
-                  <SelectItem value="Paie">Paie</SelectItem>
-                  <SelectItem value="Autre">Autre</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <CardContent className="p-5">
+            <AdvancedFilters filters={filters} setFilters={setFilters} categories={categories} departments={departments} />
           </CardContent>
         </Card>
+
+        {/* Bulk Edit Bar */}
+        {selectedIds.length > 0 && (
+          <BulkEditBar
+            selectedIds={selectedIds}
+            onApply={handleBulkEdit}
+            onClear={() => setSelectedIds([])}
+            categories={categories}
+            departments={departments}
+          />
+        )}
 
         {/* Transactions Table */}
         <Card className="border-0 shadow-lg">
