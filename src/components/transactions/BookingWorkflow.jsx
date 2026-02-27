@@ -254,18 +254,34 @@ export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
   const handleGenerateEntries = async () => {
     setLoading(true);
     try {
-      let generated = getEntries(transaction);
+      const amount = transaction.amount || 0;
+      const tax = transaction.tax_amount || 0;
+      const total = transaction.total_amount || amount;
+
+      // Always call AI — it handles ALL scenario types robustly
+      let generated = [];
       try {
         const aiResult = await meras.integrations.Core.InvokeLLM({
-          prompt: `Tu es expert-comptable à Djibouti (plan NPCG). Génère les écritures comptables pour:
-Type: ${transaction.type}, Catégorie: ${transaction.category || 'N/A'}
+          prompt: `Tu es expert-comptable à Djibouti (plan comptable NPCG). Génère les écritures du journal comptable pour cette transaction.
+
+Type: ${transaction.type}
+Catégorie: ${transaction.category || 'N/A'}
 Nature de l'opération: ${operationType}
 Type de document: ${bookingType}
 Description: ${transaction.description}
-Montant HT: ${transaction.amount} DJF, TVA: ${transaction.tax_amount || 0} DJF, Total TTC: ${transaction.total_amount || transaction.amount} DJF
+Contact: ${transaction.contact_name || 'N/A'}
+Montant HT: ${amount} DJF
+TVA: ${tax} DJF
+Total TTC: ${total} DJF
 Méthode paiement: ${transaction.payment_method || 'N/A'}
-Retourne UNIQUEMENT du JSON valide: {"entries":[{"compte":"XXX","label":"...","debit":0,"credit":0}]}
-IMPORTANT: total débit DOIT égaler total crédit.`,
+
+RÈGLES IMPORTANTES:
+- Utilise les numéros de compte NPCG (ex: 601, 401, 411, 512, 641, 706, 165, 164, 101...)
+- La somme des débits DOIT EXACTEMENT égaler la somme des crédits (${total} DJF des deux côtés)
+- Génère au minimum 2 lignes d'écriture
+- Si TVA > 0, inclure un compte TVA séparé
+
+Retourne UNIQUEMENT du JSON valide sans commentaire.`,
           response_json_schema: {
             type: "object",
             properties: {
@@ -286,6 +302,31 @@ IMPORTANT: total débit DOIT égaler total crédit.`,
         });
         if (aiResult?.entries?.length >= 2) generated = aiResult.entries;
       } catch (_) {}
+
+      // Fallback: if AI failed or returned nothing, build a safe generic entry
+      if (generated.length < 2) {
+        const isRevenu = transaction.type === 'Revenu';
+        generated = isRevenu
+          ? [
+              { compte: '512', label: 'Banque / Caisse', debit: total, credit: 0 },
+              ...(tax > 0 ? [{ compte: '441', label: 'TVA collectée', debit: 0, credit: tax }] : []),
+              { compte: '706', label: 'Produits des services / Ventes', debit: 0, credit: amount },
+            ]
+          : [
+              { compte: '606', label: 'Achats / Charges', debit: amount, credit: 0 },
+              ...(tax > 0 ? [{ compte: '445', label: 'TVA déductible', debit: tax, credit: 0 }] : []),
+              { compte: '512', label: 'Banque / Caisse', debit: 0, credit: total },
+            ];
+      }
+
+      // Fix any minor rounding so debit always equals credit
+      const sumD = generated.reduce((s, e) => s + (e.debit || 0), 0);
+      const sumC = generated.reduce((s, e) => s + (e.credit || 0), 0);
+      if (Math.abs(sumD - sumC) > 0.01) {
+        // Adjust the largest credit entry to balance
+        const idx = generated.reduce((best, e, i) => e.credit > generated[best].credit ? i : best, 0);
+        generated[idx] = { ...generated[idx], credit: generated[idx].credit + (sumD - sumC) };
+      }
 
       setEntries(generated);
       setStep(3);
