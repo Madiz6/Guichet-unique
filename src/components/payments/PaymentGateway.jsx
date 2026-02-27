@@ -21,7 +21,7 @@ export default function PaymentGateway({
   entityId,
   metadata = {}
 }) {
-  const [gatewayType, setGatewayType] = useState('meras');
+  const [gatewayType, setGatewayType] = useState(null); // null = show selector
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [chequeRef, setChequeRef] = useState('');
   const [cashNote, setCashNote] = useState('');
