@@ -36,76 +36,181 @@ const getEntries = (t) => {
   return templates[`${t.type}_${t.category}`] || templates[t.type] || [];
 };
 
-// Document types per transaction type
-const DOCUMENT_TYPES = {
+// Combined scenario cards: each card sets BOTH bookingType and operationType at once
+// Grouped by business context for entrepreneurs
+const SCENARIOS = {
   'Dépense': [
-    { key: 'Facture fournisseur', label: '📄 Facture fournisseur', desc: 'Inköpsfaktura — facture reçue après achat d\'un bien ou service, crédit ~1 mois' },
-    { key: 'Note de frais', label: '🧾 Note de frais / Reçu (Kvitto)', desc: 'Kvitto/Utlägg — paiement immédiat sur place avec reçu, ou frais avancés par un employé' },
-    { key: 'Paie', label: '👥 Bulletin de paie', desc: 'Rapport de salaire — rémunérations et charges sociales du personnel' },
-    { key: 'Banque', label: '🏦 Relevé bancaire', desc: 'Opérations bancaires: virements, prélèvements, frais bancaires' },
-    { key: 'Autre', label: '📋 Autre écriture', desc: 'Tout ce qui ne rentre pas dans les catégories ci-dessus: impôts, transferts, retraits, dépôts...' },
+    {
+      group: '🛒 Achats & Fournisseurs',
+      items: [
+        {
+          bookingType: 'Facture fournisseur',
+          operationType: 'Dépense non payée',
+          label: '📄 Facture fournisseur à payer',
+          desc: "J'ai reçu une facture d'achat, je dois encore la régler (crédit ~1 mois)",
+          color: 'amber',
+        },
+        {
+          bookingType: 'Facture fournisseur',
+          operationType: 'Dépense payée',
+          label: '✅ Facture fournisseur déjà réglée',
+          desc: "J'ai payé une facture fournisseur — achat de biens ou services",
+          color: 'green',
+        },
+        {
+          bookingType: 'Note de frais',
+          operationType: 'Dépense payée',
+          label: '🧾 Achat immédiat / Reçu (Kvitto)',
+          desc: "Paiement direct sur place avec reçu — fournitures, repas, carburant...",
+          color: 'green',
+        },
+      ],
+    },
+    {
+      group: '🧑‍💼 Personnel & Salaires',
+      items: [
+        {
+          bookingType: 'Paie',
+          operationType: 'Dépense payée',
+          label: '👥 Salaires versés (bulletin de paie)',
+          desc: "Paiement des rémunérations et charges sociales du personnel",
+          color: 'blue',
+        },
+        {
+          bookingType: 'Note de frais',
+          operationType: 'Note de frais / Avance',
+          label: '🧑‍💼 Note de frais employé (Utlägg)',
+          desc: "Un employé a avancé des frais professionnels à rembourser",
+          color: 'blue',
+        },
+      ],
+    },
+    {
+      group: '🏦 Banque & Financements',
+      items: [
+        {
+          bookingType: 'Remboursement prêt',
+          operationType: 'Remboursement prêt',
+          label: '🏦 Remboursement d\'emprunt bancaire',
+          desc: "Paiement d'une échéance de prêt (capital + intérêts)",
+          color: 'purple',
+        },
+        {
+          bookingType: 'Banque',
+          operationType: 'Dépense payée',
+          label: '💳 Frais bancaires / Prélèvement',
+          desc: "Frais de tenue de compte, commissions, prélèvements automatiques",
+          color: 'gray',
+        },
+        {
+          bookingType: 'Impôts & Taxes',
+          operationType: 'Dépense payée',
+          label: '🏛️ Impôts, taxes & cotisations (CNSS/ITS)',
+          desc: "Paiement de déclarations fiscales et cotisations sociales",
+          color: 'red',
+        },
+      ],
+    },
+    {
+      group: '📋 Divers',
+      items: [
+        {
+          bookingType: 'Autre',
+          operationType: 'Autre / Divers',
+          label: '📋 Autre dépense / Écriture diverse',
+          desc: "Transfert entre comptes, retrait, dépôt, ou tout ce qui ne correspond pas aux catégories ci-dessus",
+          color: 'gray',
+        },
+      ],
+    },
   ],
   'Revenu': [
-    { key: 'Facture client', label: '💰 Facture client (Försäljningsfaktura)', desc: 'Försäljningsfaktura — compensation reçue après vente d\'un bien ou service' },
-    { key: 'Rapport de vente', label: '📊 Rapport de vente (Försäljningsrapport)', desc: 'Försäljningsrapport — rapport de vente depuis un système externe' },
-    { key: 'Banque', label: '🏦 Relevé bancaire', desc: 'Encaissements bancaires directs, virements reçus' },
-    { key: 'Autre', label: '📋 Autre écriture', desc: 'Paiements reçus divers non classifiés' },
+    {
+      group: '💰 Ventes & Clients',
+      items: [
+        {
+          bookingType: 'Facture client',
+          operationType: 'Revenu / Vente',
+          label: '💰 Facture client (à encaisser)',
+          desc: "J'ai émis une facture de vente ou prestation — règlement à venir",
+          color: 'emerald',
+        },
+        {
+          bookingType: 'Facture client',
+          operationType: 'Paiement reçu client',
+          label: '✅ Paiement reçu d\'un client',
+          desc: "J'ai encaissé un règlement client — virement, chèque, espèces ou mobile money",
+          color: 'green',
+        },
+        {
+          bookingType: 'Rapport de vente',
+          operationType: 'Revenu / Vente',
+          label: '📊 Rapport de ventes (système externe)',
+          desc: "Chiffre d'affaires importé depuis une caisse, e-commerce ou autre système",
+          color: 'emerald',
+        },
+      ],
+    },
+    {
+      group: '🏦 Financements & Apports',
+      items: [
+        {
+          bookingType: 'Prêt bancaire',
+          operationType: 'Financement reçu',
+          label: '🏦 Emprunt / Prêt bancaire reçu',
+          desc: "Encaissement d'un prêt bancaire ou ligne de crédit",
+          color: 'blue',
+        },
+        {
+          bookingType: 'Apport capital',
+          operationType: 'Apport en capital',
+          label: '💼 Apport en capital / Compte courant associé',
+          desc: "Apport des associés ou actionnaires (capital, CCA)",
+          color: 'purple',
+        },
+        {
+          bookingType: 'Autre revenu',
+          operationType: 'Autre revenu',
+          label: '📥 Subvention / Indemnité / Remboursement reçu',
+          desc: "Subvention publique, remboursement d'assurance, indemnité, avoir fournisseur",
+          color: 'teal',
+        },
+      ],
+    },
+    {
+      group: '📋 Divers',
+      items: [
+        {
+          bookingType: 'Autre',
+          operationType: 'Autre / Divers',
+          label: '📋 Autre revenu / Écriture diverse',
+          desc: "Virement interne, dépôt, ou tout encaissement non classifié",
+          color: 'gray',
+        },
+      ],
+    },
   ],
 };
 
-// Operation types (nature comptable)
-const OPERATION_TYPES = [
-  {
-    key: 'Dépense payée',
-    label: '✅ Dépense payée (Betald utgift)',
-    desc: 'La dépense a déjà été réglée — le paiement est effectué.',
-    color: 'green',
-    forTypes: ['Dépense'],
-  },
-  {
-    key: 'Dépense non payée',
-    label: '⏳ Dépense non payée (Obetald utgift)',
-    desc: 'Facture fournisseur à payer — dette en attente de règlement.',
-    color: 'amber',
-    forTypes: ['Dépense'],
-  },
-  {
-    key: 'Note de frais / Avance',
-    label: '🧑‍💼 Note de frais / Avance (Utlägg)',
-    desc: 'Frais engagés par un employé avec ses propres fonds, à rembourser.',
-    color: 'blue',
-    forTypes: ['Dépense'],
-  },
-  {
-    key: 'Revenu / Vente',
-    label: '💰 Revenu / Vente (Inkomst)',
-    desc: 'Encaissement ou créance client suite à une vente ou prestation.',
-    color: 'emerald',
-    forTypes: ['Revenu'],
-  },
-  {
-    key: 'Autre / Divers',
-    label: '📋 Autre / Divers (Övrigt)',
-    desc: 'Transfert entre comptes, paiement impôts, retrait, dépôt, écriture diverse.',
-    color: 'gray',
-    forTypes: ['Dépense', 'Revenu'],
-  },
-];
-
-const colorMap = {
-  green: 'border-green-400 bg-green-50 text-green-800',
-  amber: 'border-amber-400 bg-amber-50 text-amber-800',
-  blue: 'border-blue-400 bg-blue-50 text-blue-800',
-  emerald: 'border-emerald-400 bg-emerald-50 text-emerald-800',
-  gray: 'border-gray-300 bg-gray-50 text-gray-700',
+const COLOR_IDLE = {
+  green:   'border-green-200 bg-white hover:bg-green-50 hover:border-green-400 text-gray-700',
+  amber:   'border-amber-200 bg-white hover:bg-amber-50 hover:border-amber-400 text-gray-700',
+  blue:    'border-blue-200 bg-white hover:bg-blue-50 hover:border-blue-400 text-gray-700',
+  emerald: 'border-emerald-200 bg-white hover:bg-emerald-50 hover:border-emerald-400 text-gray-700',
+  purple:  'border-purple-200 bg-white hover:bg-purple-50 hover:border-purple-400 text-gray-700',
+  red:     'border-red-200 bg-white hover:bg-red-50 hover:border-red-400 text-gray-700',
+  teal:    'border-teal-200 bg-white hover:bg-teal-50 hover:border-teal-400 text-gray-700',
+  gray:    'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700',
 };
-
-const colorMapSelected = {
-  green: 'border-green-600 bg-green-600 text-white',
-  amber: 'border-amber-500 bg-amber-500 text-white',
-  blue: 'border-blue-600 bg-blue-600 text-white',
+const COLOR_ACTIVE = {
+  green:   'border-green-600 bg-green-600 text-white',
+  amber:   'border-amber-500 bg-amber-500 text-white',
+  blue:    'border-blue-600 bg-blue-600 text-white',
   emerald: 'border-emerald-600 bg-emerald-600 text-white',
-  gray: 'border-gray-600 bg-gray-600 text-white',
+  purple:  'border-purple-700 bg-purple-700 text-white',
+  red:     'border-red-600 bg-red-600 text-white',
+  teal:    'border-teal-600 bg-teal-600 text-white',
+  gray:    'border-gray-600 bg-gray-600 text-white',
 };
 
 export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
