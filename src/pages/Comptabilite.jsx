@@ -465,9 +465,8 @@ export default function Comptabilite() {
         </Tabs>
 
         {/* Quick actions footer */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
-            { label: 'Générer États Financiers (Bilan / P&L)', icon: FileText, to: 'EtatsFinanciers', color: 'bg-[#1A1A1A] text-white' },
             { label: 'Gérer les Transactions', icon: DollarSign, to: 'Transactions', color: 'bg-blue-600 text-white' },
             { label: 'Gestion Budgétaire', icon: BarChart3, to: 'BudgetManagement', color: 'bg-purple-600 text-white' },
           ].map((a, i) => (
