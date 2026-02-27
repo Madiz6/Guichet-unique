@@ -90,7 +90,8 @@ export default function BulkUpload({ onClose }) {
     }
 
     try {
-      const enriched = previewData.map(t => ({
+      // Strip UI-only fields before saving
+      const enriched = previewData.map(({ debit, credit, balance, ...t }) => ({
         ...t,
         source: t.source || 'Manuel',
         status: t.status || 'En attente',
