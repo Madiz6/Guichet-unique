@@ -96,39 +96,51 @@ export default function Transactions() {
   ])];
   const categories = [...new Set(transactions.map(t => t.category).filter(Boolean))];
 
-  // Apply filters
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesTab = activeTab === 'all' || 
-      (activeTab === 'income' && transaction.type === 'Revenu') ||
-      (activeTab === 'expense' && transaction.type === 'Dépense');
+  // Apply advanced filters
+  const filteredTransactions = transactions.filter(t => {
+    const matchesTab = activeTab === 'all' ||
+      (activeTab === 'income' && t.type === 'Revenu') ||
+      (activeTab === 'expense' && t.type === 'Dépense');
 
-    const matchesSearch = !filters.searchQuery || 
-      transaction.description?.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-      transaction.contact_name?.toLowerCase().includes(filters.searchQuery.toLowerCase());
+    const q = filters.searchQuery?.toLowerCase();
+    const matchesSearch = !q ||
+      t.description?.toLowerCase().includes(q) ||
+      t.contact_name?.toLowerCase().includes(q) ||
+      t.category?.toLowerCase().includes(q) ||
+      t.notes?.toLowerCase().includes(q);
 
-    const matchesCategory = filters.category === 'all' || transaction.category === filters.category;
-    const matchesDepartment = filters.department === 'all' || transaction.department === filters.department;
-    const matchesPayment = filters.paymentMethod === 'all' || transaction.payment_method === filters.paymentMethod;
-    const matchesSource = filters.source === 'all' || transaction.source === filters.source;
+    const matchesCategory = filters.category === 'all' || t.category === filters.category;
+    const matchesDepartment = filters.department === 'all' || t.department === filters.department;
+    const matchesPayment = filters.paymentMethod === 'all' || t.payment_method === filters.paymentMethod;
+    const matchesSource = filters.source === 'all' || t.source === filters.source;
+    const matchesBooking = filters.bookingStatus === 'all' ||
+      (filters.bookingStatus === 'booked' && t.booking_status) ||
+      (filters.bookingStatus === 'unbooked' && !t.booking_status);
+    const matchesStatus = filters.status === 'all' || t.status === filters.status;
 
-    let matchesPeriod = true;
-    if (filters.period !== 'all' && transaction.date) {
-      const transactionDate = new Date(transaction.date);
-      const today = new Date();
-      
-      if (filters.period === 'today') {
-        matchesPeriod = format(transactionDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
-      } else if (filters.period === 'week') {
-        matchesPeriod = transactionDate >= startOfWeek(today) && transactionDate <= endOfWeek(today);
-      } else if (filters.period === 'month') {
-        matchesPeriod = transactionDate >= startOfMonth(today) && transactionDate <= endOfMonth(today);
-      } else if (filters.period === 'year') {
-        matchesPeriod = transactionDate >= startOfYear(today) && transactionDate <= endOfYear(today);
-      }
-    }
+    let matchesDate = true;
+    if (filters.dateFrom && t.date) matchesDate = matchesDate && new Date(t.date) >= new Date(filters.dateFrom);
+    if (filters.dateTo && t.date) matchesDate = matchesDate && new Date(t.date) <= new Date(filters.dateTo);
 
-    return matchesTab && matchesSearch && matchesCategory && matchesDepartment && matchesPayment && matchesPeriod && matchesSource;
+    let matchesAmount = true;
+    if (filters.amountMin !== '') matchesAmount = matchesAmount && (t.amount || 0) >= parseFloat(filters.amountMin);
+    if (filters.amountMax !== '') matchesAmount = matchesAmount && (t.amount || 0) <= parseFloat(filters.amountMax);
+
+    return matchesTab && matchesSearch && matchesCategory && matchesDepartment && matchesPayment && matchesSource && matchesBooking && matchesStatus && matchesDate && matchesAmount;
   });
+
+  // Bulk edit handler
+  const handleBulkEdit = (ids, action, value) => {
+    const fieldMap = { status: 'status', category: 'category', department: 'department', payment_method: 'payment_method' };
+    const field = fieldMap[action];
+    if (!field) return;
+    Promise.all(ids.map(id => updateMutation.mutateAsync({ id, data: { [field]: value } })))
+      .then(() => { setSelectedIds([]); toast.success(`${ids.length} transaction(s) mise(s) à jour`); })
+      .catch(() => toast.error('Erreur lors de la mise à jour'));
+  };
+
+  const toggleSelect = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  const toggleSelectAll = () => setSelectedIds(prev => prev.length === filteredTransactions.length ? [] : filteredTransactions.map(t => t.id));
 
   // Calculate totals
   const stats = {
