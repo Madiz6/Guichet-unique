@@ -83,9 +83,12 @@ export default function BulkUpload({ onClose }) {
   };
 
   const downloadTemplate = () => {
-    const template = `date,description,amount,type,category,department,payment_method,notes
-2025-01-10,Vente produit,50000,Revenu,Ventes,Commercial,Virement,
-2025-01-11,Achat fournitures,15000,Dépense,Fournitures,Administration,Espèces,`;
+    const template = `date,description,amount,type,source,category,department,payment_method,notes,loan_capital_amount,loan_interest_amount
+2025-01-10,Vente produit,50000,Revenu,Manuel,Ventes,Commercial,Virement,,
+2025-01-11,Achat fournitures,15000,Dépense,Manuel,Fournitures,Administration,Espèces,,
+2025-01-15,Déblocage prêt BCI,5000000,Revenu,Prêt Bancaire,Financement,,,5000000,0
+2025-01-20,Remboursement prêt janvier,85000,Dépense,Remboursement Prêt,Charges financières,,,80000,5000
+2025-01-25,Apport capital associé Ahmed,2000000,Revenu,Apport Capital,Capital,,,`;
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
