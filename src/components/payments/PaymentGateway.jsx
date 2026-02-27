@@ -199,6 +199,7 @@ export default function PaymentGateway({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
+              <button onClick={() => setGatewayType(null)} className="text-[#64748B] hover:text-[#0F172A] mr-1">←</button>
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${gatewayType === 'cheque' ? 'bg-gradient-to-br from-[#F59E0B] to-[#D97706]' : 'bg-gradient-to-br from-[#64748B] to-[#475569]'}`}>
                 {gatewayType === 'cheque' ? <FileText className="w-5 h-5 text-white" /> : <Banknote className="w-5 h-5 text-white" />}
               </div>
