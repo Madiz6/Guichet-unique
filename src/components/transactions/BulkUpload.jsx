@@ -29,18 +29,17 @@ export default function BulkUpload({ onClose }) {
               items: {
                 type: 'object',
                 properties: {
-                  date: { type: 'string' },
-                  description: { type: 'string' },
-                  amount: { type: 'number' },
-                  type: { type: 'string' },
-                  source: { type: 'string' },
+                  date: { type: 'string', description: 'Date de la transaction (YYYY-MM-DD)' },
+                  description: { type: 'string', description: 'Libellé / description de l\'opération' },
+                  debit: { type: 'number', description: 'Montant débité (sortie d\'argent, dépense) — toujours positif ou 0' },
+                  credit: { type: 'number', description: 'Montant crédité (entrée d\'argent, revenu) — toujours positif ou 0' },
+                  balance: { type: 'number', description: 'Solde après opération si disponible' },
+                  source: { type: 'string', description: 'Source probable: Manuel, Prêt Bancaire, Remboursement Prêt, Apport Capital, Paie, Autre' },
                   category: { type: 'string' },
-                  department: { type: 'string' },
-                  payment_method: { type: 'string' },
+                  payment_method: { type: 'string', description: 'Virement, Chèque, Espèces, Mobile Money' },
                   notes: { type: 'string' },
                   loan_capital_amount: { type: 'number' },
-                  loan_interest_amount: { type: 'number' },
-                  is_financing: { type: 'boolean' }
+                  loan_interest_amount: { type: 'number' }
                 }
               }
             }
@@ -49,8 +48,26 @@ export default function BulkUpload({ onClose }) {
       });
 
       if (response.status === 'success') {
-        setPreviewData(response.output.transactions || []);
-        toast.success(`${response.output.transactions?.length || 0} transactions détectées`);
+        // Normalize: derive type and amount from debit/credit columns
+        const normalized = (response.output.transactions || []).map(t => {
+          const debit = Math.abs(t.debit || 0);
+          const credit = Math.abs(t.credit || 0);
+          const isExpense = debit > 0;
+          const amount = isExpense ? debit : credit;
+          return {
+            ...t,
+            amount,
+            total_amount: amount,
+            type: isExpense ? 'Dépense' : 'Revenu',
+            source: t.source || 'Manuel',
+            status: 'En attente',
+            is_financing: ['Prêt Bancaire', 'Remboursement Prêt', 'Apport Capital', 'Compte Courant Associé'].includes(t.source),
+          };
+        });
+        setPreviewData(normalized);
+        const incomeCount = normalized.filter(t => t.type === 'Revenu').length;
+        const expenseCount = normalized.filter(t => t.type === 'Dépense').length;
+        toast.success(`${normalized.length} transactions détectées — ${incomeCount} revenus, ${expenseCount} dépenses`);
       } else {
         toast.error('Erreur lors de l\'extraction des données');
       }
