@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Upload, Download, Filter, TrendingUp, TrendingDown, DollarSign, FileText, X, Paperclip, Eye, Trash2, Edit2, Calendar as CalendarIcon, ArrowLeft, BookOpen, CheckCircle, Clock } from 'lucide-react';
+import { Plus, Upload, Download, Filter, TrendingUp, TrendingDown, DollarSign, FileText, X, Paperclip, Eye, Trash2, Edit2, Calendar as CalendarIcon, ArrowLeft, BookOpen, CheckCircle, Clock, Cpu, CheckSquare, Square } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,6 +21,8 @@ import BulkUpload from '../components/transactions/BulkUpload';
 import TransactionDetailDrawer from '../components/transactions/TransactionDetailDrawer';
 import TransactionReports from '../components/transactions/TransactionReports';
 import AIAnomalyDetector from '../components/ai/AIAnomalyDetector';
+import AdvancedFilters, { DEFAULT_FILTERS } from '../components/transactions/AdvancedFilters';
+import BulkEditBar from '../components/transactions/BulkEditBar';
 
 export default function Transactions() {
   const [showForm, setShowForm] = useState(false);
