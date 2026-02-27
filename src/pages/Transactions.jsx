@@ -333,7 +333,14 @@ export default function Transactions() {
                       </tr>
                     ) : (
                       filteredTransactions.map(transaction => (
-                        <tr key={transaction.id} className={`border-b border-[#F1F5F9] hover:bg-[#F8FAFC] ${transaction.booking_status === 'booked' ? 'bg-green-50/40' : ''}`}>
+                        <tr key={transaction.id} className={`border-b border-[#F1F5F9] hover:bg-[#F8FAFC] ${selectedIds.includes(transaction.id) ? 'bg-blue-50/40' : transaction.booking_status === 'booked' ? 'bg-green-50/40' : ''}`}>
+                          <td className="py-4 px-3">
+                            <button onClick={() => toggleSelect(transaction.id)} className="text-[#64748B] hover:text-[#0066FF]">
+                              {selectedIds.includes(transaction.id)
+                                ? <CheckSquare className="w-4 h-4 text-[#0066FF]" />
+                                : <Square className="w-4 h-4" />}
+                            </button>
+                          </td>
                           <td className="py-4 px-4 text-sm text-[#475569]">
                             {transaction.date && format(new Date(transaction.date), 'dd/MM/yyyy')}
                           </td>
