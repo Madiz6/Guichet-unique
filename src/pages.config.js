@@ -50,7 +50,6 @@
 import AuditLogs from './pages/AuditLogs';
 import AutresServices from './pages/AutresServices';
 import BudgetManagement from './pages/BudgetManagement';
-import BusinessIntelligence from './pages/BusinessIntelligence';
 import CompanySetup from './pages/CompanySetup';
 import Compliance from './pages/Compliance';
 import Conges from './pages/Conges';
@@ -64,7 +63,6 @@ import EmployeePortal from './pages/EmployeePortal';
 import Employees from './pages/Employees';
 import Employes from './pages/Employes';
 import Entreprise from './pages/Entreprise';
-import EtatsFinanciers from './pages/EtatsFinanciers';
 import Expenses from './pages/Expenses';
 import Home from './pages/Home';
 import InvitationProcess from './pages/InvitationProcess';
@@ -94,7 +92,6 @@ export const PAGES = {
     "AuditLogs": AuditLogs,
     "AutresServices": AutresServices,
     "BudgetManagement": BudgetManagement,
-    "BusinessIntelligence": BusinessIntelligence,
     "CompanySetup": CompanySetup,
     "Compliance": Compliance,
     "Conges": Conges,
@@ -108,7 +105,6 @@ export const PAGES = {
     "Employees": Employees,
     "Employes": Employes,
     "Entreprise": Entreprise,
-    "EtatsFinanciers": EtatsFinanciers,
     "Expenses": Expenses,
     "Home": Home,
     "InvitationProcess": InvitationProcess,
