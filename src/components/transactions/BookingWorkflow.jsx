@@ -274,12 +274,17 @@ Montant HT: ${amount} DJF
 TVA: ${tax} DJF
 Total TTC: ${total} DJF
 Méthode paiement: ${transaction.payment_method || 'N/A'}
+Montant intérêts: ${transaction.loan_interest_amount || 0} DJF
 
 RÈGLES IMPORTANTES:
-- Utilise les numéros de compte NPCG (ex: 601, 401, 411, 512, 641, 706, 165, 164, 101...)
-- La somme des débits DOIT EXACTEMENT égaler la somme des crédits (${total} DJF des deux côtés)
+- Utilise les numéros de compte NPCG (ex: 601, 401, 411, 512, 641, 706, 164, 661, 101, 455...)
+- La somme des débits DOIT EXACTEMENT égaler la somme des crédits
 - Génère au minimum 2 lignes d'écriture
 - Si TVA > 0, inclure un compte TVA séparé
+- Pour un PRÊT REÇU (emprunt bancaire): Débit 512-Banque / Crédit 164-Emprunts
+- Pour un REMBOURSEMENT DE PRÊT: si intérêts > 0, séparer capital (164) et intérêts (661), Crédit 512-Banque
+- Pour APPORT EN CAPITAL: Débit 512-Banque / Crédit 101-Capital
+- Pour COMPTE COURANT ASSOCIÉ: Débit 512-Banque / Crédit 455-Associés comptes courants
 
 Retourne UNIQUEMENT du JSON valide sans commentaire.`,
           response_json_schema: {
