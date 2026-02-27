@@ -162,18 +162,24 @@ export default function BulkUpload({ onClose }) {
                 <tr>
                   <th className="text-left p-3 text-xs font-semibold text-[#64748B]">Date</th>
                   <th className="text-left p-3 text-xs font-semibold text-[#64748B]">Description</th>
-                  <th className="text-left p-3 text-xs font-semibold text-[#64748B]">Montant</th>
-                  <th className="text-left p-3 text-xs font-semibold text-[#64748B]">Type</th>
+                  <th className="text-right p-3 text-xs font-semibold text-red-500">Débit (Dépense)</th>
+                  <th className="text-right p-3 text-xs font-semibold text-green-600">Crédit (Revenu)</th>
+                  <th className="text-left p-3 text-xs font-semibold text-[#64748B]">Source</th>
                   <th className="text-left p-3 text-xs font-semibold text-[#64748B]">Statut</th>
                 </tr>
               </thead>
               <tbody>
                 {previewData.map((row, index) => (
-                  <tr key={index} className="border-b border-[#F1F5F9]">
+                  <tr key={index} className={`border-b border-[#F1F5F9] ${row.type === 'Revenu' ? 'bg-green-50/30' : 'bg-red-50/30'}`}>
                     <td className="p-3 text-sm">{row.date}</td>
                     <td className="p-3 text-sm">{row.description}</td>
-                    <td className="p-3 text-sm font-semibold">{row.amount?.toLocaleString()} DJF</td>
-                    <td className="p-3 text-sm">{row.type}</td>
+                    <td className="p-3 text-sm font-semibold text-right text-red-600">
+                      {row.type === 'Dépense' ? `${row.amount?.toLocaleString()} DJF` : '—'}
+                    </td>
+                    <td className="p-3 text-sm font-semibold text-right text-green-700">
+                      {row.type === 'Revenu' ? `${row.amount?.toLocaleString()} DJF` : '—'}
+                    </td>
+                    <td className="p-3 text-sm text-[#64748B]">{row.source || 'Manuel'}</td>
                     <td className="p-3">
                       {row.description && row.amount ? (
                         <CheckCircle className="w-4 h-4 text-green-600" />
