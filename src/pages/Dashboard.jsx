@@ -139,6 +139,8 @@ export default function Dashboard() {
   const monthRevenue = monthTransactions.filter(t => t.type === 'Revenu').reduce((s, t) => s + (t.amount || 0), 0);
   const monthExpenses = monthTransactions.filter(t => t.type === 'Dépense').reduce((s, t) => s + (t.amount || 0), 0);
   const pendingTransactions = transactions.filter(t => t.status === 'En attente').length;
+  const bookedTransactions = transactions.filter(t => t.booking_status === 'booked').length;
+  const toBookTransactions = transactions.filter(t => t.booking_status !== 'booked').length;
 
   // Budget stats
   const activeBudgets = budgets.filter(b => b.status === 'Actif').length;
