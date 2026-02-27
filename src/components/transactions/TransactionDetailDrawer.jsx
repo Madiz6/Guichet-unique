@@ -135,7 +135,7 @@ export default function TransactionDetailDrawer({ transaction, initialTab = 'pay
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-        <Tabs defaultValue="payment" className="px-6 py-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6 py-4">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="payment">Détails</TabsTrigger>
             <TabsTrigger value="booking" className="flex items-center gap-1">
