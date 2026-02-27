@@ -83,6 +83,11 @@ export default function Layout({ children, currentPageName }) {
       icon: DollarSign,
     },
     {
+      title: "Demandes d'Achat",
+      url: createPageUrl("PurchaseRequests"),
+      icon: FileSpreadsheet,
+    },
+    {
       title: "Contacts",
       url: createPageUrl("Contacts"),
       icon: Users,
