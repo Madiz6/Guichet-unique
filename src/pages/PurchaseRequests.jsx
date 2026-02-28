@@ -58,6 +58,8 @@ export default function PurchaseRequests() {
     mutationFn: (data) => meras.entities.PurchaseRequest.create({
       ...data,
       statut: 'Soumise',
+      employe_email: currentUser?.email,
+      employe_nom: currentUser?.full_name,
       date_submission: new Date().toISOString(),
       numero_demande: `PR-${Date.now().toString().slice(-6)}`
     }),
