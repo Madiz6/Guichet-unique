@@ -41,11 +41,6 @@ export default function BudgetManagement() {
     queryFn: () => base44.entities.Department.list(),
   });
 
-  const { data: expenseRequests = [] } = useQuery({
-    queryKey: ['expense-requests'],
-    queryFn: () => base44.entities.ExpenseRequest.list('-created_date'),
-  });
-
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions'],
     queryFn: () => base44.entities.Transaction.list(),
