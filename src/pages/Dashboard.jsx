@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
 import AIInsightsBanner from "../components/ai/AIInsightsBanner";
 import AICopilot from "../components/ai/AICopilot";
+import OperationalAlerts from "../components/dashboard/OperationalAlerts";
 
 export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('12M');
