@@ -60,19 +60,19 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
     queryFn: () => meras.entities.ExpenseCategory.list(),
   });
 
-  const { data: departments = [] } = useQuery({
-    queryKey: ['departments'],
-    queryFn: () => meras.entities.Department.list(),
-  });
-
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
     queryFn: () => meras.entities.User.list(),
   });
 
+  // Derive unique departments from budgets that have a department_name
+  const budgetDepartments = [...new Set(
+    budgets.filter(b => b.department_name).map(b => b.department_name)
+  )].sort();
+
   // Filter budgets by selected department
   const filteredBudgets = formData.departement
-    ? budgets.filter(b => b.departement === formData.departement || !b.departement)
+    ? budgets.filter(b => b.department_name === formData.departement)
     : budgets;
 
   // Smart policy validation
