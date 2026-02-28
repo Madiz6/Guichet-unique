@@ -147,7 +147,7 @@ export default function PurchaseRequests() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Demandes d'achat</h1>
-          <p className="text-gray-600 mt-1">Processus centralisé pour simplifier les achats</p>
+          <p className="text-gray-600 mt-1">Processus centralisé et intelligent pour gérer vos achats</p>
         </div>
         <Button 
           onClick={() => {
