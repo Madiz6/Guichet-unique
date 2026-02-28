@@ -162,7 +162,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
     
     const errors = policy_violations.filter(v => v.type === 'error');
     if (errors.length > 0) {
-      toast.error('Veuillez corriger les erreurs');
+      toast.error('Veuillez corriger les erreurs avant de soumettre');
       return;
     }
 
