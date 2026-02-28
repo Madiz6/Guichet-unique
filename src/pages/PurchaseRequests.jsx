@@ -319,88 +319,17 @@ export default function PurchaseRequests() {
       <Dialog open={detailsView} onOpenChange={setDetailsView}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedRequest?.titre}</DialogTitle>
-            <DialogDescription>{selectedRequest?.numero_demande}</DialogDescription>
+            <DialogTitle className="sr-only">Détail de la demande</DialogTitle>
           </DialogHeader>
-          
           {selectedRequest && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500">Montant</p>
-                  <p className="font-bold text-lg">{selectedRequest.montant_total?.toLocaleString()} DJF</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Statut</p>
-                  <Badge className={STATUS_COLORS[selectedRequest.statut]}>
-                    {selectedRequest.statut}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Type</p>
-                  <p className="font-medium">{selectedRequest.type_achat}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Urgence</p>
-                  <p className="font-medium">{selectedRequest.urgence}</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs text-gray-500">Description</p>
-                <p className="text-sm">{selectedRequest.description}</p>
-              </div>
-
-              <div>
-                <p className="text-xs text-gray-500">Justification</p>
-                <p className="text-sm">{selectedRequest.justification}</p>
-              </div>
-
-              {/* Admin quick approve/reject */}
-              {currentUser?.role === 'admin' && ['Soumise', 'En approbation'].includes(selectedRequest.statut) && (
-                <div className="border-t pt-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Action administrateur</p>
-                  <div className="flex gap-3">
-                    <Button
-                      className="bg-green-600 hover:bg-green-700 flex-1"
-                      onClick={() => {
-                        approveMutation.mutate({
-                          email: currentUser.email,
-                          commentaire: 'Approuvé par l\'administrateur',
-                          date_approbation: new Date().toISOString().split('T')[0]
-                        });
-                        meras.entities.PurchaseRequest.update(selectedRequest.id, { statut: 'Approuvée', date_approbation_finale: new Date().toISOString() });
-                      }}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" /> Approuver
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      className="flex-1"
-                      onClick={() => {
-                        const motif = prompt('Motif du rejet (obligatoire):');
-                        if (!motif) return;
-                        rejectMutation.mutate({
-                          email: currentUser.email,
-                          commentaire: motif,
-                          date_approbation: new Date().toISOString().split('T')[0]
-                        });
-                      }}
-                    >
-                      <XCircle className="w-4 h-4 mr-2" /> Rejeter
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              <ApprovalWorkflow
-                request={selectedRequest}
-                approvers={selectedRequest.approuveurs_requis}
-                currentUserEmail={currentUser?.email}
-                onApprove={(data) => approveMutation.mutate(data)}
-                onReject={(data) => rejectMutation.mutate(data)}
-              />
-            </div>
+            <RequestDetailPanel
+              request={selectedRequest}
+              currentUser={currentUser}
+              onApprove={(data) => approveMutation.mutate(data)}
+              onReject={(data) => rejectMutation.mutate(data)}
+              isApproving={approveMutation.isPending}
+              isRejecting={rejectMutation.isPending}
+            />
           )}
         </DialogContent>
       </Dialog>
