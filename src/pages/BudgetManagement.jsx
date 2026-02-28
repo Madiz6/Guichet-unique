@@ -13,7 +13,6 @@ import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import BudgetOverview from '@/components/budget/BudgetOverview';
-import ExpenseRequestForm from '@/components/budget/ExpenseRequestForm';
 import ApprovalInterface from '@/components/budget/ApprovalInterface';
 import BudgetSettings from '@/components/budget/BudgetSettings';
 import BudgetPlanningForm from '@/components/budget/BudgetPlanningForm';
@@ -21,7 +20,6 @@ import BudgetTracker from '@/components/budget/BudgetTracker';
 import BudgetAlerts from '@/components/budget/BudgetAlerts';
 
 export default function BudgetManagement() {
-  const [showRequestForm, setShowRequestForm] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [editBudget, setEditBudget] = useState(null);
   const [activeTab, setActiveTab] = useState('planning');
@@ -223,14 +221,6 @@ export default function BudgetManagement() {
           )}
         </Tabs>
       </div>
-
-      <ExpenseRequestForm
-        isOpen={showRequestForm}
-        onClose={() => setShowRequestForm(false)}
-        budgets={budgets}
-        departments={departments}
-        currentUser={user}
-      />
 
       <BudgetPlanningForm
         isOpen={showBudgetForm}
