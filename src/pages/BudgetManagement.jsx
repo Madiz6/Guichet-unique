@@ -102,14 +102,12 @@ export default function BudgetManagement() {
             <p className="text-[#697586] mt-1">Suivi des budgets, dépenses et approbations</p>
           </div>
           <div className="flex gap-3">
-            <Button
-              onClick={() => setShowRequestForm(true)}
-              variant="outline"
-              className="border-blue-600 text-blue-600"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvelle Demande
-            </Button>
+            <Link to={createPageUrl('PurchaseRequests')}>
+              <Button variant="outline" className="border-blue-600 text-blue-600">
+                <Plus className="w-4 h-4 mr-2" />
+                Nouvelle Demande
+              </Button>
+            </Link>
             {isAdmin && (
               <Button
                 onClick={() => {
