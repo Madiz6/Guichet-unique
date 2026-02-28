@@ -175,7 +175,7 @@ export default function PurchaseRequests() {
         <div className="p-4 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">En attente</p>
+              <p className="text-gray-600 text-sm">En cours d'approbation</p>
               <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
             </div>
             <Clock className="w-8 h-8 text-yellow-400" />
