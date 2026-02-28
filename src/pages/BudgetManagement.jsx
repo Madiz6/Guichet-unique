@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, TrendingUp, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { ArrowLeft, Plus, TrendingUp, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
@@ -133,15 +133,15 @@ export default function BudgetManagement() {
           </TabsList>
 
           <TabsContent value="planning">
-            <BudgetOverview budgets={budgets} departments={departments} expenseRequests={expenseRequests} />
+            <BudgetOverview budgets={budgets} departments={departments} expenseRequests={[]} />
           </TabsContent>
 
           <TabsContent value="tracking">
-            <BudgetTracker budgets={budgets} transactions={transactions} expenseRequests={expenseRequests} />
+            <BudgetTracker budgets={budgets} transactions={transactions} expenseRequests={[]} />
           </TabsContent>
 
           <TabsContent value="alerts">
-            <BudgetAlerts budgets={budgets} transactions={transactions} expenseRequests={expenseRequests} />
+            <BudgetAlerts budgets={budgets} transactions={transactions} expenseRequests={[]} />
           </TabsContent>
 
           {isAdmin && (
