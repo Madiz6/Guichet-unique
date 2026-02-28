@@ -57,7 +57,7 @@ export default function PurchaseRequests() {
   const createMutation = useMutation({
     mutationFn: (data) => meras.entities.PurchaseRequest.create({
       ...data,
-      status: 'Soumise',
+      statut: 'Soumise',
       date_submission: new Date().toISOString(),
       numero_demande: `PR-${Date.now().toString().slice(-6)}`
     }),
