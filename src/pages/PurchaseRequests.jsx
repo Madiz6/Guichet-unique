@@ -90,7 +90,7 @@ export default function PurchaseRequests() {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
       setDetailsView(false);
       setSelectedRequest(null);
-      toast.success('Demande approuvée');
+      toast.success('Demande approuvée avec succès');
     }
   });
 
