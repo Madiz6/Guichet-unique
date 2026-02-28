@@ -286,22 +286,84 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-green-600" />
-            Quelle budgétaire?
+            Allocation budgétaire
           </h2>
 
+          {/* Step 1: Department selection */}
           <div>
-            <Label>Code budgétaire *</Label>
-            <Select value={formData.budget_code} onValueChange={(v) => setFormData({...formData, budget_code: v})}>
-              <SelectTrigger className="mt-2"><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+            <Label>Département demandeur *</Label>
+            <Select
+              value={formData.departement}
+              onValueChange={(v) => setFormData({ ...formData, departement: v, budget_code: '' })}
+            >
+              <SelectTrigger className="mt-2"><SelectValue placeholder="Sélectionner votre département..." /></SelectTrigger>
               <SelectContent>
-                {budgets.map(b => (
-                  <SelectItem key={b.id} value={b.budget_code}>
-                    {b.budget_code} - {b.nom} ({(b.montant_disponible || 0).toLocaleString()} DJF restant)
-                  </SelectItem>
-                ))}
+                {departments.length > 0
+                  ? departments.map(d => (
+                      <SelectItem key={d.id} value={d.nom}>{d.nom}</SelectItem>
+                    ))
+                  : (
+                    <>
+                      <SelectItem value="Direction Générale">Direction Générale</SelectItem>
+                      <SelectItem value="Finance & Comptabilité">Finance & Comptabilité</SelectItem>
+                      <SelectItem value="Ressources Humaines">Ressources Humaines</SelectItem>
+                      <SelectItem value="Commercial & Ventes">Commercial & Ventes</SelectItem>
+                      <SelectItem value="Marketing">Marketing</SelectItem>
+                      <SelectItem value="Informatique">Informatique</SelectItem>
+                      <SelectItem value="Opérations">Opérations</SelectItem>
+                      <SelectItem value="Logistique">Logistique</SelectItem>
+                    </>
+                  )
+                }
               </SelectContent>
             </Select>
           </div>
+
+          {/* Step 2: Budget — only shown after department selected */}
+          {formData.departement && (
+            <div>
+              <Label>Code budgétaire *</Label>
+              <p className="text-xs text-gray-500 mt-0.5 mb-2">
+                Budgets disponibles pour <strong>{formData.departement}</strong>
+              </p>
+              <Select
+                value={formData.budget_code}
+                onValueChange={(v) => setFormData({ ...formData, budget_code: v })}
+              >
+                <SelectTrigger><SelectValue placeholder="Sélectionner un budget..." /></SelectTrigger>
+                <SelectContent>
+                  {filteredBudgets.length > 0
+                    ? filteredBudgets.map(b => (
+                        <SelectItem key={b.id} value={b.budget_code}>
+                          <span className="flex flex-col">
+                            <span>{b.budget_code} — {b.nom}</span>
+                            <span className="text-xs text-gray-500">{(b.montant_disponible || 0).toLocaleString()} DJF disponible</span>
+                          </span>
+                        </SelectItem>
+                      ))
+                    : <SelectItem value="_none" disabled>Aucun budget trouvé pour ce département</SelectItem>
+                  }
+                </SelectContent>
+              </Select>
+
+              {/* Budget available vs request amount indicator */}
+              {formData.budget_code && formData.montant_total && (() => {
+                const selectedBudget = filteredBudgets.find(b => b.budget_code === formData.budget_code);
+                const available = selectedBudget?.montant_disponible || 0;
+                const amount = parseFloat(formData.montant_total);
+                const isOver = amount > available;
+                return (
+                  <div className={`mt-2 p-3 rounded-lg flex items-center gap-2 text-sm ${isOver ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'}`}>
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    {isOver
+                      ? `⚠️ Montant demandé (${amount.toLocaleString()} DJF) dépasse le disponible (${available.toLocaleString()} DJF)`
+                      : `✅ Budget suffisant — ${available.toLocaleString()} DJF disponible`
+                    }
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           <div>
             <Label>Catégorie de dépense</Label>
