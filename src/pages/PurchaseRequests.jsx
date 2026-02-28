@@ -166,7 +166,7 @@ export default function PurchaseRequests() {
         <div className="p-4 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Demandes totales</p>
+              <p className="text-gray-600 text-sm">Total des demandes</p>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
             </div>
             <FileText className="w-8 h-8 text-gray-400" />
