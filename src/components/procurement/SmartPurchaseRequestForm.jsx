@@ -383,20 +383,20 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Users className="w-5 h-5 text-purple-600" />
-            Collectez les devis (optionnel)
+            Collecte des devis (optionnel)
           </h2>
           
           <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-900">
-              💡 Vous pouvez collecter les devis après soumission. Le system vous guidera et notifiera Procurement.
+              💡 Vous pouvez joindre des devis maintenant ou après soumission. Le système vous guidera et notifiera le service Achats.
             </p>
           </div>
 
           <div>
-            <Label>Pièces jointes (devis, spécifications)</Label>
+            <Label>Pièces jointes (devis, cahiers des charges, spécifications)</Label>
             <label className="flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed rounded-xl cursor-pointer mt-2 hover:bg-gray-50">
               <Upload className="w-5 h-5 text-gray-600" />
-              <span className="text-sm text-gray-600">Déposer vos fichiers</span>
+              <span className="text-sm text-gray-600">Déposer vos fichiers ici</span>
               <input type="file" multiple onChange={handleFileUpload} className="hidden" disabled={uploading} />
             </label>
 
