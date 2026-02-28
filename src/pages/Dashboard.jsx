@@ -205,7 +205,7 @@ export default function Dashboard() {
                           {trendValue}
                         </span>
                       </div>
-                      <span className="text-xs text-[#6B6B6B] font-normal">vs last month</span>
+                      <span className="text-xs text-[#6B6B6B] font-normal">vs mois précédent</span>
                     </div>
                   )}
                 </div>
@@ -267,7 +267,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-semibold text-[#1A1A1A] mb-2 tracking-tight">
-                Welcome back, {company?.nom_entreprise || 'Admin'}
+                Bienvenue, {company?.nom_entreprise || 'Admin'}
               </h1>
               <p className="text-[#6B6B6B] flex items-center gap-2 font-normal">
                     <span>{company?.nom_entreprise || 'Paie360'}</span>
@@ -306,7 +306,7 @@ export default function Dashboard() {
           />
           
           <MetricCard
-            title="Active Employees"
+            title="Employés Actifs"
             value={activeEmployees.length.toLocaleString()}
             trend="up"
             trendValue="13%"
@@ -349,8 +349,8 @@ export default function Dashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-[#0F172A] mb-1">Salary vs CNSS vs ITS</h3>
-                    <p className="text-sm text-[#64748B]">Monthly trends (in thousands)</p>
+                    <h3 className="text-lg font-semibold text-[#0F172A] mb-1">Salaire vs CNSS vs ITS</h3>
+                    <p className="text-sm text-[#64748B]">Tendances mensuelles (en milliers)</p>
                   </div>
                   <div className="flex gap-2">
                     {['6M', '12M', 'YTD'].map(range => (
@@ -431,8 +431,8 @@ export default function Dashboard() {
             <Card className="border-0 shadow-sm h-full">
               <CardContent className="p-6">
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-[#0F172A] mb-1">Employees Per Department</h3>
-                  <p className="text-sm text-[#64748B]">Distribution overview</p>
+                  <h3 className="text-lg font-semibold text-[#0F172A] mb-1">Employés par Département</h3>
+                  <p className="text-sm text-[#64748B]">Répartition des effectifs</p>
                 </div>
                 <div className="relative">
                   <ResponsiveContainer width="100%" height={220}>
@@ -455,7 +455,7 @@ export default function Dashboard() {
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <p className="text-3xl font-bold text-[#0F172A]">{activeEmployees.length}</p>
-                    <p className="text-sm text-[#64748B]">Total Employees</p>
+                    <p className="text-sm text-[#64748B]">Total Employés</p>
                   </div>
                 </div>
                 <div className="mt-6 grid grid-cols-2 gap-3">
@@ -464,7 +464,7 @@ export default function Dashboard() {
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }}></div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-[#0F172A] truncate">{dept.name}</p>
-                        <p className="text-xs text-[#64748B]">{dept.value} emp</p>
+                        <p className="text-xs text-[#64748B]">{dept.value} emp.</p>
                       </div>
                     </div>
                   ))}
@@ -624,11 +624,11 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-semibold text-[#0F172A] mb-1">Mes Déclarations</h3>
-                  <p className="text-sm text-[#64748B]">Recent CNSS declarations</p>
+                  <p className="text-sm text-[#64748B]">Déclarations CNSS récentes</p>
                 </div>
                 <Link to={createPageUrl('Declarations')}>
                   <Button variant="ghost" className="text-[#6366F1] hover:bg-[#6366F1]/10">
-                    View All
+                    Voir tout
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
@@ -654,7 +654,7 @@ export default function Dashboard() {
                         Regime
                       </th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Status
+                        Statut
                       </th>
                       <th className="text-right py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
                         Statut de Paiement
