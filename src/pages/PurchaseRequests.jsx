@@ -155,10 +155,10 @@ export default function PurchaseRequests() {
             setShowForm(true);
           }}
           className="bg-blue-600 hover:bg-blue-700 gap-2"
-        >
+          >
           <Plus className="w-5 h-5" />
-          Nouvelle demande
-        </Button>
+          Nouvelle demande d'achat
+          </Button>
       </div>
 
       {/* Statistics */}
