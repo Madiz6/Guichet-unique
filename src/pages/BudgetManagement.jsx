@@ -119,34 +119,7 @@ export default function BudgetManagement() {
             value={`${budgets.reduce((sum, b) => sum + b.amount_allocated, 0).toLocaleString()} DJF`}
             color="from-[#6366F1] to-[#8B5CF6]"
           />
-          <StatCard
-            icon={CheckCircle}
-            label="Mes Demandes"
-            value={myRequests.length}
-            color="from-[#10B981] to-[#059669]"
-            badge={
-              myRequests.filter(r => r.status === 'Approuvée').length > 0 && (
-                <Badge className="bg-green-100 text-green-700">
-                  {myRequests.filter(r => r.status === 'Approuvée').length} approuvées
-                </Badge>
-              )
-            }
-          />
-          {(isManager || isAdmin) && (
-            <StatCard
-              icon={Clock}
-              label="En attente d'approbation"
-              value={pendingApprovals.length}
-              color="from-[#F59E0B] to-[#D97706]"
-              badge={
-                pendingApprovals.length > 0 && (
-                  <Badge className="bg-amber-100 text-amber-700 animate-pulse">
-                    Action requise
-                  </Badge>
-                )
-              }
-            />
-          )}
+
           <StatCard
             icon={AlertCircle}
             label="Budgets Dépassés"
