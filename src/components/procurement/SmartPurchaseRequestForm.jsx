@@ -182,7 +182,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
   const canProceed = () => {
     if (step === 1) return formData.titre && formData.type_achat && formData.montant_total;
     if (step === 2) return formData.departement && formData.budget_code && formData.date_besoin;
-    if (step === 3) return true; // Vendors are optional at submission
+    if (step === 3) return true; // Les fournisseurs sont optionnels à la soumission
     return true;
   };
 
