@@ -394,7 +394,7 @@ export default function Dashboard() {
                     />
                     <Line 
                       type="monotone" 
-                      dataKey="Net Salary" 
+                      dataKey="Salaire Net" 
                       stroke="#6366F1" 
                       strokeWidth={2.5}
                       dot={{ fill: '#6366F1', r: 4 }}
