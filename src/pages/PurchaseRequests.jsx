@@ -308,7 +308,7 @@ export default function PurchaseRequests() {
               Processus intelligent qui adapte les questions selon vos réponses
             </DialogDescription>
           </DialogHeader>
-          <SmartPurchaseRequestForm
+          <PurchaseRequestForm
             request={selectedRequest}
             onSubmit={(data) => createMutation.mutate(data)}
             onCancel={() => {
