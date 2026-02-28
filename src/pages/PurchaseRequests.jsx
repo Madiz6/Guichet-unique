@@ -57,16 +57,16 @@ export default function PurchaseRequests() {
   const createMutation = useMutation({
     mutationFn: (data) => meras.entities.PurchaseRequest.create({
       ...data,
-      status: 'Soumise',
+      statut: 'Soumise',
       date_submission: new Date().toISOString(),
       numero_demande: `PR-${Date.now().toString().slice(-6)}`
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
       setShowForm(false);
-      toast.success('Demande créée et soumise pour approbation');
+      toast.success('Demande créée et soumise pour approbation avec succès');
     },
-    onError: () => toast.error('Erreur lors de la création')
+    onError: () => toast.error('Erreur lors de la création de la demande')
   });
 
   const approveMutation = useMutation({

@@ -52,6 +52,7 @@ import AutresServices from './pages/AutresServices';
 import BudgetManagement from './pages/BudgetManagement';
 import CompanySetup from './pages/CompanySetup';
 import Compliance from './pages/Compliance';
+import Comptabilite from './pages/Comptabilite';
 import Conges from './pages/Conges';
 import Contacts from './pages/Contacts';
 import ContractRenewals from './pages/ContractRenewals';
@@ -64,6 +65,7 @@ import Employees from './pages/Employees';
 import Employes from './pages/Employes';
 import Entreprise from './pages/Entreprise';
 import Expenses from './pages/Expenses';
+import FinancialForecasting from './pages/FinancialForecasting';
 import Home from './pages/Home';
 import InvitationProcess from './pages/InvitationProcess';
 import Leasing from './pages/Leasing';
@@ -76,6 +78,7 @@ import PaymentFailure from './pages/PaymentFailure';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Payroll from './pages/Payroll';
 import PerformanceReviews from './pages/PerformanceReviews';
+import PurchaseRequests from './pages/PurchaseRequests';
 import Reports from './pages/Reports';
 import SMSTest from './pages/SMSTest';
 import SecurityDocumentation from './pages/SecurityDocumentation';
@@ -84,9 +87,6 @@ import Training from './pages/Training';
 import Transactions from './pages/Transactions';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import Visas from './pages/Visas';
-import Comptabilite from './pages/Comptabilite';
-import FinancialForecasting from './pages/FinancialForecasting';
-import PurchaseRequests from './pages/PurchaseRequests';
 import __Layout from './Layout.jsx';
 
 
@@ -96,6 +96,7 @@ export const PAGES = {
     "BudgetManagement": BudgetManagement,
     "CompanySetup": CompanySetup,
     "Compliance": Compliance,
+    "Comptabilite": Comptabilite,
     "Conges": Conges,
     "Contacts": Contacts,
     "ContractRenewals": ContractRenewals,
@@ -108,6 +109,7 @@ export const PAGES = {
     "Employes": Employes,
     "Entreprise": Entreprise,
     "Expenses": Expenses,
+    "FinancialForecasting": FinancialForecasting,
     "Home": Home,
     "InvitationProcess": InvitationProcess,
     "Leasing": Leasing,
@@ -120,6 +122,7 @@ export const PAGES = {
     "PaymentSuccess": PaymentSuccess,
     "Payroll": Payroll,
     "PerformanceReviews": PerformanceReviews,
+    "PurchaseRequests": PurchaseRequests,
     "Reports": Reports,
     "SMSTest": SMSTest,
     "SecurityDocumentation": SecurityDocumentation,
@@ -128,9 +131,6 @@ export const PAGES = {
     "Transactions": Transactions,
     "VirtualReceptionist": VirtualReceptionist,
     "Visas": Visas,
-    "Comptabilite": Comptabilite,
-    "FinancialForecasting": FinancialForecasting,
-    "PurchaseRequests": PurchaseRequests,
 }
 
 export const pagesConfig = {
