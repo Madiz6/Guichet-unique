@@ -72,8 +72,8 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
 
   // Filter budgets by selected department
   const filteredBudgets = formData.departement
-    ? budgets.filter(b => b.department_name === formData.departement)
-    : budgets;
+    ? budgets.filter(b => b.department_name === formData.departement && b.status === 'Actif')
+    : budgets.filter(b => b.status === 'Actif');
 
   // Smart policy validation
   useEffect(() => {
