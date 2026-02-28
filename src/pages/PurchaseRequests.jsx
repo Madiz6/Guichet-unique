@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Eye, Edit2, Trash2, FileText, Clock, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import PurchaseRequestForm from '@/components/procurement/PurchaseRequestForm';
-import ApprovalWorkflow from '@/components/procurement/ApprovalWorkflow';
+import RequestDetailPanel from '@/components/procurement/RequestDetailPanel';
 import {
   Dialog,
   DialogContent,
