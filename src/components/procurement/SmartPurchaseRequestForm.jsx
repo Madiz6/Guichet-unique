@@ -207,7 +207,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-blue-600" />
-            Quelle est votre besoin?
+            Quel est votre besoin ?
           </h2>
           
           <div>
