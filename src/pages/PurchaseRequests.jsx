@@ -118,7 +118,7 @@ export default function PurchaseRequests() {
     mutationFn: (id) => meras.entities.PurchaseRequest.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
-      toast.success('Demande supprimée');
+      toast.success('Demande supprimée avec succès');
     }
   });
 
