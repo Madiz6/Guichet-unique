@@ -42,7 +42,7 @@ export default function RequestDetailPanel({ request, currentUser, onApprove, on
   const isOverBudget = requested > available;
 
   const isAdmin = currentUser?.role === 'admin';
-  const canAct = isAdmin && ['Soumise', 'En approbation'].includes(request.statut);
+  const canAct = isAdmin && ['Soumise', 'En approbation', 'Brouillon'].includes(request.statut);
 
   const InfoRow = ({ icon: Icon, label, value, highlight }) => (
     <div className="flex items-start gap-3 py-2.5 border-b border-gray-100 last:border-0">
