@@ -52,15 +52,6 @@ export default function BudgetManagement() {
   });
 
   const isAdmin = user?.role === 'admin';
-  const isManager = departments.some(d => d.manager_id === user?.email);
-
-  const myRequests = expenseRequests.filter(r => r.requested_by === user?.email);
-  const pendingApprovals = expenseRequests.filter(r => {
-    if (r.status !== 'En attente') return false;
-    if (isAdmin) return true; // Admins see all pending requests
-    const dept = departments.find(d => d.id === r.department_id);
-    return dept?.manager_id === user?.email; // Managers see their department's requests
-  });
 
   const StatCard = ({ icon: Icon, label, value, color, badge }) => (
     <Card className="border-0 shadow-sm">
