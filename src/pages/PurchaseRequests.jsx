@@ -360,6 +360,43 @@ export default function PurchaseRequests() {
                 <p className="text-sm">{selectedRequest.justification}</p>
               </div>
 
+              {/* Admin quick approve/reject */}
+              {currentUser?.role === 'admin' && ['Soumise', 'En approbation'].includes(selectedRequest.statut) && (
+                <div className="border-t pt-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Action administrateur</p>
+                  <div className="flex gap-3">
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 flex-1"
+                      onClick={() => {
+                        approveMutation.mutate({
+                          email: currentUser.email,
+                          commentaire: 'Approuvé par l\'administrateur',
+                          date_approbation: new Date().toISOString().split('T')[0]
+                        });
+                        meras.entities.PurchaseRequest.update(selectedRequest.id, { statut: 'Approuvée', date_approbation_finale: new Date().toISOString() });
+                      }}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" /> Approuver
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => {
+                        const motif = prompt('Motif du rejet (obligatoire):');
+                        if (!motif) return;
+                        rejectMutation.mutate({
+                          email: currentUser.email,
+                          commentaire: motif,
+                          date_approbation: new Date().toISOString().split('T')[0]
+                        });
+                      }}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" /> Rejeter
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <ApprovalWorkflow
                 request={selectedRequest}
                 approvers={selectedRequest.approuveurs_requis}
