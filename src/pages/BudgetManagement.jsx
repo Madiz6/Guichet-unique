@@ -169,15 +169,7 @@ export default function BudgetManagement() {
             <TabsTrigger value="planning">📋 Planification</TabsTrigger>
             <TabsTrigger value="tracking">📊 Suivi Temps Réel</TabsTrigger>
             <TabsTrigger value="alerts">🔔 Alertes</TabsTrigger>
-            <TabsTrigger value="requests">Mes Demandes</TabsTrigger>
-            {(isManager || isAdmin) && (
-              <TabsTrigger value="approvals">
-                Approbations
-                {pendingApprovals.length > 0 && (
-                  <Badge className="ml-2 bg-amber-500 text-white">{pendingApprovals.length}</Badge>
-                )}
-              </TabsTrigger>
-            )}
+
             {isAdmin && <TabsTrigger value="settings">Configuration</TabsTrigger>}
           </TabsList>
 
@@ -192,27 +184,6 @@ export default function BudgetManagement() {
           <TabsContent value="alerts">
             <BudgetAlerts budgets={budgets} transactions={transactions} expenseRequests={expenseRequests} />
           </TabsContent>
-
-          <TabsContent value="requests">
-            <ApprovalInterface
-              requests={myRequests}
-              budgets={budgets}
-              departments={departments}
-              currentUser={user}
-              isMyRequests={true}
-            />
-          </TabsContent>
-
-          {(isManager || isAdmin) && (
-            <TabsContent value="approvals">
-              <ApprovalInterface
-                requests={pendingApprovals}
-                budgets={budgets}
-                departments={departments}
-                currentUser={user}
-              />
-            </TabsContent>
-          )}
 
           {isAdmin && (
             <TabsContent value="settings">
