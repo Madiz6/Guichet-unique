@@ -121,7 +121,7 @@ export default function Dashboard() {
     
     return {
       month: cycle.periode?.substring(0, 3) || '',
-      'Net Salary': Math.round(cycleSalaryNet / 1000),
+      'Salaire Net': Math.round(cycleSalaryNet / 1000),
       'CNSS': Math.round(cycleCNSS / 1000),
       'ITS': Math.round(cycleITS / 1000)
     };
