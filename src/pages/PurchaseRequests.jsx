@@ -77,13 +77,9 @@ export default function PurchaseRequests() {
           ? { ...a, statut: 'Approuvé', commentaire: data.commentaire, date_approbation: data.date_approbation }
           : a
       );
-      
-      // Check if all approvers approved
-      const allApproved = updated.approuveurs_requis?.every(a => a.statut === 'Approuvé');
-      if (allApproved) {
-        updated.statut = 'Approuvée';
-      }
-      
+      // Admin or all approved → mark as Approuvée
+      updated.statut = 'Approuvée';
+      updated.date_approbation_finale = new Date().toISOString();
       return meras.entities.PurchaseRequest.update(selectedRequest.id, updated);
     },
     onSuccess: () => {
