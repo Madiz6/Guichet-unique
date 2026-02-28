@@ -206,7 +206,7 @@ export default function PurchaseRequests() {
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
           <Input
-            placeholder="Rechercher par titre ou numéro..."
+            placeholder="Rechercher par titre ou numéro de demande..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
