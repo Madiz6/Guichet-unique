@@ -325,8 +325,10 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
                     ? filteredBudgets.map(b => (
                         <SelectItem key={b.id} value={b.budget_code}>
                           <span className="flex flex-col">
-                            <span>{b.budget_code} — {b.nom}</span>
-                            <span className="text-xs text-gray-500">{(b.montant_disponible || 0).toLocaleString()} DJF disponible</span>
+                            <span>{b.budget_code} — {b.nom || b.category || b.department_name}</span>
+                            <span className="text-xs text-gray-500">
+                              {((b.amount_available ?? b.amount_allocated) || 0).toLocaleString()} DJF disponible
+                            </span>
                           </span>
                         </SelectItem>
                       ))
@@ -338,7 +340,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
               {/* Budget available vs request amount indicator */}
               {formData.budget_code && formData.montant_total && (() => {
                 const selectedBudget = filteredBudgets.find(b => b.budget_code === formData.budget_code);
-                const available = selectedBudget?.montant_disponible || 0;
+                const available = selectedBudget?.amount_available ?? selectedBudget?.amount_allocated ?? 0;
                 const amount = parseFloat(formData.montant_total);
                 const isOver = amount > available;
                 return (
