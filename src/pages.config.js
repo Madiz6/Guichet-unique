@@ -78,6 +78,7 @@ import PaymentFailure from './pages/PaymentFailure';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Payroll from './pages/Payroll';
 import PerformanceReviews from './pages/PerformanceReviews';
+import PurchaseRequests from './pages/PurchaseRequests';
 import Reports from './pages/Reports';
 import SMSTest from './pages/SMSTest';
 import SecurityDocumentation from './pages/SecurityDocumentation';
@@ -86,7 +87,6 @@ import Training from './pages/Training';
 import Transactions from './pages/Transactions';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import Visas from './pages/Visas';
-import PurchaseRequests from './pages/PurchaseRequests';
 import __Layout from './Layout.jsx';
 
 
@@ -122,6 +122,7 @@ export const PAGES = {
     "PaymentSuccess": PaymentSuccess,
     "Payroll": Payroll,
     "PerformanceReviews": PerformanceReviews,
+    "PurchaseRequests": PurchaseRequests,
     "Reports": Reports,
     "SMSTest": SMSTest,
     "SecurityDocumentation": SecurityDocumentation,
@@ -130,7 +131,6 @@ export const PAGES = {
     "Transactions": Transactions,
     "VirtualReceptionist": VirtualReceptionist,
     "Visas": Visas,
-    "PurchaseRequests": PurchaseRequests,
 }
 
 export const pagesConfig = {
