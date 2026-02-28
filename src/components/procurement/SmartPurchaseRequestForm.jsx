@@ -142,9 +142,9 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         ...prev,
         pieces_jointes: [...(prev.pieces_jointes || []), ...uploadedFiles]
       }));
-      toast.success(`${uploadedFiles.length} fichier(s) ajouté(s)`);
+      toast.success(`${uploadedFiles.length} fichier(s) téléchargé(s) avec succès`);
     } catch {
-      toast.error('Erreur upload');
+      toast.error('Erreur lors du téléchargement du fichier');
     } finally {
       setUploading(false);
     }
