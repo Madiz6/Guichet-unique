@@ -234,11 +234,11 @@ export default function PurchaseRequests() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Numéro</TableHead>
+              <TableHead>N° Demande</TableHead>
               <TableHead>Titre</TableHead>
               <TableHead>Montant</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Date de création</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
