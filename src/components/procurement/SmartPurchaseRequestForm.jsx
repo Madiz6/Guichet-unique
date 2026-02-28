@@ -444,23 +444,24 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
             </div>
           )}
 
-          {/* Summary */}
+          {/* Récapitulatif */}
           <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-            <div className="flex justify-between"><span className="font-medium">Titre:</span> <span>{formData.titre}</span></div>
-            <div className="flex justify-between"><span className="font-medium">Montant:</span> <span>{formData.montant_total?.toLocaleString()} DJF</span></div>
-            <div className="flex justify-between"><span className="font-medium">Type:</span> <span>{formData.type_achat}</span></div>
-            <div className="flex justify-between"><span className="font-medium">Date besoin:</span> <span>{formData.date_besoin}</span></div>
-            <div className="flex justify-between"><span className="font-medium">Urgence:</span> <span>{formData.urgence}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Titre :</span> <span>{formData.titre}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Montant :</span> <span>{formData.montant_total?.toLocaleString()} DJF</span></div>
+            <div className="flex justify-between"><span className="font-medium">Type d'achat :</span> <span>{formData.type_achat}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Département :</span> <span>{formData.departement}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Date de besoin :</span> <span>{formData.date_besoin}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Niveau d'urgence :</span> <span>{formData.urgence}</span></div>
           </div>
 
-          {/* Suggested Approvers */}
+          {/* Approbateurs suggérés */}
           {suggested_approvers.length > 0 && (
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <p className="text-sm font-semibold text-purple-900 mb-2">Chaîne d'approbation automatique:</p>
+              <p className="text-sm font-semibold text-purple-900 mb-2">Chaîne d'approbation générée automatiquement :</p>
               <div className="space-y-1">
                 {suggested_approvers.map((a, i) => (
                   <p key={i} className="text-sm text-purple-800">
-                    Niveau {a.niveau}: <strong>{a.role}</strong>
+                    Niveau {a.niveau} : <strong>{a.role}</strong>
                   </p>
                 ))}
               </div>
