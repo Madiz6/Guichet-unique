@@ -324,12 +324,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
                   {filteredBudgets.length > 0
                     ? filteredBudgets.map(b => (
                         <SelectItem key={b.id} value={b.budget_code}>
-                          <span className="flex flex-col">
-                            <span>{b.budget_code} — {b.nom || b.category || b.department_name}</span>
-                            <span className="text-xs text-gray-500">
-                              {((b.amount_available ?? b.amount_allocated) || 0).toLocaleString()} DJF disponible
-                            </span>
-                          </span>
+                          {b.budget_code} — {b.nom || b.category || b.department_name} ({((b.amount_available ?? b.amount_allocated) || 0).toLocaleString()} DJF dispo)
                         </SelectItem>
                       ))
                     : <SelectItem value="_none" disabled>Aucun budget trouvé pour ce département</SelectItem>
