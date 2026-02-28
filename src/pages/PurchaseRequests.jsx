@@ -223,6 +223,8 @@ export default function PurchaseRequests() {
             <SelectItem value="En approbation">En approbation</SelectItem>
             <SelectItem value="Approuvée">Approuvée</SelectItem>
             <SelectItem value="Rejetée">Rejetée</SelectItem>
+            <SelectItem value="En commande">En commande</SelectItem>
+            <SelectItem value="Livrée">Livrée</SelectItem>
           </SelectContent>
         </Select>
       </div>
