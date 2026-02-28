@@ -421,7 +421,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            Vérifiez votre demande
+            Récapitulatif de la demande
           </h2>
 
           {/* Policy Violations */}
