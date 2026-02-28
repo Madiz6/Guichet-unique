@@ -24,7 +24,7 @@ const URGENCY_LEVELS = [
 ];
 
 export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }) {
-  const [step, setStep] = useState(1); // 1: Basics, 2: Budget, 3: Vendors, 4: Review
+  const [step, setStep] = useState(1); // 1: Besoin, 2: Budget, 3: Fournisseurs, 4: Révision
   const [formData, setFormData] = useState(request || {
     titre: '',
     description: '',
