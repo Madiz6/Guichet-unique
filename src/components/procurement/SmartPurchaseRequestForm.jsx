@@ -298,22 +298,11 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
             >
               <SelectTrigger className="mt-2"><SelectValue placeholder="Sélectionner votre département..." /></SelectTrigger>
               <SelectContent>
-                {departments.length > 0
-                  ? departments.map(d => (
-                      <SelectItem key={d.id} value={d.nom}>{d.nom}</SelectItem>
+                {budgetDepartments.length > 0
+                  ? budgetDepartments.map(dep => (
+                      <SelectItem key={dep} value={dep}>{dep}</SelectItem>
                     ))
-                  : (
-                    <>
-                      <SelectItem value="Direction Générale">Direction Générale</SelectItem>
-                      <SelectItem value="Finance & Comptabilité">Finance & Comptabilité</SelectItem>
-                      <SelectItem value="Ressources Humaines">Ressources Humaines</SelectItem>
-                      <SelectItem value="Commercial & Ventes">Commercial & Ventes</SelectItem>
-                      <SelectItem value="Marketing">Marketing</SelectItem>
-                      <SelectItem value="Informatique">Informatique</SelectItem>
-                      <SelectItem value="Opérations">Opérations</SelectItem>
-                      <SelectItem value="Logistique">Logistique</SelectItem>
-                    </>
-                  )
+                  : <SelectItem value="_none" disabled>Aucun département avec budget trouvé</SelectItem>
                 }
               </SelectContent>
             </Select>
