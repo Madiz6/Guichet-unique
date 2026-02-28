@@ -24,7 +24,7 @@ const URGENCY_LEVELS = [
 ];
 
 export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }) {
-  const [step, setStep] = useState(1); // 1: Besoin, 2: Budget, 3: Fournisseurs, 4: Révision
+  const [step, setStep] = useState(1); // 1: Basics, 2: Budget, 3: Vendors, 4: Review
   const [formData, setFormData] = useState(request || {
     titre: '',
     description: '',
@@ -142,9 +142,9 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         ...prev,
         pieces_jointes: [...(prev.pieces_jointes || []), ...uploadedFiles]
       }));
-      toast.success(`${uploadedFiles.length} fichier(s) téléchargé(s) avec succès`);
+      toast.success(`${uploadedFiles.length} fichier(s) ajouté(s)`);
     } catch {
-      toast.error('Erreur lors du téléchargement du fichier');
+      toast.error('Erreur upload');
     } finally {
       setUploading(false);
     }
@@ -162,7 +162,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
     
     const errors = policy_violations.filter(v => v.type === 'error');
     if (errors.length > 0) {
-      toast.error('Veuillez corriger les erreurs avant de soumettre');
+      toast.error('Veuillez corriger les erreurs');
       return;
     }
 
@@ -182,7 +182,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
   const canProceed = () => {
     if (step === 1) return formData.titre && formData.type_achat && formData.montant_total;
     if (step === 2) return formData.departement && formData.budget_code && formData.date_besoin;
-    if (step === 3) return true; // Les fournisseurs sont optionnels à la soumission
+    if (step === 3) return true; // Vendors are optional at submission
     return true;
   };
 
@@ -207,7 +207,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-blue-600" />
-            Quel est votre besoin ?
+            Quelle est votre besoin?
           </h2>
           
           <div>
@@ -383,20 +383,20 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Users className="w-5 h-5 text-purple-600" />
-            Collecte des devis (optionnel)
+            Collectez les devis (optionnel)
           </h2>
           
           <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-900">
-              💡 Vous pouvez joindre des devis maintenant ou après soumission. Le système vous guidera et notifiera le service Achats.
+              💡 Vous pouvez collecter les devis après soumission. Le system vous guidera et notifiera Procurement.
             </p>
           </div>
 
           <div>
-            <Label>Pièces jointes (devis, cahiers des charges, spécifications)</Label>
+            <Label>Pièces jointes (devis, spécifications)</Label>
             <label className="flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed rounded-xl cursor-pointer mt-2 hover:bg-gray-50">
               <Upload className="w-5 h-5 text-gray-600" />
-              <span className="text-sm text-gray-600">Déposer vos fichiers ici</span>
+              <span className="text-sm text-gray-600">Déposer vos fichiers</span>
               <input type="file" multiple onChange={handleFileUpload} className="hidden" disabled={uploading} />
             </label>
 
@@ -421,7 +421,7 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            Récapitulatif de la demande
+            Vérifiez votre demande
           </h2>
 
           {/* Policy Violations */}
@@ -444,24 +444,23 @@ export default function SmartPurchaseRequestForm({ request, onSubmit, onCancel }
             </div>
           )}
 
-          {/* Récapitulatif */}
+          {/* Summary */}
           <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-            <div className="flex justify-between"><span className="font-medium">Titre :</span> <span>{formData.titre}</span></div>
-            <div className="flex justify-between"><span className="font-medium">Montant :</span> <span>{formData.montant_total?.toLocaleString()} DJF</span></div>
-            <div className="flex justify-between"><span className="font-medium">Type d'achat :</span> <span>{formData.type_achat}</span></div>
-            <div className="flex justify-between"><span className="font-medium">Département :</span> <span>{formData.departement}</span></div>
-            <div className="flex justify-between"><span className="font-medium">Date de besoin :</span> <span>{formData.date_besoin}</span></div>
-            <div className="flex justify-between"><span className="font-medium">Niveau d'urgence :</span> <span>{formData.urgence}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Titre:</span> <span>{formData.titre}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Montant:</span> <span>{formData.montant_total?.toLocaleString()} DJF</span></div>
+            <div className="flex justify-between"><span className="font-medium">Type:</span> <span>{formData.type_achat}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Date besoin:</span> <span>{formData.date_besoin}</span></div>
+            <div className="flex justify-between"><span className="font-medium">Urgence:</span> <span>{formData.urgence}</span></div>
           </div>
 
-          {/* Approbateurs suggérés */}
+          {/* Suggested Approvers */}
           {suggested_approvers.length > 0 && (
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <p className="text-sm font-semibold text-purple-900 mb-2">Chaîne d'approbation générée automatiquement :</p>
+              <p className="text-sm font-semibold text-purple-900 mb-2">Chaîne d'approbation automatique:</p>
               <div className="space-y-1">
                 {suggested_approvers.map((a, i) => (
                   <p key={i} className="text-sm text-purple-800">
-                    Niveau {a.niveau} : <strong>{a.role}</strong>
+                    Niveau {a.niveau}: <strong>{a.role}</strong>
                   </p>
                 ))}
               </div>

@@ -57,16 +57,16 @@ export default function PurchaseRequests() {
   const createMutation = useMutation({
     mutationFn: (data) => meras.entities.PurchaseRequest.create({
       ...data,
-      statut: 'Soumise',
+      status: 'Soumise',
       date_submission: new Date().toISOString(),
       numero_demande: `PR-${Date.now().toString().slice(-6)}`
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
       setShowForm(false);
-      toast.success('Demande créée et soumise pour approbation avec succès');
+      toast.success('Demande créée et soumise pour approbation');
     },
-    onError: () => toast.error('Erreur lors de la création de la demande')
+    onError: () => toast.error('Erreur lors de la création')
   });
 
   const approveMutation = useMutation({
@@ -90,7 +90,7 @@ export default function PurchaseRequests() {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
       setDetailsView(false);
       setSelectedRequest(null);
-      toast.success('Demande approuvée avec succès');
+      toast.success('Demande approuvée');
     }
   });
 
@@ -118,7 +118,7 @@ export default function PurchaseRequests() {
     mutationFn: (id) => meras.entities.PurchaseRequest.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
-      toast.success('Demande supprimée avec succès');
+      toast.success('Demande supprimée');
     }
   });
 
@@ -147,7 +147,7 @@ export default function PurchaseRequests() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Demandes d'achat</h1>
-          <p className="text-gray-600 mt-1">Processus centralisé et intelligent pour gérer vos achats</p>
+          <p className="text-gray-600 mt-1">Processus centralisé pour simplifier les achats</p>
         </div>
         <Button 
           onClick={() => {
@@ -155,10 +155,10 @@ export default function PurchaseRequests() {
             setShowForm(true);
           }}
           className="bg-blue-600 hover:bg-blue-700 gap-2"
-          >
+        >
           <Plus className="w-5 h-5" />
-          Nouvelle demande d'achat
-          </Button>
+          Nouvelle demande
+        </Button>
       </div>
 
       {/* Statistics */}
@@ -166,7 +166,7 @@ export default function PurchaseRequests() {
         <div className="p-4 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Total des demandes</p>
+              <p className="text-gray-600 text-sm">Demandes totales</p>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
             </div>
             <FileText className="w-8 h-8 text-gray-400" />
@@ -175,7 +175,7 @@ export default function PurchaseRequests() {
         <div className="p-4 bg-white rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">En cours d'approbation</p>
+              <p className="text-gray-600 text-sm">En attente</p>
               <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
             </div>
             <Clock className="w-8 h-8 text-yellow-400" />
@@ -206,7 +206,7 @@ export default function PurchaseRequests() {
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
           <Input
-            placeholder="Rechercher par titre ou numéro de demande..."
+            placeholder="Rechercher par titre ou numéro..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -223,8 +223,6 @@ export default function PurchaseRequests() {
             <SelectItem value="En approbation">En approbation</SelectItem>
             <SelectItem value="Approuvée">Approuvée</SelectItem>
             <SelectItem value="Rejetée">Rejetée</SelectItem>
-            <SelectItem value="En commande">En commande</SelectItem>
-            <SelectItem value="Livrée">Livrée</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -234,11 +232,11 @@ export default function PurchaseRequests() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>N° Demande</TableHead>
+              <TableHead>Numéro</TableHead>
               <TableHead>Titre</TableHead>
               <TableHead>Montant</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead>Date de création</TableHead>
+              <TableHead>Date</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
