@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Search, Edit, Trash2, ArrowLeft, ArrowRight, Check, Download, Ban, Eye, Phone, RefreshCw, FileCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { PersonalInfoSection, DocumentsSection, ProfessionalInfoSection, RemunerationSection } from "../components/employees/EmployeeFormSections";
+import { PersonalInfoSection, DocumentsSection, ProfessionalInfoSection, RemunerationSection } from "../components/employees/EmployeeFormSections.jsx";
 import SuspensionModal from "../components/employees/SuspensionModal";
 import EmployeeDetailsModal from "../components/employees/EmployeeDetailsModal";
 import { calculatePayroll } from "../components/payroll/DjiboutiCalculator";
