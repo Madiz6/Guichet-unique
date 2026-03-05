@@ -271,18 +271,114 @@ export async function registerLeasePaymentTransaction(leasePayment, lease, asset
 
 /**
  * Called when a DebtPayment is created.
- * Ledger: 401 Fournisseurs / 512 Banque
+ * Routes ledger type based on debt.type:
+ *   Supplier → 401/512
+ *   Employee  → 455/512
+ *   Bank Loan → 164/512
+ *   Other     → 401/512 (default)
  */
 export async function registerDebtPaymentLedger(payment, debt) {
   const date = payment.payment_date || format(new Date(), "yyyy-MM-dd");
+  const typeMap = {
+    "Supplier": "debt_payment",
+    "Bank Loan": "debt_payment_bank",
+    "Employee": "debt_payment_employee",
+    "Other": "debt_payment",
+  };
+  const ledgerType = typeMap[debt?.type] || "debt_payment";
   await _ledger(
     payment.id,
     payment.payment_amount || 0,
     date,
-    `Paiement fournisseur — ${debt?.creditor_name || ""} — ${debt?.invoice_number || ""}`,
-    "debt_payment",
+    `Paiement ${debt?.type || "fournisseur"} — ${debt?.creditor_name || ""} — ${debt?.invoice_number || ""}`,
+    ledgerType,
     "debt_payment",
     payment.reference_number || ""
+  );
+}
+
+/**
+ * Called when a capital contribution is recorded.
+ * Ledger: 512 Banque / 101 Capital
+ */
+export async function registerCapitalContributionLedger(transaction) {
+  const date = transaction.date || format(new Date(), "yyyy-MM-dd");
+  await _ledger(
+    transaction.id,
+    transaction.amount || 0,
+    date,
+    `Apport en capital — ${transaction.contact_name || transaction.description}`,
+    "capital_contribution",
+    "manual",
+    transaction.reference_number || ""
+  );
+}
+
+/**
+ * Called when a client invoice is issued.
+ * Ledger: 411 Clients / 706 Produits
+ */
+export async function registerClientInvoiceLedger(transaction) {
+  const date = transaction.date || format(new Date(), "yyyy-MM-dd");
+  await _ledger(
+    transaction.id,
+    transaction.amount || 0,
+    date,
+    `Facture client — ${transaction.contact_name || transaction.description}`,
+    "client_invoice",
+    "manual",
+    transaction.numero_facture || ""
+  );
+}
+
+/**
+ * Called when a client payment is received.
+ * Ledger: 512 Banque / 411 Clients
+ */
+export async function registerClientPaymentLedger(transaction) {
+  const date = transaction.date || format(new Date(), "yyyy-MM-dd");
+  await _ledger(
+    transaction.id,
+    transaction.amount || 0,
+    date,
+    `Paiement client reçu — ${transaction.contact_name || transaction.description}`,
+    "client_payment",
+    "manual",
+    ""
+  );
+}
+
+/**
+ * Called for bank fees.
+ * Ledger: 627 Frais bancaires / 512 Banque
+ */
+export async function registerBankFeesLedger(transaction) {
+  const date = transaction.date || format(new Date(), "yyyy-MM-dd");
+  await _ledger(
+    transaction.id,
+    transaction.amount || 0,
+    date,
+    `Frais bancaires — ${transaction.description}`,
+    "bank_fees",
+    "manual",
+    ""
+  );
+}
+
+/**
+ * Called for employee expense reimbursements.
+ * Ledger: 625 Frais divers / 455 Personnel
+ */
+export async function registerEmployeeExpenseLedger(transaction) {
+  const date = transaction.date || format(new Date(), "yyyy-MM-dd");
+  await _ledger(
+    transaction.id,
+    transaction.amount || 0,
+    date,
+    `Note de frais — ${transaction.contact_name || transaction.description}`,
+    "employee_expense",
+    "manual",
+    ""
   );
 }
 
