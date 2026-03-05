@@ -9,7 +9,7 @@ import AccountingDashboard from "@/components/comptabilite/AccountingDashboard";
 import { LayoutDashboard, BookOpen, List, Building2, Landmark, BarChart3 } from "lucide-react";
 
 export default function Comptabilite() {
-  const [activeTab, setActiveTab] = useState("ledger");
+  const [activeTab, setActiveTab] = useState("overview");
 
   return (
     <div className="p-6 space-y-6">
