@@ -170,6 +170,7 @@ export async function registerDeclarationTransaction(declaration) {
     accounting_period: declaration.periode?.replace(/\s/g, ""),
     notes: `N° cotisation: ${declaration.numero_cotisation} — Régime: ${declaration.regime}`,
   });
+  // No ledger entry at declaration creation — only on payment (accrual: already booked via payroll)
 }
 
 /**
