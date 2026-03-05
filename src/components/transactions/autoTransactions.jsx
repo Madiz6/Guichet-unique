@@ -205,6 +205,14 @@ export async function markDeclarationTransactionPaid(declaration, paymentData = 
         notes: `N° cotisation: ${declaration.numero_cotisation} — Payé le ${format(new Date(), "dd/MM/yyyy")}`,
       });
     }
+    // ── Ledger: 431 CNSS / 512 Banque + 447 ITS / 512 Banque
+    const payDate = declaration.date_paiement || format(new Date(), "yyyy-MM-dd");
+    if (declaration.total_cnss > 0) {
+      await generateLedgerEntries(`${declaration.id}-cnss`, declaration.total_cnss, payDate, `Paiement CNSS — ${declaration.periode}`, "cnss_payment", "cnss", declaration.numero_cotisation);
+    }
+    if (declaration.total_its > 0) {
+      await generateLedgerEntries(`${declaration.id}-its`, declaration.total_its, payDate, `Paiement ITS — ${declaration.periode}`, "its_payment", "cnss", declaration.numero_cotisation);
+    }
   } catch (e) {
     console.warn("[autoTransactions] markDeclarationTransactionPaid error:", e.message);
   }
