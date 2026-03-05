@@ -186,6 +186,13 @@ export default function TouristVisa() {
         }
       });
 
+      const paidApplication = {
+        ...pendingApplication,
+        payment_date: format(new Date(), 'yyyy-MM-dd'),
+        transaction_id: paymentData.transaction_id,
+        status: 'Soumis'
+      };
+      await registerVisaServiceTransaction(paidApplication);
       toast.success('Paiement réussi! Votre demande de visa a été soumise.');
       
       setShowPaymentGateway(false);

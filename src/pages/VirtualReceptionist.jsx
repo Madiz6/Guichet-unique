@@ -124,6 +124,7 @@ export default function VirtualReceptionist() {
         status: 'Actif'
       };
 
+      await registerReceptionistServiceTransaction(updatedContract);
       generateReceptionistContract(updatedContract, company);
       toast.success('Paiement réussi! Votre contrat de réceptionniste virtuel a été généré.');
       

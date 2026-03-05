@@ -117,6 +117,7 @@ export default function MailManagement() {
         status: 'Actif'
       };
 
+      await registerMailServiceTransaction(updatedContract);
       generateMailServiceContract(updatedContract, company);
       toast.success('Paiement réussi! Votre contrat de domiciliation a été généré.');
       
