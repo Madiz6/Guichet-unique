@@ -111,6 +111,55 @@ export default function SupplierDebtPayment() {
 
   const activeDebts = debts.filter(d => d.status !== 'Paid');
 
+  if (showForm && !selectedDebt) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowForm(false)}
+              className="border-[#D3DCE6] hover:bg-white hover:shadow-md transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-[#0A2540]">Select a Debt to Pay</h1>
+              <p className="text-[#697586] mt-1">Choose which debt you want to make a payment for</p>
+            </div>
+          </div>
+          <Card className="border border-[#E8ECF2] shadow-lg">
+            <CardContent className="p-6 space-y-3">
+              {activeDebts.length === 0 ? (
+                <p className="text-[#697586] text-center py-8">No active debts found</p>
+              ) : (
+                activeDebts.map((debt) => (
+                  <button
+                    key={debt.id}
+                    onClick={() => setSelectedDebt(debt)}
+                    className="w-full text-left p-4 rounded-lg border border-[#E8ECF2] hover:border-[#0066FF] hover:bg-[#F0F5FF] transition-all"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold text-[#0A2540]">{debt.creditor_name}</p>
+                        <p className="text-sm text-[#697586]">{debt.type} {debt.invoice_number ? `• #${debt.invoice_number}` : ''}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-[#FA6400]">{debt.remaining_balance?.toLocaleString()} DJF</p>
+                        <p className="text-xs text-[#697586]">remaining</p>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   if (showForm && selectedDebt) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">

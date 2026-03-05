@@ -82,12 +82,12 @@ import PurchaseRequests from './pages/PurchaseRequests';
 import Reports from './pages/Reports';
 import SMSTest from './pages/SMSTest';
 import SecurityDocumentation from './pages/SecurityDocumentation';
+import SupplierDebtPayment from './pages/SupplierDebtPayment';
 import TouristVisa from './pages/TouristVisa';
 import Training from './pages/Training';
 import Transactions from './pages/Transactions';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import Visas from './pages/Visas';
-import SupplierDebtPayment from './pages/SupplierDebtPayment';
 import __Layout from './Layout.jsx';
 
 
@@ -127,12 +127,12 @@ export const PAGES = {
     "Reports": Reports,
     "SMSTest": SMSTest,
     "SecurityDocumentation": SecurityDocumentation,
+    "SupplierDebtPayment": SupplierDebtPayment,
     "TouristVisa": TouristVisa,
     "Training": Training,
     "Transactions": Transactions,
     "VirtualReceptionist": VirtualReceptionist,
     "Visas": Visas,
-    "SupplierDebtPayment": SupplierDebtPayment,
 }
 
 export const pagesConfig = {
