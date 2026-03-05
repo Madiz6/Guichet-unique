@@ -19,7 +19,10 @@ export default function Comptabilite() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-[#F5F5F5] p-1 rounded-lg">
+        <TabsList className="bg-[#F5F5F5] p-1 rounded-lg flex-wrap">
+          <TabsTrigger value="overview" className="flex items-center gap-2 text-sm">
+            <LayoutDashboard className="w-4 h-4" /> Vue d'ensemble
+          </TabsTrigger>
           <TabsTrigger value="ledger" className="flex items-center gap-2 text-sm">
             <BookOpen className="w-4 h-4" /> Grand Livre
           </TabsTrigger>
