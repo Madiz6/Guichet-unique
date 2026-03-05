@@ -13,6 +13,7 @@ import { createPageUrl } from '@/utils';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { registerDebtPaymentLedger } from '@/components/transactions/autoTransactions';
 
 export default function SupplierDebtPayment() {
   const [showForm, setShowForm] = useState(false);
