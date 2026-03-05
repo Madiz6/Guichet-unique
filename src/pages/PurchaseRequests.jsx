@@ -260,16 +260,14 @@ export default function PurchaseRequests() {
                   {new Date(req.created_date).toLocaleDateString('fr-FR')}
                 </TableCell>
                 <TableCell className="space-x-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setSelectedRequest(req);
-                      setDetailsView(true);
-                    }}
-                  >
+                  <Button size="sm" variant="ghost" onClick={() => { setSelectedRequest(req); setDetailsView(true); }}>
                     <Eye className="w-4 h-4" />
                   </Button>
+                  {req.statut === 'Approuvée' && (
+                    <Button size="sm" variant="ghost" title="Créer bon de commande" onClick={() => { setPORequest(req); setShowPO(true); }}>
+                      <ShoppingCart className="w-4 h-4 text-purple-600" />
+                    </Button>
+                  )}
                   {req.statut === 'Brouillon' && req.employe_email === currentUser?.email && (
                     <>
                       <Button
