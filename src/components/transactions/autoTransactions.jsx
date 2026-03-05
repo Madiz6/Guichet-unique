@@ -139,6 +139,9 @@ export async function markPayrollTransactionPaid(cycle, paymentData = {}) {
         notes: `Paiement effectué — transaction Meras: ${paymentData.transaction_id || "N/A"}`,
       });
     }
+    // ── Ledger: 421 Personnel dû / 512 Banque (paiement effectif)
+    const payDate = cycle.date_paiement || format(new Date(), "yyyy-MM-dd");
+    await generateLedgerEntries(`${cycle.id}-pay`, cycle.salaire_net_total || 0, payDate, `Paiement salaires — ${cycle.periode}`, "payroll_payment", "payroll");
   } catch (e) {
     console.warn("[autoTransactions] markPayrollTransactionPaid error:", e.message);
   }
