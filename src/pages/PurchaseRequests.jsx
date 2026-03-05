@@ -5,10 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Eye, Edit2, Trash2, FileText, Clock, CheckCircle, XCircle, ShoppingCart } from 'lucide-react';
-import PurchaseOrderDialog from '@/components/procurement/PurchaseOrderDialog';
+import { Plus, Search, Eye, Edit2, Trash2, FileText, Clock, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
-import { registerPurchaseInvoiceLedger } from '@/components/transactions/autoTransactions';
 import PurchaseRequestForm from '@/components/procurement/PurchaseRequestForm';
 import RequestDetailPanel from '@/components/procurement/RequestDetailPanel';
 import {
@@ -43,8 +41,6 @@ export default function PurchaseRequests() {
   const [showForm, setShowForm] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [detailsView, setDetailsView] = useState(false);
-  const [showPO, setShowPO] = useState(false);
-  const [poRequest, setPORequest] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -86,10 +82,7 @@ export default function PurchaseRequests() {
       // Admin or all approved → mark as Approuvée
       updated.statut = 'Approuvée';
       updated.date_approbation_finale = new Date().toISOString();
-      const result = await meras.entities.PurchaseRequest.update(selectedRequest.id, updated);
-      // ── Ledger: 606 Achats / 401 Fournisseurs (constatation facture fournisseur)
-      await registerPurchaseInvoiceLedger(updated);
-      return result;
+      return meras.entities.PurchaseRequest.update(selectedRequest.id, updated);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
@@ -260,14 +253,16 @@ export default function PurchaseRequests() {
                   {new Date(req.created_date).toLocaleDateString('fr-FR')}
                 </TableCell>
                 <TableCell className="space-x-1">
-                  <Button size="sm" variant="ghost" onClick={() => { setSelectedRequest(req); setDetailsView(true); }}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedRequest(req);
+                      setDetailsView(true);
+                    }}
+                  >
                     <Eye className="w-4 h-4" />
                   </Button>
-                  {req.statut === 'Approuvée' && (
-                    <Button size="sm" variant="ghost" title="Créer bon de commande" onClick={() => { setPORequest(req); setShowPO(true); }}>
-                      <ShoppingCart className="w-4 h-4 text-purple-600" />
-                    </Button>
-                  )}
                   {req.statut === 'Brouillon' && req.employe_email === currentUser?.email && (
                     <>
                       <Button
@@ -321,11 +316,6 @@ export default function PurchaseRequests() {
           />
         </DialogContent>
       </Dialog>
-
-      {/* Purchase Order Dialog */}
-      {poRequest && (
-        <PurchaseOrderDialog request={poRequest} open={showPO} onClose={() => { setShowPO(false); setPORequest(null); }} />
-      )}
 
       {/* Details Dialog */}
       <Dialog open={detailsView} onOpenChange={setDetailsView}>

@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
-import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
 
 // Journal entry templates per type/category
 const getEntries = (t) => {
@@ -346,64 +344,16 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
   const handleBook = async () => {
     setLoading(true);
     try {
-      const updated = await persist({
+      await persist({
         booking_status: 'booked',
         booking_type: bookingType,
         operation_type: operationType,
         journal_entries: entries,
         booked_at: new Date().toISOString(),
       });
-
-      // ── Write ledger entries from the journal_entries array → LedgerEntry entity
-      const tx = { ...transaction, ...updated };
-      const date = tx.date || format(new Date(), 'yyyy-MM-dd');
-      const period = date.slice(0, 7).replace('-', '');
-      const fiscalYear = date.slice(0, 4);
-      const journalTypeMap = {
-        'Facture fournisseur': 'ACH', 'Note de frais': 'OD', 'Paie': 'SAL',
-        'Remboursement prêt': 'BNQ', 'Banque': 'BNQ', 'Impôts & Taxes': 'CNSS',
-        'Facture client': 'VTE', 'Prêt bancaire': 'BNQ', 'Apport capital': 'BNQ',
-        'Rapport de vente': 'VTE', 'Autre revenu': 'OD', 'Autre': 'OD',
-      };
-      const journalType = journalTypeMap[bookingType] || 'OD';
-      await Promise.all(entries.map(e =>
-        base44.entities.LedgerEntry.create({
-          transaction_id: tx.id,
-          entry_date: date,
-          journal_type: journalType,
-          account_code: e.compte,
-          account_name: e.label,
-          debit: e.debit || 0,
-          credit: e.credit || 0,
-          libelle: tx.description || bookingType,
-          piece_ref: tx.numero_facture || tx.reference_number || '',
-          entry_type: 'manual',
-          source_module: tx.source === 'Paie' ? 'payroll' : tx.source === 'Declaration CNSS' ? 'cnss' : 'manual',
-          is_reversed: false,
-          period,
-          fiscal_year: fiscalYear,
-        })
-      ));
-
-      // ── If "dette fournisseur" flagged, create a SupplierDebt
-      if (operationType === 'Dépense non payée' && !tx.debt_id) {
-        const debt = await base44.entities.SupplierDebt.create({
-          type: 'Supplier',
-          creditor_name: tx.contact_name || tx.description,
-          original_amount: tx.amount || 0,
-          remaining_balance: tx.amount || 0,
-          invoice_number: tx.numero_facture || '',
-          date_incurred: date,
-          due_date: tx.date_echeance || date,
-          description: tx.description,
-          status: 'Active',
-        });
-        await meras.entities.Transaction.update(tx.id, { debt_id: debt.id });
-      }
-
       setStep(4);
       setOpen({ 1: false, 2: false, 3: false, 4: true });
-      toast.success('✅ Écriture comptable enregistrée dans le Grand Livre');
+      toast.success('✅ Écriture comptable enregistrée');
     } catch (e) {
       toast.error('Erreur: ' + e.message);
     } finally {
