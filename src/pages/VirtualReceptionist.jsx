@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import MerasPaymentGateway from "@/components/payments/MerasPaymentGateway";
 import { generateReceptionistContract } from "@/components/services/ReceptionistContractGenerator";
+import { registerReceptionistServiceTransaction } from "@/components/transactions/autoTransactions";
 
 const SERVICE_AMOUNT = 60000;
 
