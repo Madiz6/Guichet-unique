@@ -11,6 +11,169 @@ import { Upload, X, FileText, AlertCircle, CheckCircle, Info, Sparkles, ScanLine
 import { toast } from 'sonner';
 import AITransactionAutocomplete from '@/components/ai/AITransactionAutocomplete';
 
+// Comptabilisation Types - structured dropdown
+const COMPTABILISATION_TYPES = {
+  // Achats & Fournisseurs
+  'facture_fournisseur_a_payer': {
+    module: 'Achats & Fournisseurs',
+    label: 'Facture fournisseur à payer',
+    description: 'Facture reçue mais non réglée',
+    emoji: '📄',
+    journal: 'ACH',
+    pcg_debit: '6xxx',
+    pcg_credit: '401',
+    type: 'Dépense',
+    is_dette: true,
+  },
+  'facture_fournisseur_reglee': {
+    module: 'Achats & Fournisseurs',
+    label: 'Facture fournisseur réglée',
+    description: 'Facture payée immédiatement',
+    emoji: '✅',
+    journal: 'ACH',
+    pcg_debit: '6xxx',
+    pcg_credit: '512',
+    type: 'Dépense',
+  },
+  'achat_immediat': {
+    module: 'Achats & Fournisseurs',
+    label: 'Achat immédiat / reçu',
+    description: 'Paiement sur place avec reçu',
+    emoji: '🧾',
+    journal: 'OD',
+    pcg_debit: '6xxx',
+    pcg_credit: '53/512',
+    type: 'Dépense',
+  },
+  // Personnel & Salaires
+  'salaires_verses': {
+    module: 'Personnel & Salaires',
+    label: 'Salaires versés',
+    description: 'Bulletin de paie',
+    emoji: '👥',
+    journal: 'SAL',
+    pcg_debit: '641',
+    pcg_credit: '43x',
+    type: 'Dépense',
+    compte_comptable: '641',
+  },
+  'note_de_frais': {
+    module: 'Personnel & Salaires',
+    label: 'Note de frais employé',
+    description: 'Remboursement frais',
+    emoji: '🧳',
+    journal: 'OD',
+    pcg_debit: '625',
+    pcg_credit: '455',
+    type: 'Dépense',
+    compte_comptable: '625',
+  },
+  // Banque & Financements
+  'remboursement_emprunt': {
+    module: 'Banque & Financements',
+    label: 'Remboursement emprunt bancaire',
+    description: 'Paiement échéance prêt',
+    emoji: '💳',
+    journal: 'BNQ',
+    pcg_debit: '164',
+    pcg_credit: '512',
+    type: 'Dépense',
+    compte_comptable: '164',
+    is_financing: true,
+  },
+  'frais_bancaires': {
+    module: 'Banque & Financements',
+    label: 'Frais bancaires / prélèvements',
+    description: 'Frais de tenue de compte',
+    emoji: '🏦',
+    journal: 'BNQ',
+    pcg_debit: '627',
+    pcg_credit: '512',
+    type: 'Dépense',
+    compte_comptable: '627',
+  },
+  // Impôts & Cotisations
+  'declaration_cnss_its': {
+    module: 'Impôts & Cotisations',
+    label: 'Déclaration CNSS/ITS',
+    description: 'Cotisations sociales',
+    emoji: '📋',
+    journal: 'CNSS',
+    pcg_debit: '645',
+    pcg_credit: '43x',
+    type: 'Dépense',
+    compte_comptable: '645',
+  },
+  // Divers
+  'autre_depense_od': {
+    module: 'Divers',
+    label: 'Autre dépense / OD',
+    description: 'Transfert interne, ajustement',
+    emoji: '📝',
+    journal: 'OD',
+    pcg_debit: '—',
+    pcg_credit: '—',
+    type: 'Dépense',
+  },
+  // Partenaires & Investissements
+  'apport_capital': {
+    module: 'Partenaires & Investissements',
+    label: 'Apport en capital',
+    description: 'Investissement associé',
+    emoji: '💎',
+    journal: 'BNQ',
+    pcg_debit: '512',
+    pcg_credit: '101',
+    type: 'Revenu',
+    compte_comptable: '101',
+    is_financing: true,
+  },
+  'pret_bancaire': {
+    module: 'Partenaires & Investissements',
+    label: 'Prêt Bancaire (Déblocage)',
+    description: 'Réception d\'un prêt',
+    emoji: '🏦',
+    journal: 'BNQ',
+    pcg_debit: '512',
+    pcg_credit: '164',
+    type: 'Revenu',
+    compte_comptable: '164',
+    is_financing: true,
+  },
+  // Clients & Ventes
+  'facture_client_a_encaisser': {
+    module: 'Clients & Ventes',
+    label: 'Facture client à encaisser',
+    description: 'Vente à crédit',
+    emoji: '📤',
+    journal: 'VTE',
+    pcg_debit: '411',
+    pcg_credit: '7xxx',
+    type: 'Revenu',
+    is_creance: true,
+  },
+  'paiement_client_recu': {
+    module: 'Clients & Ventes',
+    label: 'Paiement client reçu',
+    description: 'Règlement client',
+    emoji: '💰',
+    journal: 'VTE',
+    pcg_debit: '512',
+    pcg_credit: '411',
+    type: 'Revenu',
+  },
+};
+
+const MODULE_ORDER = [
+  'Achats & Fournisseurs',
+  'Personnel & Salaires',
+  'Banque & Financements',
+  'Impôts & Cotisations',
+  'Clients & Ventes',
+  'Partenaires & Investissements',
+  'Divers',
+];
+
 // NPCG Account Mapping
 const NPCG_ACCOUNTS = {
   // Revenus (Classe 7)
