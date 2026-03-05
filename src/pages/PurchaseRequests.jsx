@@ -322,6 +322,11 @@ export default function PurchaseRequests() {
         </DialogContent>
       </Dialog>
 
+      {/* Purchase Order Dialog */}
+      {poRequest && (
+        <PurchaseOrderDialog request={poRequest} open={showPO} onClose={() => { setShowPO(false); setPORequest(null); }} />
+      )}
+
       {/* Details Dialog */}
       <Dialog open={detailsView} onOpenChange={setDetailsView}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
