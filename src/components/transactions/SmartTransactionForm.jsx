@@ -11,243 +11,6 @@ import { Upload, X, FileText, AlertCircle, CheckCircle, Info, Sparkles, ScanLine
 import { toast } from 'sonner';
 import AITransactionAutocomplete from '@/components/ai/AITransactionAutocomplete';
 
-// Comptabilisation Types - structured dropdown
-const COMPTABILISATION_TYPES = {
-  // Achats & Fournisseurs
-  'facture_fournisseur_a_payer': {
-    module: 'Achats & Fournisseurs',
-    label: 'Facture fournisseur à payer',
-    description: 'Facture reçue mais non réglée',
-    emoji: '📄',
-    journal: 'ACH',
-    pcg_debit: '6xxx Charges',
-    pcg_credit: '401 Fournisseur',
-    type: 'Dépense',
-    is_dette: true,
-  },
-  'facture_fournisseur_reglee': {
-    module: 'Achats & Fournisseurs',
-    label: 'Facture fournisseur réglée',
-    description: 'Paiement immédiat',
-    emoji: '✅',
-    journal: 'ACH',
-    pcg_debit: '6xxx Charges',
-    pcg_credit: '512 Banque',
-    type: 'Dépense',
-  },
-  'achat_immediat': {
-    module: 'Achats & Fournisseurs',
-    label: 'Achat immédiat / reçu',
-    description: 'Paiement sur place avec reçu',
-    emoji: '🧾',
-    journal: 'OD',
-    pcg_debit: '6xxx Charges',
-    pcg_credit: '53 / 512',
-    type: 'Dépense',
-  },
-  // Personnel & Salaires
-  'salaires_verses': {
-    module: 'Personnel & Salaires',
-    label: 'Salaires versés',
-    description: 'Bulletin de paie',
-    emoji: '👥',
-    journal: 'SAL',
-    pcg_debit: '641 Salaires',
-    pcg_credit: '43x Charges sociales',
-    type: 'Dépense',
-    compte_comptable: '641',
-  },
-  'note_de_frais': {
-    module: 'Personnel & Salaires',
-    label: 'Note de frais employé',
-    description: 'Remboursement frais',
-    emoji: '🧳',
-    journal: 'OD',
-    pcg_debit: '625 Frais divers',
-    pcg_credit: '455 Employé',
-    type: 'Dépense',
-    compte_comptable: '625',
-  },
-  // Banque & Financements
-  'remboursement_emprunt': {
-    module: 'Banque & Financements',
-    label: 'Remboursement emprunt bancaire',
-    description: 'Paiement échéance prêt',
-    emoji: '💳',
-    journal: 'BNQ',
-    pcg_debit: '164 Emprunt',
-    pcg_credit: '512 Banque',
-    type: 'Dépense',
-    compte_comptable: '164',
-    is_financing: true,
-  },
-  'frais_bancaires': {
-    module: 'Banque & Financements',
-    label: 'Frais bancaires / prélèvements',
-    description: 'Frais de tenue de compte',
-    emoji: '🏦',
-    journal: 'BNQ',
-    pcg_debit: '627 Frais bancaires',
-    pcg_credit: '512 Banque',
-    type: 'Dépense',
-    compte_comptable: '627',
-  },
-  // Impôts & Cotisations
-  'declaration_cnss_its': {
-    module: 'Impôts & Cotisations',
-    label: 'Déclaration CNSS/ITS',
-    description: 'Cotisations sociales',
-    emoji: '📋',
-    journal: 'CNSS',
-    pcg_debit: '645 Charges sociales',
-    pcg_credit: '43x Charges sociales',
-    type: 'Dépense',
-    compte_comptable: '645',
-  },
-  // Clients & Ventes
-  'facture_client_a_encaisser': {
-    module: 'Clients & Ventes',
-    label: 'Facture client à encaisser',
-    description: 'Vente à crédit',
-    emoji: '📤',
-    journal: 'VTE',
-    pcg_debit: '411 Clients',
-    pcg_credit: '7xxx Ventes',
-    type: 'Revenu',
-    is_creance: true,
-  },
-  'paiement_client_recu': {
-    module: 'Clients & Ventes',
-    label: 'Paiement client reçu',
-    description: 'Règlement client',
-    emoji: '💰',
-    journal: 'VTE',
-    pcg_debit: '512 Banque',
-    pcg_credit: '411 Clients',
-    type: 'Revenu',
-  },
-  // Partenaires & Investissements
-  'apport_capital': {
-    module: 'Partenaires & Investissements',
-    label: 'Apport en capital',
-    description: 'Investissement associé',
-    emoji: '💎',
-    journal: 'BNQ',
-    pcg_debit: '512 Banque',
-    pcg_credit: '101 Capital',
-    type: 'Revenu',
-    compte_comptable: '101',
-    is_financing: true,
-  },
-  'pret_bancaire': {
-    module: 'Partenaires & Investissements',
-    label: 'Prêt Bancaire (Déblocage)',
-    description: 'Réception d\'un prêt',
-    emoji: '🏦',
-    journal: 'BNQ',
-    pcg_debit: '512 Banque',
-    pcg_credit: '164 Emprunt',
-    type: 'Revenu',
-    compte_comptable: '164',
-    is_financing: true,
-  },
-  // Dettes centralisées
-  'dette_fournisseur': {
-    module: 'Dettes centralisées',
-    label: 'Dette fournisseur',
-    description: 'Dette fournisseur non encore payée',
-    emoji: '🏭',
-    journal: 'ACH',
-    pcg_debit: '606 Achats',
-    pcg_credit: '401 Fournisseur',
-    type: 'Dépense',
-    is_dette: true,
-    compte_comptable: '606',
-  },
-  'dette_fournisseur_reglee': {
-    module: 'Dettes centralisées',
-    label: 'Dette fournisseur réglée',
-    description: 'Paiement d\'une facture fournisseur déjà enregistrée',
-    emoji: '✅',
-    journal: 'ACH',
-    pcg_debit: '606 Achats',
-    pcg_credit: '512 Banque',
-    type: 'Dépense',
-    compte_comptable: '606',
-  },
-  'dette_employe': {
-    module: 'Dettes centralisées',
-    label: 'Dette employé',
-    description: 'Avance ou note de frais employé',
-    emoji: '👤',
-    journal: 'OD',
-    pcg_debit: '455 Employé',
-    pcg_credit: '512 Banque / 53 Espèces',
-    type: 'Dépense',
-    is_dette: true,
-    compte_comptable: '455',
-  },
-  'dette_partenaire': {
-    module: 'Dettes centralisées',
-    label: 'Dette partenaire',
-    description: 'Dette contractuelle ou investissement à rembourser',
-    emoji: '🤝',
-    journal: 'BNQ / OD',
-    pcg_debit: 'Selon type (164, 606…)',
-    pcg_credit: '101 Capital / 512 Banque',
-    type: 'Dépense',
-    is_dette: true,
-  },
-  'dette_banque': {
-    module: 'Dettes centralisées',
-    label: 'Dette banque / financement',
-    description: 'Prêt ou remboursement à une institution financière',
-    emoji: '🏦',
-    journal: 'BNQ',
-    pcg_debit: '164 Emprunt',
-    pcg_credit: '512 Banque',
-    type: 'Dépense',
-    is_dette: true,
-    compte_comptable: '164',
-    is_financing: true,
-  },
-  'dette_investisseur': {
-    module: 'Dettes centralisées',
-    label: 'Dette investisseur',
-    description: 'Apport en capital ou remboursement partiel',
-    emoji: '💼',
-    journal: 'BNQ',
-    pcg_debit: '512 Banque',
-    pcg_credit: '101 Capital',
-    type: 'Revenu',
-    is_dette: true,
-    compte_comptable: '101',
-    is_financing: true,
-  },
-  // Divers
-  'autre_depense_od': {
-    module: 'Divers',
-    label: 'Autre dépense / OD',
-    description: 'Transfert interne, ajustement',
-    emoji: '📝',
-    journal: 'OD',
-    pcg_debit: 'Selon opération',
-    pcg_credit: 'Selon opération',
-    type: 'Dépense',
-  },
-};
-
-const MODULE_ORDER = [
-  'Achats & Fournisseurs',
-  'Personnel & Salaires',
-  'Banque & Financements',
-  'Impôts & Cotisations',
-  'Clients & Ventes',
-  'Partenaires & Investissements',
-  'Dettes centralisées',
-  'Divers',
-];
-
 // NPCG Account Mapping
 const NPCG_ACCOUNTS = {
   // Revenus (Classe 7)
@@ -400,35 +163,10 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
     setValidationIssues(issues);
   }, [formData]);
 
-  // Apply comptabilisation type on change
-  useEffect(() => {
-    const ctype = COMPTABILISATION_TYPES[formData.comptabilisation_type];
-    if (ctype && !transaction) {
-      setFormData(prev => ({
-        ...prev,
-        type: ctype.type ?? prev.type,
-        is_dette: ctype.is_dette ?? false,
-        is_creance: ctype.is_creance ?? false,
-        is_financing: ctype.is_financing ?? false,
-        compte_comptable: ctype.compte_comptable ?? prev.compte_comptable,
-        journal: ctype.journal ?? prev.journal,
-        pcg_debit: ctype.pcg_debit ?? prev.pcg_debit,
-        pcg_credit: ctype.pcg_credit ?? prev.pcg_credit,
-        // Keep legacy source for financing sub-selects
-        source: ctype.is_financing
-          ? (formData.comptabilisation_type === 'apport_capital' ? 'Apport Capital'
-            : formData.comptabilisation_type === 'remboursement_emprunt' ? 'Remboursement Prêt'
-            : formData.comptabilisation_type === 'pret_bancaire' ? 'Prêt Bancaire'
-            : prev.source)
-          : 'Manuel',
-      }));
-    }
-  }, [formData.comptabilisation_type]);
-
-  // Apply template on source change (legacy)
+  // Apply template on source change
   useEffect(() => {
     const template = TRANSACTION_TEMPLATES[formData.source];
-    if (template && !transaction && !formData.comptabilisation_type) {
+    if (template && !transaction) {
       setFormData(prev => ({
         ...prev,
         ...template,
@@ -628,54 +366,23 @@ Si une donnée est illisible ou absente, utilise null.`,
         </div>
       </div>
 
-      {/* Comptabilisation Type */}
-      <div>
-        <Label className="font-semibold text-gray-700 mb-2 block">Que souhaitez-vous enregistrer ? *</Label>
-        <Select
-          value={formData.comptabilisation_type || ''}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, comptabilisation_type: value }))}
-        >
-          <SelectTrigger className="bg-indigo-50 border-indigo-200 h-auto py-2.5">
-            <SelectValue placeholder="Sélectionner le type d'opération..." />
-          </SelectTrigger>
-          <SelectContent className="max-h-80">
-            {MODULE_ORDER.map(module => {
-              const items = Object.entries(COMPTABILISATION_TYPES).filter(([, v]) => v.module === module);
-              if (!items.length) return null;
-              return (
-                <React.Fragment key={module}>
-                  <div className="px-2 py-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50 sticky top-0">
-                    {module}
-                  </div>
-                  {items.map(([key, ct]) => (
-                    <SelectItem key={key} value={key} className="pl-4">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{ct.emoji} {ct.label}</span>
-                        <span className="text-xs text-gray-400">{ct.description} · Journal: {ct.journal} · {ct.pcg_debit} / {ct.pcg_credit}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </React.Fragment>
-              );
-            })}
-          </SelectContent>
-        </Select>
+      {/* Source/Financing */}
+       <div>
+         <Label className="font-semibold text-gray-700 mb-2 block">Enregistrer comme *</Label>
+         <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value, is_financing: ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt'].includes(value)})}>
+           <SelectTrigger className="bg-purple-50 border-purple-200"><SelectValue /></SelectTrigger>
+           <SelectContent>
+             <SelectItem value="Manuel">📝 Transaction Standard</SelectItem>
+             <SelectItem value="Apport Capital">💎 Apport en Capital</SelectItem>
+             <SelectItem value="Prêt Bancaire">🏦 Prêt Bancaire (Déblocage)</SelectItem>
+             <SelectItem value="Remboursement Prêt">💳 Remboursement Prêt</SelectItem>
+             <SelectItem value="Compte Courant Associé">👤 Compte Courant Associé</SelectItem>
+             <SelectItem value="Paie">👥 Paie (Auto)</SelectItem>
+             <SelectItem value="Declaration CNSS">📋 Déclaration CNSS (Auto)</SelectItem>
+           </SelectContent>
+         </Select>
 
-        {/* Info badge for selected type */}
-        {formData.comptabilisation_type && COMPTABILISATION_TYPES[formData.comptabilisation_type] && (() => {
-          const ct = COMPTABILISATION_TYPES[formData.comptabilisation_type];
-          return (
-            <div className="mt-2 flex items-center gap-3 p-2.5 bg-indigo-50 border border-indigo-200 rounded-lg text-xs text-indigo-800 flex-wrap">
-              <span className="font-semibold">Journal: {ct.journal}</span>
-              <span>Débit: <strong>{ct.pcg_debit}</strong></span>
-              <span>Crédit: <strong>{ct.pcg_credit}</strong></span>
-              <span className={`ml-auto px-2 py-0.5 rounded-full text-xs font-medium ${ct.type === 'Revenu' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{ct.type}</span>
-            </div>
-          );
-        })()}
-
-        {/* Sub-select for loan */}
-        {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt' || formData.comptabilisation_type === 'remboursement_emprunt' || formData.comptabilisation_type === 'pret_bancaire') && (
+        {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt') && (
           <div className="mt-3">
             <Label className="text-sm">Prêt concerné *</Label>
             <Select value={formData.loan_id} onValueChange={(v) => setFormData({...formData, loan_id: v})}>
@@ -689,8 +396,7 @@ Si une donnée est illisible ou absente, utilise null.`,
           </div>
         )}
 
-        {/* Sub-select for shareholder */}
-        {(formData.source === 'Apport Capital' || formData.comptabilisation_type === 'apport_capital') && (
+        {(formData.source === 'Apport Capital' || formData.source === 'Compte Courant Associé') && (
           <div className="mt-3">
             <Label className="text-sm">Associé *</Label>
             <Select value={formData.shareholder_id} onValueChange={(v) => setFormData({...formData, shareholder_id: v})}>
@@ -703,7 +409,7 @@ Si une donnée est illisible ou absente, utilise null.`,
             </Select>
           </div>
         )}
-      </div>
+        </div>
 
       <div className="relative">
         <Label>Description *</Label>

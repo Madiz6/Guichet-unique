@@ -88,11 +88,6 @@ export default function Layout({ children, currentPageName }) {
       icon: FileSpreadsheet,
     },
     {
-      title: "Paiements Dettes",
-      url: createPageUrl("SupplierDebtPayment"),
-      icon: DollarSign,
-    },
-    {
       title: "Contacts",
       url: createPageUrl("Contacts"),
       icon: Users,

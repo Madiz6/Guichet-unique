@@ -48,12 +48,14 @@ export async function registerPayrollTransaction(cycle) {
 
 /**
  * Called when a PayrollCycle is marked as Payé.
- * Updates the matching pending transaction to Payé, or creates one.
+ * Updates the matching pending transaction to Payé.
  */
 export async function markPayrollTransactionPaid(cycle, paymentData = {}) {
   try {
-    const all = await meras.entities.Transaction.list();
-    const existing = all.filter(t => t.source === "Paie" && t.source_id === cycle.id);
+    const existing = await meras.entities.Transaction.filter({
+      source: "Paie",
+      source_id: cycle.id,
+    });
     if (existing.length > 0) {
       await meras.entities.Transaction.update(existing[0].id, {
         status: "Payé",
@@ -61,6 +63,7 @@ export async function markPayrollTransactionPaid(cycle, paymentData = {}) {
         notes: `Paiement effectué — transaction Meras: ${paymentData.transaction_id || "N/A"}`,
       });
     } else {
+      // No existing transaction — create a paid one directly
       const date = cycle.date_paiement || format(new Date(), "yyyy-MM-dd");
       await safeCreate({
         date,
@@ -113,8 +116,10 @@ export async function registerDeclarationTransaction(declaration) {
  */
 export async function markDeclarationTransactionPaid(declaration, paymentData = {}) {
   try {
-    const all = await meras.entities.Transaction.list();
-    const existing = all.filter(t => t.source === "Declaration CNSS" && t.source_id === declaration.id);
+    const existing = await meras.entities.Transaction.filter({
+      source: "Declaration CNSS",
+      source_id: declaration.id,
+    });
     if (existing.length > 0) {
       await meras.entities.Transaction.update(existing[0].id, {
         status: "Payé",
@@ -165,80 +170,5 @@ export async function registerLeasePaymentTransaction(leasePayment, lease, asset
     payment_method: leasePayment.methode_paiement || "Virement",
     status: "Payé",
     notes: `Loyer — contrat: ${lease?.numero_contrat || "N/A"} — ${leasePayment.periode}`,
-  });
-}
-
-/* ─────────────────────────────────────────────────────────────
-   MAIL MANAGEMENT
-──────────────────────────────────────────────────────────────*/
-
-/**
- * Called when a MailServiceContract is paid.
- * Registers the annual mail service fee as revenue.
- */
-export async function registerMailServiceTransaction(contract) {
-  await safeCreate({
-    date: contract.payment_date || format(new Date(), "yyyy-MM-dd"),
-    description: `Service Mail Management — ${contract.contract_number}`,
-    contact_name: contract.company_name || "",
-    amount: contract.amount || 0,
-    total_amount: contract.amount || 0,
-    type: "Revenu",
-    source: "Service Courrier",
-    source_id: contract.id,
-    category: "Revenus services",
-    payment_method: "Virement",
-    status: "Payé",
-    notes: `Contrat annuel domiciliation — P.O. Box ${contract.po_box_number} — ${contract.contract_number}`,
-  });
-}
-
-/* ─────────────────────────────────────────────────────────────
-   VIRTUAL RECEPTIONIST
-──────────────────────────────────────────────────────────────*/
-
-/**
- * Called when a VirtualReceptionistContract is paid.
- * Registers the annual receptionist service fee as revenue.
- */
-export async function registerReceptionistServiceTransaction(contract) {
-  await safeCreate({
-    date: contract.payment_date || format(new Date(), "yyyy-MM-dd"),
-    description: `Service Réceptionniste Virtuel — ${contract.contract_number}`,
-    contact_name: contract.company_name || "",
-    amount: contract.amount || 0,
-    total_amount: contract.amount || 0,
-    type: "Revenu",
-    source: "Service Réceptionniste",
-    source_id: contract.id,
-    category: "Revenus services",
-    payment_method: "Virement",
-    status: "Payé",
-    notes: `Contrat annuel réceptionniste — N° ${contract.assigned_phone_number} — ${contract.contract_number}`,
-  });
-}
-
-/* ─────────────────────────────────────────────────────────────
-   TOURIST VISA
-──────────────────────────────────────────────────────────────*/
-
-/**
- * Called when a VisaApplication is paid.
- * Registers the visa service fee as revenue.
- */
-export async function registerVisaServiceTransaction(application) {
-  await safeCreate({
-    date: application.payment_date || format(new Date(), "yyyy-MM-dd"),
-    description: `Service Visa ${application.visa_type} — ${application.application_number}`,
-    contact_name: `${application.first_name || ""} ${application.last_name || ""}`.trim(),
-    amount: application.service_fee || application.total_amount || 0,
-    total_amount: application.service_fee || application.total_amount || 0,
-    type: "Revenu",
-    source: "Service Visa",
-    source_id: application.id,
-    category: "Revenus services",
-    payment_method: "Virement",
-    status: "Payé",
-    notes: `Visa ${application.visa_type} — ${application.entry_type} — ${application.nationality} — ${application.application_number}`,
   });
 }

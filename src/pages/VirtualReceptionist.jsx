@@ -14,7 +14,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import MerasPaymentGateway from "@/components/payments/MerasPaymentGateway";
 import { generateReceptionistContract } from "@/components/services/ReceptionistContractGenerator";
-import { registerReceptionistServiceTransaction } from "@/components/transactions/autoTransactions";
 
 const SERVICE_AMOUNT = 60000;
 
@@ -124,7 +123,6 @@ export default function VirtualReceptionist() {
         status: 'Actif'
       };
 
-      await registerReceptionistServiceTransaction(updatedContract);
       generateReceptionistContract(updatedContract, company);
       toast.success('Paiement réussi! Votre contrat de réceptionniste virtuel a été généré.');
       

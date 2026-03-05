@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const SIDEBAR_COOKIE_NAME = "sidebar:state"
+const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
@@ -441,18 +441,20 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-const SidebarMenuButton = React.forwardRef(function SMB(props, ref) {
-  const {
+const SidebarMenuButton = React.forwardRef((
+  {
     asChild = false,
     isActive = false,
     variant = "default",
     size = "default",
     tooltip,
     className,
-    ...rest
-  } = props;
-  const Comp = asChild ? Slot : "button";
-  const { isMobile, state } = useSidebar();
+    ...props
+  },
+  ref
+) => {
+  const Comp = asChild ? Slot : "button"
+  const { isMobile, state } = useSidebar()
 
   const button = (
     <Comp
@@ -461,28 +463,31 @@ const SidebarMenuButton = React.forwardRef(function SMB(props, ref) {
       data-size={size}
       data-active={isActive}
       className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-      {...rest}
-    />
-  );
+      {...props} />
+  )
 
-  if (!tooltip) return button;
+  if (!tooltip) {
+    return button
+  }
 
-  const tooltipProps = typeof tooltip === "string" ? { children: tooltip } : tooltip;
+  if (typeof tooltip === "string") {
+    tooltip = {
+      children: tooltip,
+    }
+  }
 
   return (
-    <Tooltip>
+    (<Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent
         side="right"
         align="center"
         hidden={state !== "collapsed" || isMobile}
-        {...tooltipProps}
-      />
-    </Tooltip>
+        {...tooltip} />
+    </Tooltip>)
   );
-});
-SidebarMenuButton.displayName = "SidebarMenuButton";
-
+})
+SidebarMenuButton.displayName = "SidebarMenuButton"
 
 const SidebarMenuAction = React.forwardRef(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"

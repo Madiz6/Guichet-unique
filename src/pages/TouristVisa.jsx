@@ -14,7 +14,6 @@ import { format, addDays, differenceInMonths } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import MerasPaymentGateway from "@/components/payments/MerasPaymentGateway";
-import { registerVisaServiceTransaction } from "@/components/transactions/autoTransactions";
 
 const VISA_FEES = {
   '30 jours': { usd: 23, service: 5000 },
@@ -186,13 +185,6 @@ export default function TouristVisa() {
         }
       });
 
-      const paidApplication = {
-        ...pendingApplication,
-        payment_date: format(new Date(), 'yyyy-MM-dd'),
-        transaction_id: paymentData.transaction_id,
-        status: 'Soumis'
-      };
-      await registerVisaServiceTransaction(paidApplication);
       toast.success('Paiement réussi! Votre demande de visa a été soumise.');
       
       setShowPaymentGateway(false);
