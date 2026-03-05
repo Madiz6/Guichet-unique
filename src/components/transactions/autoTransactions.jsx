@@ -48,14 +48,12 @@ export async function registerPayrollTransaction(cycle) {
 
 /**
  * Called when a PayrollCycle is marked as Payé.
- * Updates the matching pending transaction to Payé.
+ * Updates the matching pending transaction to Payé, or creates one.
  */
 export async function markPayrollTransactionPaid(cycle, paymentData = {}) {
   try {
-    const existing = await meras.entities.Transaction.filter({
-      source: "Paie",
-      source_id: cycle.id,
-    });
+    const all = await meras.entities.Transaction.list();
+    const existing = all.filter(t => t.source === "Paie" && t.source_id === cycle.id);
     if (existing.length > 0) {
       await meras.entities.Transaction.update(existing[0].id, {
         status: "Payé",
@@ -63,7 +61,6 @@ export async function markPayrollTransactionPaid(cycle, paymentData = {}) {
         notes: `Paiement effectué — transaction Meras: ${paymentData.transaction_id || "N/A"}`,
       });
     } else {
-      // No existing transaction — create a paid one directly
       const date = cycle.date_paiement || format(new Date(), "yyyy-MM-dd");
       await safeCreate({
         date,
