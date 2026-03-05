@@ -554,23 +554,54 @@ Si une donnée est illisible ou absente, utilise null.`,
         </div>
       </div>
 
-      {/* Source/Financing */}
-       <div>
-         <Label className="font-semibold text-gray-700 mb-2 block">Enregistrer comme *</Label>
-         <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value, is_financing: ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt'].includes(value)})}>
-           <SelectTrigger className="bg-purple-50 border-purple-200"><SelectValue /></SelectTrigger>
-           <SelectContent>
-             <SelectItem value="Manuel">📝 Transaction Standard</SelectItem>
-             <SelectItem value="Apport Capital">💎 Apport en Capital</SelectItem>
-             <SelectItem value="Prêt Bancaire">🏦 Prêt Bancaire (Déblocage)</SelectItem>
-             <SelectItem value="Remboursement Prêt">💳 Remboursement Prêt</SelectItem>
-             <SelectItem value="Compte Courant Associé">👤 Compte Courant Associé</SelectItem>
-             <SelectItem value="Paie">👥 Paie (Auto)</SelectItem>
-             <SelectItem value="Declaration CNSS">📋 Déclaration CNSS (Auto)</SelectItem>
-           </SelectContent>
-         </Select>
+      {/* Comptabilisation Type */}
+      <div>
+        <Label className="font-semibold text-gray-700 mb-2 block">Que souhaitez-vous enregistrer ? *</Label>
+        <Select
+          value={formData.comptabilisation_type || ''}
+          onValueChange={(value) => setFormData(prev => ({ ...prev, comptabilisation_type: value }))}
+        >
+          <SelectTrigger className="bg-indigo-50 border-indigo-200 h-auto py-2.5">
+            <SelectValue placeholder="Sélectionner le type d'opération..." />
+          </SelectTrigger>
+          <SelectContent className="max-h-80">
+            {MODULE_ORDER.map(module => {
+              const items = Object.entries(COMPTABILISATION_TYPES).filter(([, v]) => v.module === module);
+              if (!items.length) return null;
+              return (
+                <React.Fragment key={module}>
+                  <div className="px-2 py-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-50 sticky top-0">
+                    {module}
+                  </div>
+                  {items.map(([key, ct]) => (
+                    <SelectItem key={key} value={key} className="pl-4">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{ct.emoji} {ct.label}</span>
+                        <span className="text-xs text-gray-400">{ct.description} · Journal: {ct.journal} · {ct.pcg_debit} / {ct.pcg_credit}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+          </SelectContent>
+        </Select>
 
-        {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt') && (
+        {/* Info badge for selected type */}
+        {formData.comptabilisation_type && COMPTABILISATION_TYPES[formData.comptabilisation_type] && (() => {
+          const ct = COMPTABILISATION_TYPES[formData.comptabilisation_type];
+          return (
+            <div className="mt-2 flex items-center gap-3 p-2.5 bg-indigo-50 border border-indigo-200 rounded-lg text-xs text-indigo-800 flex-wrap">
+              <span className="font-semibold">Journal: {ct.journal}</span>
+              <span>Débit: <strong>{ct.pcg_debit}</strong></span>
+              <span>Crédit: <strong>{ct.pcg_credit}</strong></span>
+              <span className={`ml-auto px-2 py-0.5 rounded-full text-xs font-medium ${ct.type === 'Revenu' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{ct.type}</span>
+            </div>
+          );
+        })()}
+
+        {/* Sub-select for loan */}
+        {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt' || formData.comptabilisation_type === 'remboursement_emprunt' || formData.comptabilisation_type === 'pret_bancaire') && (
           <div className="mt-3">
             <Label className="text-sm">Prêt concerné *</Label>
             <Select value={formData.loan_id} onValueChange={(v) => setFormData({...formData, loan_id: v})}>
@@ -584,7 +615,8 @@ Si une donnée est illisible ou absente, utilise null.`,
           </div>
         )}
 
-        {(formData.source === 'Apport Capital' || formData.source === 'Compte Courant Associé') && (
+        {/* Sub-select for shareholder */}
+        {(formData.source === 'Apport Capital' || formData.comptabilisation_type === 'apport_capital') && (
           <div className="mt-3">
             <Label className="text-sm">Associé *</Label>
             <Select value={formData.shareholder_id} onValueChange={(v) => setFormData({...formData, shareholder_id: v})}>
@@ -597,7 +629,7 @@ Si une donnée est illisible ou absente, utilise null.`,
             </Select>
           </div>
         )}
-        </div>
+      </div>
 
       <div className="relative">
         <Label>Description *</Label>
