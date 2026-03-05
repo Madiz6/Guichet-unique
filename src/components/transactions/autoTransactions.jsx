@@ -96,6 +96,12 @@ export async function registerPayrollTransaction(cycle) {
     accounting_period: cycle.mois_annee,
     notes: `Cycle de paie — ${cycle.periode} — ${cycle.nombre_employes} employés`,
   });
+  // ── Ledger: 641 Rémunérations / 421 Personnel dû
+  await generateLedgerEntries(cycle.id, cycle.salaire_brut_total || cycle.salaire_net_total || 0, date, `Salaires — ${cycle.periode}`, "payroll", "payroll");
+  // ── Ledger: 645 CNSS patronale / 431 CNSS
+  if (cycle.charges_patronales_total > 0) {
+    await generateLedgerEntries(`${cycle.id}-cnss-pat`, cycle.charges_patronales_total, date, `CNSS patronale — ${cycle.periode}`, "cnss_employer", "payroll");
+  }
 }
 
 /**
