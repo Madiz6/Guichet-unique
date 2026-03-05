@@ -227,8 +227,9 @@ export async function markDeclarationTransactionPaid(declaration, paymentData = 
  * Registers the rent income.
  */
 export async function registerLeasePaymentTransaction(leasePayment, lease, asset) {
+  const date = leasePayment.date_paiement || format(new Date(), "yyyy-MM-dd");
   await safeCreate({
-    date: leasePayment.date_paiement || format(new Date(), "yyyy-MM-dd"),
+    date,
     description: `Loyer — ${asset?.nom || "Actif"} — ${leasePayment.periode}`,
     contact_name: lease?.locataire_nom || "",
     amount: leasePayment.montant || 0,
@@ -241,4 +242,50 @@ export async function registerLeasePaymentTransaction(leasePayment, lease, asset
     status: "Payé",
     notes: `Loyer — contrat: ${lease?.numero_contrat || "N/A"} — ${leasePayment.periode}`,
   });
+  // ── Ledger: 411 Clients / 706 Produits (constatation revenu)
+  await generateLedgerEntries(`${leasePayment.id}-rev`, leasePayment.montant || 0, date, `Loyer — ${asset?.nom || "Actif"} — ${leasePayment.periode}`, "lease_revenue", "lease");
+  // ── Ledger: 512 Banque / 411 Clients (encaissement)
+  await generateLedgerEntries(`${leasePayment.id}-enc`, leasePayment.montant || 0, date, `Encaissement loyer — ${leasePayment.periode}`, "lease_payment", "lease");
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SUPPLIER DEBT PAYMENT
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when a DebtPayment is created.
+ * Generates: 401 Fournisseurs / 512 Banque
+ */
+export async function registerDebtPaymentLedger(payment, debt) {
+  const date = payment.payment_date || format(new Date(), "yyyy-MM-dd");
+  await generateLedgerEntries(
+    payment.id,
+    payment.payment_amount || 0,
+    date,
+    `Paiement fournisseur — ${debt?.creditor_name || ""} — ${debt?.invoice_number || ""}`,
+    "debt_payment",
+    "debt_payment",
+    payment.reference_number || ""
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PURCHASE REQUEST (Accrual — facture reçue)
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when a PurchaseRequest is approved (facture fournisseur constatée).
+ * Generates: 606 Achats / 401 Fournisseurs
+ */
+export async function registerPurchaseInvoiceLedger(request) {
+  const date = request.date_approbation_finale?.slice(0, 10) || format(new Date(), "yyyy-MM-dd");
+  await generateLedgerEntries(
+    request.id,
+    request.montant_total || 0,
+    date,
+    `Facture fournisseur — ${request.fournisseur_selectionne_nom || request.titre}`,
+    "purchase_invoice",
+    "purchase",
+    request.numero_demande || ""
+  );
 }
