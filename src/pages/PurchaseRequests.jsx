@@ -83,7 +83,10 @@ export default function PurchaseRequests() {
       // Admin or all approved → mark as Approuvée
       updated.statut = 'Approuvée';
       updated.date_approbation_finale = new Date().toISOString();
-      return meras.entities.PurchaseRequest.update(selectedRequest.id, updated);
+      const result = await meras.entities.PurchaseRequest.update(selectedRequest.id, updated);
+      // ── Ledger: 606 Achats / 401 Fournisseurs (constatation facture fournisseur)
+      await registerPurchaseInvoiceLedger(updated);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
