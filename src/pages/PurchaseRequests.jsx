@@ -43,6 +43,8 @@ export default function PurchaseRequests() {
   const [showForm, setShowForm] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [detailsView, setDetailsView] = useState(false);
+  const [showPO, setShowPO] = useState(false);
+  const [poRequest, setPORequest] = useState(null);
 
   const queryClient = useQueryClient();
 
