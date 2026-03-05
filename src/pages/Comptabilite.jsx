@@ -40,6 +40,7 @@ export default function Comptabilite() {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="overview"><AccountingDashboard /></TabsContent>
         <TabsContent value="ledger"><LedgerView /></TabsContent>
         <TabsContent value="journals"><JournalView /></TabsContent>
         <TabsContent value="accounts"><ChartOfAccountsView /></TabsContent>
