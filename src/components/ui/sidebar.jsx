@@ -441,46 +441,40 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-// SidebarMenuButton - rest element fixed
-const SidebarMenuButton = React.forwardRef(
-  function SidebarMenuButtonInner({ asChild, isActive, variant, size, tooltip, className, ...props }, ref) {
-    asChild = asChild ?? false;
-    isActive = isActive ?? false;
-    variant = variant ?? "default";
-    size = size ?? "default";
-    const Comp = asChild ? Slot : "button";
-    const { isMobile, state } = useSidebar();
+const SidebarMenuButton = React.forwardRef(function SidebarMenuButton(
+  { asChild, isActive, variant, size, tooltip, className, ...props },
+  ref
+) {
+  const Comp = asChild ? Slot : "button";
+  const { isMobile, state } = useSidebar();
 
-    const button = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
+  const button = (
+    <Comp
+      ref={ref}
+      data-sidebar="menu-button"
+      data-size={size ?? "default"}
+      data-active={isActive}
+      className={cn(sidebarMenuButtonVariants({ variant: variant ?? "default", size: size ?? "default" }), className)}
+      {...props}
+    />
+  );
+
+  if (!tooltip) return button;
+
+  const resolvedTooltip = typeof tooltip === "string" ? { children: tooltip } : tooltip;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent
+        side="right"
+        align="center"
+        hidden={state !== "collapsed" || isMobile}
+        {...resolvedTooltip}
       />
-    );
-
-    if (!tooltip) return button;
-
-    if (typeof tooltip === "string") {
-      tooltip = { children: tooltip };
-    }
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent
-          side="right"
-          align="center"
-          hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
-        />
-      </Tooltip>
-    );
-  }
-)
+    </Tooltip>
+  );
+});
 SidebarMenuButton.displayName = "SidebarMenuButton";
 
 
