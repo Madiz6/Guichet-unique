@@ -441,6 +441,7 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
+// SidebarMenuButton - rest element fixed
 const SidebarMenuButton = React.forwardRef(
   function SidebarMenuButtonInner({ asChild, isActive, variant, size, tooltip, className, ...props }, ref) {
     asChild = asChild ?? false;
