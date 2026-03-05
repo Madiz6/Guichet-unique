@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Eye, Edit2, Trash2, FileText, Clock, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { registerPurchaseInvoiceLedger } from '@/components/transactions/autoTransactions';
 import PurchaseRequestForm from '@/components/procurement/PurchaseRequestForm';
 import RequestDetailPanel from '@/components/procurement/RequestDetailPanel';
 import {
