@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
+import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 
 // Journal entry templates per type/category
 const getEntries = (t) => {
