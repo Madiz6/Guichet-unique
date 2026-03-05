@@ -172,3 +172,78 @@ export async function registerLeasePaymentTransaction(leasePayment, lease, asset
     notes: `Loyer — contrat: ${lease?.numero_contrat || "N/A"} — ${leasePayment.periode}`,
   });
 }
+
+/* ─────────────────────────────────────────────────────────────
+   MAIL MANAGEMENT
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when a MailServiceContract is paid.
+ * Registers the annual mail service fee as revenue.
+ */
+export async function registerMailServiceTransaction(contract) {
+  await safeCreate({
+    date: contract.payment_date || format(new Date(), "yyyy-MM-dd"),
+    description: `Service Mail Management — ${contract.contract_number}`,
+    contact_name: contract.company_name || "",
+    amount: contract.amount || 0,
+    total_amount: contract.amount || 0,
+    type: "Revenu",
+    source: "Service Courrier",
+    source_id: contract.id,
+    category: "Revenus services",
+    payment_method: "Virement",
+    status: "Payé",
+    notes: `Contrat annuel domiciliation — P.O. Box ${contract.po_box_number} — ${contract.contract_number}`,
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   VIRTUAL RECEPTIONIST
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when a VirtualReceptionistContract is paid.
+ * Registers the annual receptionist service fee as revenue.
+ */
+export async function registerReceptionistServiceTransaction(contract) {
+  await safeCreate({
+    date: contract.payment_date || format(new Date(), "yyyy-MM-dd"),
+    description: `Service Réceptionniste Virtuel — ${contract.contract_number}`,
+    contact_name: contract.company_name || "",
+    amount: contract.amount || 0,
+    total_amount: contract.amount || 0,
+    type: "Revenu",
+    source: "Service Réceptionniste",
+    source_id: contract.id,
+    category: "Revenus services",
+    payment_method: "Virement",
+    status: "Payé",
+    notes: `Contrat annuel réceptionniste — N° ${contract.assigned_phone_number} — ${contract.contract_number}`,
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOURIST VISA
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when a VisaApplication is paid.
+ * Registers the visa service fee as revenue.
+ */
+export async function registerVisaServiceTransaction(application) {
+  await safeCreate({
+    date: application.payment_date || format(new Date(), "yyyy-MM-dd"),
+    description: `Service Visa ${application.visa_type} — ${application.application_number}`,
+    contact_name: `${application.first_name || ""} ${application.last_name || ""}`.trim(),
+    amount: application.service_fee || application.total_amount || 0,
+    total_amount: application.service_fee || application.total_amount || 0,
+    type: "Revenu",
+    source: "Service Visa",
+    source_id: application.id,
+    category: "Revenus services",
+    payment_method: "Virement",
+    status: "Payé",
+    notes: `Visa ${application.visa_type} — ${application.entry_type} — ${application.nationality} — ${application.application_number}`,
+  });
+}
