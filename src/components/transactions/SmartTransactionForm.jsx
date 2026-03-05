@@ -326,10 +326,35 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
     setValidationIssues(issues);
   }, [formData]);
 
-  // Apply template on source change
+  // Apply comptabilisation type on change
+  useEffect(() => {
+    const ctype = COMPTABILISATION_TYPES[formData.comptabilisation_type];
+    if (ctype && !transaction) {
+      setFormData(prev => ({
+        ...prev,
+        type: ctype.type ?? prev.type,
+        is_dette: ctype.is_dette ?? false,
+        is_creance: ctype.is_creance ?? false,
+        is_financing: ctype.is_financing ?? false,
+        compte_comptable: ctype.compte_comptable ?? prev.compte_comptable,
+        journal: ctype.journal ?? prev.journal,
+        pcg_debit: ctype.pcg_debit ?? prev.pcg_debit,
+        pcg_credit: ctype.pcg_credit ?? prev.pcg_credit,
+        // Keep legacy source for financing sub-selects
+        source: ctype.is_financing
+          ? (formData.comptabilisation_type === 'apport_capital' ? 'Apport Capital'
+            : formData.comptabilisation_type === 'remboursement_emprunt' ? 'Remboursement Prêt'
+            : formData.comptabilisation_type === 'pret_bancaire' ? 'Prêt Bancaire'
+            : prev.source)
+          : 'Manuel',
+      }));
+    }
+  }, [formData.comptabilisation_type]);
+
+  // Apply template on source change (legacy)
   useEffect(() => {
     const template = TRANSACTION_TEMPLATES[formData.source];
-    if (template && !transaction) {
+    if (template && !transaction && !formData.comptabilisation_type) {
       setFormData(prev => ({
         ...prev,
         ...template,
