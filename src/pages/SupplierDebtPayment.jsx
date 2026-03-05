@@ -54,7 +54,7 @@ export default function SupplierDebtPayment() {
         status: debtStatus
       });
 
-      // Create accounting entry (Accounts Payable debit, Bank credit)
+      // Create accounting transaction
       await base44.entities.Transaction.create({
         description: `Payment to ${debt.creditor_name} - Invoice #${debt.invoice_number}`,
         montant: paymentData.payment_amount,
@@ -63,9 +63,12 @@ export default function SupplierDebtPayment() {
         methode_paiement: paymentData.payment_method,
         statut: 'Approuvé',
         type: 'Dépense',
-        category_id: 'accounts-payable', // Special category for AP
+        category_id: 'accounts-payable',
         notes: `Debt Payment - Remaining: ${Math.max(0, newBalance)}`
       });
+
+      // ── Ledger: 401 Fournisseurs / 512 Banque
+      await registerDebtPaymentLedger(payment, debt);
 
       return payment;
     },
