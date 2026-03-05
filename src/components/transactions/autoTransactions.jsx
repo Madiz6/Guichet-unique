@@ -113,10 +113,8 @@ export async function registerDeclarationTransaction(declaration) {
  */
 export async function markDeclarationTransactionPaid(declaration, paymentData = {}) {
   try {
-    const existing = await meras.entities.Transaction.filter({
-      source: "Declaration CNSS",
-      source_id: declaration.id,
-    });
+    const all = await meras.entities.Transaction.list();
+    const existing = all.filter(t => t.source === "Declaration CNSS" && t.source_id === declaration.id);
     if (existing.length > 0) {
       await meras.entities.Transaction.update(existing[0].id, {
         status: "Payé",
