@@ -5,7 +5,8 @@ import JournalView from "@/components/comptabilite/JournalView";
 import ChartOfAccountsView from "@/components/comptabilite/ChartOfAccountsView";
 import BankReconciliation from "@/components/comptabilite/BankReconciliation";
 import FinancialReports from "@/components/comptabilite/FinancialReports";
-import { BookOpen, List, Building2, Landmark, BarChart3 } from "lucide-react";
+import AccountingDashboard from "@/components/comptabilite/AccountingDashboard";
+import { LayoutDashboard, BookOpen, List, Building2, Landmark, BarChart3 } from "lucide-react";
 
 export default function Comptabilite() {
   const [activeTab, setActiveTab] = useState("ledger");
