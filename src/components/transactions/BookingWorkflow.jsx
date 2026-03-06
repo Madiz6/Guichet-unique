@@ -261,8 +261,6 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
   const totalCredit = entries?.reduce((s, e) => s + (e.credit || 0), 0) || 0;
   const balanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
-  // (no longer needed — using SCENARIOS directly)
-
   const StepHeader = ({ num, title, done, active }) => (
     <button
       onClick={() => toggle(num)}
