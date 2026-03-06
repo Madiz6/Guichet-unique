@@ -307,6 +307,14 @@ export default function Transactions() {
                 <TabsTrigger value="expense">
                   Dépenses ({transactions.filter(t => t.type === 'Dépense').length})
                 </TabsTrigger>
+                <TabsTrigger value="debts" className="relative">
+                  Dettes ouvertes
+                  {openDebts.length > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      {openDebts.length}
+                    </span>
+                  )}
+                </TabsTrigger>
               </TabsList>
 
               <div className="overflow-x-auto">
