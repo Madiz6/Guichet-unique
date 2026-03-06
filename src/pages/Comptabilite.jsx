@@ -45,6 +45,16 @@ export default function Comptabilite() {
     queryFn: () => meras.entities.BankAccount.list(),
   });
 
+  const { data: ledgerEntries = [] } = useQuery({
+    queryKey: ['ledger-entries'],
+    queryFn: () => meras.entities.LedgerEntry.list('-date', 200),
+  });
+
+  const { data: activeDebts = [] } = useQuery({
+    queryKey: ['debts'],
+    queryFn: () => meras.entities.DebtCentralized.filter({ status: 'Active' }),
+  });
+
   // ---------- Period filter ----------
   const monthsBack = period === '1m' ? 1 : period === '3m' ? 3 : period === '6m' ? 6 : 12;
   const periodStart = subMonths(new Date(), monthsBack);
