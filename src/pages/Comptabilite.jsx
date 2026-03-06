@@ -463,6 +463,65 @@ export default function Comptabilite() {
               </CardContent>
             </Card>
           </TabsContent>
+          {/* Grand Livre preview */}
+          <TabsContent value="grand_livre_preview" className="mt-4">
+            <Card className="border-0 shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-[#F0F0F0] flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A]">Grand Livre — Dernières écritures</h3>
+                  <p className="text-xs text-[#6B6B6B] mt-0.5">Générées automatiquement lors de la comptabilisation · Double entrée NPCG</p>
+                </div>
+                <Link to={createPageUrl('GrandLivre')}>
+                  <Button size="sm" className="bg-emerald-600 text-white">
+                    <Layers className="w-4 h-4 mr-2" /> Grand Livre complet
+                  </Button>
+                </Link>
+              </div>
+              {ledgerEntries.length === 0 ? (
+                <div className="py-16 text-center text-[#6B6B6B]">
+                  <Layers className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                  <p className="font-medium">Aucune écriture dans le Grand Livre</p>
+                  <p className="text-xs mt-1">Comptabilisez une transaction pour voir apparaître les écritures ici.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-[#F5F5F5]">
+                      <tr>
+                        <th className="text-left py-2.5 px-4 text-xs text-[#6B6B6B] font-semibold">Date</th>
+                        <th className="text-left py-2.5 px-4 text-xs text-[#6B6B6B] font-semibold">Journal</th>
+                        <th className="text-left py-2.5 px-4 text-xs text-[#6B6B6B] font-semibold">Description</th>
+                        <th className="text-left py-2.5 px-4 text-xs text-[#6B6B6B] font-semibold">Débit</th>
+                        <th className="text-left py-2.5 px-4 text-xs text-[#6B6B6B] font-semibold">Crédit</th>
+                        <th className="text-right py-2.5 px-4 text-xs text-[#6B6B6B] font-semibold">Montant</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#F5F5F5]">
+                      {ledgerEntries.slice(0, 15).map((e, i) => (
+                        <tr key={i} className="hover:bg-[#FAFAFA]">
+                          <td className="py-2.5 px-4 text-[#6B6B6B] text-xs">{e.date}</td>
+                          <td className="py-2.5 px-4">
+                            <span className="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-1.5 py-0.5 rounded font-mono">{e.journal}</span>
+                          </td>
+                          <td className="py-2.5 px-4 text-[#1A1A1A] text-xs max-w-[200px] truncate">{e.description}</td>
+                          <td className="py-2.5 px-4"><span className="font-mono text-xs bg-blue-50 text-blue-800 px-1.5 py-0.5 rounded">{e.debit_account}</span></td>
+                          <td className="py-2.5 px-4"><span className="font-mono text-xs bg-orange-50 text-orange-800 px-1.5 py-0.5 rounded">{e.credit_account}</span></td>
+                          <td className="py-2.5 px-4 text-right font-bold text-[#1A1A1A] text-xs">{fmt(e.amount)} DJF</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {ledgerEntries.length > 15 && (
+                    <div className="text-center py-3 text-xs text-[#6B6B6B] border-t border-[#F0F0F0]">
+                      … et {ledgerEntries.length - 15} autres écritures.{' '}
+                      <Link to={createPageUrl('GrandLivre')} className="underline text-emerald-600">Voir le Grand Livre complet</Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
           {/* États Financiers Annuels */}
           <TabsContent value="etats" className="mt-4">
             <EtatFinancierAnnuel
