@@ -43,6 +43,7 @@ export default function GrandLivre() {
   const [filterPeriodEnd, setFilterPeriodEnd] = useState('');
   const [paymentModal, setPaymentModal] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [backfilling, setBackfilling] = useState(false);
 
   const { data: ledgerEntries = [], isLoading: loadingEntries, refetch } = useQuery({
     queryKey: ['ledger-entries'],
