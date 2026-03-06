@@ -50,6 +50,29 @@ export default function GrandLivre() {
     queryFn: () => meras.entities.LedgerEntry.list('-date', 500),
   });
 
+  const { data: allTransactions = [] } = useQuery({
+    queryKey: ['transactions-for-backfill'],
+    queryFn: () => meras.entities.Transaction.list('-date', 500),
+  });
+
+  const bookedCount = allTransactions.filter(t => t.booking_status && t.booking_status !== '').length;
+  const missingLedger = bookedCount - ledgerEntries.length;
+
+  const handleBackfill = async () => {
+    setBackfilling(true);
+    try {
+      const res = await ledgerEngine({ action: 'backfillFromTransactions' });
+      const data = res.data;
+      queryClient.invalidateQueries({ queryKey: ['ledger-entries'] });
+      queryClient.invalidateQueries({ queryKey: ['debts'] });
+      toast.success(`✅ Synchronisation terminée : ${data.created} écriture(s) importée(s)`);
+    } catch (e) {
+      toast.error('Erreur: ' + e.message);
+    } finally {
+      setBackfilling(false);
+    }
+  };
+
   const { data: debts = [], isLoading: loadingDebts } = useQuery({
     queryKey: ['debts'],
     queryFn: () => meras.entities.DebtCentralized.list('-created_date', 200),
