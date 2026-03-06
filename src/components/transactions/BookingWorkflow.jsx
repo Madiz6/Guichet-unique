@@ -549,5 +549,15 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         )}
       </div>
     </div>
+
+    {/* Debt Settlement Modal */}
+    <DebtSettlementModal
+      debt={transaction}
+      open={showSettlement}
+      onClose={() => setShowSettlement(false)}
+      onSettled={(settlement) => {
+        onTransactionUpdated({ ...transaction, payment_registered: true, status: 'Payé', linked_settlement_id: settlement.id });
+      }}
+    />
   );
 }
