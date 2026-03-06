@@ -551,7 +551,6 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
           </div>
         )}
       </div>
-    </div>
 
     {/* Debt Settlement Modal */}
     <DebtSettlementModal
