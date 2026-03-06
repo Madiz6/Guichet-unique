@@ -134,6 +134,14 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
   const [duplicateAlert, setDuplicateAlert] = useState(null);
   const [validationIssues, setValidationIssues] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const [pcgDropdownOpen, setPcgDropdownOpen] = useState(false);
+  const [selectedPcgOp, setSelectedPcgOp] = useState(null);
+
+  const groupedPcg = PCG_OPERATIONS.reduce((acc, op) => {
+    if (!acc[op.module]) acc[op.module] = [];
+    acc[op.module].push(op);
+    return acc;
+  }, {});
 
   const { data: allTransactions = [] } = useQuery({
     queryKey: ['transactions-recent'],
