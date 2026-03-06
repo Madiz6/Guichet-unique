@@ -728,15 +728,13 @@ export default function Dashboard() {
         </motion.div>
         </div>
 
-        {/* AI Copilot */}
-        <AICopilot currentPage="Dashboard" />
-
         {/* Company Creation Wizard */}
         <CompanyCreationWizard
-        isOpen={showCompanyWizard}
-        onClose={() => setShowCompanyWizard(false)}
-        onSuccess={() => setShowCompanyWizard(false)}
+          isOpen={showCompanyWizard}
+          onClose={() => setShowCompanyWizard(false)}
+          onSuccess={() => setShowCompanyWizard(false)}
         />
-        </div>
-        );
-        }
+      </div>
+    </div>
+  );
+}
