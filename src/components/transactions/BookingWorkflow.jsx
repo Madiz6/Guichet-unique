@@ -301,34 +301,76 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         </div>
       )}
 
-      {/* STEP 1 — Choisir le scénario */}
+      {/* STEP 1 — Choisir l'opération */}
       <div className="space-y-2">
-        <StepHeader num={1} title={selectedScenario ? selectedScenario.label : 'Que souhaitez-vous enregistrer ?'} done={step > 1} active={step === 1} />
+        <StepHeader num={1} title={selectedOp ? selectedOp.label : 'Que souhaitez-vous enregistrer ?'} done={step > 1} active={step === 1} />
         {open[1] && (
-          <div className="pl-2 space-y-4">
-            <PCGGuidePanel />
-            {scenarios.map(group => (
-              <div key={group.group}>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 px-1">{group.group}</p>
-                <div className="space-y-1.5">
-                  {group.items.map(item => {
-                    const isSelected = bookingType === item.bookingType && operationType === item.operationType;
-                    return (
-                      <button
-                        key={item.bookingType + item.operationType}
-                        onClick={() => { setBookingType(item.bookingType); setOperationType(item.operationType); }}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition border-2 ${
-                          isSelected ? COLOR_ACTIVE[item.color] : COLOR_IDLE[item.color]
-                        }`}
-                      >
-                        <div className="font-medium">{item.label}</div>
-                        <div className={`text-xs mt-0.5 leading-relaxed ${isSelected ? 'opacity-80' : 'text-gray-400'}`}>{item.desc}</div>
-                      </button>
-                    );
-                  })}
+          <div className="pl-2 space-y-3">
+            {/* Dropdown selector */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setDropdownOpen(v => !v)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border-2 text-sm transition ${
+                  selectedOp ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-gray-200 bg-white text-gray-500'
+                }`}
+              >
+                <span className={selectedOp ? 'font-medium' : ''}>
+                  {selectedOp ? selectedOp.label : '— Sélectionner une opération —'}
+                </span>
+                <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden max-h-80 overflow-y-auto">
+                  {Object.entries(grouped).map(([module, ops]) => (
+                    <div key={module}>
+                      <div className="px-3 py-1.5 bg-gray-50 border-b text-xs font-bold text-gray-500 uppercase tracking-wide sticky top-0">
+                        {MODULE_ICONS[module] || '📋'} {module}
+                      </div>
+                      {ops.map(op => (
+                        <button
+                          key={op.label}
+                          type="button"
+                          onClick={() => {
+                            setBookingType(op.bookingType);
+                            setOperationType(op.operationType);
+                            setDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2.5 border-b last:border-0 hover:bg-blue-50 transition ${
+                            selectedOp?.label === op.label ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div>
+                              <p className="text-sm font-medium text-gray-800">{op.label}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">{op.description}</p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className="bg-indigo-100 text-indigo-700 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">{op.journal}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-3 mt-1 text-[10px]">
+                            <span className="text-green-700 font-mono">D: {op.debit}</span>
+                            <span className="text-red-600 font-mono">C: {op.credit}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+
+            {/* Preview of selected operation */}
+            {selectedOp && (
+              <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-xs space-y-1">
+                <div className="flex justify-between"><span className="text-indigo-500">Module</span><strong className="text-indigo-800">{selectedOp.module}</strong></div>
+                <div className="flex justify-between"><span className="text-indigo-500">Journal</span><strong className="text-indigo-800 font-mono">{selectedOp.journal}</strong></div>
+                <div className="flex justify-between"><span className="text-indigo-500">PCG Débit</span><strong className="text-green-700 font-mono">{selectedOp.debit}</strong></div>
+                <div className="flex justify-between"><span className="text-indigo-500">PCG Crédit</span><strong className="text-red-600 font-mono">{selectedOp.credit}</strong></div>
               </div>
-            ))}
+            )}
 
             <Button
               type="button"
