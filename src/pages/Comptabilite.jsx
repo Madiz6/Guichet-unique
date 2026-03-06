@@ -249,6 +249,10 @@ export default function Comptabilite() {
               📋 À Comptabiliser
             </TabsTrigger>
             <TabsTrigger value="etats">📑 États Financiers</TabsTrigger>
+            <TabsTrigger value="grand_livre_preview" className="text-emerald-700">
+              <Layers className="w-3.5 h-3.5 mr-1.5" />
+              Grand Livre ({ledgerEntries.length})
+            </TabsTrigger>
           </TabsList>
 
           {/* P&L */}
