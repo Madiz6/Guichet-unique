@@ -314,6 +314,36 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         </div>
       )}
 
+      {/* Debt settlement banner — shown when booked as a debt and not yet settled */}
+      {isBooked && isDebt && !isSettled && (
+        <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📌</span>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">Dette ouverte — En attente de règlement</p>
+              <p className="text-xs text-amber-600">{transaction.contact_name || '—'} · {(transaction.total_amount || transaction.amount)?.toLocaleString()} DJF</p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            onClick={() => setShowSettlement(true)}
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+            size="sm"
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            Régler cette dette
+          </Button>
+        </div>
+      )}
+
+      {/* Settled badge */}
+      {isBooked && isDebt && isSettled && (
+        <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-green-600" />
+          <p className="text-sm text-green-800 font-semibold">Dette réglée — écriture de clôture enregistrée</p>
+        </div>
+      )}
+
       {/* STEP 1 — Choisir l'opération */}
       <div className="space-y-2">
         <StepHeader num={1} title={selectedOp ? selectedOp.label : 'Que souhaitez-vous enregistrer ?'} done={step > 1} active={step === 1} />
