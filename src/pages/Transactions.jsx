@@ -143,6 +143,14 @@ export default function Transactions() {
   const toggleSelectAll = () => setSelectedIds(prev => prev.length === filteredTransactions.length ? [] : filteredTransactions.map(t => t.id));
 
   // Calculate totals
+  const DEBT_OPERATION_TYPES = ['Dette fournisseur', 'Dette fournisseur réglée', 'Dette employé', 'Dette partenaire', 'Dette banque', 'Dette investisseur'];
+  const openDebts = transactions.filter(t =>
+    (t.is_dette || DEBT_OPERATION_TYPES.includes(t.operation_type)) &&
+    t.booking_status === 'booked' &&
+    !t.payment_registered &&
+    !t.linked_settlement_id
+  );
+
   const stats = {
     totalIncome: filteredTransactions.filter(t => t.type === 'Revenu').reduce((sum, t) => sum + (t.amount || 0), 0),
     totalExpenses: filteredTransactions.filter(t => t.type === 'Dépense').reduce((sum, t) => sum + (t.amount || 0), 0),
