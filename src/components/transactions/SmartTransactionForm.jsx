@@ -125,7 +125,9 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
     is_dette: false,
     is_financing: false,
     document_required: true,
-    accounting_period: new Date().toISOString().slice(0, 7).replace('-', '')
+    accounting_period: new Date().toISOString().slice(0, 7).replace('-', ''),
+    booking_type: '',
+    operation_type: '',
   });
   
   const [uploading, setUploading] = useState(false);
