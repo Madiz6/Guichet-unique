@@ -650,7 +650,76 @@ Si une donnée est illisible ou absente, utilise null.`,
         ))}
       </div>
 
-      <div className="flex justify-between pt-4 border-t">
+      {/* PCG Operation Pre-selection */}
+      <div className="pt-4 border-t">
+        <Label className="flex items-center gap-2 font-semibold text-gray-700 mb-2">
+          <BookOpen className="w-4 h-4 text-indigo-500" />
+          Type d'écriture comptable (optionnel)
+        </Label>
+        <p className="text-xs text-gray-400 mb-2">Pré-sélectionnez le type de comptabilisation pour gagner du temps lors de la comptabilisation.</p>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setPcgDropdownOpen(v => !v)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border-2 text-sm transition ${
+              selectedPcgOp ? 'border-indigo-400 bg-indigo-50 text-indigo-900' : 'border-gray-200 bg-white text-gray-400'
+            }`}
+          >
+            <span className={selectedPcgOp ? 'font-medium' : ''}>
+              {selectedPcgOp ? `${MODULE_ICONS[selectedPcgOp.module]} ${selectedPcgOp.label}` : '— Choisir un type (optionnel) —'}
+            </span>
+            <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
+          </button>
+
+          {pcgDropdownOpen && (
+            <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden max-h-72 overflow-y-auto">
+              <button
+                type="button"
+                onClick={() => { setSelectedPcgOp(null); setFormData(prev => ({ ...prev, booking_type: '', operation_type: '' })); setPcgDropdownOpen(false); }}
+                className="w-full text-left px-3 py-2 text-xs text-gray-400 hover:bg-gray-50 border-b"
+              >
+                — Aucun (définir plus tard) —
+              </button>
+              {Object.entries(groupedPcg).map(([module, ops]) => (
+                <div key={module}>
+                  <div className="px-3 py-1.5 bg-gray-50 border-b text-xs font-bold text-gray-500 uppercase tracking-wide sticky top-0">
+                    {MODULE_ICONS[module] || '📋'} {module}
+                  </div>
+                  {ops.map(op => (
+                    <button
+                      key={op.label}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPcgOp(op);
+                        setFormData(prev => ({ ...prev, booking_type: op.bookingType, operation_type: op.operationType }));
+                        setPcgDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 border-b last:border-0 hover:bg-indigo-50 transition ${selectedPcgOp?.label === op.label ? 'bg-indigo-50' : ''}`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-gray-800">{op.label}</p>
+                        <span className="bg-indigo-100 text-indigo-700 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded flex-shrink-0">{op.journal}</span>
+                      </div>
+                      <div className="flex gap-3 mt-0.5 text-[10px]">
+                        <span className="text-green-700 font-mono">D: {op.debit}</span>
+                        <span className="text-red-600 font-mono">C: {op.credit}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {selectedPcgOp && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-1.5">
+            <CheckCircle className="w-3 h-3 flex-shrink-0" />
+            <span>Journal <strong>{selectedPcgOp.journal}</strong> · D: <strong>{selectedPcgOp.debit}</strong> · C: <strong>{selectedPcgOp.credit}</strong></span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-between pt-2">
         <Button type="button" variant="outline" onClick={onCancel}>Annuler</Button>
         <Button type="submit" disabled={!canSubmit} className="bg-gradient-to-r from-blue-600 to-indigo-600">
           {canSubmit ? <CheckCircle className="w-4 h-4 mr-2" /> : <AlertCircle className="w-4 h-4 mr-2" />}
