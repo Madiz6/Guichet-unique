@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import DebtSettlementModal from './DebtSettlementModal';
+import { ledgerEngine } from '@/functions/ledgerEngine';
 
 // Full PCG operation list — each entry maps directly to bookingType + operationType
 const PCG_OPERATIONS = [
