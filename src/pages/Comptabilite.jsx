@@ -130,8 +130,8 @@ export default function Comptabilite() {
     { label: 'Total Charges', value: fmt(totalDepense) + ' DJF', icon: TrendingDown, color: 'text-red-500', bg: 'bg-red-50' },
     { label: 'Résultat Net', value: fmt(resultatNet) + ' DJF', icon: resultatNet >= 0 ? ArrowUpRight : ArrowDownRight, color: resultatNet >= 0 ? 'text-blue-600' : 'text-red-600', bg: resultatNet >= 0 ? 'bg-blue-50' : 'bg-red-50' },
     { label: 'Trésorerie (Banque)', value: fmt(totalBankBalance) + ' DJF', icon: Banknote, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: 'Dettes fournisseurs', value: fmt(unpaidExpenses) + ' DJF', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { label: 'Encours Prêts', value: fmt(totalLoanBalance) + ' DJF', icon: Activity, color: 'text-slate-600', bg: 'bg-slate-50' },
+    { label: 'Dettes actives (LedgerEngine)', value: fmt(activeDebts.reduce((s,d) => s + (d.amount_remaining || d.amount_due || 0), 0)) + ' DJF', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
+    { label: 'Écritures comptables', value: fmt(ledgerEntries.length) + ' entrées', icon: Layers, color: 'text-slate-600', bg: 'bg-slate-50' },
   ];
 
   return (
