@@ -460,9 +460,10 @@ export default function Comptabilite() {
         </Tabs>
 
         {/* Quick actions footer */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'Gérer les Transactions', icon: DollarSign, to: 'Transactions', color: 'bg-blue-600 text-white' },
+            { label: 'Grand Livre & Dettes', icon: BookOpen, to: 'GrandLivre', color: 'bg-emerald-600 text-white' },
             { label: 'Gestion Budgétaire', icon: BarChart3, to: 'BudgetManagement', color: 'bg-purple-600 text-white' },
           ].map((a, i) => (
             <Link key={i} to={createPageUrl(a.to)}>
