@@ -408,21 +408,87 @@ Si une donnée est illisible ou absente, utilise null.`,
         </div>
       </div>
 
-      {/* Source/Financing */}
-       <div>
-         <Label className="font-semibold text-gray-700 mb-2 block">Enregistrer comme *</Label>
-         <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value, is_financing: ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt'].includes(value)})}>
-           <SelectTrigger className="bg-purple-50 border-purple-200"><SelectValue /></SelectTrigger>
-           <SelectContent>
-             <SelectItem value="Manuel">📝 Transaction Standard</SelectItem>
-             <SelectItem value="Apport Capital">💎 Apport en Capital</SelectItem>
-             <SelectItem value="Prêt Bancaire">🏦 Prêt Bancaire (Déblocage)</SelectItem>
-             <SelectItem value="Remboursement Prêt">💳 Remboursement Prêt</SelectItem>
-             <SelectItem value="Compte Courant Associé">👤 Compte Courant Associé</SelectItem>
-             <SelectItem value="Paie">👥 Paie (Auto)</SelectItem>
-             <SelectItem value="Declaration CNSS">📋 Déclaration CNSS (Auto)</SelectItem>
-           </SelectContent>
-         </Select>
+      {/* Source/Financing — Rich grouped dropdown */}
+      <div>
+        <Label className="font-semibold text-gray-700 mb-2 block">Que souhaitez-vous enregistrer ? *</Label>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setSourceDropdownOpen(v => !v)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border-2 text-sm transition ${
+              selectedSourceOp ? 'border-purple-500 bg-purple-50 text-purple-900' : 'border-gray-200 bg-white text-gray-500'
+            }`}
+          >
+            <span className={selectedSourceOp ? 'font-medium' : ''}>
+              {selectedSourceOp
+                ? `${MODULE_ICONS[selectedSourceOp.module]} ${selectedSourceOp.label}`
+                : '— Sélectionner une opération —'}
+            </span>
+            <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
+          </button>
+
+          {sourceDropdownOpen && (
+            <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden max-h-80 overflow-y-auto">
+              {Object.entries(groupedPcg).map(([module, ops]) => (
+                <div key={module}>
+                  <div className="px-3 py-1.5 bg-gray-50 border-b text-xs font-bold text-gray-500 uppercase tracking-wide sticky top-0">
+                    {MODULE_ICONS[module] || '📋'} {module}
+                  </div>
+                  {ops.map(op => (
+                    <button
+                      key={op.label}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSourceOp(op);
+                        // Map PCG op to source field + pre-fill booking fields
+                        const sourceMap = {
+                          'Paie': 'Paie',
+                          'Déclaration CNSS / ITS': 'Declaration CNSS',
+                          'Remboursement emprunt bancaire': 'Remboursement Prêt',
+                          'Apport en capital': 'Apport Capital',
+                        };
+                        const source = sourceMap[op.label] || 'Manuel';
+                        setFormData(prev => ({
+                          ...prev,
+                          source,
+                          is_financing: ['Apport Capital', 'Prêt Bancaire', 'Remboursement Prêt'].includes(source),
+                          booking_type: op.bookingType,
+                          operation_type: op.operationType,
+                        }));
+                        // Also sync the PCG pre-selection
+                        setSelectedPcgOp(op);
+                        setSourceDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2.5 border-b last:border-0 hover:bg-purple-50 transition ${
+                        selectedSourceOp?.label === op.label ? 'bg-purple-50' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-medium text-gray-800">{op.label}</p>
+                          {op.description && <p className="text-xs text-gray-500 mt-0.5">{op.description}</p>}
+                        </div>
+                        <span className="bg-purple-100 text-purple-700 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded flex-shrink-0">{op.journal}</span>
+                      </div>
+                      <div className="flex gap-3 mt-1 text-[10px]">
+                        <span className="text-green-700 font-mono">D: {op.debit}</span>
+                        <span className="text-red-600 font-mono">C: {op.credit}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Selected op summary */}
+        {selectedSourceOp && (
+          <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded-lg flex items-center gap-2 text-xs text-purple-800">
+            <CheckCircle className="w-3 h-3 flex-shrink-0 text-purple-500" />
+            <span>Journal <strong>{selectedSourceOp.journal}</strong> · D: <strong>{selectedSourceOp.debit}</strong> · C: <strong>{selectedSourceOp.credit}</strong></span>
+          </div>
+        )}
 
         {(formData.source === 'Prêt Bancaire' || formData.source === 'Remboursement Prêt') && (
           <div className="mt-3">
@@ -451,7 +517,7 @@ Si une donnée est illisible ou absente, utilise null.`,
             </Select>
           </div>
         )}
-        </div>
+      </div>
 
       <div className="relative">
         <Label>Description *</Label>
