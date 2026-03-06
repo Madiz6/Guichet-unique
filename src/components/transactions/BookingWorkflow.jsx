@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
+import DebtSettlementModal from './DebtSettlementModal';
 
 // Full PCG operation list — each entry maps directly to bookingType + operationType
 const PCG_OPERATIONS = [
