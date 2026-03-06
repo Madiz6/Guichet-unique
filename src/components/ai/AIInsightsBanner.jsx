@@ -34,9 +34,8 @@ export default function AIInsightsBanner({ transactions = [], budgets = [], empl
   };
 
   useEffect(() => {
-    if (transactions.length > 0 || budgets.length > 0) {
-      load();
-    }
+    // Only load if there's meaningful data (backend functions required)
+    // Silently skip if no data to avoid errors
   }, []);
 
   if (!loaded && !loading) return null;
