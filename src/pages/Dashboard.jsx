@@ -725,15 +725,14 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </motion.div>
-        </div>
-
-        {/* Company Creation Wizard */}
-        <CompanyCreationWizard
-          isOpen={showCompanyWizard}
-          onClose={() => setShowCompanyWizard(false)}
-          onSuccess={() => setShowCompanyWizard(false)}
-        />
       </div>
+
+      {/* Company Creation Wizard */}
+      <CompanyCreationWizard
+        isOpen={showCompanyWizard}
+        onClose={() => setShowCompanyWizard(false)}
+        onSuccess={() => setShowCompanyWizard(false)}
+      />
     </div>
   );
 }
