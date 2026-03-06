@@ -76,12 +76,18 @@ export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
   const [operationType, setOperationType] = useState(transaction.operation_type || '');
   const [entries, setEntries] = useState(transaction.journal_entries || null);
   const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // derived: which scenario is currently selected
-  const scenarios = SCENARIOS[transaction.type] || SCENARIOS['Dépense'];
-  const selectedScenario = scenarios.flatMap(g => g.items).find(
-    s => s.bookingType === bookingType && s.operationType === operationType
+  // Derive selected operation from PCG_OPERATIONS
+  const selectedOp = PCG_OPERATIONS.find(
+    op => op.bookingType === bookingType && op.operationType === operationType
   );
+
+  const grouped = PCG_OPERATIONS.reduce((acc, op) => {
+    if (!acc[op.module]) acc[op.module] = [];
+    acc[op.module].push(op);
+    return acc;
+  }, {});
 
   const queryClient = useQueryClient();
 
