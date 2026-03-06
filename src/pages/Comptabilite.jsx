@@ -10,7 +10,7 @@ import { createPageUrl } from '@/utils';
 import {
   TrendingUp, TrendingDown, DollarSign, AlertTriangle, CheckCircle,
   BookOpen, ArrowUpRight, ArrowDownRight, Banknote, BarChart3,
-  Clock, FileText, RefreshCw, Target, Activity, ChevronRight
+  Clock, FileText, RefreshCw, Target, Activity, ChevronRight, Layers
 } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval, parseISO } from 'date-fns';
