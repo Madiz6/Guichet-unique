@@ -213,6 +213,8 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
     }
   };
 
+  const DEBT_TYPES = ['Dette fournisseur', 'Dette fournisseur réglée', 'Dette employé', 'Dette partenaire', 'Dette banque', 'Dette investisseur'];
+
   const handleBook = async () => {
     setLoading(true);
     try {
@@ -222,6 +224,7 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         operation_type: operationType,
         journal_entries: entries,
         booked_at: new Date().toISOString(),
+        is_dette: DEBT_TYPES.includes(operationType),
       });
       setStep(4);
       setOpen({ 1: false, 2: false, 3: false, 4: true });
