@@ -299,7 +299,7 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
   );
 
   return (
-    <div className="space-y-3">
+    <>
       {isBooked && (
         <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-center gap-2">
