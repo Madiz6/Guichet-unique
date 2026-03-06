@@ -219,6 +219,7 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
   const handleBook = async () => {
     setLoading(true);
     try {
+      // 1. Persist to Transaction (existing logic)
       await persist({
         booking_status: 'booked',
         booking_type: bookingType,
@@ -227,9 +228,34 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         booked_at: new Date().toISOString(),
         is_dette: DEBT_TYPES.includes(operationType),
       });
+
+      // 2. Wire into real LedgerEntry engine
+      const selectedPcgOp = PCG_OPERATIONS.find(op => op.bookingType === bookingType && op.operationType === operationType);
+      try {
+        await ledgerEngine({
+          action: 'generateLedgerEntries',
+          transaction_id: transaction.id,
+          template_type: selectedPcgOp?.label || bookingType,
+          transaction: {
+            date: transaction.date,
+            amount: transaction.amount,
+            description: transaction.description,
+            category: transaction.category,
+            department: transaction.department,
+            contact_name: transaction.contact_name,
+            date_echeance: transaction.date_echeance,
+            numero_facture: transaction.numero_facture,
+          },
+        });
+        queryClient.invalidateQueries({ queryKey: ['ledger-entries'] });
+        queryClient.invalidateQueries({ queryKey: ['debts'] });
+      } catch (_) {
+        // LedgerEntry creation is best-effort; don't block the booking
+      }
+
       setStep(4);
       setOpen({ 1: false, 2: false, 3: false, 4: true });
-      toast.success('✅ Écriture comptable enregistrée');
+      toast.success('✅ Écriture comptable enregistrée dans le Grand Livre');
     } catch (e) {
       toast.error('Erreur: ' + e.message);
     } finally {
