@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { meras } from "@/components/core/MerasClient";
 import { useQuery } from "@tanstack/react-query";
 import { Users, TrendingUp, TrendingDown, FileText, DollarSign, ArrowRight, Building2, Plus, Calendar, Wallet, LayoutGrid, Key } from 'lucide-react';
@@ -12,7 +12,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { motion } from 'framer-motion';
 import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
 import AIInsightsBanner from "../components/ai/AIInsightsBanner";
-import AICopilot from "../components/ai/AICopilot";
 import OperationalAlerts from "../components/dashboard/OperationalAlerts";
 
 export default function Dashboard() {
