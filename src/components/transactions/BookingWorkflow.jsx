@@ -2,84 +2,36 @@ import React, { useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw, Table2 } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronUp, BookOpen, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
-// PCG reference table for the booking guide
-const PCG_GUIDE = [
-  { module: 'Achats & Fournisseurs', type: 'Facture fournisseur à payer', description: 'Facture reçue, non réglée', journal: 'ACH', debit: '6xxx Charges', credit: '401 Fournisseur' },
-  { module: 'Achats & Fournisseurs', type: 'Facture fournisseur réglée', description: 'Paiement immédiat', journal: 'ACH', debit: '6xxx Charges', credit: '512 Banque' },
-  { module: 'Achats & Fournisseurs', type: 'Achat immédiat / reçu', description: 'Paiement sur place avec reçu', journal: 'OD', debit: '6xxx Charges', credit: '53 / 512' },
-  { module: 'Personnel & Salaires', type: 'Salaires versés', description: 'Bulletin de paie', journal: 'SAL', debit: '641 Salaires', credit: '43x Charges sociales' },
-  { module: 'Personnel & Salaires', type: 'Note de frais employé', description: 'Remboursement frais', journal: 'OD', debit: '625 Frais divers', credit: '455 Employé' },
-  { module: 'Banque & Financements', type: 'Remboursement emprunt bancaire', description: 'Paiement échéance prêt', journal: 'BNQ', debit: '164 Emprunt', credit: '512 Banque' },
-  { module: 'Banque & Financements', type: 'Frais bancaires / prélèvements', description: 'Frais de tenue de compte', journal: 'BNQ', debit: '627 Frais bancaires', credit: '512 Banque' },
-  { module: 'Impôts & Cotisations', type: 'Déclaration CNSS/ITS', description: 'Cotisations sociales', journal: 'CNSS', debit: '645 Charges sociales', credit: '43x Charges sociales' },
-  { module: 'Divers', type: 'Autre dépense / OD', description: 'Transfert interne, ajustement', journal: 'OD', debit: 'Selon opération', credit: 'Selon opération' },
-  { module: 'Partenaires & Investissements', type: 'Apport en capital', description: 'Investissement associé', journal: 'BNQ', debit: '512 Banque', credit: '101 Capital' },
-  { module: 'Clients & Ventes', type: 'Facture client à encaisser', description: 'Vente à crédit', journal: 'VTE', debit: '411 Clients', credit: '7xxx Ventes' },
-  { module: 'Clients & Ventes', type: 'Paiement client reçu', description: 'Règlement client', journal: 'VTE', debit: '512 Banque', credit: '411 Clients' },
-  { module: 'Dettes centralisées', type: 'Dette fournisseur / partenaire / employé / banque', description: 'Enregistrer une dette active', journal: 'ACH / BNQ / OD', debit: 'Selon type (606, 641, 164…)', credit: '401 / 455 / 101 / 512' },
+// Full PCG operation list — each entry maps directly to bookingType + operationType
+const PCG_OPERATIONS = [
+  { module: 'Achats & Fournisseurs', label: 'Facture fournisseur à payer', description: 'Facture reçue, non réglée', journal: 'ACH', debit: '6xxx Charges', credit: '401 Fournisseur', bookingType: 'Facture fournisseur', operationType: 'Dépense non payée' },
+  { module: 'Achats & Fournisseurs', label: 'Facture fournisseur réglée', description: 'Paiement immédiat au fournisseur', journal: 'ACH', debit: '6xxx Charges', credit: '512 Banque', bookingType: 'Facture fournisseur', operationType: 'Dépense payée' },
+  { module: 'Achats & Fournisseurs', label: 'Achat immédiat / Reçu', description: 'Paiement sur place avec reçu', journal: 'OD', debit: '6xxx Charges', credit: '53 / 512', bookingType: 'Note de frais', operationType: 'Dépense payée' },
+  { module: 'Personnel & Salaires', label: 'Salaires versés', description: 'Bulletin de paie du personnel', journal: 'SAL', debit: '641 Salaires', credit: '43x Charges sociales', bookingType: 'Paie', operationType: 'Dépense payée' },
+  { module: 'Personnel & Salaires', label: 'Note de frais employé', description: 'Remboursement frais professionnel', journal: 'OD', debit: '625 Frais divers', credit: '455 Employé', bookingType: 'Note de frais', operationType: 'Note de frais / Avance' },
+  { module: 'Banque & Financements', label: 'Remboursement emprunt bancaire', description: 'Paiement échéance prêt (capital + intérêts)', journal: 'BNQ', debit: '164 Emprunt', credit: '512 Banque', bookingType: 'Remboursement prêt', operationType: 'Remboursement prêt' },
+  { module: 'Banque & Financements', label: 'Frais bancaires / Prélèvements', description: 'Frais de tenue de compte, commissions', journal: 'BNQ', debit: '627 Frais bancaires', credit: '512 Banque', bookingType: 'Banque', operationType: 'Dépense payée' },
+  { module: 'Impôts & Cotisations', label: 'Déclaration CNSS / ITS', description: 'Cotisations sociales et fiscales', journal: 'CNSS', debit: '645 Charges sociales', credit: '43x Charges sociales', bookingType: 'Impôts & Taxes', operationType: 'Dépense payée' },
+  { module: 'Divers', label: 'Autre dépense / OD', description: 'Transfert interne, ajustement, divers', journal: 'OD', debit: 'Selon opération', credit: 'Selon opération', bookingType: 'Autre', operationType: 'Autre / Divers' },
+  { module: 'Partenaires & Investissements', label: 'Apport en capital', description: 'Investissement des associés / actionnaires', journal: 'BNQ', debit: '512 Banque', credit: '101 Capital', bookingType: 'Apport capital', operationType: 'Apport en capital' },
+  { module: 'Clients & Ventes', label: 'Facture client à encaisser', description: 'Vente à crédit — règlement à venir', journal: 'VTE', debit: '411 Clients', credit: '7xxx Ventes', bookingType: 'Facture client', operationType: 'Revenu / Vente' },
+  { module: 'Clients & Ventes', label: 'Paiement client reçu', description: 'Règlement client encaissé', journal: 'VTE', debit: '512 Banque', credit: '411 Clients', bookingType: 'Facture client', operationType: 'Paiement reçu client' },
+  { module: 'Dettes centralisées', label: 'Dette fournisseur / partenaire / employé / banque', description: 'Enregistrer une dette active', journal: 'ACH / BNQ / OD', debit: 'Selon type (606, 641, 164…)', credit: '401 / 455 / 101 / 512', bookingType: 'Autre', operationType: 'Dépense non payée' },
 ];
 
-function PCGGuidePanel() {
-  const [show, setShow] = useState(false);
-  const grouped = PCG_GUIDE.reduce((acc, row) => {
-    if (!acc[row.module]) acc[row.module] = [];
-    acc[row.module].push(row);
-    return acc;
-  }, {});
-
-  return (
-    <div className="border border-indigo-100 rounded-lg overflow-hidden">
-      <button
-        onClick={() => setShow(v => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-indigo-50 hover:bg-indigo-100 transition text-left"
-      >
-        <div className="flex items-center gap-2 text-indigo-700 text-xs font-semibold">
-          <Table2 className="w-3.5 h-3.5" />
-          📚 Guide PCG — Correspondances comptables (NPCG Djibouti)
-        </div>
-        {show ? <ChevronUp className="w-3.5 h-3.5 text-indigo-400" /> : <ChevronDown className="w-3.5 h-3.5 text-indigo-400" />}
-      </button>
-      {show && (
-        <div className="overflow-x-auto">
-          {Object.entries(grouped).map(([module, rows]) => (
-            <div key={module}>
-              <div className="px-3 py-1.5 bg-gray-50 border-b border-t text-xs font-bold text-gray-600 uppercase tracking-wide">
-                {module}
-              </div>
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-gray-50 border-b text-gray-500">
-                    <th className="text-left px-3 py-1.5 font-medium">Type / Sous-type</th>
-                    <th className="text-left px-3 py-1.5 font-medium hidden md:table-cell">Description</th>
-                    <th className="text-center px-2 py-1.5 font-medium">Journal</th>
-                    <th className="text-left px-2 py-1.5 font-medium">PCG Débit</th>
-                    <th className="text-left px-2 py-1.5 font-medium">PCG Crédit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, i) => (
-                    <tr key={i} className="border-b last:border-0 hover:bg-indigo-50/40">
-                      <td className="px-3 py-1.5 font-medium text-gray-800">{row.type}</td>
-                      <td className="px-3 py-1.5 text-gray-500 hidden md:table-cell">{row.description}</td>
-                      <td className="px-2 py-1.5 text-center">
-                        <span className="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-mono font-semibold">{row.journal}</span>
-                      </td>
-                      <td className="px-2 py-1.5 text-green-700 font-mono">{row.debit}</td>
-                      <td className="px-2 py-1.5 text-red-600 font-mono">{row.credit}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-import { toast } from 'sonner';
+const MODULE_ICONS = {
+  'Achats & Fournisseurs': '🛒',
+  'Personnel & Salaires': '🧑‍💼',
+  'Banque & Financements': '🏦',
+  'Impôts & Cotisations': '🏛️',
+  'Divers': '📋',
+  'Partenaires & Investissements': '💼',
+  'Clients & Ventes': '💰',
+  'Dettes centralisées': '📌',
+};
 
 // Journal entry templates per type/category
 const getEntries = (t) => {
