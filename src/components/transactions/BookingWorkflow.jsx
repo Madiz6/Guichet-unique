@@ -267,7 +267,13 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
     setLoading(true);
     try {
       await persist({ payment_registered: true, status: 'Payé' });
-      toast.success('✅ Paiement enregistré');
+      // Also mark payment in LedgerEngine (creates offset entry)
+      try {
+        await ledgerEngine({ action: 'markPayment', transaction_id: transaction.id, payment_amount: transaction.total_amount || transaction.amount });
+        queryClient.invalidateQueries({ queryKey: ['ledger-entries'] });
+        queryClient.invalidateQueries({ queryKey: ['debts'] });
+      } catch (_) {}
+      toast.success('✅ Paiement enregistré — écriture de règlement créée');
     } catch (e) {
       toast.error('Erreur: ' + e.message);
     } finally {
