@@ -38,7 +38,8 @@ export default function AIInsightsBanner({ transactions = [], budgets = [], empl
     // Silently skip if no data to avoid errors
   }, []);
 
-  if (!loaded && !loading) return null;
+  // Backend functions not available — hide banner
+  if (!loaded) return null;
 
   return (
     <motion.div
