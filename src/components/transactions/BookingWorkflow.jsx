@@ -19,7 +19,12 @@ const PCG_OPERATIONS = [
   { module: 'Partenaires & Investissements', label: 'Apport en capital', description: 'Investissement des associés / actionnaires', journal: 'BNQ', debit: '512 Banque', credit: '101 Capital', bookingType: 'Apport capital', operationType: 'Apport en capital' },
   { module: 'Clients & Ventes', label: 'Facture client à encaisser', description: 'Vente à crédit — règlement à venir', journal: 'VTE', debit: '411 Clients', credit: '7xxx Ventes', bookingType: 'Facture client', operationType: 'Revenu / Vente' },
   { module: 'Clients & Ventes', label: 'Paiement client reçu', description: 'Règlement client encaissé', journal: 'VTE', debit: '512 Banque', credit: '411 Clients', bookingType: 'Facture client', operationType: 'Paiement reçu client' },
-  { module: 'Dettes centralisées', label: 'Dette fournisseur / partenaire / employé / banque', description: 'Enregistrer une dette active', journal: 'ACH / BNQ / OD', debit: 'Selon type (606, 641, 164…)', credit: '401 / 455 / 101 / 512', bookingType: 'Autre', operationType: 'Dépense non payée' },
+  { module: 'Dettes centralisées', label: 'Dette fournisseur', description: 'Dette fournisseur non encore payée', journal: 'ACH', debit: '606 Achats', credit: '401 Fournisseur', bookingType: 'Dette fournisseur', operationType: 'Dette fournisseur' },
+  { module: 'Dettes centralisées', label: 'Dette fournisseur réglée', description: 'Paiement d\'une facture fournisseur déjà payée', journal: 'ACH', debit: '606 Achats', credit: '512 Banque', bookingType: 'Dette fournisseur réglée', operationType: 'Dette fournisseur réglée' },
+  { module: 'Dettes centralisées', label: 'Dette employé', description: 'Avance ou note de frais employé', journal: 'OD', debit: '455 Employé', credit: '512 Banque / 53 Espèces', bookingType: 'Dette employé', operationType: 'Dette employé' },
+  { module: 'Dettes centralisées', label: 'Dette partenaire', description: 'Dette contractuelle ou investissement à rembourser', journal: 'BNQ / OD', debit: 'Selon type (164, 606…)', credit: '101 Capital / 512 Banque', bookingType: 'Dette partenaire', operationType: 'Dette partenaire' },
+  { module: 'Dettes centralisées', label: 'Dette banque / financement', description: 'Prêt ou remboursement à une institution financière', journal: 'BNQ', debit: '164 Emprunt', credit: '512 Banque', bookingType: 'Dette banque', operationType: 'Dette banque' },
+  { module: 'Dettes centralisées', label: 'Dette investisseur', description: 'Apport en capital ou remboursement partiel', journal: 'BNQ', debit: '512 Banque', credit: '101 Capital', bookingType: 'Dette investisseur', operationType: 'Dette investisseur' },
 ];
 
 const MODULE_ICONS = {
