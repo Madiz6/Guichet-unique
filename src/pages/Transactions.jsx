@@ -100,7 +100,8 @@ export default function Transactions() {
   const filteredTransactions = transactions.filter(t => {
     const matchesTab = activeTab === 'all' ||
       (activeTab === 'income' && t.type === 'Revenu') ||
-      (activeTab === 'expense' && t.type === 'Dépense');
+      (activeTab === 'expense' && t.type === 'Dépense') ||
+      (activeTab === 'debts' && (t.is_dette || DEBT_OPERATION_TYPES.includes(t.operation_type)) && t.booking_status === 'booked' && !t.payment_registered && !t.linked_settlement_id);
 
     const q = filters.searchQuery?.toLowerCase();
     const matchesSearch = !q ||
