@@ -138,6 +138,8 @@ export default function SmartTransactionForm({ transaction, onSubmit, onCancel }
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [pcgDropdownOpen, setPcgDropdownOpen] = useState(false);
   const [selectedPcgOp, setSelectedPcgOp] = useState(null);
+  const [sourceDropdownOpen, setSourceDropdownOpen] = useState(false);
+  const [selectedSourceOp, setSelectedSourceOp] = useState(null);
 
   const groupedPcg = PCG_OPERATIONS.reduce((acc, op) => {
     if (!acc[op.module]) acc[op.module] = [];
