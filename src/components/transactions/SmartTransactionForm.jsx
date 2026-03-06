@@ -481,12 +481,44 @@ Si une donnée est illisible ou absente, utilise null.`,
 
       <div>
         <Label>Contact (Fournisseur/Client)</Label>
-        <Select value={formData.contact_name} onValueChange={(v) => setFormData({...formData, contact_name: v})}>
-          <SelectTrigger className="mt-2"><SelectValue placeholder="Optionnel..." /></SelectTrigger>
-          <SelectContent>
-            {contacts.map(c => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        {contacts.length > 0 ? (
+          <div className="space-y-2 mt-2">
+            <Select
+              value={contacts.some(c => c.name === formData.contact_name) ? formData.contact_name : '__manual__'}
+              onValueChange={(v) => {
+                if (v === '__manual__') {
+                  setFormData({...formData, contact_name: ''});
+                } else {
+                  setFormData({...formData, contact_name: v});
+                }
+              }}
+            >
+              <SelectTrigger><SelectValue placeholder="Sélectionner ou saisir..." /></SelectTrigger>
+              <SelectContent>
+                {contacts.map(c => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+                <SelectItem value="__manual__">✏️ Saisir manuellement...</SelectItem>
+              </SelectContent>
+            </Select>
+            {(!formData.contact_name || !contacts.some(c => c.name === formData.contact_name)) && (
+              <Input
+                value={formData.contact_name}
+                onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
+                placeholder="Nom du fournisseur / client..."
+                className="text-sm"
+              />
+            )}
+          </div>
+        ) : (
+          <Input
+            value={formData.contact_name}
+            onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
+            placeholder="Nom du fournisseur / client..."
+            className="mt-2"
+          />
+        )}
+        {contacts.length === 0 && (
+          <p className="text-xs text-gray-400 mt-1">Aucun contact enregistré — vous pouvez saisir un nom directement. Pour gérer vos contacts, rendez-vous dans la page <strong>Contacts</strong>.</p>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-4">
