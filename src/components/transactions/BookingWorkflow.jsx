@@ -562,5 +562,6 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         onTransactionUpdated({ ...transaction, payment_registered: true, status: 'Payé', linked_settlement_id: settlement.id });
       }}
     />
+    </>
   );
 }
