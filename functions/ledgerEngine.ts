@@ -173,5 +173,102 @@ Deno.serve(async (req) => {
     return Response.json({ entries, trial_balance: trialBalance, total_debit: totalDebit, total_credit: totalCredit, balanced: Math.abs(totalDebit - totalCredit) < 1 });
   }
 
+  // ===== ACTION: backfillFromTransactions =====
+  // Reads all booked transactions and creates missing LedgerEntry records
+  if (action === 'backfillFromTransactions') {
+    // Only admins can run backfill
+    if (user?.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+
+    // Get all booked transactions (any non-null booking_status)
+    const allTransactions = await base44.asServiceRole.entities.Transaction.list('-date', 500);
+    const booked = allTransactions.filter(t => t.booking_status && t.booking_status !== '');
+
+    // Get existing ledger entries to avoid duplicates
+    const existingEntries = await base44.asServiceRole.entities.LedgerEntry.list('-date', 1000);
+    const existingTxIds = new Set(existingEntries.map(e => e.transaction_id));
+
+    let created = 0;
+    const errors = [];
+
+    for (const tx of booked) {
+      if (existingTxIds.has(tx.id)) continue; // already has ledger entry
+
+      // Find the best matching template
+      const templateKey = tx.booking_type || tx.operation_type || '';
+      let tpl = TEMPLATES[templateKey];
+
+      // Fuzzy match: try to find a template by partial name
+      if (!tpl) {
+        for (const [key, val] of Object.entries(TEMPLATES)) {
+          if (templateKey.toLowerCase().includes(key.toLowerCase().split(' ')[0]) ||
+              key.toLowerCase().includes(templateKey.toLowerCase().split(' ')[0])) {
+            tpl = val;
+            break;
+          }
+        }
+      }
+
+      // Final fallback based on transaction type
+      if (!tpl) {
+        if (tx.type === 'Revenu') {
+          tpl = { journal: 'VTE', debit: '411', debit_label: 'Clients', credit: '706', credit_label: 'Ventes', creates_debt: false };
+        } else {
+          tpl = { journal: 'OD', debit: '606', debit_label: 'Charges', credit: '401', credit_label: 'Fournisseurs', creates_debt: false };
+        }
+      }
+
+      const amount = Math.abs(tx.amount || 0);
+      const period = getAccountingPeriod(tx.date || new Date().toISOString().split('T')[0]);
+
+      try {
+        const entry = await base44.asServiceRole.entities.LedgerEntry.create({
+          transaction_id: tx.id,
+          date: tx.date || new Date().toISOString().split('T')[0],
+          journal: tpl.journal,
+          debit_account: tpl.debit,
+          debit_account_label: tpl.debit_label,
+          credit_account: tpl.credit,
+          credit_account_label: tpl.credit_label,
+          amount,
+          description: tx.description || templateKey,
+          category: tx.category,
+          department: tx.department,
+          contact_name: tx.contact_name,
+          status: 'Posted',
+          is_offset: false,
+          accounting_period: period,
+          reference: tx.numero_facture || '',
+          template_type: templateKey,
+        });
+
+        // Create debt if applicable and not yet settled
+        if (tpl.creates_debt && !tx.payment_registered) {
+          await base44.asServiceRole.entities.DebtCentralized.create({
+            transaction_id: tx.id,
+            debt_type: tpl.debt_type,
+            contact_name: tx.contact_name || '',
+            description: tx.description || templateKey,
+            amount_due: amount,
+            amount_paid: 0,
+            amount_remaining: amount,
+            status: 'Active',
+            due_date: tx.date_echeance || null,
+            debit_account: tpl.debit,
+            credit_account: tpl.credit,
+            journal: tpl.journal,
+            ledger_entry_id: entry.id,
+            department: tx.department || '',
+          });
+        }
+
+        created++;
+      } catch (err) {
+        errors.push({ tx_id: tx.id, error: err.message });
+      }
+    }
+
+    return Response.json({ success: true, created, skipped: booked.length - created - errors.length, errors });
+  }
+
   return Response.json({ error: 'Action inconnue' }, { status: 400 });
 });
