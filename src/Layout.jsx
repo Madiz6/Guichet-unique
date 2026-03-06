@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
-import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3, BookOpen } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
