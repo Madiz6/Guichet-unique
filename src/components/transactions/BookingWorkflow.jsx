@@ -231,26 +231,27 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
 
       // 2. Wire into real LedgerEntry engine
       const selectedPcgOp = PCG_OPERATIONS.find(op => op.bookingType === bookingType && op.operationType === operationType);
-      try {
-        await ledgerEngine({
-          action: 'generateLedgerEntries',
-          transaction_id: transaction.id,
-          template_type: selectedPcgOp?.label || bookingType,
-          transaction: {
-            date: transaction.date,
-            amount: transaction.amount,
-            description: transaction.description,
-            category: transaction.category,
-            department: transaction.department,
-            contact_name: transaction.contact_name,
-            date_echeance: transaction.date_echeance,
-            numero_facture: transaction.numero_facture,
-          },
-        });
+      const ledgerResult = await ledgerEngine({
+        action: 'generateLedgerEntries',
+        transaction_id: transaction.id,
+        template_type: selectedPcgOp?.label || bookingType,
+        transaction: {
+          date: transaction.date,
+          amount: transaction.amount,
+          description: transaction.description,
+          category: transaction.category,
+          department: transaction.department,
+          contact_name: transaction.contact_name,
+          date_echeance: transaction.date_echeance,
+          numero_facture: transaction.numero_facture,
+        },
+      });
+      if (ledgerResult?.data?.error) {
+        toast.error('Grand Livre: ' + ledgerResult.data.error);
+      } else {
         queryClient.invalidateQueries({ queryKey: ['ledger-entries'] });
         queryClient.invalidateQueries({ queryKey: ['debts'] });
-      } catch (_) {
-        // LedgerEntry creation is best-effort; don't block the booking
+        queryClient.invalidateQueries({ queryKey: ['transactions-for-backfill'] });
       }
 
       setStep(4);
