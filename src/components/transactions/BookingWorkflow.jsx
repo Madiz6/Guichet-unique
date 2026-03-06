@@ -83,6 +83,13 @@ export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
   const [entries, setEntries] = useState(transaction.journal_entries || null);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showSettlement, setShowSettlement] = useState(false);
+
+  const isDebt = transaction.is_dette || [
+    'Dette fournisseur', 'Dette fournisseur réglée', 'Dette employé',
+    'Dette partenaire', 'Dette banque', 'Dette investisseur'
+  ].includes(transaction.operation_type);
+  const isSettled = !!transaction.linked_settlement_id || (isDebt && transaction.payment_registered);
 
   // Derive selected operation from PCG_OPERATIONS
   const selectedOp = PCG_OPERATIONS.find(
