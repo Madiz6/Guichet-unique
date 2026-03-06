@@ -171,20 +171,13 @@ export default function AICopilot({ currentPage }) {
     setIsLoading(true);
 
     try {
-      const res = await base44.functions.invoke('aiAssistant', {
-        action: 'chat',
-        data: {
-          message: text,
-          context: {
-            role: user?.role,
-            page: currentPage,
-          }
-        }
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `Tu es Aria, une assistante IA experte en paie, CNSS et RH pour Djibouti. Réponds en français de manière concise et professionnelle.\n\nQuestion: ${text}`,
       });
-      const reply = res?.data?.reply || 'Je ne peux pas répondre pour le moment.';
+      const reply = typeof res === 'string' ? res : (res?.response || 'Je ne peux pas répondre pour le moment.');
       setMessages(prev => [...prev, { role: 'assistant', text: reply }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', text: 'Erreur de connexion. Réessayez.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', text: 'Je suis temporairement indisponible. Réessayez plus tard.' }]);
     }
     setIsLoading(false);
   };
