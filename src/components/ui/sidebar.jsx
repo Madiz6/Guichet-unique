@@ -398,26 +398,33 @@ const sidebarMenuButtonVariants = cva(
   }
 )
 
-const SidebarMenuButton = React.forwardRef(function SidebarMenuButton(
-  { asChild, isActive, variant, size, tooltip, className, ...props },
-  ref
-) {
-  const _asChild = asChild === undefined ? false : asChild
-  const _isActive = isActive === undefined ? false : isActive
-  const _variant = variant === undefined ? "default" : variant
-  const _size = size === undefined ? "default" : size
+const SidebarMenuButton = React.forwardRef(function SidebarMenuButton(allProps, ref) {
+  const asChild = allProps.asChild === undefined ? false : allProps.asChild
+  const isActive = allProps.isActive === undefined ? false : allProps.isActive
+  const variant = allProps.variant === undefined ? "default" : allProps.variant
+  const size = allProps.size === undefined ? "default" : allProps.size
+  const tooltip = allProps.tooltip
+  const className = allProps.className
 
-  const Comp = _asChild ? Slot : "button"
+  const rest = Object.assign({}, allProps)
+  delete rest.asChild
+  delete rest.isActive
+  delete rest.variant
+  delete rest.size
+  delete rest.tooltip
+  delete rest.className
+
+  const Comp = asChild ? Slot : "button"
   const { isMobile, state } = useSidebar()
 
   const button = (
     <Comp
       ref={ref}
       data-sidebar="menu-button"
-      data-size={_size}
-      data-active={_isActive}
-      className={cn(sidebarMenuButtonVariants({ variant: _variant, size: _size }), className)}
-      {...props}
+      data-size={size}
+      data-active={isActive}
+      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+      {...rest}
     />
   )
 
