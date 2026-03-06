@@ -66,6 +66,7 @@ import Employes from './pages/Employes';
 import Entreprise from './pages/Entreprise';
 import Expenses from './pages/Expenses';
 import FinancialForecasting from './pages/FinancialForecasting';
+import GrandLivre from './pages/GrandLivre';
 import Home from './pages/Home';
 import InvitationProcess from './pages/InvitationProcess';
 import Leasing from './pages/Leasing';
@@ -87,7 +88,6 @@ import Training from './pages/Training';
 import Transactions from './pages/Transactions';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import Visas from './pages/Visas';
-import GrandLivre from './pages/GrandLivre';
 import __Layout from './Layout.jsx';
 
 
@@ -111,6 +111,7 @@ export const PAGES = {
     "Entreprise": Entreprise,
     "Expenses": Expenses,
     "FinancialForecasting": FinancialForecasting,
+    "GrandLivre": GrandLivre,
     "Home": Home,
     "InvitationProcess": InvitationProcess,
     "Leasing": Leasing,
@@ -132,7 +133,6 @@ export const PAGES = {
     "Transactions": Transactions,
     "VirtualReceptionist": VirtualReceptionist,
     "Visas": Visas,
-    "GrandLivre": GrandLivre,
 }
 
 export const pagesConfig = {

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, DollarSign, Filter, RefreshCw, CreditCard, Building2 } from 'lucide-react';
+import { BookOpen, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, DollarSign, Filter, RefreshCw, CreditCard, Building2, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'sonner';
