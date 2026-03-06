@@ -7,9 +7,41 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Upload, X, FileText, AlertCircle, CheckCircle, Info, Sparkles, ScanLine, Copy, Zap, BarChart3 } from 'lucide-react';
+import { Upload, X, FileText, AlertCircle, CheckCircle, Info, Sparkles, ScanLine, Copy, Zap, BarChart3, ChevronDown, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import AITransactionAutocomplete from '@/components/ai/AITransactionAutocomplete';
+
+// PCG Operations — same list as in BookingWorkflow
+const PCG_OPERATIONS = [
+  { module: 'Achats & Fournisseurs', label: 'Facture fournisseur à payer', journal: 'ACH', debit: '6xxx Charges', credit: '401 Fournisseur', bookingType: 'Facture fournisseur', operationType: 'Dépense non payée' },
+  { module: 'Achats & Fournisseurs', label: 'Facture fournisseur réglée', journal: 'ACH', debit: '6xxx Charges', credit: '512 Banque', bookingType: 'Facture fournisseur', operationType: 'Dépense payée' },
+  { module: 'Achats & Fournisseurs', label: 'Achat immédiat / Reçu', journal: 'OD', debit: '6xxx Charges', credit: '53 / 512', bookingType: 'Note de frais', operationType: 'Dépense payée' },
+  { module: 'Personnel & Salaires', label: 'Salaires versés', journal: 'SAL', debit: '641 Salaires', credit: '43x Charges sociales', bookingType: 'Paie', operationType: 'Dépense payée' },
+  { module: 'Personnel & Salaires', label: 'Note de frais employé', journal: 'OD', debit: '625 Frais divers', credit: '455 Employé', bookingType: 'Note de frais', operationType: 'Note de frais / Avance' },
+  { module: 'Banque & Financements', label: 'Remboursement emprunt bancaire', journal: 'BNQ', debit: '164 Emprunt', credit: '512 Banque', bookingType: 'Remboursement prêt', operationType: 'Remboursement prêt' },
+  { module: 'Banque & Financements', label: 'Frais bancaires / Prélèvements', journal: 'BNQ', debit: '627 Frais bancaires', credit: '512 Banque', bookingType: 'Banque', operationType: 'Dépense payée' },
+  { module: 'Impôts & Cotisations', label: 'Déclaration CNSS / ITS', journal: 'CNSS', debit: '645 Charges sociales', credit: '43x Charges sociales', bookingType: 'Impôts & Taxes', operationType: 'Dépense payée' },
+  { module: 'Divers', label: 'Autre dépense / OD', journal: 'OD', debit: 'Selon opération', credit: 'Selon opération', bookingType: 'Autre', operationType: 'Autre / Divers' },
+  { module: 'Partenaires & Investissements', label: 'Apport en capital', journal: 'BNQ', debit: '512 Banque', credit: '101 Capital', bookingType: 'Apport capital', operationType: 'Apport en capital' },
+  { module: 'Clients & Ventes', label: 'Facture client à encaisser', journal: 'VTE', debit: '411 Clients', credit: '7xxx Ventes', bookingType: 'Facture client', operationType: 'Revenu / Vente' },
+  { module: 'Clients & Ventes', label: 'Paiement client reçu', journal: 'VTE', debit: '512 Banque', credit: '411 Clients', bookingType: 'Facture client', operationType: 'Paiement reçu client' },
+  { module: 'Dettes centralisées', label: 'Dette fournisseur', journal: 'ACH', debit: '606 Achats', credit: '401 Fournisseur', bookingType: 'Dette fournisseur', operationType: 'Dette fournisseur' },
+  { module: 'Dettes centralisées', label: 'Dette employé', journal: 'OD', debit: '455 Employé', credit: '512 Banque / 53 Espèces', bookingType: 'Dette employé', operationType: 'Dette employé' },
+  { module: 'Dettes centralisées', label: 'Dette partenaire', journal: 'BNQ / OD', debit: 'Selon type', credit: '101 Capital / 512 Banque', bookingType: 'Dette partenaire', operationType: 'Dette partenaire' },
+  { module: 'Dettes centralisées', label: 'Dette banque / financement', journal: 'BNQ', debit: '164 Emprunt', credit: '512 Banque', bookingType: 'Dette banque', operationType: 'Dette banque' },
+  { module: 'Dettes centralisées', label: 'Dette investisseur', journal: 'BNQ', debit: '512 Banque', credit: '101 Capital', bookingType: 'Dette investisseur', operationType: 'Dette investisseur' },
+];
+
+const MODULE_ICONS = {
+  'Achats & Fournisseurs': '🛒',
+  'Personnel & Salaires': '🧑‍💼',
+  'Banque & Financements': '🏦',
+  'Impôts & Cotisations': '🏛️',
+  'Divers': '📋',
+  'Partenaires & Investissements': '💼',
+  'Clients & Ventes': '💰',
+  'Dettes centralisées': '📌',
+};
 
 // NPCG Account Mapping
 const NPCG_ACCOUNTS = {
