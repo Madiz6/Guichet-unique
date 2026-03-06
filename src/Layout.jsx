@@ -99,6 +99,11 @@ export default function Layout({ children, currentPageName }) {
       icon: BarChart3,
     },
     {
+      title: "Grand Livre & Dettes",
+      url: createPageUrl("GrandLivre"),
+      icon: BookOpen,
+    },
+    {
       title: "Prévisions IA",
       url: createPageUrl("FinancialForecasting"),
       icon: BarChart3,
