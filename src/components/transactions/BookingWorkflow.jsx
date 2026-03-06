@@ -525,6 +525,7 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         <StepHeader num={1} title={selectedScenario ? selectedScenario.label : 'Que souhaitez-vous enregistrer ?'} done={step > 1} active={step === 1} />
         {open[1] && (
           <div className="pl-2 space-y-4">
+            <PCGGuidePanel />
             {scenarios.map(group => (
               <div key={group.group}>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 px-1">{group.group}</p>
