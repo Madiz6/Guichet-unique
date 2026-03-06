@@ -155,6 +155,12 @@ export default function GrandLivre() {
             <Badge className={balanced ? 'bg-green-100 text-green-800 text-sm px-3 py-1' : 'bg-red-100 text-red-800 text-sm px-3 py-1'}>
               {balanced ? <><CheckCircle className="w-3.5 h-3.5 mr-1 inline" />Bilan équilibré</> : <><AlertTriangle className="w-3.5 h-3.5 mr-1 inline" />Déséquilibre détecté</>}
             </Badge>
+            {missingLedger > 0 && (
+              <Button size="sm" onClick={handleBackfill} disabled={backfilling} className="bg-amber-600 hover:bg-amber-700 text-white">
+                <Zap className="w-4 h-4 mr-1" />
+                {backfilling ? 'Synchronisation...' : `Importer ${missingLedger} transaction(s) manquante(s)`}
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               <RefreshCw className="w-4 h-4 mr-1" /> Actualiser
             </Button>
