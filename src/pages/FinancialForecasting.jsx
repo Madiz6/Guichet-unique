@@ -710,8 +710,8 @@ Données: ${JSON.stringify({
                     <linearGradient id="cashGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.green} stopOpacity={0.3} /><stop offset="100%" stopColor={C.green} stopOpacity={0} /></linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                  <XAxis dataKey="label" tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="label" tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
                   <ReferenceLine y={cashThreshold} stroke={C.red} strokeDasharray="6 3" label={{ value: 'Seuil critique', fill: C.red, fontSize: 9 }} />
                   <Area type="monotone" dataKey="cumCash" name="Trésorerie" stroke={C.green} strokeWidth={2.5} fill="url(#cashGrad)" dot={{ r: 4, fill: C.green }} />
@@ -912,8 +912,8 @@ Données: ${JSON.stringify({
                 <ResponsiveContainer width="100%" height={220}>
                   <ComposedChart data={forecast.map(d => ({ label: d.label, rev_base: d.base_noWhatIf, rev_sim: d.base, dep_base: d.dep_noWhatIf, dep_sim: d.dep_base }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                    <XAxis dataKey="label" tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="label" tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                     <Tooltip content={<DarkTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 10 }} />
                     <Bar dataKey="rev_base" name="Rev. base" fill={`${C.blue}55`} radius={[3, 3, 0, 0]} />
@@ -950,7 +950,7 @@ Données: ${JSON.stringify({
                 <ComposedChart data={varianceData} barCategoryGap="30%">
                   <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
                   <XAxis dataKey="period" tick={{ fill: C.text2, fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
                   <Bar dataKey="prevRev" name="Rev. prévus" fill={`${C.blue}55`} radius={[3, 3, 0, 0]} />
