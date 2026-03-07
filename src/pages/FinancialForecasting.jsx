@@ -1321,7 +1321,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                 </thead>
                 <tbody>
                   {monthlyTable.map((row, i) => (
-                    <tr key={i} style={{ background: i % 2 === 0 ? C.bg0 : 'transparent' }}>
+                    <tr key={i} style={{ background: i % 2 === 0 ? '#FAFAFA' : 'transparent' }}>
                       <td style={{ padding: '12px 14px', fontWeight: 700, color: '#2563EB' }}>{row.label}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: C.green }}>{fmt(row.rev)} FDJ</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: C.red }}>{fmt(row.dep)} FDJ</td>
