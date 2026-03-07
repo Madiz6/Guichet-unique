@@ -262,10 +262,13 @@ export default function Transactions() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-            <Card className="border-0 shadow-lg">
+            <Card
+              className={`border-0 shadow-lg cursor-pointer transition hover:shadow-xl ${stats.toBook > 0 ? 'ring-2 ring-amber-300' : ''}`}
+              onClick={() => { if (stats.toBook > 0) setActiveTab('unbooked'); }}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stats.toBook > 0 ? 'from-amber-400 to-amber-500' : 'from-green-400 to-green-500'} flex items-center justify-center`}>
                     <BookOpen className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -273,7 +276,9 @@ export default function Transactions() {
                     <p className="text-lg font-bold text-[#0A2540]">
                       <span className="text-green-600">{stats.booked}</span>
                       <span className="text-gray-400 text-sm font-normal mx-1">/</span>
-                      <span className="text-amber-600">{stats.toBook} à traiter</span>
+                      <span className={stats.toBook > 0 ? 'text-amber-600' : 'text-green-600'}>
+                        {stats.toBook > 0 ? `${stats.toBook} à traiter` : 'Tout à jour ✓'}
+                      </span>
                     </p>
                   </div>
                 </div>
