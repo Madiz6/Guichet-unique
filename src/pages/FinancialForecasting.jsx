@@ -685,7 +685,7 @@ Données: ${JSON.stringify({
                 return (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                     <div style={{ width: 130, fontSize: 10, color: isTotal ? C.yellow : C.text2, fontWeight: isTotal ? 700 : 400, textAlign: 'right', flexShrink: 0 }}>{d.name}</div>
-                    <div style={{ flex: 1, height: 24, background: C.bg2, borderRadius: 4, overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ flex: 1, height: 24, background: '#F5F5F5', borderRadius: 4, overflow: 'hidden', position: 'relative' }}>
                       <div style={{ position: 'absolute', top: 0, bottom: 0, left: d.value >= 0 || isTotal ? 0 : 'auto', right: d.value < 0 && !isTotal ? 0 : 'auto', width: `${w}%`, background: color, opacity: 0.85, borderRadius: 4, transition: 'width 1s ease' }} />
                     </div>
                     <div style={{ width: 110, fontSize: 11, fontWeight: 700, color, textAlign: 'right', fontFamily: 'monospace', flexShrink: 0 }}>
