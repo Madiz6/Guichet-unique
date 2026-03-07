@@ -153,7 +153,7 @@ function CashHeatmap({ data, cols }) {
                       background: s.bg, color: s.color, textAlign: 'center', borderRadius: 6,
                       padding: '8px 6px', fontFamily: 'monospace', fontSize: 10, fontWeight: 700,
                       cursor: 'default', transition: 'transform 0.1s',
-                      border: c.forecast ? `1px solid ${C.blue}44` : `1px solid transparent`,
+                      border: c.forecast ? `1px solid #2563EB44` : `1px solid transparent`,
                     }}
                     onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
                     onMouseLeave={e => e.currentTarget.style.transform = ''}>
