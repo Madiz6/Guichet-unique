@@ -1361,7 +1361,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
         {activeTab === 'ia' && (
           <div style={{ display: 'grid', gap: 14 }}>
             {!aiInsights ? (
-              <div style={{ ...card, border: `1px solid ${C.purple}33`, textAlign: 'center', padding: 48 }}>
+              <div style={{ ...card, border: '1px solid #E5E7EB', textAlign: 'center', padding: 48 }}>
                 <div style={{ fontSize: 40, marginBottom: 16 }}>🤖</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Analyse IA non générée</div>
                 <div style={{ fontSize: 12, color: '#6B6B6B', marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>
