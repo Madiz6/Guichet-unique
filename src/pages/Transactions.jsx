@@ -116,8 +116,8 @@ export default function Transactions() {
     const matchesPayment = filters.paymentMethod === 'all' || t.payment_method === filters.paymentMethod;
     const matchesSource = filters.source === 'all' || t.source === filters.source;
     const matchesBooking = filters.bookingStatus === 'all' ||
-      (filters.bookingStatus === 'booked' && t.booking_status) ||
-      (filters.bookingStatus === 'unbooked' && !t.booking_status);
+      (filters.bookingStatus === 'booked' && isBooked(t)) ||
+      (filters.bookingStatus === 'unbooked' && !isBooked(t));
     const matchesStatus = filters.status === 'all' || t.status === filters.status;
 
     let matchesDate = true;
