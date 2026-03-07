@@ -264,7 +264,14 @@ export default function TransactionWizard({ transaction, onSubmit, onCancel, all
           {step === 2 && (
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-gray-900">Détails de la transaction</h3>
-              
+
+              {/* AI Smart Suggestions */}
+              <SmartSuggestionBanner
+                suggestions={activeSuggestions}
+                onAccept={handleAcceptSuggestion}
+                onDismiss={handleDismissSuggestion}
+              />
+
               <div>
                 <Label>Date *</Label>
                 <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} required className="mt-2" />
