@@ -1183,7 +1183,7 @@ Données: ${JSON.stringify({
               </div>
             ) : (
               <>
-                <div style={{ background: `linear-gradient(135deg,${C.blue}11,${C.purple}11)`, borderRadius: 16, padding: 22, border: `1px solid ${C.purple}33` }}>
+                <div style={{ background: '#F9FAFB', borderRadius: 12, padding: 20, border: '1px solid #E5E7EB', borderLeft: '4px solid #1A1A1A' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg,${C.blue},${C.purple})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🤖</div>
                     <div>
