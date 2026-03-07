@@ -158,6 +158,10 @@ export default function Transactions() {
     !t.linked_settlement_id
   );
 
+  // Behavioral engine
+  const { getAutomationOpportunities } = useBehavioralSuggestions(transactions);
+  const automationOpportunities = getAutomationOpportunities(transactions);
+
   // "À comptabiliser" = transactions not yet booked, excluding settlement rows
   const toBookList = transactions.filter(t => !isBooked(t) && !t.is_settlement);
 
