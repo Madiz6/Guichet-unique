@@ -311,6 +311,12 @@ export default function Transactions() {
                 <TabsTrigger value="expense">
                   Dépenses ({transactions.filter(t => t.type === 'Dépense').length})
                 </TabsTrigger>
+                {toBookList.length > 0 && (
+                  <TabsTrigger value="unbooked" className="text-amber-600">
+                    <Clock className="w-3.5 h-3.5 mr-1" />
+                    À comptabiliser ({toBookList.length})
+                  </TabsTrigger>
+                )}
                 <TabsTrigger value="debts" className="relative">
                   Dettes ouvertes
                   {openDebts.length > 0 && (
