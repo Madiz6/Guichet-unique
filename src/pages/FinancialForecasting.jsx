@@ -1367,7 +1367,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                 <div style={{ fontSize: 12, color: '#6B6B6B', marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>
                   Cliquez sur "Analyse IA" en haut pour des recommandations personnalisées basées sur vos données réelles, scénarios et paramètres what-if.
                 </div>
-                <button onClick={generateAI} disabled={isGenerating} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', background: `linear-gradient(135deg,${C.purple},${C.blue})`, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700 }}>
+                <button onClick={generateAI} disabled={isGenerating} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', background: '#1A1A1A', color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700 }}>
                   {isGenerating ? '⏳ Analyse en cours...' : '🤖 Lancer l\'analyse IA'}
                 </button>
               </div>
