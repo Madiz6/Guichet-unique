@@ -217,6 +217,12 @@ export default function Transactions() {
         {/* AI Anomaly Detector */}
         <AIAnomalyDetector transactions={transactions} />
 
+        {/* Behavioral Automation Opportunities */}
+        <AutomationOpportunities
+          opportunities={automationOpportunities}
+          onApply={(id, field, value) => updateMutation.mutate({ id, data: { [field]: value } })}
+        />
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
