@@ -202,6 +202,7 @@ export default function FinancialForecasting() {
     newHires: 0,
     newLoan: 0,          // FDJ injected
     revenueGrowth: 0,    // % additional growth
+    unexpectedExpense: 0, // one-off unexpected expense FDJ
   });
 
   // ── data fetching (consistent with Comptabilite & EtatsFinanciers) ──────
