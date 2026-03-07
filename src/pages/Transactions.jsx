@@ -23,6 +23,8 @@ import TransactionReports from '../components/transactions/TransactionReports';
 import AIAnomalyDetector from '../components/ai/AIAnomalyDetector';
 import AdvancedFilters, { DEFAULT_FILTERS } from '../components/transactions/AdvancedFilters';
 import BulkEditBar from '../components/transactions/BulkEditBar';
+import useBehavioralSuggestions from '../components/transactions/useBehavioralSuggestions';
+import AutomationOpportunities from '../components/transactions/AutomationOpportunities';
 
 export default function Transactions() {
   const [showForm, setShowForm] = useState(false);
