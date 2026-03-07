@@ -925,7 +925,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
         {activeTab === 'whatif' && (
           <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 16 }}>
             {/* Controls */}
-            <div style={{ ...card, border: `1px solid ${C.purple}33` }}>
+            <div style={{ ...card }}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🎛️ Simulateur What-If</div>
               <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 18 }}>Paramètres recalculés en temps réel</div>
 
