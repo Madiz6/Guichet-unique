@@ -167,7 +167,7 @@ function CashHeatmap({ data, cols }) {
       </table>
       <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 10, color: '#6B6B6B', alignItems: 'center', flexWrap: 'wrap' }}>
         <span>Légende :</span>
-        {[{ bg: `${C.red}33`, c: C.red, l: 'Critique' }, { bg: `${C.yellow}33`, c: C.yellow, l: 'Faible' }, { bg: `${C.blue}33`, c: C.blueLight, l: 'Moyen' }, { bg: `${C.green}33`, c: C.green, l: 'Fort' }].map(x => (
+        {[{ bg: `${C.red}33`, c: C.red, l: 'Critique' }, { bg: `${C.yellow}33`, c: C.yellow, l: 'Faible' }, { bg: '#2563EB33', c: '#2563EB', l: 'Moyen' }, { bg: `${C.green}33`, c: C.green, l: 'Fort' }].map(x => (
           <span key={x.l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 12, height: 12, background: x.bg, borderRadius: 3, display: 'inline-block', border: `1px solid ${x.c}44` }} />
             <span style={{ color: x.c }}>{x.l}</span>
