@@ -462,6 +462,7 @@ export default function Transactions() {
           <TransactionWizard
             onSubmit={(data) => createMutation.mutate(data)}
             onCancel={() => setShowForm(false)}
+            allTransactions={transactions}
           />
         </DialogContent>
       </Dialog>
