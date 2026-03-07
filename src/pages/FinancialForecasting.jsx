@@ -335,7 +335,7 @@ Sois très précis, cite des chiffres, et adapte les conseils au contexte djibou
               Prévisions Financières <span style={{ background: 'linear-gradient(90deg,#2563eb,#7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>IA 360°</span>
             </div>
             <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>
-              {transactions.length} transactions · Projection {horizon} mois · {format(new Date(), 'dd MMM yyyy', { locale: fr })}
+              {transactions.filter(t => !t.is_settlement).length} transactions · {ledgerEntries.length} écritures GL · {debts.filter(d => d.status !== 'Réglée').length} dettes actives · Projection {horizon} mois
             </div>
           </div>
         </div>
