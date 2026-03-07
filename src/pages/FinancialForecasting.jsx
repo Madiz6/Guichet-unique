@@ -616,7 +616,7 @@ Données: ${JSON.stringify({
                       <span style={{ fontSize: 10, color: C.text2 }}>{d.metric}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, color: d.score >= 75 ? C.green : d.score >= 55 ? C.yellow : C.red }}>{Math.round(d.score)}/100</span>
                     </div>
-                    <div style={{ height: 4, background: C.bg2, borderRadius: 99 }}>
+                    <div style={{ height: 4, background: '#F5F5F5', borderRadius: 99 }}>
                       <div style={{ width: `${Math.round(d.score)}%`, height: '100%', background: d.score >= 75 ? C.green : d.score >= 55 ? C.yellow : C.red, borderRadius: 99, transition: 'width 1s ease' }} />
                     </div>
                   </div>
@@ -967,7 +967,7 @@ Données: ${JSON.stringify({
                   <thead>
                     <tr>
                       {['Mois', 'Rev. Prévu', 'Rev. Réel', 'Écart Rev.', '%', 'Dep. Prévues', 'Dep. Réelles', 'Écart Dep.'].map((h, i) => (
-                        <th key={h} style={{ padding: '8px 10px', background: C.bg2, color: C.text2, fontWeight: 700, textAlign: i === 0 ? 'left' : 'right', fontSize: 10, whiteSpace: 'nowrap' }}>{h}</th>
+                        <th key={h} style={{ padding: '8px 10px', background: '#F5F5F5', color: C.text2, fontWeight: 700, textAlign: i === 0 ? 'left' : 'right', fontSize: 10, whiteSpace: 'nowrap' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1125,7 +1125,7 @@ Données: ${JSON.stringify({
                 <thead>
                   <tr>
                     {['Mois', 'Revenus Prévus', 'Dépenses Prévues', 'Résultat Net', 'Marge Nette', 'Rev. Cumulés', 'Confiance IA'].map((h, i) => (
-                      <th key={h} style={{ padding: '10px 14px', background: C.bg2, color: C.text2, fontWeight: 600, textAlign: i === 0 ? 'left' : 'right', whiteSpace: 'nowrap', borderRadius: i === 0 ? '8px 0 0 8px' : i === 6 ? '0 8px 8px 0' : '' }}>{h}</th>
+                      <th key={h} style={{ padding: '10px 14px', background: '#F5F5F5', color: C.text2, fontWeight: 600, textAlign: i === 0 ? 'left' : 'right', whiteSpace: 'nowrap', borderRadius: i === 0 ? '8px 0 0 8px' : i === 6 ? '0 8px 8px 0' : '' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -1142,7 +1142,7 @@ Données: ${JSON.stringify({
                       <td style={{ padding: '12px 14px', textAlign: 'right', color: C.violet, fontWeight: 700 }}>{fmt(row.cumRev)} FDJ</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-                          <div style={{ width: 48, height: 4, background: C.bg2, borderRadius: 99 }}>
+                          <div style={{ width: 48, height: 4, background: '#F5F5F5', borderRadius: 99 }}>
                             <div style={{ width: `${row.confidence}%`, height: '100%', borderRadius: 99, background: row.confidence > 80 ? C.green : row.confidence > 65 ? C.yellow : C.red }} />
                           </div>
                           <span style={{ fontSize: 10, color: C.text2 }}>{row.confidence}%</span>
@@ -1150,7 +1150,7 @@ Données: ${JSON.stringify({
                       </td>
                     </tr>
                   ))}
-                  <tr style={{ background: C.bg2, fontWeight: 800 }}>
+                  <tr style={{ background: '#F5F5F5', fontWeight: 800 }}>
                     <td style={{ padding: '12px 14px', color: C.text0, borderRadius: '8px 0 0 8px' }}>TOTAL {horizon}M</td>
                     <td style={{ padding: '12px 14px', textAlign: 'right', color: C.green }}>{fmt(monthlyTable.reduce((s, r) => s + r.rev, 0))} FDJ</td>
                     <td style={{ padding: '12px 14px', textAlign: 'right', color: C.red }}>{fmt(monthlyTable.reduce((s, r) => s + r.dep, 0))} FDJ</td>
