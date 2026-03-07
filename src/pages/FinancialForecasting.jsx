@@ -1050,8 +1050,8 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                     <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                     <Tooltip content={<DarkTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 10 }} />
-                    <Bar dataKey="rev_base" name="Rev. base" fill={`${C.blue}55`} radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="rev_sim" name="Rev. simulation" fill={C.blue} radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="rev_base" name="Rev. base" fill="#93C5FD" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="rev_sim" name="Rev. simulation" fill="#2563EB" radius={[3, 3, 0, 0]} />
                     <Line type="monotone" dataKey="dep_base" name="Dep. base" stroke={`${C.red}88`} strokeWidth={2} strokeDasharray="4 2" dot={false} />
                     <Line type="monotone" dataKey="dep_sim" name="Dep. simulation" stroke={C.red} strokeWidth={2} dot={false} />
                   </ComposedChart>
