@@ -157,18 +157,36 @@ export async function markDeclarationTransactionPaid(declaration, paymentData = 
  * Registers the rent income.
  */
 export async function registerLeasePaymentTransaction(leasePayment, lease, asset) {
-  await safeCreate({
-    date: leasePayment.date_paiement || format(new Date(), "yyyy-MM-dd"),
-    description: `Loyer — ${asset?.nom || "Actif"} — ${leasePayment.periode}`,
-    contact_name: lease?.locataire_nom || "",
-    amount: leasePayment.montant || 0,
-    total_amount: leasePayment.montant || 0,
-    type: "Revenu",
-    source: "Location",
-    source_id: leasePayment.id,
-    category: "Revenus locatifs",
-    payment_method: leasePayment.methode_paiement || "Virement",
-    status: "Payé",
-    notes: `Loyer — contrat: ${lease?.numero_contrat || "N/A"} — ${leasePayment.periode}`,
-  });
+  try {
+    // Check if a transaction already exists for this payment to avoid duplicates
+    const existing = await meras.entities.Transaction.filter({
+      source: "Location",
+      source_id: leasePayment.id,
+    });
+    if (existing.length > 0) {
+      await meras.entities.Transaction.update(existing[0].id, {
+        status: "Payé",
+        payment_method: leasePayment.methode_paiement || "Virement",
+      });
+      return existing[0];
+    }
+    const created = await meras.entities.Transaction.create({
+      status: "Payé",
+      auto_generated: true,
+      date: leasePayment.date_paiement || format(new Date(), "yyyy-MM-dd"),
+      description: `Loyer — ${asset?.nom || "Actif"} — ${leasePayment.periode}`,
+      contact_name: lease?.locataire_nom || "",
+      amount: leasePayment.montant || 0,
+      total_amount: leasePayment.montant || 0,
+      type: "Revenu",
+      source: "Location",
+      source_id: leasePayment.id,
+      category: "Revenus locatifs",
+      payment_method: leasePayment.methode_paiement || "Virement",
+      notes: `Loyer — contrat: ${lease?.numero_contrat || "N/A"} — ${leasePayment.periode}`,
+    });
+    return created;
+  } catch (e) {
+    console.warn("[autoTransactions] registerLeasePaymentTransaction error:", e.message);
+  }
 }
