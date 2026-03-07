@@ -907,7 +907,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                     <div style={{ textAlign: 'center', fontSize: 36, fontWeight: 800, color, fontFamily: 'monospace' }}>{score}</div>
                     <div style={{ textAlign: 'center', fontSize: 11, color: '#6B6B6B', marginTop: 4 }}>{score > 60 ? 'Risque Élevé' : score > 30 ? 'Risque Modéré' : 'Risque Faible'}</div>
                     <div style={{ marginTop: 18 }}>
-                      {[{ label: 'Alertes critiques', count: hC, color: C.red }, { label: 'Avertissements', count: mC, color: C.yellow }, { label: 'Infos', count: alerts.filter(a => a.level === 'info').length, color: C.blue }].map(item => (
+                      {[{ label: 'Alertes critiques', count: hC, color: C.red }, { label: 'Avertissements', count: mC, color: C.yellow }, { label: 'Infos', count: alerts.filter(a => a.level === 'info').length, color: '#2563EB' }].map(item => (
                         <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                           <span style={{ fontSize: 11, color: '#6B6B6B' }}>{item.label}</span>
                           <span style={{ fontSize: 13, fontWeight: 800, color: item.color, background: `${item.color}18`, padding: '2px 10px', borderRadius: 20 }}>{item.count}</span>
