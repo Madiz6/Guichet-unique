@@ -221,7 +221,7 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
     try {
       // 1. Persist to Transaction (existing logic)
       await persist({
-        booking_status: 'booked',
+        booking_status: 'booked', // always write 'booked' — never 'Comptabilisé' — for consistent filtering
         booking_type: bookingType,
         operation_type: operationType,
         journal_entries: entries,
