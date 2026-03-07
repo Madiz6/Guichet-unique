@@ -663,7 +663,7 @@ Données: ${JSON.stringify({
                   <Tooltip content={<DarkTooltip />} />
                   <Legend wrapperStyle={{ fontSize: 10, paddingTop: 8 }} />
                   <Bar dataKey="pessimiste" name="Pessimiste" fill={`${C.red}88`} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="base" name="Base" fill={C.accentBlue} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="base" name="Base" fill="#2563EB" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="optimiste" name="Optimiste" fill={`${C.green}88`} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
