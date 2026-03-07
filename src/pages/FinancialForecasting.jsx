@@ -582,20 +582,20 @@ Données: ${JSON.stringify({
               <ResponsiveContainer width="100%" height={290}>
                 <ComposedChart data={combined}>
                   <defs>
-                    <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.blue} stopOpacity={0.25} /><stop offset="100%" stopColor={C.blue} stopOpacity={0} /></linearGradient>
-                    <linearGradient id="gDep" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.red} stopOpacity={0.2} /><stop offset="100%" stopColor={C.red} stopOpacity={0} /></linearGradient>
+                    <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.accentBlue} stopOpacity={0.15} /><stop offset="100%" stopColor={C.accentBlue} stopOpacity={0} /></linearGradient>
+                    <linearGradient id="gDep" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.red} stopOpacity={0.12} /><stop offset="100%" stopColor={C.red} stopOpacity={0} /></linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                  <XAxis dataKey="label" tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
+                  <XAxis dataKey="label" tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
                   <ReferenceLine x={historical[historical.length - 1]?.label} stroke={C.yellow} strokeDasharray="5 3" label={{ value: 'Auj.', fill: C.yellow, fontSize: 9 }} />
-                  <Area type="monotone" dataKey="rev" name="Revenus réels" stroke={C.blue} fill="url(#gRev)" strokeWidth={2} dot={{ r: 2, fill: C.blue }} connectNulls={false} />
+                  <Area type="monotone" dataKey="rev" name="Revenus réels" stroke={C.accentBlue} fill="url(#gRev)" strokeWidth={2} dot={{ r: 2, fill: C.accentBlue }} connectNulls={false} />
                   <Area type="monotone" dataKey="fc_rev" name="Revenus prévus" stroke={sc} fill="url(#gRev)" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 2, fill: sc }} connectNulls={false} />
                   <Area type="monotone" dataKey="dep" name="Dépenses réelles" stroke={C.red} fill="url(#gDep)" strokeWidth={2} dot={{ r: 2, fill: C.red }} connectNulls={false} />
                   <Area type="monotone" dataKey="fc_dep" name="Dépenses prévues" stroke={C.orange} fill="url(#gDep)" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 2, fill: C.orange }} connectNulls={false} />
                   <Line type="monotone" dataKey="net" name="Net réel" stroke={C.green} strokeWidth={2.5} dot={{ r: 3, fill: C.green }} connectNulls={false} />
-                  <Line type="monotone" dataKey="fc_net" name="Net prévu" stroke="#34d399" strokeWidth={2.5} strokeDasharray="6 3" dot={{ r: 3, fill: '#34d399' }} connectNulls={false} />
+                  <Line type="monotone" dataKey="fc_net" name="Net prévu" stroke="#059669" strokeWidth={2.5} strokeDasharray="6 3" dot={{ r: 3, fill: '#059669' }} connectNulls={false} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
