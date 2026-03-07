@@ -69,22 +69,23 @@ Deno.serve(async (req) => {
       if (existingDebts && existingDebts.length > 0) {
         debt = existingDebts[0];
       } else {
-      debt = await base44.asServiceRole.entities.DebtCentralized.create({
-        transaction_id,
-        debt_type: tpl.debt_type,
-        contact_name: transaction.contact_name || '',
-        description: transaction.description || template_type,
-        amount_due: amount,
-        amount_paid: 0,
-        amount_remaining: amount,
-        status: 'Active',
-        due_date: transaction.date_echeance || null,
-        debit_account: tpl.debit,
-        credit_account: tpl.credit,
-        journal: tpl.journal,
-        ledger_entry_id: entry.id,
-        department: transaction.department || '',
-      });
+        debt = await base44.asServiceRole.entities.DebtCentralized.create({
+          transaction_id,
+          debt_type: tpl.debt_type,
+          contact_name: transaction.contact_name || '',
+          description: transaction.description || template_type,
+          amount_due: amount,
+          amount_paid: 0,
+          amount_remaining: amount,
+          status: 'Active',
+          due_date: transaction.date_echeance || null,
+          debit_account: tpl.debit,
+          credit_account: tpl.credit,
+          journal: tpl.journal,
+          ledger_entry_id: entry.id,
+          department: transaction.department || '',
+        });
+      }
     }
 
     // Update the transaction to mark it as booked
