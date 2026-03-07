@@ -1122,13 +1122,51 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                   </tbody>
                 </table>
               </div>
-              <div style={{ marginTop: 14, padding: '10px 14px', background: `${C.blue}11`, borderRadius: 8, fontSize: 11, color: '#374151', lineHeight: 1.7 }}>
-                <span style={{ color: '#2563EB', fontWeight: 700 }}>🤖 Analyse IA :</span> Sur les 3 derniers mois, précision du modèle à{' '}
-                <span style={{ color: C.green, fontWeight: 700 }}>
-                  {varianceData.length > 0 ? (100 - varianceData.reduce((s, r) => s + Math.abs(r.pRev), 0) / varianceData.length).toFixed(1) : '—'}%
-                </span>. Le modèle est recalibré mensuellement sur vos données réelles.
+              <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                <div style={{ padding: '10px 14px', background: '#EFF6FF', borderRadius: 8, fontSize: 11, color: '#374151', lineHeight: 1.7, flex: 1 }}>
+                  <span style={{ color: '#2563EB', fontWeight: 700 }}>🤖 Précision modèle :</span>{' '}
+                  <span style={{ color: C.green, fontWeight: 700 }}>
+                    {varianceData.length > 0 ? (100 - varianceData.reduce((s, r) => s + Math.abs(r.pRev), 0) / varianceData.length).toFixed(1) : '—'}%
+                  </span>{' '}sur les 3 derniers mois · Recalibrage mensuel sur données réelles
+                </div>
+                <button onClick={analyzeVarianceCauses} disabled={isAnalyzingVariance} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1A1A1A', color: '#fff', fontSize: 11, fontWeight: 700, cursor: isAnalyzingVariance ? 'not-allowed' : 'pointer', opacity: isAnalyzingVariance ? 0.7 : 1, whiteSpace: 'nowrap' }}>
+                  {isAnalyzingVariance ? '⏳ Analyse...' : '🤖 Expliquer les écarts (IA)'}
+                </button>
               </div>
             </div>
+
+            {/* AI Variance Causes */}
+            {varianceCauses && varianceCauses.length > 0 && (
+              <div style={card}>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🤖 Causes Probables des Écarts — Analyse IA</div>
+                <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 14 }}>Explication automatique des écarts Réel vs Prévu avec recommandations</div>
+                <div style={{ display: 'grid', gap: 10 }}>
+                  {varianceCauses.map((cause, i) => (
+                    <div key={i} style={{ background: '#F9FAFB', borderRadius: 10, padding: 14, border: '1px solid #E5E7EB', borderLeft: `4px solid ${varianceData[i]?.pRev >= 0 ? C.green : C.red}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: '#2563EB', fontFamily: 'monospace' }}>{cause.mois}</span>
+                        <span style={{ fontSize: 9, padding: '2px 8px', borderRadius: 20, fontWeight: 700, background: varianceData[i]?.pRev >= 0 ? `${C.green}18` : `${C.red}18`, color: varianceData[i]?.pRev >= 0 ? C.green : C.red }}>
+                          {varianceData[i]?.pRev >= 0 ? `+${varianceData[i]?.pRev?.toFixed(1)}%` : `${varianceData[i]?.pRev?.toFixed(1)}%`}
+                        </span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                        <div>
+                          <div style={{ fontSize: 9, color: '#6B6B6B', marginBottom: 3, fontWeight: 700 }}>CAUSE REVENUS</div>
+                          <div style={{ fontSize: 11, color: '#374151' }}>{cause.cause_revenus}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 9, color: '#6B6B6B', marginBottom: 3, fontWeight: 700 }}>CAUSE DÉPENSES</div>
+                          <div style={{ fontSize: 11, color: '#374151' }}>{cause.cause_depenses}</div>
+                        </div>
+                      </div>
+                      <div style={{ padding: '7px 10px', background: '#fff', borderRadius: 7, fontSize: 11, color: '#2563EB', border: '1px solid #DBEAFE' }}>
+                        💡 {cause.action}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
