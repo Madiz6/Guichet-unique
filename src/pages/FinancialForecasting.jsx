@@ -1011,7 +1011,7 @@ Données: ${JSON.stringify({
               <div style={card}>
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 12 }}>🔴 Semaines critiques (flux faibles)</div>
                 {heatmapData.filter((_, wi) => wi === 4 || wi === 1).map((row, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #E5E7EB' }}>
                     <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#374151' }}>{row.week}</span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: C.red, fontFamily: 'monospace' }}>
                       {fmtS(Math.min(...heatmapCols.map(c => row[c.key] || 0)) * 1000)} FDJ
@@ -1024,7 +1024,7 @@ Données: ${JSON.stringify({
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 12 }}>🟢 Semaines favorables (flux forts)</div>
                 {heatmapData.filter((_, wi) => wi === 2).map((row, i) => (
                   heatmapCols.slice(0, 4).map((col, j) => (
-                    <div key={j} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
+                    <div key={j} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #E5E7EB' }}>
                       <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#374151' }}>{row.week} / {col.label}</span>
                       <span style={{ fontSize: 12, fontWeight: 700, color: C.green, fontFamily: 'monospace' }}>{fmtS((row[col.key] || 0) * 1000)} FDJ</span>
                       <span style={{ fontSize: 9, color: C.green, background: `${C.green}18`, padding: '2px 8px', borderRadius: 20, fontWeight: 700 }}>Fort</span>
@@ -1059,7 +1059,7 @@ Données: ${JSON.stringify({
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>🔄 Feedback — Amélioration continue</div>
                 <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 12 }}>Marquez chaque prévision pour affiner la précision du modèle IA</div>
                 {varianceData.map((d, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #E5E7EB' }}>
                     <div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: '#2563EB', marginRight: 10, fontFamily: 'monospace' }}>{d.period}</span>
                       <span style={{ fontSize: 11, color: '#6B6B6B' }}>Prévu: {fmtS(d.prevRev)} · Réel: {fmtS(d.actRev)}</span>
@@ -1106,7 +1106,7 @@ Données: ${JSON.stringify({
                 { label: 'Échéances fiscales', active: true },
                 { label: 'Variation BFR', active: true },
               ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #E5E7EB' }}>
                   <span style={{ fontSize: 11, color: item.active ? C.text1 : C.text2 }}>{item.label}</span>
                   <span style={{ fontSize: 9, fontWeight: 700, color: item.active ? C.green : C.text2, background: item.active ? `${C.green}18` : `${C.bg2}`, padding: '2px 8px', borderRadius: 20 }}>{item.active ? 'ON' : 'OFF'}</span>
                 </div>
