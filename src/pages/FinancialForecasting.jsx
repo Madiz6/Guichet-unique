@@ -657,14 +657,14 @@ Données: ${JSON.stringify({
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>Comparaison 3 scénarios — Revenus mensuels</div>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={forecast} barCategoryGap="30%">
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
-                  <XAxis dataKey="label" tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
                   <Legend wrapperStyle={{ fontSize: 10, paddingTop: 8 }} />
-                  <Bar dataKey="pessimiste" name="Pessimiste" fill={`${C.red}66`} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="base" name="Base" fill={C.blue} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="optimiste" name="Optimiste" fill={`${C.green}66`} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="pessimiste" name="Pessimiste" fill={`${C.red}88`} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="base" name="Base" fill={C.accentBlue} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="optimiste" name="Optimiste" fill={`${C.green}88`} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
