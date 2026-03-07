@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { meras } from "@/components/core/MerasClient";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Upload, X, FileText, ChevronRight, ChevronLeft, CheckCircle, AlertCircl
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ENHANCED_CATEGORIES } from '../financials/AccountingCategoryMaster';
+import useBehavioralSuggestions from './useBehavioralSuggestions';
+import SmartSuggestionBanner from './SmartSuggestionBanner';
 
 export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
   const [step, setStep] = useState(1);
