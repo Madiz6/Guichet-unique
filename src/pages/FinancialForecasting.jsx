@@ -189,6 +189,10 @@ export default function FinancialForecasting() {
   const [aiInsights, setAiInsights] = useState(null);
   const [cashThreshold, setCashThreshold] = useState(2000000);
   const [feedbackGiven, setFeedbackGiven] = useState({});
+  const [varianceCauses, setVarianceCauses] = useState(null);
+  const [isAnalyzingVariance, setIsAnalyzingVariance] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [alertEmailSent, setAlertEmailSent] = useState(false);
 
   // Extended what-if state
   const [whatIf, setWhatIf] = useState({
