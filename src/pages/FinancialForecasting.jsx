@@ -466,70 +466,70 @@ Données: ${JSON.stringify({
     setIsGenerating(false);
   };
 
-  const card = { background: C.bg1, borderRadius: 16, padding: 22, border: `1px solid ${C.border}` };
+  const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' };
 
   return (
-    <div style={{ background: C.bg0, minHeight: '100vh', fontFamily: "'IBM Plex Sans','Segoe UI',sans-serif", color: C.text0 }}>
+    <div style={{ background: '#FAFAFA', minHeight: '100vh', fontFamily: "'IBM Plex Sans','Segoe UI',sans-serif", color: '#1A1A1A' }}>
 
       {/* ── HEADER ── */}
-      <div style={{ background: `linear-gradient(135deg,${C.bg1},${C.bg2})`, borderBottom: `1px solid ${C.border}`, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid #F0F0F0', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
         <Link to={createPageUrl('Comptabilite')}>
-          <button style={{ width: 34, height: 34, borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', cursor: 'pointer', color: C.text2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>←</button>
+          <button style={{ width: 34, height: 34, borderRadius: 8, border: '1px solid #E5E7EB', background: 'transparent', cursor: 'pointer', color: '#6B6B6B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>←</button>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: `linear-gradient(135deg,${C.blue},${C.purple})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>🤖</div>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>🤖</div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.02em' }}>
-              Prévisions Financières <span style={{ background: `linear-gradient(90deg,${C.blue},${C.purple})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>IA 360°</span>
-              <span style={{ fontSize: 10, color: C.text2, fontWeight: 400, marginLeft: 8 }}>v2.0</span>
+            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em', color: '#1A1A1A' }}>
+              Prévisions Financières <span style={{ color: '#1A1A1A' }}>IA 360°</span>
+              <span style={{ fontSize: 10, color: '#6B6B6B', fontWeight: 400, marginLeft: 8 }}>v2.0</span>
             </div>
-            <div style={{ fontSize: 10, color: C.text2, marginTop: 1 }}>
+            <div style={{ fontSize: 10, color: '#6B6B6B', marginTop: 1 }}>
               {transactions.filter(t => !t.is_settlement).length} tx · {ledgerEntries.length} écritures GL · {debts.filter(d => d.status !== 'Réglée').length} dettes actives · Projection {horizon}m
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Granularity */}
-          <div style={{ display: 'flex', background: C.bg0, borderRadius: 8, padding: 3, border: `1px solid ${C.border}` }}>
+          <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 8, padding: 3, border: '1px solid #E5E7EB' }}>
             {[['monthly', 'Mensuel'], ['weekly', 'Hebdo'], ['daily', 'Journalier']].map(([id, lbl]) => (
               <button key={id} onClick={() => setGranularity(id)} style={{
-                padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 700,
-                background: granularity === id ? C.bg2 : 'transparent',
-                color: granularity === id ? C.text0 : C.text2, transition: 'all 0.2s',
+                padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 600,
+                background: granularity === id ? '#1A1A1A' : 'transparent',
+                color: granularity === id ? '#fff' : '#6B6B6B', transition: 'all 0.2s',
               }}>{lbl}</button>
             ))}
           </div>
           {/* Horizon */}
-          <div style={{ display: 'flex', background: C.bg0, borderRadius: 8, padding: 3, border: `1px solid ${C.border}` }}>
+          <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 8, padding: 3, border: '1px solid #E5E7EB' }}>
             {[3, 6, 12].map(h => (
               <button key={h} onClick={() => setHorizon(h)} style={{
                 padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 700,
-                background: horizon === h ? `${C.blue}22` : 'transparent',
-                color: horizon === h ? C.blueLight : C.text2, transition: 'all 0.2s',
+                background: horizon === h ? '#1A1A1A' : 'transparent',
+                color: horizon === h ? '#fff' : '#6B6B6B', transition: 'all 0.2s',
               }}>{h}m</button>
             ))}
           </div>
           {/* Scenario */}
-          <div style={{ display: 'flex', background: C.bg0, borderRadius: 8, padding: 3, border: `1px solid ${C.border}` }}>
+          <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 8, padding: 3, border: '1px solid #E5E7EB' }}>
             {['pessimiste', 'base', 'optimiste'].map(s => {
-              const cols = { pessimiste: C.red, base: C.blue, optimiste: C.green };
+              const cols = { pessimiste: C.red, base: C.accentBlue, optimiste: C.green };
               return (
                 <button key={s} onClick={() => setScenario(s)} style={{
                   padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 700,
-                  background: scenario === s ? `${cols[s]}22` : 'transparent',
-                  color: scenario === s ? cols[s] : C.text2, transition: 'all 0.2s',
+                  background: scenario === s ? cols[s] : 'transparent',
+                  color: scenario === s ? '#fff' : '#6B6B6B', transition: 'all 0.2s',
                 }}>{{ pessimiste: '📉', base: '📊', optimiste: '📈' }[s]} {s.charAt(0).toUpperCase() + s.slice(1)}</button>
               );
             })}
           </div>
           {criticalCount > 0 && (
-            <div style={{ padding: '4px 10px', background: `${C.red}18`, border: `1px solid ${C.red}44`, borderRadius: 8, fontSize: 10, color: C.red, fontWeight: 700 }}>
+            <div style={{ padding: '4px 10px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: 10, color: C.red, fontWeight: 700 }}>
               🔴 {criticalCount} CRITIQUE{criticalCount > 1 ? 'S' : ''}
             </div>
           )}
           <button onClick={generateAI} disabled={isGenerating} style={{
             display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: 'none',
-            background: `linear-gradient(135deg,${C.purple},${C.blue})`, color: '#fff',
+            background: '#1A1A1A', color: '#fff',
             cursor: isGenerating ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 700, opacity: isGenerating ? 0.7 : 1,
           }}>
             {isGenerating ? '⏳ Analyse...' : '🤖 Analyse IA'}
@@ -540,17 +540,17 @@ Données: ${JSON.stringify({
       <div style={{ padding: '18px 24px' }}>
 
         {/* ── AI NARRATIVE BANNER ── */}
-        <div style={{ padding: '12px 16px', background: `linear-gradient(135deg,${C.blue}11,${C.purple}11)`, border: `1px solid ${C.blue}33`, borderRadius: 10, marginBottom: 16, fontSize: 12, color: C.text1, lineHeight: 1.7, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+        <div style={{ padding: '12px 16px', background: '#fff', border: '1px solid #E5E7EB', borderLeft: '4px solid #1A1A1A', borderRadius: '0 10px 10px 0', marginBottom: 16, fontSize: 12, color: '#374151', lineHeight: 1.7, display: 'flex', gap: 10, alignItems: 'flex-start', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <span style={{ fontSize: 16, flexShrink: 0 }}>🤖</span>
           <div>
-            <span style={{ color: C.blueLight, fontWeight: 700, fontSize: 10, letterSpacing: '0.08em', display: 'block', marginBottom: 3 }}>RÉSUMÉ EXÉCUTIF IA — MIS À JOUR EN TEMPS RÉEL</span>
+            <span style={{ color: '#1A1A1A', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em', display: 'block', marginBottom: 3 }}>RÉSUMÉ EXÉCUTIF IA — MIS À JOUR EN TEMPS RÉEL</span>
             {narrative}
           </div>
         </div>
 
         {/* ── KPI CARDS ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 12, marginBottom: 16 }}>
-          <KpiCard icon="💰" label={`Revenus prévus (${horizon}m)`} value={`${fmt(totalRev)} FDJ`} change={incomeTrend} positive={incomeTrend >= 0} color={C.blue} />
+          <KpiCard icon="💰" label={`Revenus prévus (${horizon}m)`} value={`${fmt(totalRev)} FDJ`} change={incomeTrend} positive={incomeTrend >= 0} color={C.accentBlue} />
           <KpiCard icon="📤" label={`Dépenses prévues (${horizon}m)`} value={`${fmt(totalDep)} FDJ`} change={expenseTrend} positive={false} color={C.red} />
           <KpiCard icon="✅" label="Résultat net prévu" value={`${totalNet >= 0 ? '+' : ''}${fmt(totalNet)} FDJ`} change={incomeTrend - expenseTrend} positive={totalNet >= 0} color={C.green} />
           <KpiCard icon="📅" label="Marge nette" value={`${margin.toFixed(1)}%`} positive={margin >= 30} color={C.yellow} sub={`Moy. mensuelle: ${fmt(totalNet / (horizon || 1))} FDJ`} />
@@ -558,7 +558,7 @@ Données: ${JSON.stringify({
         </div>
 
         {/* ── TABS ── */}
-        <div style={{ display: 'flex', gap: 3, marginBottom: 16, background: C.bg1, padding: 4, borderRadius: 10, border: `1px solid ${C.border}`, overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: 3, marginBottom: 16, background: '#fff', padding: 4, borderRadius: 10, border: '1px solid #E5E7EB', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           {[
             { id: 'overview', label: '🗺️ Vue Globale' },
             { id: 'scenarios', label: '🎯 Scénarios' },
