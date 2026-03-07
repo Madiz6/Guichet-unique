@@ -809,7 +809,7 @@ Données: ${JSON.stringify({
               <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 18 }}>Paramètres recalculés en temps réel</div>
 
               {/* Clients */}
-              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: '1px solid #E5E7EB' }}>
                 <div style={{ fontSize: 10, color: C.yellow, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>👤 CLIENTS</div>
                 {[{ key: 'clientDelay', label: 'Retard paiement (jours)', min: 0, max: 90, step: 5, fmt: v => `${v}j`, color: C.yellow }].map(f => (
                   <div key={f.key} style={{ marginBottom: 14 }}>
@@ -843,7 +843,7 @@ Données: ${JSON.stringify({
               </div>
 
               {/* RH */}
-              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: '1px solid #E5E7EB' }}>
                 <div style={{ fontSize: 10, color: C.violet, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>👥 RESSOURCES HUMAINES</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <span style={{ fontSize: 11, color: '#374151' }}>Nouvelles embauches</span>
@@ -856,7 +856,7 @@ Données: ${JSON.stringify({
               </div>
 
               {/* Financement */}
-              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: '1px solid #E5E7EB' }}>
                 <div style={{ fontSize: 10, color: C.green, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>🏦 FINANCEMENT</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <span style={{ fontSize: 11, color: '#374151' }}>Emprunt bancaire</span>
@@ -869,7 +869,7 @@ Données: ${JSON.stringify({
               </div>
 
               {/* Croissance */}
-              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 14, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 14, border: '1px solid #E5E7EB' }}>
                 <div style={{ fontSize: 10, color: C.blue, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>📈 CROISSANCE ADDITIONNELLE</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <span style={{ fontSize: 11, color: '#374151' }}>Taux additionnel</span>
@@ -881,7 +881,7 @@ Données: ${JSON.stringify({
               </div>
 
               <button onClick={() => setWhatIf({ clientDelay: 0, clientChurn: false, clientChurnPct: 20, newHires: 0, newLoan: 0, revenueGrowth: 0 })}
-                style={{ width: '100%', padding: '8px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: '#6B6B6B', fontSize: 11, cursor: 'pointer' }}>
+                style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #E5E7EB', background: 'transparent', color: '#6B6B6B', fontSize: 11, cursor: 'pointer' }}>
                 ↺ Réinitialiser
               </button>
             </div>
@@ -894,7 +894,7 @@ Données: ${JSON.stringify({
                   { label: 'Impact Charges', val: -(whatIf.newHires * 150000 * horizon + whatIf.newLoan * 0.015 * horizon) },
                   { label: 'Impact Net', val: totalNet - (forecast.reduce((s, d) => s + d.base_noWhatIf, 0) - forecast.reduce((s, d) => s + d.dep_noWhatIf, 0)) },
                 ].map(({ label, val }) => (
-                  <div key={label} style={{ background: '#fff', borderRadius: 10, padding: 14, textAlign: 'center', border: `1px solid ${C.border}` }}>
+                  <div key={label} style={{ background: '#fff', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid #E5E7EB' }}>
                     <div style={{ fontSize: 10, color: '#6B6B6B', marginBottom: 8 }}>{label}</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: val >= 0 ? C.green : C.red, fontFamily: 'monospace' }}>
                       {val >= 0 ? '+' : ''}{fmtS(val)} FDJ
@@ -1191,7 +1191,7 @@ Données: ${JSON.stringify({
                       <div style={{ fontSize: 10, color: '#6B6B6B' }}>Basé sur {transactions.filter(t => !t.is_settlement).length} transactions · Régression + ML</div>
                     </div>
                     <div style={{ marginLeft: 'auto' }}>
-                      <button onClick={generateAI} disabled={isGenerating} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: '#6B6B6B', fontSize: 11, cursor: 'pointer' }}>↺ Régénérer</button>
+                      <button onClick={generateAI} disabled={isGenerating} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #E5E7EB', background: 'transparent', color: '#6B6B6B', fontSize: 11, cursor: 'pointer' }}>↺ Régénérer</button>
                     </div>
                   </div>
                   <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.8 }}>{aiInsights.executive_summary || aiInsights.summary}</p>
