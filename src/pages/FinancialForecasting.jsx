@@ -707,7 +707,7 @@ Données: ${JSON.stringify({
               <ResponsiveContainer width="100%" height={190}>
                 <AreaChart data={monthlyTable.map((d, i) => ({ ...d, cumCash: 5000000 + monthlyTable.slice(0, i + 1).reduce((s, r) => s + r.net, 0) }))}>
                   <defs>
-                    <linearGradient id="cashGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.green} stopOpacity={0.3} /><stop offset="100%" stopColor={C.green} stopOpacity={0} /></linearGradient>
+                    <linearGradient id="cashGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.green} stopOpacity={0.2} /><stop offset="100%" stopColor={C.green} stopOpacity={0} /></linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
                   <XAxis dataKey="label" tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
