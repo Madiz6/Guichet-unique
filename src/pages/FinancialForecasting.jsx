@@ -976,13 +976,13 @@ Données: ${JSON.stringify({
                       <tr key={i} style={{ background: i % 2 === 0 ? `${C.bg1}80` : 'transparent' }}>
                         <td style={{ padding: '10px', fontWeight: 700, color: C.blueLight, fontFamily: 'monospace' }}>{row.period}</td>
                         <td style={{ padding: '10px', textAlign: 'right', color: C.text2, fontFamily: 'monospace' }}>{fmtS(row.prevRev)}</td>
-                        <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: C.text0, fontFamily: 'monospace' }}>{fmtS(row.actRev)}</td>
+                        <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: '#1A1A1A', fontFamily: 'monospace' }}>{fmtS(row.actRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: row.dRev >= 0 ? C.green : C.red, fontFamily: 'monospace' }}>{row.dRev >= 0 ? '+' : ''}{fmtS(row.dRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right' }}>
                           <span style={{ fontSize: 9, fontWeight: 700, color: row.pRev >= 0 ? C.green : C.red, background: row.pRev >= 0 ? `${C.green}18` : `${C.red}18`, padding: '2px 8px', borderRadius: 20 }}>{pct(row.pRev)}</span>
                         </td>
                         <td style={{ padding: '10px', textAlign: 'right', color: C.text2, fontFamily: 'monospace' }}>{fmtS(row.prevDep)}</td>
-                        <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: C.text0, fontFamily: 'monospace' }}>{fmtS(row.actDep)}</td>
+                        <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: '#1A1A1A', fontFamily: 'monospace' }}>{fmtS(row.actDep)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: row.dDep <= 0 ? C.green : C.red, fontFamily: 'monospace' }}>{row.dDep >= 0 ? '+' : ''}{fmtS(row.dDep)}</td>
                       </tr>
                     ))}
@@ -1151,7 +1151,7 @@ Données: ${JSON.stringify({
                     </tr>
                   ))}
                   <tr style={{ background: '#F5F5F5', fontWeight: 800 }}>
-                    <td style={{ padding: '12px 14px', color: C.text0, borderRadius: '8px 0 0 8px' }}>TOTAL {horizon}M</td>
+                    <td style={{ padding: '12px 14px', color: '#1A1A1A', borderRadius: '8px 0 0 8px' }}>TOTAL {horizon}M</td>
                     <td style={{ padding: '12px 14px', textAlign: 'right', color: C.green }}>{fmt(monthlyTable.reduce((s, r) => s + r.rev, 0))} FDJ</td>
                     <td style={{ padding: '12px 14px', textAlign: 'right', color: C.red }}>{fmt(monthlyTable.reduce((s, r) => s + r.dep, 0))} FDJ</td>
                     <td style={{ padding: '12px 14px', textAlign: 'right', color: C.yellow }}>{fmt(monthlyTable.reduce((s, r) => s + r.net, 0))} FDJ</td>
@@ -1173,7 +1173,7 @@ Données: ${JSON.stringify({
             {!aiInsights ? (
               <div style={{ ...card, border: `1px solid ${C.purple}33`, textAlign: 'center', padding: 48 }}>
                 <div style={{ fontSize: 40, marginBottom: 16 }}>🤖</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: C.text0, marginBottom: 8 }}>Analyse IA non générée</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Analyse IA non générée</div>
                 <div style={{ fontSize: 12, color: C.text2, marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>
                   Cliquez sur "Analyse IA" en haut pour des recommandations personnalisées basées sur vos données réelles, scénarios et paramètres what-if.
                 </div>
