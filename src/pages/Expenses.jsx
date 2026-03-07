@@ -14,6 +14,7 @@ import { createPageUrl } from '@/utils';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from 'sonner';
+import { registerExpenseTransaction, markExpenseTransactionPaid } from "../components/transactions/autoTransactions";
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 

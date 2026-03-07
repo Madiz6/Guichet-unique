@@ -149,6 +149,143 @@ export async function markDeclarationTransactionPaid(declaration, paymentData = 
 }
 
 /* ─────────────────────────────────────────────────────────────
+   DÉPENSES (Expense module)
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when an Expense is created.
+ * Registers it as a pending expense transaction.
+ */
+export async function registerExpenseTransaction(expense, categoryName = '') {
+  await safeCreate({
+    date: expense.date_transaction || format(new Date(), 'yyyy-MM-dd'),
+    description: expense.description,
+    contact_name: expense.fournisseur || '',
+    amount: expense.montant || 0,
+    total_amount: expense.montant || 0,
+    type: 'Dépense',
+    source: 'Autre',
+    source_id: expense.id,
+    category: categoryName || 'Dépense',
+    payment_method: expense.methode_paiement || 'Virement',
+    status: expense.statut === 'Payé' ? 'Payé' : 'En attente',
+    notes: `Ref: ${expense.numero || '—'} — ${categoryName}`,
+  });
+}
+
+/**
+ * Called when an Expense status changes to Payé.
+ */
+export async function markExpenseTransactionPaid(expense) {
+  try {
+    const existing = await meras.entities.Transaction.filter({ source: 'Autre', source_id: expense.id });
+    if (existing.length > 0) {
+      await meras.entities.Transaction.update(existing[0].id, {
+        status: 'Payé',
+        payment_method: expense.methode_paiement || 'Virement',
+      });
+    }
+  } catch (e) {
+    console.warn('[autoTransactions] markExpenseTransactionPaid error:', e.message);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   AUTRES SERVICES (Visa, Mail, Réceptionniste, etc.)
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when a service contract/payment is created.
+ * Use for: MailServiceContract, VirtualReceptionistContract, VisaApplication, etc.
+ * @param {object} params - { date, description, contact_name, amount, service_type, source_id, payment_method }
+ */
+export async function registerServiceTransaction({ date, description, contact_name, amount, service_type, source_id, payment_method, status = 'En attente', is_revenue = false }) {
+  await safeCreate({
+    date: date || format(new Date(), 'yyyy-MM-dd'),
+    description,
+    contact_name: contact_name || '',
+    amount: amount || 0,
+    total_amount: amount || 0,
+    type: is_revenue ? 'Revenu' : 'Dépense',
+    source: 'Autre',
+    source_id: source_id || '',
+    category: service_type || 'Service',
+    payment_method: payment_method || 'Virement',
+    status,
+    notes: `Service: ${service_type} — ${description}`,
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PRÊTS & FINANCEMENT (Loan, Shareholder, Capital)
+──────────────────────────────────────────────────────────────*/
+
+/**
+ * Called when a Loan is received (décaissement).
+ * Registers it as a revenue/financing transaction.
+ */
+export async function registerLoanReceivedTransaction(loan) {
+  await safeCreate({
+    date: loan.date_debut || format(new Date(), 'yyyy-MM-dd'),
+    description: `Prêt reçu — ${loan.banque || loan.preteur || 'Banque'}`,
+    contact_name: loan.banque || loan.preteur || '',
+    amount: loan.montant || 0,
+    total_amount: loan.montant || 0,
+    type: 'Revenu',
+    source: 'Prêt Bancaire',
+    source_id: loan.id,
+    category: 'Financement',
+    payment_method: 'Virement',
+    status: 'Payé',
+    is_financing: true,
+    notes: `Prêt — taux: ${loan.taux_interet || 0}% — durée: ${loan.duree_mois || '?'} mois`,
+  });
+}
+
+/**
+ * Called when a Loan repayment (remboursement) is made.
+ */
+export async function registerLoanRepaymentTransaction(loan, repaymentAmount, repaymentDate) {
+  await safeCreate({
+    date: repaymentDate || format(new Date(), 'yyyy-MM-dd'),
+    description: `Remboursement prêt — ${loan.banque || loan.preteur || 'Banque'}`,
+    contact_name: loan.banque || loan.preteur || '',
+    amount: repaymentAmount || 0,
+    total_amount: repaymentAmount || 0,
+    type: 'Dépense',
+    source: 'Remboursement Prêt',
+    source_id: loan.id,
+    category: 'Remboursement',
+    payment_method: 'Virement',
+    status: 'Payé',
+    is_financing: true,
+    notes: `Remboursement — prêt: ${loan.id}`,
+  });
+}
+
+/**
+ * Called when a Shareholder makes a capital contribution.
+ */
+export async function registerShareholderContributionTransaction(shareholder, amount, date) {
+  await safeCreate({
+    date: date || format(new Date(), 'yyyy-MM-dd'),
+    description: `Apport en capital — ${shareholder.nom || shareholder.prenom_nom || 'Associé'}`,
+    contact_name: shareholder.nom || shareholder.prenom_nom || '',
+    amount: amount || 0,
+    total_amount: amount || 0,
+    type: 'Revenu',
+    source: 'Apport Capital',
+    source_id: shareholder.id,
+    category: 'Capital',
+    payment_method: 'Virement',
+    status: 'Payé',
+    is_financing: true,
+    shareholder_id: shareholder.id,
+    notes: `Apport capital — associé: ${shareholder.nom || '—'}`,
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
    LOCATION (Lease payments)
 ──────────────────────────────────────────────────────────────*/
 
