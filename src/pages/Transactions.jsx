@@ -153,14 +153,16 @@ export default function Transactions() {
     !t.linked_settlement_id
   );
 
-  // "À comptabiliser" = transactions that exist but have NOT been booked yet
-  // We exclude settlement transactions (is_settlement) as they don't need manual booking
-  const toBookList = transactions.filter(t => t.booking_status !== 'booked' && !t.is_settlement);
+  // Normalize: booking_status can be 'booked' OR 'Comptabilisé' — both mean booked
+  const isBooked = (t) => t.booking_status === 'booked' || t.booking_status === 'Comptabilisé';
+
+  // "À comptabiliser" = transactions not yet booked, excluding settlement rows
+  const toBookList = transactions.filter(t => !isBooked(t) && !t.is_settlement);
 
   const stats = {
     totalIncome: filteredTransactions.filter(t => t.type === 'Revenu').reduce((sum, t) => sum + (t.amount || 0), 0),
     totalExpenses: filteredTransactions.filter(t => t.type === 'Dépense').reduce((sum, t) => sum + (t.amount || 0), 0),
-    booked: transactions.filter(t => t.booking_status === 'booked').length,
+    booked: transactions.filter(t => isBooked(t)).length,
     toBook: toBookList.length,
   };
   stats.netProfit = stats.totalIncome - stats.totalExpenses;
