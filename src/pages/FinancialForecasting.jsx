@@ -1088,9 +1088,9 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                   <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="prevRev" name="Rev. prévus" fill={`${C.blue}55`} radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="actRev" name="Rev. réels" fill={C.blue} radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="prevDep" name="Dep. prévues" fill={`${C.red}55`} radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="prevRev" name="Rev. prévus" fill="#93C5FD" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="actRev" name="Rev. réels" fill="#2563EB" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="prevDep" name="Dep. prévues" fill="#FCA5A5" radius={[3, 3, 0, 0]} />
                   <Bar dataKey="actDep" name="Dep. réelles" fill={C.red} radius={[3, 3, 0, 0]} />
                 </ComposedChart>
               </ResponsiveContainer>
