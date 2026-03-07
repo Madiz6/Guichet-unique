@@ -88,29 +88,29 @@ function KpiCard({ icon, label, value, change, positive, color, sub }) {
   useEffect(() => { const t = setTimeout(() => setShow(true), 80); return () => clearTimeout(t); }, []);
   return (
     <div style={{
-      background: `linear-gradient(135deg,${C.bg1},${C.bg2})`, border: `1px solid ${color}33`,
-      borderRadius: 16, padding: '18px 20px', position: 'relative', overflow: 'hidden',
+      background: '#fff', border: '1px solid #E5E7EB',
+      borderRadius: 12, padding: '16px 18px', position: 'relative', overflow: 'hidden',
       transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'default',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
     }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 8px 32px ${color}22`; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; }}
     >
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 60, height: 60, borderRadius: '0 0 0 60px', background: `${color}11` }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: 15 }}>{icon}</span>
-        <span style={{ fontSize: 10, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>{label}</span>
+        <span style={{ fontSize: 10, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>{label}</span>
       </div>
-      <div style={{ fontSize: 19, fontWeight: 800, color: C.text0, fontFamily: 'monospace', opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(8px)', transition: 'all 0.5s ease' }}>{value}</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: '#1A1A1A', fontFamily: 'monospace', opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(8px)', transition: 'all 0.5s ease' }}>{value}</div>
       {change !== undefined && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: positive ? C.green : C.red, background: positive ? '#10b98118' : '#ef444418', padding: '2px 8px', borderRadius: 20 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: positive ? C.green : C.red, background: positive ? '#05966918' : '#DC262618', padding: '2px 8px', borderRadius: 20 }}>
             {positive ? '↑' : '↓'} {Math.abs(change).toFixed(1)}%
           </span>
-          <span style={{ fontSize: 10, color: C.text2 }}>vs historique</span>
+          <span style={{ fontSize: 10, color: '#6B6B6B' }}>vs historique</span>
         </div>
       )}
-      {sub && <div style={{ fontSize: 10, color: C.text2, marginTop: 4 }}>{sub}</div>}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg,${color},transparent)` }} />
+      {sub && <div style={{ fontSize: 10, color: '#6B6B6B', marginTop: 4 }}>{sub}</div>}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: color }} />
     </div>
   );
 }
