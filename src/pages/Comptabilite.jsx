@@ -72,7 +72,8 @@ export default function Comptabilite() {
   const resultatNet   = totalRevenu - totalDepense;
   const unpaidExpenses = filtered.filter(t => t.type === 'Dépense' && t.status === 'En attente').reduce((s, t) => s + (t.amount || 0), 0);
   // Consistent with Transactions page: exclude settlement transactions
-  const unbookedCount = filtered.filter(t => !t.booking_status && !t.is_settlement).length;
+  // Use full transaction list (not period-filtered) for the badge count — consistent with Transactions page
+  const unbookedCount = transactions.filter(t => !t.booking_status && !t.is_settlement).length;
   const totalBankBalance = bankAccounts.reduce((s, b) => s + (b.solde_actuel || 0), 0);
   const totalLoanBalance = loans.reduce((s, l) => s + (l.solde_restant || 0), 0);
 
