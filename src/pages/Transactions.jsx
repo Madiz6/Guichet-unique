@@ -148,7 +148,7 @@ export default function Transactions() {
   const DEBT_OPERATION_TYPES = ['Dette fournisseur', 'Dette fournisseur réglée', 'Dette employé', 'Dette partenaire', 'Dette banque', 'Dette investisseur'];
   const openDebts = transactions.filter(t =>
     (t.is_dette || DEBT_OPERATION_TYPES.includes(t.operation_type)) &&
-    t.booking_status === 'booked' &&
+    isBooked(t) &&
     !t.payment_registered &&
     !t.linked_settlement_id
   );
