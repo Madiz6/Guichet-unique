@@ -88,6 +88,7 @@ import Training from './pages/Training';
 import Transactions from './pages/Transactions';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import Visas from './pages/Visas';
+import EtatsFinanciers from './pages/EtatsFinanciers';
 import __Layout from './Layout.jsx';
 
 
@@ -133,6 +134,7 @@ export const PAGES = {
     "Transactions": Transactions,
     "VirtualReceptionist": VirtualReceptionist,
     "Visas": Visas,
+    "EtatsFinanciers": EtatsFinanciers,
 }
 
 export const pagesConfig = {
