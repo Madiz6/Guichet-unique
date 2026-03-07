@@ -246,8 +246,9 @@ Deno.serve(async (req) => {
           template_type: templateKey,
         });
 
-        // Create debt if applicable and not yet settled
-        if (tpl.creates_debt && !tx.payment_registered) {
+        // Create debt if applicable, not yet settled, and no duplicate exists
+        const existingDebt = tpl.creates_debt ? await base44.asServiceRole.entities.DebtCentralized.filter({ transaction_id: tx.id }) : [];
+        if (tpl.creates_debt && !tx.payment_registered && (!existingDebt || existingDebt.length === 0)) {
           await base44.asServiceRole.entities.DebtCentralized.create({
             transaction_id: tx.id,
             debt_type: tpl.debt_type,
