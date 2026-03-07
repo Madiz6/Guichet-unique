@@ -709,7 +709,7 @@ Données: ${JSON.stringify({
                   <defs>
                     <linearGradient id="cashGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.green} stopOpacity={0.3} /><stop offset="100%" stopColor={C.green} stopOpacity={0} /></linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
                   <XAxis dataKey="label" tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
@@ -911,7 +911,7 @@ Données: ${JSON.stringify({
                 <div style={{ fontSize: 11, color: C.text2, marginBottom: 14 }}>Revenus et charges comparés mois par mois</div>
                 <ResponsiveContainer width="100%" height={220}>
                   <ComposedChart data={forecast.map(d => ({ label: d.label, rev_base: d.base_noWhatIf, rev_sim: d.base, dep_base: d.dep_noWhatIf, dep_sim: d.dep_base }))}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
                     <XAxis dataKey="label" tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
                     <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
                     <Tooltip content={<DarkTooltip />} />
@@ -948,7 +948,7 @@ Données: ${JSON.stringify({
               <div style={{ fontSize: 11, color: C.text2, marginBottom: 16 }}>Basé sur les données réelles de vos transactions</div>
               <ResponsiveContainer width="100%" height={230}>
                 <ComposedChart data={varianceData} barCategoryGap="30%">
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
                   <XAxis dataKey="period" tick={{ fill: C.text2, fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
@@ -1233,7 +1233,7 @@ Données: ${JSON.stringify({
                         lower: Math.round(base * (1 - i * 0.015 - 0.05)),
                       };
                     })}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
                       <XAxis dataKey="period" tick={{ fill: C.text2, fontSize: 9 }} axisLine={false} tickLine={false} />
                       <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 9 }} axisLine={false} tickLine={false} />
                       <Tooltip content={<DarkTooltip />} />
