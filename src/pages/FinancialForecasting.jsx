@@ -841,7 +841,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
                 {[
                   { label: 'BFR estimé', value: `${fmtS(totalDep * 0.15)} FDJ`, color: C.yellow, icon: '📊' },
-                  { label: 'Dettes actives', value: `${debts.filter(d => d.status !== 'Réglée').length} en cours`, color: C.blue, icon: '🏦' },
+                  { label: 'Dettes actives', value: `${debts.filter(d => d.status !== 'Réglée').length} en cours`, color: '#2563EB', icon: '🏦' },
                   { label: 'Marge nette', value: `${margin.toFixed(1)}%`, color: C.green, icon: '💧' },
                   { label: 'Couverture charges', value: `${totalDep > 0 ? (totalNet / (totalDep / horizon)).toFixed(1) : '—'} mois`, color: C.violet, icon: '🛡️' },
                 ].map(k => (
