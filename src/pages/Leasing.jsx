@@ -22,6 +22,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import PermissionGuard from "../components/permissions/PermissionGuard";
 import MaintenanceTracker from "../components/maintenance/MaintenanceTracker";
 import { registerLeasePaymentTransaction } from "../components/transactions/autoTransactions";
+import PaymentGateway from "../components/payments/PaymentGateway";
 
 export default function Leasing() {
   const [showAssetForm, setShowAssetForm] = useState(false);
