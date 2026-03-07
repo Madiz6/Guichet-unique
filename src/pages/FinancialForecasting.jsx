@@ -1269,6 +1269,23 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                   onChange={e => setCashThreshold(Number(e.target.value))}
                   style={{ width: '100%', accentColor: C.red, cursor: 'pointer' }} />
               </div>
+              {/* Send alert email */}
+              <div style={{ marginBottom: 14 }}>
+                <button onClick={sendAlertEmail} disabled={alertEmailSent} style={{ width: '100%', padding: '8px', borderRadius: 8, border: 'none', background: criticalCount > 0 ? C.red : '#1A1A1A', color: '#fff', fontSize: 11, fontWeight: 700, cursor: alertEmailSent ? 'not-allowed' : 'pointer', opacity: alertEmailSent ? 0.7 : 1 }}>
+                  {alertEmailSent ? '✅ Email envoyé' : `📧 Envoyer rapport par email${criticalCount > 0 ? ` (${criticalCount} critique${criticalCount > 1 ? 's' : ''})` : ''}`}
+                </button>
+              </div>
+
+              {/* GL Quality */}
+              <div style={{ padding: 12, background: `${ledgerHealth.color}0d`, border: `1px solid ${ledgerHealth.color}33`, borderRadius: 8, marginBottom: 14 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: ledgerHealth.color, marginBottom: 8 }}>🏛️ QUALITÉ GRAND LIVRE</div>
+                <div style={{ fontSize: 11, color: '#374151', marginBottom: 4 }}>Score GL: <strong style={{ color: ledgerHealth.color }}>{ledgerHealth.score}/100 — {ledgerHealth.label}</strong></div>
+                <div style={{ fontSize: 10, color: '#6B6B6B' }}>{ledgerHealth.total} écritures · {ledgerHealth.posted} comptabilisées · {ledgerHealth.linkRate.toFixed(0)}% transactions liées</div>
+                {ledgerHealth.linkRate < 60 && (
+                  <div style={{ marginTop: 8, fontSize: 10, color: C.red, fontWeight: 600 }}>⚠️ Taux de liaison faible — comptabilisez vos transactions pour des prévisions plus précises.</div>
+                )}
+              </div>
+
               <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 10 }}>Types d'alertes actives</div>
               {[
                 { label: 'Seuil trésorerie critique', active: true },
