@@ -71,7 +71,8 @@ export default function Comptabilite() {
   const totalDepense  = filtered.filter(t => t.type === 'Dépense').reduce((s, t) => s + (t.amount || 0), 0);
   const resultatNet   = totalRevenu - totalDepense;
   const unpaidExpenses = filtered.filter(t => t.type === 'Dépense' && t.status === 'En attente').reduce((s, t) => s + (t.amount || 0), 0);
-  const unbookedCount = filtered.filter(t => !t.booking_status).length;
+  // Consistent with Transactions page: exclude settlement transactions
+  const unbookedCount = filtered.filter(t => !t.booking_status && !t.is_settlement).length;
   const totalBankBalance = bankAccounts.reduce((s, b) => s + (b.solde_actuel || 0), 0);
   const totalLoanBalance = loans.reduce((s, l) => s + (l.solde_restant || 0), 0);
 
@@ -114,7 +115,7 @@ export default function Comptabilite() {
   }, [monthlyData, totalBankBalance]);
 
   // ---------- Unbooked transactions ----------
-  const unbookedList = filtered.filter(t => !t.booking_status).slice(0, 10);
+  const unbookedList = filtered.filter(t => !t.booking_status && !t.is_settlement).slice(0, 10);
 
   // ---------- Budget vs réel ----------
   const budgetComparison = useMemo(() => {
