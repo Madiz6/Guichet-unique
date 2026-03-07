@@ -822,13 +822,9 @@ export default function Leasing() {
                                       {isAdmin && (
                                         <Button
                                           size="sm"
-                                          onClick={() => {
-                                            setPaymentModal(payment);
-                                            setPaymentMethod('Virement');
-                                            setPaymentDate(new Date().toISOString().split('T')[0]);
-                                          }}
+                                          onClick={() => setPaymentGatewayPayment(payment)}
                                           className="bg-green-600 hover:bg-green-700 text-white"
-                                          title="Marquer comme payé manuellement"
+                                          title="Enregistrer le paiement"
                                         >
                                           <DollarSign className="w-4 h-4 mr-1" />
                                           Marquer payé
