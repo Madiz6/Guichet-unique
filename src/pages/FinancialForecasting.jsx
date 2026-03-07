@@ -13,13 +13,14 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
 
-// ── palette (matches app dark theme) ──────────────────────────────────────
+// ── palette (matches Paie360 app light design) ────────────────────────────
 const C = {
-  bg0: '#020817', bg1: '#0f172a', bg2: '#1e293b', border: '#1e293b',
-  blue: '#2563eb', blueLight: '#60a5fa', purple: '#7c3aed',
-  green: '#10b981', red: '#ef4444', yellow: '#f59e0b', orange: '#f97316',
-  teal: '#06b6d4', violet: '#a855f7',
-  text0: '#f1f5f9', text1: '#cbd5e1', text2: '#64748b', text3: '#334155',
+  bg0: '#FAFAFA', bg1: '#FFFFFF', bg2: '#F5F5F5', border: '#E5E7EB',
+  blue: '#1A1A1A', blueLight: '#1A1A1A', purple: '#1A1A1A',
+  green: '#059669', red: '#DC2626', yellow: '#D97706', orange: '#EA580C',
+  teal: '#0891B2', violet: '#7C3AED',
+  text0: '#1A1A1A', text1: '#374151', text2: '#6B6B6B', text3: '#9CA3AF',
+  accent: '#1A1A1A', accentBlue: '#2563EB', accentPurple: '#7C3AED',
 };
 
 // ── helpers ──────────────────────────────────────────────────────────────
