@@ -724,7 +724,7 @@ Données: ${JSON.stringify({
                   { label: 'Marge nette', value: `${margin.toFixed(1)}%`, color: C.green, icon: '💧' },
                   { label: 'Couverture charges', value: `${totalDep > 0 ? (totalNet / (totalDep / horizon)).toFixed(1) : '—'} mois`, color: C.violet, icon: '🛡️' },
                 ].map(k => (
-                  <div key={k.label} style={{ background: C.bg0, borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div key={k.label} style={{ background: '#F5F5F5', borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 14 }}>{k.icon}</span>
                     <div><div style={{ fontSize: 9, color: C.text2 }}>{k.label}</div><div style={{ fontSize: 12, fontWeight: 700, color: k.color }}>{k.value}</div></div>
                   </div>
