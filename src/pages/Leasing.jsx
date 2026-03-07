@@ -1411,88 +1411,26 @@ export default function Leasing() {
             </form>
           </DialogContent>
         </Dialog>
-      {/* Payment Method Modal */}
-      <Dialog open={!!paymentModal} onOpenChange={(open) => { if (!open) setPaymentModal(null); }}>
-        <DialogContent className="max-w-md bg-white">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-green-600" />
-              Enregistrer le paiement
-            </DialogTitle>
-          </DialogHeader>
-          {paymentModal && (
-            <div className="space-y-4">
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-green-600">Période:</span>
-                  <strong>{paymentModal.periode}</strong>
-                </div>
-                <div className="flex justify-between border-t border-green-200 pt-1 mt-1">
-                  <span className="text-green-700 font-semibold">Montant:</span>
-                  <strong className="text-green-700 text-base">{paymentModal.montant?.toLocaleString()} DJF</strong>
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-xs text-gray-500 mb-1 block">Date de paiement</Label>
-                <Input
-                  type="date"
-                  value={paymentDate}
-                  onChange={e => setPaymentDate(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label className="text-xs text-gray-500 mb-1 block">Méthode de paiement</Label>
-                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {['Virement', 'Chèque', 'Espèces', 'Carte bancaire', 'Mobile Money'].map(m => (
-                      <SelectItem key={m} value={m}>{m}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1" onClick={() => setPaymentModal(null)} disabled={processingPayment}>
-                  Annuler
-                </Button>
-                <Button
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                  disabled={processingPayment}
-                  onClick={async () => {
-                    setProcessingPayment(true);
-                    try {
-                      await base44.functions.invoke('processPayment', {
-                        payment_id: paymentModal.id,
-                        methode_paiement: paymentMethod,
-                        transaction_id: `MAN-${Date.now()}`
-                      });
-                      const leaseTmp = leases.find(l => l.id === paymentModal.lease_id);
-                      const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
-                      await registerLeasePaymentTransaction(
-                        { ...paymentModal, date_paiement: paymentDate, methode_paiement: paymentMethod },
-                        leaseTmp,
-                        assetTmp
-                      );
-                      toast.success('Paiement enregistré');
-                      queryClient.invalidateQueries(['lease-payments']);
-                      setPaymentModal(null);
-                    } catch (error) {
-                      toast.error(error?.message || 'Erreur lors de l\'enregistrement du paiement');
-                    } finally {
-                      setProcessingPayment(false);
-                    }
-                  }}
-                >
-                  {processingPayment ? <><CheckCircle className="w-4 h-4 mr-2 animate-spin" />En cours...</> : <><CheckCircle className="w-4 h-4 mr-2" />Confirmer</>}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Payment Gateway — same as Paie & Déclarations */}
+      {paymentGatewayPayment && (() => {
+        const leaseTmp = leases.find(l => l.id === paymentGatewayPayment.lease_id);
+        const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
+        return (
+          <PaymentGateway
+            isOpen={!!paymentGatewayPayment}
+            onClose={() => setPaymentGatewayPayment(null)}
+            amount={paymentGatewayPayment.montant}
+            description={`Loyer — ${assetTmp?.nom || 'Actif'} — ${paymentGatewayPayment.periode} (${leaseTmp?.locataire_nom || ''})`}
+            paymentType="lease"
+            entityId={paymentGatewayPayment.id}
+            metadata={{
+              lease_id: paymentGatewayPayment.lease_id,
+              periode: paymentGatewayPayment.periode,
+            }}
+            onSuccess={handleLeasePaymentSuccess}
+          />
+        );
+      })()}
       </div>
     </PermissionGuard>
   );
