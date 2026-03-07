@@ -1297,8 +1297,8 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                 { label: 'Variation BFR', active: true },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #E5E7EB' }}>
-                  <span style={{ fontSize: 11, color: item.active ? C.text1 : C.text2 }}>{item.label}</span>
-                  <span style={{ fontSize: 9, fontWeight: 700, color: item.active ? C.green : C.text2, background: item.active ? `${C.green}18` : `${C.bg2}`, padding: '2px 8px', borderRadius: 20 }}>{item.active ? 'ON' : 'OFF'}</span>
+                  <span style={{ fontSize: 11, color: item.active ? '#374151' : '#6B6B6B' }}>{item.label}</span>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: item.active ? C.green : '#6B6B6B', background: item.active ? `${C.green}18` : '#F5F5F5', padding: '2px 8px', borderRadius: 20 }}>{item.active ? 'ON' : 'OFF'}</span>
                 </div>
               ))}
             </div>
