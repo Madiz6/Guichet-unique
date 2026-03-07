@@ -117,7 +117,7 @@ export default function Comptabilite() {
   }, [monthlyData, totalBankBalance]);
 
   // ---------- Unbooked transactions ----------
-  const unbookedList = filtered.filter(t => !t.booking_status && !t.is_settlement).slice(0, 10);
+  const unbookedList = filtered.filter(t => !isBooked(t) && !t.is_settlement).slice(0, 10);
 
   // ---------- Budget vs réel ----------
   const budgetComparison = useMemo(() => {
