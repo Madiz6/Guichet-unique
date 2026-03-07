@@ -227,20 +227,57 @@ export default function Leasing() {
     const payment = paymentGatewayPayment;
     const leaseTmp = leases.find(l => l.id === payment.lease_id);
     const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
-    // Register income transaction + update ledger
-    await registerLeasePaymentTransaction(
-      {
-        ...payment,
-        date_paiement: new Date().toISOString().split('T')[0],
-        methode_paiement: paymentData.payment_method || paymentData.note || 'Virement',
-      },
+    const methode = paymentData.payment_method || paymentData.note || 'Virement';
+    const datePayment = new Date().toISOString().split('T')[0];
+
+    // 1. Create Transaction (Revenu) in Transactions module
+    const newTransaction = await registerLeasePaymentTransaction(
+      { ...payment, date_paiement: datePayment, methode_paiement: methode },
       leaseTmp,
       assetTmp
     );
+
+    // 2. Wire into ledger engine (Grand Livre) — best-effort
+    try {
+      const transactions = await base44.entities.Transaction.filter({
+        source: 'Location',
+        source_id: payment.id,
+      });
+      if (transactions.length > 0) {
+        const tx = transactions[0];
+        // Auto-book it
+        await base44.entities.Transaction.update(tx.id, {
+          booking_status: 'booked',
+          booking_type: 'Revenu / Loyer',
+          operation_type: 'Revenu / Vente',
+          booked_at: new Date().toISOString(),
+          payment_registered: true,
+          payment_method: methode,
+        });
+        // Generate ledger entry
+        await ledgerEngine({
+          action: 'generateLedgerEntries',
+          transaction_id: tx.id,
+          template_type: 'Revenu locatif',
+          transaction: {
+            date: datePayment,
+            amount: payment.montant,
+            description: `Loyer — ${assetTmp?.nom || 'Actif'} — ${payment.periode}`,
+            category: 'Revenus locatifs',
+            contact_name: leaseTmp?.locataire_nom || '',
+          },
+        });
+      }
+    } catch (e) {
+      console.warn('Ledger engine error (non-blocking):', e.message);
+    }
+
     queryClient.invalidateQueries(['lease-payments']);
     queryClient.invalidateQueries(['transactions']);
+    queryClient.invalidateQueries(['ledger-entries']);
+    queryClient.invalidateQueries(['debts']);
     setPaymentGatewayPayment(null);
-    toast.success('Paiement enregistré — transaction créée');
+    toast.success('✅ Paiement enregistré — Transaction & Grand Livre mis à jour');
   };
 
   const sendPaymentReminderSMS = async (paymentId) => {
