@@ -104,6 +104,11 @@ export default function Layout({ children, currentPageName }) {
       icon: BookOpen,
     },
     {
+      title: "États Financiers",
+      url: createPageUrl("EtatsFinanciers"),
+      icon: FileText,
+    },
+    {
       title: "Prévisions IA",
       url: createPageUrl("FinancialForecasting"),
       icon: BarChart3,
