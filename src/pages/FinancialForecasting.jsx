@@ -634,11 +634,19 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
               );
             })}
           </div>
+          {/* GL Health badge */}
+          <div style={{ padding: '4px 10px', background: `${ledgerHealth.color}11`, border: `1px solid ${ledgerHealth.color}44`, borderRadius: 8, fontSize: 10, fontWeight: 700, color: ledgerHealth.color, cursor: 'default' }}
+            title={`Grand Livre: ${ledgerHealth.total} écritures · ${ledgerHealth.linkRate.toFixed(0)}% transactions liées`}>
+            🏛️ GL {ledgerHealth.label} ({ledgerHealth.linkRate.toFixed(0)}%)
+          </div>
           {criticalCount > 0 && (
             <div style={{ padding: '4px 10px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: 10, color: C.red, fontWeight: 700 }}>
               🔴 {criticalCount} CRITIQUE{criticalCount > 1 ? 'S' : ''}
             </div>
           )}
+          <button onClick={exportCSV} disabled={isExporting} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', color: '#374151', cursor: isExporting ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600 }}>
+            📥 Export CSV
+          </button>
           <button onClick={generateAI} disabled={isGenerating} style={{
             display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: 'none',
             background: '#1A1A1A', color: '#fff',
