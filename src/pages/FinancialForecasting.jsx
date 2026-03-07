@@ -632,7 +632,7 @@ Données: ${JSON.stringify({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 12 }}>
               {[
                 { key: 'pessimiste', label: 'Pessimiste', icon: '📉', color: C.red, prob: '25%' },
-                { key: 'base', label: 'Base', icon: '📊', color: C.blue, prob: '55%' },
+                { key: 'base', label: 'Base', icon: '📊', color: C.accentBlue, prob: '55%' },
                 { key: 'optimiste', label: 'Optimiste', icon: '📈', color: C.green, prob: '20%' },
               ].map(s => {
                 const rev = forecast.reduce((a, d) => a + d[scenarioRevKey[s.key]], 0);
