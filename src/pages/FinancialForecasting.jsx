@@ -133,7 +133,7 @@ function CashHeatmap({ data, cols }) {
           <tr>
             <th style={{ color: '#6B6B6B', textAlign: 'left', padding: '4px 8px', fontSize: 10, fontWeight: 600 }}>Semaine</th>
             {cols.map(c => (
-              <th key={c.key} style={{ color: c.forecast ? C.blueLight : C.text1, padding: '4px 6px', textAlign: 'center', fontSize: 10, fontWeight: 700 }}>
+              <th key={c.key} style={{ color: c.forecast ? '#2563EB' : '#374151', padding: '4px 6px', textAlign: 'center', fontSize: 10, fontWeight: 700 }}>
                 {c.label}{c.forecast ? ' ●' : ''}
               </th>
             ))}
