@@ -886,7 +886,7 @@ Données: ${JSON.stringify({
                   style={{ width: '100%', accentColor: C.blue, cursor: 'pointer' }} />
               </div>
 
-              <button onClick={() => setWhatIf({ clientDelay: 0, clientChurn: false, clientChurnPct: 20, newHires: 0, newLoan: 0, revenueGrowth: 0 })}
+              <button onClick={() => setWhatIf({ clientDelay: 0, clientChurn: false, clientChurnPct: 20, newHires: 0, newLoan: 0, revenueGrowth: 0, unexpectedExpense: 0 })}
                 style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #E5E7EB', background: 'transparent', color: '#6B6B6B', fontSize: 11, cursor: 'pointer' }}>
                 ↺ Réinitialiser
               </button>
