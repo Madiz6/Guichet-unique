@@ -55,11 +55,11 @@ function movingAvg(data, w = 3) {
 const DarkTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: C.bg0, border: `1px solid ${C.border}`, borderRadius: 10, padding: '10px 14px', fontSize: 11, minWidth: 160 }}>
-      <div style={{ color: C.text2, marginBottom: 6, fontWeight: 700 }}>{label}</div>
+    <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '10px 14px', fontSize: 11, minWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+      <div style={{ color: '#6B6B6B', marginBottom: 6, fontWeight: 700 }}>{label}</div>
       {payload.map((p, i) => p.value != null && (
         <div key={i} style={{ color: p.color, display: 'flex', justifyContent: 'space-between', gap: 16, marginBottom: 2 }}>
-          <span style={{ color: C.text1 }}>{p.name}</span>
+          <span style={{ color: '#374151' }}>{p.name}</span>
           <span style={{ fontWeight: 700 }}>{fmtS(p.value)} FDJ</span>
         </div>
       ))}
