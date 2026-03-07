@@ -604,9 +604,9 @@ Données: ${JSON.stringify({
               <div style={{ fontSize: 11, color: C.text2, marginBottom: 10 }}>6 dimensions financières</div>
               <ResponsiveContainer width="100%" height={190}>
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke={C.border} />
-                  <PolarAngleAxis dataKey="metric" tick={{ fill: C.text2, fontSize: 9 }} />
-                  <Radar name="Score" dataKey="score" stroke={C.blue} fill={C.blue} fillOpacity={0.25} />
+                  <PolarGrid stroke="#E5E7EB" />
+                  <PolarAngleAxis dataKey="metric" tick={{ fill: '#6B6B6B', fontSize: 9 }} />
+                  <Radar name="Score" dataKey="score" stroke="#1A1A1A" fill="#1A1A1A" fillOpacity={0.12} />
                 </RadarChart>
               </ResponsiveContainer>
               <div style={{ marginTop: 8 }}>
