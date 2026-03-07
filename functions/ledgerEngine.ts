@@ -62,9 +62,13 @@ Deno.serve(async (req) => {
       template_type,
     });
 
-    // If creates a debt, create DebtCentralized record
+    // If creates a debt, create DebtCentralized record (only if none exists for this transaction)
     let debt = null;
     if (tpl.creates_debt) {
+      const existingDebts = await base44.asServiceRole.entities.DebtCentralized.filter({ transaction_id });
+      if (existingDebts && existingDebts.length > 0) {
+        debt = existingDebts[0];
+      } else {
       debt = await base44.asServiceRole.entities.DebtCentralized.create({
         transaction_id,
         debt_type: tpl.debt_type,
