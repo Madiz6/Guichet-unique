@@ -35,10 +35,7 @@ export default function Leasing() {
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [viewingAssetMaintenance, setViewingAssetMaintenance] = useState(null);
-  const [paymentModal, setPaymentModal] = useState(null); // { payment }
-  const [paymentMethod, setPaymentMethod] = useState('Virement');
-  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
-  const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentGatewayPayment, setPaymentGatewayPayment] = useState(null); // the LeasePayment being paid
   
   const queryClient = useQueryClient();
   
