@@ -47,14 +47,13 @@ export default function Expenses() {
   
   const createExpenseMutation = useMutation({
     mutationFn: (data) => base44.entities.Expense.create(data),
-    onSuccess: () => {
+    onSuccess: async (newExpense) => {
       queryClient.invalidateQueries(['expenses']);
       setShowForm(false);
-      setFormData({
-        methode_paiement: 'Virement',
-        statut: 'En attente',
-        recurrent: false
-      });
+      setFormData({ methode_paiement: 'Virement', statut: 'En attente', recurrent: false });
+      // Auto-register in Transactions
+      const cat = categories.find(c => c.id === newExpense.category_id);
+      await registerExpenseTransaction(newExpense, cat?.nom || '');
       toast.success('Dépense créée');
     },
   });
@@ -71,8 +70,12 @@ export default function Expenses() {
   
   const updateExpenseMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Expense.update(id, data),
-    onSuccess: () => {
+    onSuccess: async (_, { data }) => {
       queryClient.invalidateQueries(['expenses']);
+      // Auto-sync payment status to Transactions
+      if (data.statut === 'Payé') {
+        await markExpenseTransactionPaid(data);
+      }
       toast.success('Dépense mise à jour');
     },
   });
