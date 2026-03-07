@@ -416,7 +416,7 @@ export default function Transactions() {
                             )}
                           </td>
                           <td className="py-4 px-4">
-                            {transaction.booking_status ? (
+                            {isBooked(transaction) ? (
                               <div className="flex items-center gap-1.5">
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                                 <span className="text-xs text-green-700 font-medium">Comptabilisé</span>
