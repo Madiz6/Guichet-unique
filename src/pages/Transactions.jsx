@@ -101,6 +101,7 @@ export default function Transactions() {
     const matchesTab = activeTab === 'all' ||
       (activeTab === 'income' && t.type === 'Revenu') ||
       (activeTab === 'expense' && t.type === 'Dépense') ||
+      (activeTab === 'unbooked' && t.booking_status !== 'booked' && !t.is_settlement) ||
       (activeTab === 'debts' && (t.is_dette || DEBT_OPERATION_TYPES.includes(t.operation_type)) && t.booking_status === 'booked' && !t.payment_registered && !t.linked_settlement_id);
 
     const q = filters.searchQuery?.toLowerCase();
