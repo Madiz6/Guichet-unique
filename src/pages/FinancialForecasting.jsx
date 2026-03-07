@@ -131,7 +131,7 @@ function CashHeatmap({ data, cols }) {
       <table style={{ borderCollapse: 'separate', borderSpacing: 3, fontSize: 11, width: '100%' }}>
         <thead>
           <tr>
-            <th style={{ color: C.text2, textAlign: 'left', padding: '4px 8px', fontSize: 10, fontWeight: 600 }}>Semaine</th>
+            <th style={{ color: '#6B6B6B', textAlign: 'left', padding: '4px 8px', fontSize: 10, fontWeight: 600 }}>Semaine</th>
             {cols.map(c => (
               <th key={c.key} style={{ color: c.forecast ? C.blueLight : C.text1, padding: '4px 6px', textAlign: 'center', fontSize: 10, fontWeight: 700 }}>
                 {c.label}{c.forecast ? ' ●' : ''}
@@ -165,7 +165,7 @@ function CashHeatmap({ data, cols }) {
           ))}
         </tbody>
       </table>
-      <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 10, color: C.text2, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 10, color: '#6B6B6B', alignItems: 'center', flexWrap: 'wrap' }}>
         <span>Légende :</span>
         {[{ bg: `${C.red}33`, c: C.red, l: 'Critique' }, { bg: `${C.yellow}33`, c: C.yellow, l: 'Faible' }, { bg: `${C.blue}33`, c: C.blueLight, l: 'Moyen' }, { bg: `${C.green}33`, c: C.green, l: 'Fort' }].map(x => (
           <span key={x.l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -578,7 +578,7 @@ Données: ${JSON.stringify({
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             <div style={card}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Historique (6m) + Prévisions ({horizon}m)</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 14 }}>Revenus · Dépenses · Net · <span style={{ color: sc }}>Scénario {scenario}</span>{granularity !== 'monthly' && ` · Vue ${granularity}`}</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 14 }}>Revenus · Dépenses · Net · <span style={{ color: sc }}>Scénario {scenario}</span>{granularity !== 'monthly' && ` · Vue ${granularity}`}</div>
               <ResponsiveContainer width="100%" height={290}>
                 <ComposedChart data={combined}>
                   <defs>
@@ -601,7 +601,7 @@ Données: ${JSON.stringify({
             </div>
             <div style={card}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>Score de Santé 360°</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 10 }}>6 dimensions financières</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 10 }}>6 dimensions financières</div>
               <ResponsiveContainer width="100%" height={190}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="#E5E7EB" />
@@ -613,7 +613,7 @@ Données: ${JSON.stringify({
                 {radarData.map(d => (
                   <div key={d.metric} style={{ marginBottom: 7 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span style={{ fontSize: 10, color: C.text2 }}>{d.metric}</span>
+                      <span style={{ fontSize: 10, color: '#6B6B6B' }}>{d.metric}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, color: d.score >= 75 ? C.green : d.score >= 55 ? C.yellow : C.red }}>{Math.round(d.score)}/100</span>
                     </div>
                     <div style={{ height: 4, background: '#F5F5F5', borderRadius: 99 }}>
@@ -645,7 +645,7 @@ Données: ${JSON.stringify({
                     </div>
                     {[{ label: 'Revenus', v: rev, c: C.green }, { label: 'Dépenses', v: dep, c: C.red }, { label: 'Net', v: rev - dep, c: rev > dep ? C.green : C.red }].map(m => (
                       <div key={m.label} style={{ background: '#FAFAFA', borderRadius: 8, padding: '7px 10px', marginBottom: 5 }}>
-                        <div style={{ fontSize: 9, color: C.text2 }}>{m.label}</div>
+                        <div style={{ fontSize: 9, color: '#6B6B6B' }}>{m.label}</div>
                         <div style={{ fontSize: 14, fontWeight: 800, color: m.c }}>{fmtS(m.v)} FDJ</div>
                       </div>
                     ))}
@@ -676,7 +676,7 @@ Données: ${JSON.stringify({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={card}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Flux de Trésorerie — Waterfall</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 16 }}>Entrées & Sorties sur {horizon} mois</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 16 }}>Entrées & Sorties sur {horizon} mois</div>
               {cashflowItems.map((d, i) => {
                 const isTotal = d.type === 'total';
                 const color = isTotal ? C.yellow : d.value >= 0 ? C.green : C.red;
@@ -695,7 +695,7 @@ Données: ${JSON.stringify({
                 );
               })}
               <div style={{ marginTop: 12, padding: 12, background: totalNet > 0 ? `${C.green}11` : `${C.red}11`, borderRadius: 10, border: `1px solid ${totalNet > 0 ? C.green : C.red}33` }}>
-                <div style={{ fontSize: 10, color: C.text2 }}>Solde prévisionnel net ({horizon}m)</div>
+                <div style={{ fontSize: 10, color: '#6B6B6B' }}>Solde prévisionnel net ({horizon}m)</div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: totalNet > 0 ? C.green : C.red, fontFamily: 'monospace', marginTop: 3 }}>
                   {totalNet >= 0 ? '+' : ''}{fmt(totalNet)} FDJ
                 </div>
@@ -703,7 +703,7 @@ Données: ${JSON.stringify({
             </div>
             <div style={card}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Trésorerie Cumulée Prévisionnelle</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 14 }}>Seuil critique : {fmtS(cashThreshold)} FDJ</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 14 }}>Seuil critique : {fmtS(cashThreshold)} FDJ</div>
               <ResponsiveContainer width="100%" height={190}>
                 <AreaChart data={monthlyTable.map((d, i) => ({ ...d, cumCash: 5000000 + monthlyTable.slice(0, i + 1).reduce((s, r) => s + r.net, 0) }))}>
                   <defs>
@@ -726,7 +726,7 @@ Données: ${JSON.stringify({
                 ].map(k => (
                   <div key={k.label} style={{ background: '#F5F5F5', borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 14 }}>{k.icon}</span>
-                    <div><div style={{ fontSize: 9, color: C.text2 }}>{k.label}</div><div style={{ fontSize: 12, fontWeight: 700, color: k.color }}>{k.value}</div></div>
+                    <div><div style={{ fontSize: 9, color: '#6B6B6B' }}>{k.label}</div><div style={{ fontSize: 12, fontWeight: 700, color: k.color }}>{k.value}</div></div>
                   </div>
                 ))}
               </div>
@@ -760,7 +760,7 @@ Données: ${JSON.stringify({
                           <span style={{ fontSize: 12, fontWeight: 700 }}>{r.title}</span>
                           <span style={{ fontSize: 9, background: bg, color: c, padding: '2px 7px', borderRadius: 20, fontWeight: 700 }}>{lbl}</span>
                         </div>
-                        <div style={{ fontSize: 11, color: C.text2, marginBottom: 7 }}>{r.detail}</div>
+                        <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 7 }}>{r.detail}</div>
                         <div style={{ padding: '6px 10px', background: '#FAFAFA', borderRadius: 6, fontSize: 11, color: '#60a5fa' }}>💡 {r.action}</div>
                       </div>
                     </div>
@@ -780,15 +780,15 @@ Données: ${JSON.stringify({
                     <div style={{ position: 'relative', height: 10, background: `linear-gradient(90deg,${C.green},${C.yellow},${C.red})`, borderRadius: 99, marginBottom: 8 }}>
                       <div style={{ position: 'absolute', top: -5, left: `${score}%`, transform: 'translateX(-50%)', width: 20, height: 20, borderRadius: '50%', background: '#fff', border: `3px solid ${color}` }} />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: C.text2, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#6B6B6B', marginBottom: 16 }}>
                       <span>0 Faible</span><span>50 Modéré</span><span>100 Critique</span>
                     </div>
                     <div style={{ textAlign: 'center', fontSize: 36, fontWeight: 800, color, fontFamily: 'monospace' }}>{score}</div>
-                    <div style={{ textAlign: 'center', fontSize: 11, color: C.text2, marginTop: 4 }}>{score > 60 ? 'Risque Élevé' : score > 30 ? 'Risque Modéré' : 'Risque Faible'}</div>
+                    <div style={{ textAlign: 'center', fontSize: 11, color: '#6B6B6B', marginTop: 4 }}>{score > 60 ? 'Risque Élevé' : score > 30 ? 'Risque Modéré' : 'Risque Faible'}</div>
                     <div style={{ marginTop: 18 }}>
                       {[{ label: 'Alertes critiques', count: hC, color: C.red }, { label: 'Avertissements', count: mC, color: C.yellow }, { label: 'Infos', count: alerts.filter(a => a.level === 'info').length, color: C.blue }].map(item => (
                         <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                          <span style={{ fontSize: 11, color: C.text2 }}>{item.label}</span>
+                          <span style={{ fontSize: 11, color: '#6B6B6B' }}>{item.label}</span>
                           <span style={{ fontSize: 13, fontWeight: 800, color: item.color, background: `${item.color}18`, padding: '2px 10px', borderRadius: 20 }}>{item.count}</span>
                         </div>
                       ))}
@@ -806,7 +806,7 @@ Données: ${JSON.stringify({
             {/* Controls */}
             <div style={{ ...card, border: `1px solid ${C.purple}33` }}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🎛️ Simulateur What-If</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 18 }}>Paramètres recalculés en temps réel</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 18 }}>Paramètres recalculés en temps réel</div>
 
               {/* Clients */}
               <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
@@ -852,7 +852,7 @@ Données: ${JSON.stringify({
                 <input type="range" min={0} max={20} step={1} value={whatIf.newHires}
                   onChange={e => setWhatIf(w => ({ ...w, newHires: Number(e.target.value) }))}
                   style={{ width: '100%', accentColor: C.violet, cursor: 'pointer' }} />
-                <div style={{ fontSize: 9, color: C.text2, marginTop: 3 }}>150 000 FDJ/mois/personne</div>
+                <div style={{ fontSize: 9, color: '#6B6B6B', marginTop: 3 }}>150 000 FDJ/mois/personne</div>
               </div>
 
               {/* Financement */}
@@ -865,7 +865,7 @@ Données: ${JSON.stringify({
                 <input type="range" min={0} max={5000000} step={100000} value={whatIf.newLoan}
                   onChange={e => setWhatIf(w => ({ ...w, newLoan: Number(e.target.value) }))}
                   style={{ width: '100%', accentColor: C.green, cursor: 'pointer' }} />
-                <div style={{ fontSize: 9, color: C.text2, marginTop: 3 }}>Injecté mois 1 + remboursement 1.5%/mois</div>
+                <div style={{ fontSize: 9, color: '#6B6B6B', marginTop: 3 }}>Injecté mois 1 + remboursement 1.5%/mois</div>
               </div>
 
               {/* Croissance */}
@@ -881,7 +881,7 @@ Données: ${JSON.stringify({
               </div>
 
               <button onClick={() => setWhatIf({ clientDelay: 0, clientChurn: false, clientChurnPct: 20, newHires: 0, newLoan: 0, revenueGrowth: 0 })}
-                style={{ width: '100%', padding: '8px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: C.text2, fontSize: 11, cursor: 'pointer' }}>
+                style={{ width: '100%', padding: '8px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: '#6B6B6B', fontSize: 11, cursor: 'pointer' }}>
                 ↺ Réinitialiser
               </button>
             </div>
@@ -895,7 +895,7 @@ Données: ${JSON.stringify({
                   { label: 'Impact Net', val: totalNet - (forecast.reduce((s, d) => s + d.base_noWhatIf, 0) - forecast.reduce((s, d) => s + d.dep_noWhatIf, 0)) },
                 ].map(({ label, val }) => (
                   <div key={label} style={{ background: '#fff', borderRadius: 10, padding: 14, textAlign: 'center', border: `1px solid ${C.border}` }}>
-                    <div style={{ fontSize: 10, color: C.text2, marginBottom: 8 }}>{label}</div>
+                    <div style={{ fontSize: 10, color: '#6B6B6B', marginBottom: 8 }}>{label}</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: val >= 0 ? C.green : C.red, fontFamily: 'monospace' }}>
                       {val >= 0 ? '+' : ''}{fmtS(val)} FDJ
                     </div>
@@ -908,7 +908,7 @@ Données: ${JSON.stringify({
 
               <div style={card}>
                 <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Scénario Base vs Simulation What-If</div>
-                <div style={{ fontSize: 11, color: C.text2, marginBottom: 14 }}>Revenus et charges comparés mois par mois</div>
+                <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 14 }}>Revenus et charges comparés mois par mois</div>
                 <ResponsiveContainer width="100%" height={220}>
                   <ComposedChart data={forecast.map(d => ({ label: d.label, rev_base: d.base_noWhatIf, rev_sim: d.base, dep_base: d.dep_noWhatIf, dep_sim: d.dep_base }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
@@ -931,7 +931,7 @@ Données: ${JSON.stringify({
                   { label: 'Capital injecté', value: `+${fmtS(whatIf.newLoan)} FDJ`, color: C.green },
                 ].map(item => (
                   <div key={item.label} style={{ background: '#FAFAFA', borderRadius: 8, padding: 10 }}>
-                    <div style={{ fontSize: 9, color: C.text2, marginBottom: 4 }}>{item.label}</div>
+                    <div style={{ fontSize: 9, color: '#6B6B6B', marginBottom: 4 }}>{item.label}</div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: item.color, fontFamily: 'monospace' }}>{item.value}</div>
                   </div>
                 ))}
@@ -945,7 +945,7 @@ Données: ${JSON.stringify({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📊 Analyse des Écarts — Prévu vs Réel (3 derniers mois)</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 16 }}>Basé sur les données réelles de vos transactions</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 16 }}>Basé sur les données réelles de vos transactions</div>
               <ResponsiveContainer width="100%" height={230}>
                 <ComposedChart data={varianceData} barCategoryGap="30%">
                   <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
@@ -967,7 +967,7 @@ Données: ${JSON.stringify({
                   <thead>
                     <tr>
                       {['Mois', 'Rev. Prévu', 'Rev. Réel', 'Écart Rev.', '%', 'Dep. Prévues', 'Dep. Réelles', 'Écart Dep.'].map((h, i) => (
-                        <th key={h} style={{ padding: '8px 10px', background: '#F5F5F5', color: C.text2, fontWeight: 700, textAlign: i === 0 ? 'left' : 'right', fontSize: 10, whiteSpace: 'nowrap' }}>{h}</th>
+                        <th key={h} style={{ padding: '8px 10px', background: '#F5F5F5', color: '#6B6B6B', fontWeight: 700, textAlign: i === 0 ? 'left' : 'right', fontSize: 10, whiteSpace: 'nowrap' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -975,13 +975,13 @@ Données: ${JSON.stringify({
                     {varianceData.map((row, i) => (
                       <tr key={i} style={{ background: i % 2 === 0 ? `${C.bg1}80` : 'transparent' }}>
                         <td style={{ padding: '10px', fontWeight: 700, color: C.blueLight, fontFamily: 'monospace' }}>{row.period}</td>
-                        <td style={{ padding: '10px', textAlign: 'right', color: C.text2, fontFamily: 'monospace' }}>{fmtS(row.prevRev)}</td>
+                        <td style={{ padding: '10px', textAlign: 'right', color: '#6B6B6B', fontFamily: 'monospace' }}>{fmtS(row.prevRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: '#1A1A1A', fontFamily: 'monospace' }}>{fmtS(row.actRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: row.dRev >= 0 ? C.green : C.red, fontFamily: 'monospace' }}>{row.dRev >= 0 ? '+' : ''}{fmtS(row.dRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right' }}>
                           <span style={{ fontSize: 9, fontWeight: 700, color: row.pRev >= 0 ? C.green : C.red, background: row.pRev >= 0 ? `${C.green}18` : `${C.red}18`, padding: '2px 8px', borderRadius: 20 }}>{pct(row.pRev)}</span>
                         </td>
-                        <td style={{ padding: '10px', textAlign: 'right', color: C.text2, fontFamily: 'monospace' }}>{fmtS(row.prevDep)}</td>
+                        <td style={{ padding: '10px', textAlign: 'right', color: '#6B6B6B', fontFamily: 'monospace' }}>{fmtS(row.prevDep)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: '#1A1A1A', fontFamily: 'monospace' }}>{fmtS(row.actDep)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: row.dDep <= 0 ? C.green : C.red, fontFamily: 'monospace' }}>{row.dDep >= 0 ? '+' : ''}{fmtS(row.dDep)}</td>
                       </tr>
@@ -1004,7 +1004,7 @@ Données: ${JSON.stringify({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🌡️ Heatmap Trésorerie — Flux par Semaine × Mois</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 18 }}>Identifier les semaines critiques et les pics de flux · Valeurs en K FDJ · ● = mois prévisionnel</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 18 }}>Identifier les semaines critiques et les pics de flux · Valeurs en K FDJ · ● = mois prévisionnel</div>
               <CashHeatmap data={heatmapData} cols={heatmapCols} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -1041,7 +1041,7 @@ Données: ${JSON.stringify({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🚨 Moteur d'Alertes Intelligent</div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 14 }}>Alertes calculées en temps réel selon le scénario et la simulation what-if</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 14 }}>Alertes calculées en temps réel selon le scénario et la simulation what-if</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {alerts.map((a, i) => {
                   const c = { critical: C.red, warning: C.yellow, info: C.blue, ok: C.green }[a.level];
@@ -1057,12 +1057,12 @@ Données: ${JSON.stringify({
               {/* Feedback loop */}
               <div style={{ marginTop: 18, ...card }}>
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>🔄 Feedback — Amélioration continue</div>
-                <div style={{ fontSize: 11, color: C.text2, marginBottom: 12 }}>Marquez chaque prévision pour affiner la précision du modèle IA</div>
+                <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 12 }}>Marquez chaque prévision pour affiner la précision du modèle IA</div>
                 {varianceData.map((d, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                     <div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: C.blueLight, marginRight: 10, fontFamily: 'monospace' }}>{d.period}</span>
-                      <span style={{ fontSize: 11, color: C.text2 }}>Prévu: {fmtS(d.prevRev)} · Réel: {fmtS(d.actRev)}</span>
+                      <span style={{ fontSize: 11, color: '#6B6B6B' }}>Prévu: {fmtS(d.prevRev)} · Réel: {fmtS(d.actRev)}</span>
                     </div>
                     <div style={{ display: 'flex', gap: 6 }}>
                       {feedbackGiven[i] ? (
@@ -1098,7 +1098,7 @@ Données: ${JSON.stringify({
                   onChange={e => setCashThreshold(Number(e.target.value))}
                   style={{ width: '100%', accentColor: C.red, cursor: 'pointer' }} />
               </div>
-              <div style={{ fontSize: 11, color: C.text2, marginBottom: 10 }}>Types d'alertes actives</div>
+              <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 10 }}>Types d'alertes actives</div>
               {[
                 { label: 'Seuil trésorerie critique', active: true },
                 { label: 'Retard paiement client', active: true },
@@ -1119,13 +1119,13 @@ Données: ${JSON.stringify({
         {activeTab === 'tableau' && (
           <div style={card}>
             <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>Tableau Prévisionnel Mensuel Détaillé</div>
-            <div style={{ fontSize: 11, color: C.text2, marginBottom: 16 }}>Scénario: <span style={{ color: sc, fontWeight: 700 }}>{scenario}</span> · {horizon} mois · Confiance décroissante</div>
+            <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 16 }}>Scénario: <span style={{ color: sc, fontWeight: 700 }}>{scenario}</span> · {horizon} mois · Confiance décroissante</div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                 <thead>
                   <tr>
                     {['Mois', 'Revenus Prévus', 'Dépenses Prévues', 'Résultat Net', 'Marge Nette', 'Rev. Cumulés', 'Confiance IA'].map((h, i) => (
-                      <th key={h} style={{ padding: '10px 14px', background: '#F5F5F5', color: C.text2, fontWeight: 600, textAlign: i === 0 ? 'left' : 'right', whiteSpace: 'nowrap', borderRadius: i === 0 ? '8px 0 0 8px' : i === 6 ? '0 8px 8px 0' : '' }}>{h}</th>
+                      <th key={h} style={{ padding: '10px 14px', background: '#F5F5F5', color: '#6B6B6B', fontWeight: 600, textAlign: i === 0 ? 'left' : 'right', whiteSpace: 'nowrap', borderRadius: i === 0 ? '8px 0 0 8px' : i === 6 ? '0 8px 8px 0' : '' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -1145,7 +1145,7 @@ Données: ${JSON.stringify({
                           <div style={{ width: 48, height: 4, background: '#F5F5F5', borderRadius: 99 }}>
                             <div style={{ width: `${row.confidence}%`, height: '100%', borderRadius: 99, background: row.confidence > 80 ? C.green : row.confidence > 65 ? C.yellow : C.red }} />
                           </div>
-                          <span style={{ fontSize: 10, color: C.text2 }}>{row.confidence}%</span>
+                          <span style={{ fontSize: 10, color: '#6B6B6B' }}>{row.confidence}%</span>
                         </div>
                       </td>
                     </tr>
@@ -1159,7 +1159,7 @@ Données: ${JSON.stringify({
                       <span style={{ background: `${C.green}22`, color: C.green, padding: '3px 10px', borderRadius: 20, fontWeight: 700, fontSize: 11 }}>{totalRev > 0 ? ((totalNet / totalRev) * 100).toFixed(1) : '0'}%</span>
                     </td>
                     <td style={{ padding: '12px 14px', textAlign: 'right', color: C.violet }}>{fmt(monthlyTable.reduce((s, r) => s + r.rev, 0))} FDJ</td>
-                    <td style={{ padding: '12px 14px', textAlign: 'right', color: C.text2, borderRadius: '0 8px 8px 0' }}>—</td>
+                    <td style={{ padding: '12px 14px', textAlign: 'right', color: '#6B6B6B', borderRadius: '0 8px 8px 0' }}>—</td>
                   </tr>
                 </tbody>
               </table>
@@ -1174,7 +1174,7 @@ Données: ${JSON.stringify({
               <div style={{ ...card, border: `1px solid ${C.purple}33`, textAlign: 'center', padding: 48 }}>
                 <div style={{ fontSize: 40, marginBottom: 16 }}>🤖</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Analyse IA non générée</div>
-                <div style={{ fontSize: 12, color: C.text2, marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>
+                <div style={{ fontSize: 12, color: '#6B6B6B', marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>
                   Cliquez sur "Analyse IA" en haut pour des recommandations personnalisées basées sur vos données réelles, scénarios et paramètres what-if.
                 </div>
                 <button onClick={generateAI} disabled={isGenerating} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', background: `linear-gradient(135deg,${C.purple},${C.blue})`, color: '#fff', cursor: isGenerating ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700 }}>
@@ -1188,10 +1188,10 @@ Données: ${JSON.stringify({
                     <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg,${C.blue},${C.purple})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🤖</div>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>Synthèse Exécutive IA</div>
-                      <div style={{ fontSize: 10, color: C.text2 }}>Basé sur {transactions.filter(t => !t.is_settlement).length} transactions · Régression + ML</div>
+                      <div style={{ fontSize: 10, color: '#6B6B6B' }}>Basé sur {transactions.filter(t => !t.is_settlement).length} transactions · Régression + ML</div>
                     </div>
                     <div style={{ marginLeft: 'auto' }}>
-                      <button onClick={generateAI} disabled={isGenerating} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: C.text2, fontSize: 11, cursor: 'pointer' }}>↺ Régénérer</button>
+                      <button onClick={generateAI} disabled={isGenerating} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: '#6B6B6B', fontSize: 11, cursor: 'pointer' }}>↺ Régénérer</button>
                     </div>
                   </div>
                   <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.8 }}>{aiInsights.executive_summary || aiInsights.summary}</p>
@@ -1207,7 +1207,7 @@ Données: ${JSON.stringify({
                       <div style={{ fontSize: 12, fontWeight: 700, color: section.color, marginBottom: 12 }}>{section.title}</div>
                       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                         {aiInsights[section.key].map((item, i) => (
-                          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 9, fontSize: 11, color: C.text2, lineHeight: 1.6 }}>
+                          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 9, fontSize: 11, color: '#6B6B6B', lineHeight: 1.6 }}>
                             <span style={{ color: section.color, fontWeight: 800, flexShrink: 0 }}>{section.icon}</span>
                             {item}
                           </li>
@@ -1220,7 +1220,7 @@ Données: ${JSON.stringify({
                 {/* 12-month Prophet-style projection */}
                 <div style={card}>
                   <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Projection 12 mois — Intervalle de confiance</div>
-                  <div style={{ fontSize: 11, color: C.text2, marginBottom: 14 }}>Extrapolation Prophet-style · Scénario {scenario}</div>
+                  <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 14 }}>Extrapolation Prophet-style · Scénario {scenario}</div>
                   <ResponsiveContainer width="100%" height={210}>
                     <ComposedChart data={Array.from({ length: 12 }, (_, i) => {
                       const regI = linearRegression(historical.map(d => d.income));
@@ -1245,7 +1245,7 @@ Données: ${JSON.stringify({
                 </div>
 
                 {aiInsights.confidence_note && (
-                  <div style={{ ...card, fontSize: 11, color: C.text2, textAlign: 'center' }}>ℹ️ {aiInsights.confidence_note}</div>
+                  <div style={{ ...card, fontSize: 11, color: '#6B6B6B', textAlign: 'center' }}>ℹ️ {aiInsights.confidence_note}</div>
                 )}
               </>
             )}
