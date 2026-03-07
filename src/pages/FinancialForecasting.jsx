@@ -292,7 +292,7 @@ export default function FinancialForecasting() {
 
   const scenarioRevKey = { base: 'base', optimiste: 'optimiste', pessimiste: 'pessimiste' };
   const scenarioDepKey = { base: 'dep_base', optimiste: 'dep_opt', pessimiste: 'dep_pess' };
-  const sc = { base: C.blue, optimiste: C.green, pessimiste: C.red }[scenario];
+  const sc = { base: C.accentBlue, optimiste: C.green, pessimiste: C.red }[scenario];
 
   const totalRev = forecast.reduce((s, d) => s + d[scenarioRevKey[scenario]], 0);
   const totalDep = forecast.reduce((s, d) => s + d[scenarioDepKey[scenario]], 0);
