@@ -1058,10 +1058,11 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                 </ResponsiveContainer>
               </div>
 
-              <div style={{ ...card, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+              <div style={{ ...card, display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
                 {[
                   { label: 'Impact retard', value: `-${fmtS(totalRev * (whatIf.clientDelay / 90) * 0.15)} FDJ`, color: C.yellow },
                   { label: 'Coût embauches', value: `-${fmtS(whatIf.newHires * 150000 * horizon)} FDJ`, color: C.red },
+                  { label: 'Dép. exceptionnelle', value: `-${fmtS(whatIf.unexpectedExpense)} FDJ`, color: C.orange },
                   { label: 'Capital injecté', value: `+${fmtS(whatIf.newLoan)} FDJ`, color: C.green },
                 ].map(item => (
                   <div key={item.label} style={{ background: '#FAFAFA', borderRadius: 8, padding: 10 }}>
