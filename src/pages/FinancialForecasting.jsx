@@ -272,6 +272,7 @@ export default function FinancialForecasting() {
       baseI *= delayFactor * growthFactor;
       if (whatIf.clientChurn && i <= 3) baseI *= (1 - whatIf.clientChurnPct / 100);
       if (i === 1) baseI += whatIf.newLoan; // loan cash injection month 1
+      if (i === 1) baseE += whatIf.unexpectedExpense; // one-off unexpected expense
       baseE += salaryDelta + whatIf.newLoan * 0.015; // loan repayment
 
       const confidence = Math.max(50, 95 - i * 3.5);
