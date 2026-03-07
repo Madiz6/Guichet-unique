@@ -472,6 +472,112 @@ Données: ${JSON.stringify({
     setIsGenerating(false);
   };
 
+  // ── AI Variance cause analysis ─────────────────────────────────────────────
+  const analyzeVarianceCauses = async () => {
+    setIsAnalyzingVariance(true);
+    try {
+      const res = await meras.integrations.Core.InvokeLLM({
+        prompt: `Tu es un analyste financier expert. Pour chaque mois ci-dessous, donne la cause probable de l'écart entre prévu et réel, en 1 phrase courte et actionnable en français.
+Données: ${JSON.stringify(varianceData.map(d => ({
+  mois: d.period,
+  revenu_prevu: d.prevRev, revenu_reel: d.actRev, ecart_rev: d.dRev, pct_rev: d.pRev.toFixed(1),
+  depense_prevue: d.prevDep, depense_reelle: d.actDep, ecart_dep: d.dDep,
+})))}
+Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            causes: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  mois: { type: 'string' },
+                  cause_revenus: { type: 'string' },
+                  cause_depenses: { type: 'string' },
+                  action: { type: 'string' },
+                }
+              }
+            }
+          }
+        }
+      });
+      setVarianceCauses(res.causes || []);
+    } catch (e) {
+      toast.error('Erreur analyse variance: ' + e.message);
+    }
+    setIsAnalyzingVariance(false);
+  };
+
+  // ── Ledger GL health indicator ────────────────────────────────────────────
+  const ledgerHealth = useMemo(() => {
+    const posted = ledgerEntries.filter(e => e.status === 'Posted').length;
+    const total = ledgerEntries.length;
+    const coverage = transactions.filter(t => !t.is_settlement).length;
+    const linked = transactions.filter(t => !t.is_settlement && t.booking_status === 'Comptabilisé').length;
+    const linkRate = coverage > 0 ? (linked / coverage) * 100 : 0;
+    const balanced = ledgerEntries.filter(e => Math.abs((e.amount || 0)) > 0).length;
+    return {
+      total, posted, coverage, linked, linkRate,
+      score: Math.round((linkRate * 0.6) + (total > 0 ? Math.min(40, (posted / total) * 40) : 0)),
+      label: linkRate > 80 ? 'Excellent' : linkRate > 60 ? 'Bon' : linkRate > 40 ? 'Partiel' : 'Insuffisant',
+      color: linkRate > 80 ? C.green : linkRate > 60 ? C.yellow : C.red,
+    };
+  }, [ledgerEntries, transactions]);
+
+  // ── Send critical alert email ─────────────────────────────────────────────
+  const sendAlertEmail = async () => {
+    try {
+      const user = await meras.auth.me();
+      await meras.integrations.Core.SendEmail({
+        to: user?.email || '',
+        subject: `🔴 Alerte Financière Paie360 — ${criticalCount} alerte(s) critique(s)`,
+        body: `<h2>Rapport d'alertes financières</h2>
+<p>Bonjour,</p>
+<p>Le moteur d'alertes Paie360 a détecté <strong>${criticalCount} alerte(s) critique(s)</strong> sur votre horizon de prévision de ${horizon} mois (scénario ${scenario}).</p>
+<h3>Alertes :</h3>
+<ul>${alerts.filter(a => a.level === 'critical' || a.level === 'warning').map(a => `<li>${a.icon} ${a.msg}</li>`).join('')}</ul>
+<h3>Résumé :</h3>
+<p>${narrative}</p>
+<hr/>
+<p><em>Généré par Paie360 — Prévisions IA 360° — ${new Date().toLocaleDateString('fr-FR')}</em></p>`,
+      });
+      setAlertEmailSent(true);
+      toast.success('Rapport d\'alertes envoyé par email !');
+    } catch (e) {
+      toast.error('Erreur envoi email: ' + e.message);
+    }
+  };
+
+  // ── CSV export ───────────────────────────────────────────────────────────
+  const exportCSV = () => {
+    setIsExporting(true);
+    const rows = [
+      ['Mois', 'Revenus Prévus (FDJ)', 'Dépenses Prévues (FDJ)', 'Résultat Net (FDJ)', 'Marge Nette (%)', 'Revenus Cumulés (FDJ)', 'Confiance IA (%)'],
+      ...monthlyTable.map(r => [r.label, r.rev, r.dep, r.net, r.marge, r.cumRev, r.confidence]),
+      [],
+      ['TOTAL', monthlyTable.reduce((s, r) => s + r.rev, 0), monthlyTable.reduce((s, r) => s + r.dep, 0), monthlyTable.reduce((s, r) => s + r.net, 0), totalRev > 0 ? ((totalNet / totalRev) * 100).toFixed(1) : 0, '', ''],
+      [],
+      ['PARAMÈTRES', ''],
+      ['Scénario', scenario], ['Horizon (mois)', horizon], ['Seuil trésorerie (FDJ)', cashThreshold],
+      ['Retard client (jours)', whatIf.clientDelay], ['Nouvelles embauches', whatIf.newHires],
+      ['Emprunt simulé (FDJ)', whatIf.newLoan], ['Croissance additionnelle (%)', whatIf.revenueGrowth],
+      ['Dépense exceptionnelle (FDJ)', whatIf.unexpectedExpense],
+      [],
+      ['SANTÉ GRAND LIVRE', ''],
+      ['Total écritures GL', ledgerHealth.total], ['Écritures comptabilisées', ledgerHealth.posted],
+      ['Taux liaison TX→GL (%)', ledgerHealth.linkRate.toFixed(1)], ['Score qualité', ledgerHealth.score],
+    ];
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `previsions_financieres_${scenario}_${horizon}m_${format(new Date(), 'yyyyMMdd')}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    toast.success('Export CSV généré !');
+    setIsExporting(false);
+  };
+
   const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' };
 
   return (
