@@ -874,6 +874,19 @@ Données: ${JSON.stringify({
                 <div style={{ fontSize: 9, color: '#6B6B6B', marginTop: 3 }}>Injecté mois 1 + remboursement 1.5%/mois</div>
               </div>
 
+              {/* Dépense Exceptionnelle */}
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: '1px solid #E5E7EB' }}>
+                <div style={{ fontSize: 10, color: C.orange, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>💥 DÉPENSE EXCEPTIONNELLE</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <span style={{ fontSize: 11, color: '#374151' }}>Montant (mois 1)</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: C.orange, fontFamily: 'monospace' }}>{whatIf.unexpectedExpense === 0 ? 'Aucune' : fmtS(whatIf.unexpectedExpense)}</span>
+                </div>
+                <input type="range" min={0} max={3000000} step={50000} value={whatIf.unexpectedExpense}
+                  onChange={e => setWhatIf(w => ({ ...w, unexpectedExpense: Number(e.target.value) }))}
+                  style={{ width: '100%', accentColor: C.orange, cursor: 'pointer' }} />
+                <div style={{ fontSize: 9, color: '#6B6B6B', marginTop: 3 }}>Ex: panne équipement, réparation, pénalité</div>
+              </div>
+
               {/* Croissance */}
               <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 14, border: '1px solid #E5E7EB' }}>
                 <div style={{ fontSize: 10, color: C.blue, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>📈 CROISSANCE ADDITIONNELLE</div>
