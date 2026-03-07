@@ -144,6 +144,9 @@ export default function Transactions() {
   const toggleSelect = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   const toggleSelectAll = () => setSelectedIds(prev => prev.length === filteredTransactions.length ? [] : filteredTransactions.map(t => t.id));
 
+  // Normalize: booking_status can be 'booked' OR 'Comptabilisé' — both mean booked
+  const isBooked = (t) => t.booking_status === 'booked' || t.booking_status === 'Comptabilisé';
+
   // Calculate totals
   const DEBT_OPERATION_TYPES = ['Dette fournisseur', 'Dette fournisseur réglée', 'Dette employé', 'Dette partenaire', 'Dette banque', 'Dette investisseur'];
   const openDebts = transactions.filter(t =>
@@ -152,9 +155,6 @@ export default function Transactions() {
     !t.payment_registered &&
     !t.linked_settlement_id
   );
-
-  // Normalize: booking_status can be 'booked' OR 'Comptabilisé' — both mean booked
-  const isBooked = (t) => t.booking_status === 'booked' || t.booking_status === 'Comptabilisé';
 
   // "À comptabiliser" = transactions not yet booked, excluding settlement rows
   const toBookList = transactions.filter(t => !isBooked(t) && !t.is_settlement);
