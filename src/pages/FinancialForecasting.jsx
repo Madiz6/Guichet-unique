@@ -1427,9 +1427,9 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                       <XAxis dataKey="period" tick={{ fill: '#6B6B6B', fontSize: 9 }} axisLine={false} tickLine={false} />
                       <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 9 }} axisLine={false} tickLine={false} />
                       <Tooltip content={<DarkTooltip />} />
-                      <Area type="monotone" dataKey="upper" name="Borne haute" stroke="none" fill={C.blue} fillOpacity={0.12} />
-                      <Area type="monotone" dataKey="lower" name="Borne basse" stroke="none" fill={C.bg0} />
-                      <Line type="monotone" dataKey="central" name="Projection centrale" stroke={C.blue} strokeWidth={2.5} dot={{ r: 3, fill: C.blue }} />
+                      <Area type="monotone" dataKey="upper" name="Borne haute" stroke="none" fill="#2563EB" fillOpacity={0.12} />
+                      <Area type="monotone" dataKey="lower" name="Borne basse" stroke="none" fill="#FAFAFA" />
+                      <Line type="monotone" dataKey="central" name="Projection centrale" stroke="#2563EB" strokeWidth={2.5} dot={{ r: 3, fill: '#2563EB' }} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </div>
