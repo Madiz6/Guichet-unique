@@ -1108,7 +1108,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                   </thead>
                   <tbody>
                     {varianceData.map((row, i) => (
-                      <tr key={i} style={{ background: i % 2 === 0 ? `${C.bg1}80` : 'transparent' }}>
+                      <tr key={i} style={{ background: i % 2 === 0 ? '#FFFFFF80' : 'transparent' }}>
                         <td style={{ padding: '10px', fontWeight: 700, color: '#2563EB', fontFamily: 'monospace' }}>{row.period}</td>
                         <td style={{ padding: '10px', textAlign: 'right', color: '#6B6B6B', fontFamily: 'monospace' }}>{fmtS(row.prevRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: '#1A1A1A', fontFamily: 'monospace' }}>{fmtS(row.actRev)}</td>
