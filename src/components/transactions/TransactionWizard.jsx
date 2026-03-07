@@ -14,7 +14,7 @@ import { ENHANCED_CATEGORIES } from '../financials/AccountingCategoryMaster';
 import useBehavioralSuggestions from './useBehavioralSuggestions';
 import SmartSuggestionBanner from './SmartSuggestionBanner';
 
-export default function TransactionWizard({ transaction, onSubmit, onCancel }) {
+export default function TransactionWizard({ transaction, onSubmit, onCancel, allTransactions = [] }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(transaction || {
     date: new Date().toISOString().split('T')[0],
