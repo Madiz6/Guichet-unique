@@ -136,6 +136,7 @@ export default function FinancialForecasting() {
   });
 
   // ── historical (12 months) ─────────────────────────────────────────────
+  // Uses transaction.amount (same field as Comptabilite page) — consistent source of truth
   const historical = useMemo(() => {
     const months = [];
     for (let i = 11; i >= 0; i--) {
@@ -143,7 +144,12 @@ export default function FinancialForecasting() {
       const start = startOfMonth(m);
       const end = endOfMonth(m);
       const label = format(m, 'MMM yy', { locale: fr });
-      const txs = transactions.filter(t => { if (!t.date) return false; const d = new Date(t.date); return d >= start && d <= end; });
+      // Exclude settlement transactions (same logic as Comptabilite/Transactions pages)
+      const txs = transactions.filter(t => {
+        if (!t.date || t.is_settlement) return false;
+        const d = new Date(t.date);
+        return d >= start && d <= end;
+      });
       const income = txs.filter(t => t.type === 'Revenu').reduce((s, t) => s + (t.amount || 0), 0);
       const expenses = txs.filter(t => t.type === 'Dépense').reduce((s, t) => s + (t.amount || 0), 0);
       months.push({ label, income, expenses, net: income - expenses, actual: true });
