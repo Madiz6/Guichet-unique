@@ -160,7 +160,7 @@ export default function FinancialForecasting() {
         latestNet: historicalData[historicalData.length - 1]?.net || 0,
         totalTransactions: transactions.length,
       };
-      const res = await meras.integrations.InvokeLLM({
+      const res = await meras.integrations.Core.InvokeLLM({
         prompt: `Tu es un expert-comptable Djibouti. Analyse ces données financières et fournis 3-4 recommandations concrètes en français.
 Données: ${JSON.stringify(summary)}
 Format JSON requis: {"summary": "...", "recommendations": ["...", "..."], "risks": ["..."], "opportunities": ["..."]}`,
