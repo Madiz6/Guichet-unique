@@ -73,8 +73,8 @@ function TabBtn({ active, onClick, children, alert }) {
     <button onClick={onClick} style={{
       padding: '7px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
       fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', position: 'relative',
-      background: active ? `linear-gradient(135deg,${C.blue},${C.purple})` : 'transparent',
-      color: active ? '#fff' : C.text2, transition: 'all 0.2s',
+      background: active ? '#1A1A1A' : 'transparent',
+      color: active ? '#fff' : '#6B6B6B', transition: 'all 0.2s',
     }}>
       {children}
       {alert && <span style={{ position: 'absolute', top: 4, right: 4, width: 6, height: 6, borderRadius: '50%', background: C.red }} />}
