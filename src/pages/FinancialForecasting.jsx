@@ -1217,7 +1217,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
               <div style={{ fontSize: 11, color: '#6B6B6B', marginBottom: 14 }}>Alertes calculées en temps réel selon le scénario et la simulation what-if</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {alerts.map((a, i) => {
-                  const c = { critical: C.red, warning: C.yellow, info: C.blue, ok: C.green }[a.level];
+                  const c = { critical: C.red, warning: C.yellow, info: '#2563EB', ok: C.green }[a.level];
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: `${c}0d`, border: `1px solid ${c}33`, borderRadius: 8 }}>
                       <span style={{ fontSize: 14 }}>{a.icon}</span>
