@@ -74,7 +74,7 @@ const getEntries = (t) => {
 
 
 export default function BookingWorkflow({ transaction, onTransactionUpdated }) {
-  const isBooked = !!transaction.booking_status;
+  const isBooked = transaction.booking_status === 'booked' || transaction.booking_status === 'Comptabilisé';
   const isPaymentDone = !!transaction.payment_registered;
 
   const [step, setStep] = useState(isBooked ? 4 : 1);
