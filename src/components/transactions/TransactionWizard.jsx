@@ -298,6 +298,41 @@ export default function TransactionWizard({ transaction, onSubmit, onCancel, all
                 </Select>
               </div>
 
+              <div>
+                <Label>Département</Label>
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    value={formData.department || ''}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    placeholder="Ex: Finance, RH, Commercial…"
+                    className="flex-1"
+                    list="dept-suggestions-list"
+                  />
+                  <datalist id="dept-suggestions-list">
+                    {[...new Set(allTransactions.map(t => t.department).filter(Boolean))].map(d => (
+                      <option key={d} value={d} />
+                    ))}
+                  </datalist>
+                  {rawSuggestions.department && !formData.department && (
+                    <button
+                      type="button"
+                      onClick={() => handleAcceptSuggestion('department', rawSuggestions.department.value)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs font-medium whitespace-nowrap transition"
+                      title={`Basé sur ${rawSuggestions.department.signal}`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {rawSuggestions.department.value}
+                    </button>
+                  )}
+                </div>
+                {rawSuggestions.department && !formData.department && (
+                  <p className="text-xs text-purple-600 mt-1">
+                    ✨ Suggestion basée sur {rawSuggestions.department.signal}
+                    {' '}({Math.round(rawSuggestions.department.confidence * 100)}% de confiance)
+                  </p>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Montant (DJF) *</Label>
