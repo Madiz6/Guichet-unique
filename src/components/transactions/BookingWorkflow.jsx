@@ -229,29 +229,32 @@ Retourne UNIQUEMENT du JSON valide sans commentaire.`,
         is_dette: DEBT_TYPES.includes(operationType),
       });
 
-      // 2. Wire into real LedgerEntry engine
-      const selectedPcgOp = PCG_OPERATIONS.find(op => op.bookingType === bookingType && op.operationType === operationType);
-      const ledgerResult = await ledgerEngine({
-        action: 'generateLedgerEntries',
-        transaction_id: transaction.id,
-        template_type: selectedPcgOp?.label || bookingType,
-        transaction: {
-          date: transaction.date,
-          amount: transaction.amount,
-          description: transaction.description,
-          category: transaction.category,
-          department: transaction.department,
-          contact_name: transaction.contact_name,
-          date_echeance: transaction.date_echeance,
-          numero_facture: transaction.numero_facture,
-        },
-      });
-      if (ledgerResult?.data?.error) {
-        toast.error('Grand Livre: ' + ledgerResult.data.error);
-      } else {
+      // 2. Wire into real LedgerEntry engine (best-effort, never blocks the booking)
+      try {
+        const selectedPcgOp = PCG_OPERATIONS.find(op => op.bookingType === bookingType && op.operationType === operationType);
+        const ledgerResult = await ledgerEngine({
+          action: 'generateLedgerEntries',
+          transaction_id: transaction.id,
+          template_type: selectedPcgOp?.label || bookingType,
+          transaction: {
+            date: transaction.date,
+            amount: transaction.amount,
+            description: transaction.description,
+            category: transaction.category,
+            department: transaction.department,
+            contact_name: transaction.contact_name,
+            date_echeance: transaction.date_echeance,
+            numero_facture: transaction.numero_facture,
+          },
+        });
         queryClient.invalidateQueries({ queryKey: ['ledger-entries'] });
         queryClient.invalidateQueries({ queryKey: ['debts'] });
         queryClient.invalidateQueries({ queryKey: ['transactions-for-backfill'] });
+        if (ledgerResult?.data?.error) {
+          toast.warning('Grand Livre: ' + ledgerResult.data.error);
+        }
+      } catch (_) {
+        // Ledger creation failed — booking still succeeds, backfill can recover later
       }
 
       setStep(4);
