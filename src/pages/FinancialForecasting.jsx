@@ -123,7 +123,7 @@ function CashHeatmap({ data, cols }) {
     const t = max_ > min_ ? (v - min_) / (max_ - min_) : 0.5;
     if (t < 0.2) return { bg: `${C.red}33`, color: C.red };
     if (t < 0.4) return { bg: `${C.yellow}33`, color: C.yellow };
-    if (t < 0.65) return { bg: `${C.blue}33`, color: C.blueLight };
+    if (t < 0.65) return { bg: `${C.blue}33`, color: '#2563EB' };
     return { bg: `${C.green}33`, color: C.green };
   };
   return (
@@ -173,7 +173,7 @@ function CashHeatmap({ data, cols }) {
             <span style={{ color: x.c }}>{x.l}</span>
           </span>
         ))}
-        <span style={{ marginLeft: 'auto', color: C.blueLight }}>● Mois prévisionnel</span>
+        <span style={{ marginLeft: 'auto', color: '#2563EB' }}>● Mois prévisionnel</span>
       </div>
     </div>
   );
@@ -974,7 +974,7 @@ Données: ${JSON.stringify({
                   <tbody>
                     {varianceData.map((row, i) => (
                       <tr key={i} style={{ background: i % 2 === 0 ? `${C.bg1}80` : 'transparent' }}>
-                        <td style={{ padding: '10px', fontWeight: 700, color: C.blueLight, fontFamily: 'monospace' }}>{row.period}</td>
+                        <td style={{ padding: '10px', fontWeight: 700, color: '#2563EB', fontFamily: 'monospace' }}>{row.period}</td>
                         <td style={{ padding: '10px', textAlign: 'right', color: '#6B6B6B', fontFamily: 'monospace' }}>{fmtS(row.prevRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: '#1A1A1A', fontFamily: 'monospace' }}>{fmtS(row.actRev)}</td>
                         <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: row.dRev >= 0 ? C.green : C.red, fontFamily: 'monospace' }}>{row.dRev >= 0 ? '+' : ''}{fmtS(row.dRev)}</td>
@@ -990,7 +990,7 @@ Données: ${JSON.stringify({
                 </table>
               </div>
               <div style={{ marginTop: 14, padding: '10px 14px', background: `${C.blue}11`, borderRadius: 8, fontSize: 11, color: '#374151', lineHeight: 1.7 }}>
-                <span style={{ color: C.blueLight, fontWeight: 700 }}>🤖 Analyse IA :</span> Sur les 3 derniers mois, précision du modèle à{' '}
+                <span style={{ color: '#2563EB', fontWeight: 700 }}>🤖 Analyse IA :</span> Sur les 3 derniers mois, précision du modèle à{' '}
                 <span style={{ color: C.green, fontWeight: 700 }}>
                   {varianceData.length > 0 ? (100 - varianceData.reduce((s, r) => s + Math.abs(r.pRev), 0) / varianceData.length).toFixed(1) : '—'}%
                 </span>. Le modèle est recalibré mensuellement sur vos données réelles.
@@ -1061,7 +1061,7 @@ Données: ${JSON.stringify({
                 {varianceData.map((d, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
                     <div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: C.blueLight, marginRight: 10, fontFamily: 'monospace' }}>{d.period}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#2563EB', marginRight: 10, fontFamily: 'monospace' }}>{d.period}</span>
                       <span style={{ fontSize: 11, color: '#6B6B6B' }}>Prévu: {fmtS(d.prevRev)} · Réel: {fmtS(d.actRev)}</span>
                     </div>
                     <div style={{ display: 'flex', gap: 6 }}>
@@ -1079,7 +1079,7 @@ Données: ${JSON.stringify({
                   </div>
                 ))}
                 {Object.keys(feedbackGiven).length > 0 && (
-                  <div style={{ marginTop: 10, padding: '10px 14px', background: `${C.blue}11`, borderRadius: 8, fontSize: 11, color: C.blueLight }}>
+                  <div style={{ marginTop: 10, padding: '10px 14px', background: `${C.blue}11`, borderRadius: 8, fontSize: 11, color: '#2563EB' }}>
                     ✅ Feedback enregistré. Précision estimée : <strong>{Math.min(99, 94 + Object.values(feedbackGiven).filter(v => v === 'correct').length)}%</strong>
                   </div>
                 )}
@@ -1132,7 +1132,7 @@ Données: ${JSON.stringify({
                 <tbody>
                   {monthlyTable.map((row, i) => (
                     <tr key={i} style={{ background: i % 2 === 0 ? C.bg0 : 'transparent' }}>
-                      <td style={{ padding: '12px 14px', fontWeight: 700, color: C.blueLight }}>{row.label}</td>
+                      <td style={{ padding: '12px 14px', fontWeight: 700, color: '#2563EB' }}>{row.label}</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: C.green }}>{fmt(row.rev)} FDJ</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: C.red }}>{fmt(row.dep)} FDJ</td>
                       <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: row.net >= 0 ? C.yellow : C.red }}>{row.net >= 0 ? '+' : ''}{fmt(row.net)} FDJ</td>
