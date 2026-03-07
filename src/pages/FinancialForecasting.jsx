@@ -348,6 +348,7 @@ export default function FinancialForecasting() {
     else if (whatIf.clientDelay > 20) a.push({ level: 'warning', icon: '🟡', msg: `Retard paiement ${whatIf.clientDelay}j : tension trésorerie probable en mois 1-2.` });
     if (whatIf.clientChurn) a.push({ level: 'critical', icon: '🔴', msg: `Perte client simulée (${whatIf.clientChurnPct}%) : impact revenus de ${fmtS(totalRev * whatIf.clientChurnPct / 100)} FDJ sur ${horizon} mois.` });
     if (whatIf.newHires > 5) a.push({ level: 'warning', icon: '🟡', msg: `${whatIf.newHires} recrutements : +${fmtS(whatIf.newHires * 150000 * horizon)} FDJ de charges — revoir le plan.` });
+    if (whatIf.unexpectedExpense > 500000) a.push({ level: 'warning', icon: '🟡', msg: `Dépense exceptionnelle simulée : ${fmtS(whatIf.unexpectedExpense)} FDJ — impact immédiat trésorerie mois 1.` });
     if (cumCash < cashThreshold) a.push({ level: 'critical', icon: '🔴', msg: `Trésorerie prévisionnelle (${fmtS(cumCash)} FDJ) sous seuil critique (${fmtS(cashThreshold)} FDJ).` });
     if (incomeTrend < -5) a.push({ level: 'warning', icon: '🟡', msg: `Tendance baissière des revenus de ${Math.abs(incomeTrend).toFixed(1)}% vs historique.` });
     if (expenseTrend > 15) a.push({ level: 'warning', icon: '🟡', msg: `Charges en hausse de ${expenseTrend.toFixed(1)}% vs historique — auditer les postes fixes.` });
