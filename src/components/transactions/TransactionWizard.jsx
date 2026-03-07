@@ -36,6 +36,44 @@ export default function TransactionWizard({ transaction, onSubmit, onCancel, all
     accounting_period: new Date().toISOString().slice(0, 7).replace('-', '')
   });
   const [uploading, setUploading] = useState(false);
+  const [dismissedFields, setDismissedFields] = useState([]);
+
+  // ── Behavioral learning engine ──
+  const { suggest } = useBehavioralSuggestions(allTransactions);
+
+  const rawSuggestions = useMemo(() => suggest({
+    contact_name: formData.contact_name,
+    category: formData.category,
+    source: formData.source,
+    description: formData.description,
+    type: formData.type,
+  }), [formData.contact_name, formData.category, formData.source, formData.description, formData.type]);
+
+  // Only show suggestions for fields not yet filled and not dismissed
+  const activeSuggestions = useMemo(() => {
+    const fieldMeta = {
+      department:     'Département',
+      category:       'Catégorie',
+      payment_method: 'Paiement',
+    };
+    return Object.entries(rawSuggestions)
+      .filter(([field, s]) =>
+        s &&
+        !formData[field] &&          // field is empty
+        !dismissedFields.includes(field) &&
+        s.confidence >= 0.25
+      )
+      .map(([field, s]) => ({ field, label: fieldMeta[field], ...s }));
+  }, [rawSuggestions, formData, dismissedFields]);
+
+  const handleAcceptSuggestion = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    toast.success(`${field === 'department' ? 'Département' : field} appliqué automatiquement ✓`);
+  };
+
+  const handleDismissSuggestion = (field) => {
+    setDismissedFields(prev => [...prev, field]);
+  };
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
