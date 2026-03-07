@@ -223,6 +223,7 @@ export default function FinancialForecasting() {
 
   // ── cashflow waterfall ─────────────────────────────────────────────────
   const cashflowItems = useMemo(() => {
+    // Match EtatsFinanciers: exclude fully settled debts only
     const totalDebt = debts.filter(d => d.status !== 'Réglée').reduce((s, d) => s + (d.amount_remaining || 0), 0);
     return [
       { name: 'Solde initial', value: historical[historical.length - 1]?.income || 0, type: 'total' },
