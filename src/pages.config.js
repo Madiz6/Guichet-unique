@@ -64,6 +64,7 @@ import EmployeePortal from './pages/EmployeePortal';
 import Employees from './pages/Employees';
 import Employes from './pages/Employes';
 import Entreprise from './pages/Entreprise';
+import EtatsFinanciers from './pages/EtatsFinanciers';
 import Expenses from './pages/Expenses';
 import FinancialForecasting from './pages/FinancialForecasting';
 import GrandLivre from './pages/GrandLivre';
@@ -88,7 +89,6 @@ import Training from './pages/Training';
 import Transactions from './pages/Transactions';
 import VirtualReceptionist from './pages/VirtualReceptionist';
 import Visas from './pages/Visas';
-import EtatsFinanciers from './pages/EtatsFinanciers';
 import __Layout from './Layout.jsx';
 
 
@@ -110,6 +110,7 @@ export const PAGES = {
     "Employees": Employees,
     "Employes": Employes,
     "Entreprise": Entreprise,
+    "EtatsFinanciers": EtatsFinanciers,
     "Expenses": Expenses,
     "FinancialForecasting": FinancialForecasting,
     "GrandLivre": GrandLivre,
@@ -134,7 +135,6 @@ export const PAGES = {
     "Transactions": Transactions,
     "VirtualReceptionist": VirtualReceptionist,
     "Visas": Visas,
-    "EtatsFinanciers": EtatsFinanciers,
 }
 
 export const pagesConfig = {

@@ -119,13 +119,20 @@ export default function FinancialForecasting() {
   // What-if inputs
   const [whatIf, setWhatIf] = useState({ clientDelay: 0, newHires: 0, newLoan: 0 });
 
+  // Fetch full dataset — same limit as Comptabilite page (500) for accurate historicals
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions'],
-    queryFn: () => meras.entities.Transaction.list('-date'),
+    queryFn: () => meras.entities.Transaction.list('-date', 500),
   });
+  // Also fetch ledger entries (authoritative PCG source, same as EtatsFinanciers)
+  const { data: ledgerEntries = [] } = useQuery({
+    queryKey: ['ledger-entries-forecast'],
+    queryFn: () => meras.entities.LedgerEntry.list('-date', 2000),
+  });
+  // All debt statuses (same as EtatsFinanciers — includes Partiellement réglée)
   const { data: debts = [] } = useQuery({
-    queryKey: ['debts'],
-    queryFn: () => meras.entities.DebtCentralized.list(),
+    queryKey: ['debts-forecast'],
+    queryFn: () => meras.entities.DebtCentralized.list('-created_date', 500),
   });
 
   // ── historical (12 months) ─────────────────────────────────────────────
