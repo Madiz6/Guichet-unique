@@ -1234,8 +1234,8 @@ Données: ${JSON.stringify({
                       };
                     })}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                      <XAxis dataKey="period" tick={{ fill: C.text2, fontSize: 9 }} axisLine={false} tickLine={false} />
-                      <YAxis tickFormatter={fmtS} tick={{ fill: C.text2, fontSize: 9 }} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="period" tick={{ fill: '#6B6B6B', fontSize: 9 }} axisLine={false} tickLine={false} />
+                      <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 9 }} axisLine={false} tickLine={false} />
                       <Tooltip content={<DarkTooltip />} />
                       <Area type="monotone" dataKey="upper" name="Borne haute" stroke="none" fill={C.blue} fillOpacity={0.12} />
                       <Area type="monotone" dataKey="lower" name="Borne basse" stroke="none" fill={C.bg0} />
