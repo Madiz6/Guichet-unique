@@ -644,7 +644,7 @@ Données: ${JSON.stringify({
                       <span style={{ fontSize: 10, background: `${s.color}22`, color: s.color, padding: '2px 8px', borderRadius: 20, fontWeight: 700 }}>{s.prob}</span>
                     </div>
                     {[{ label: 'Revenus', v: rev, c: C.green }, { label: 'Dépenses', v: dep, c: C.red }, { label: 'Net', v: rev - dep, c: rev > dep ? C.green : C.red }].map(m => (
-                      <div key={m.label} style={{ background: C.bg0, borderRadius: 8, padding: '7px 10px', marginBottom: 5 }}>
+                      <div key={m.label} style={{ background: '#FAFAFA', borderRadius: 8, padding: '7px 10px', marginBottom: 5 }}>
                         <div style={{ fontSize: 9, color: C.text2 }}>{m.label}</div>
                         <div style={{ fontSize: 14, fontWeight: 800, color: m.c }}>{fmtS(m.v)} FDJ</div>
                       </div>
@@ -761,7 +761,7 @@ Données: ${JSON.stringify({
                           <span style={{ fontSize: 9, background: bg, color: c, padding: '2px 7px', borderRadius: 20, fontWeight: 700 }}>{lbl}</span>
                         </div>
                         <div style={{ fontSize: 11, color: C.text2, marginBottom: 7 }}>{r.detail}</div>
-                        <div style={{ padding: '6px 10px', background: C.bg0, borderRadius: 6, fontSize: 11, color: '#60a5fa' }}>💡 {r.action}</div>
+                        <div style={{ padding: '6px 10px', background: '#FAFAFA', borderRadius: 6, fontSize: 11, color: '#60a5fa' }}>💡 {r.action}</div>
                       </div>
                     </div>
                   );
@@ -809,7 +809,7 @@ Données: ${JSON.stringify({
               <div style={{ fontSize: 11, color: C.text2, marginBottom: 18 }}>Paramètres recalculés en temps réel</div>
 
               {/* Clients */}
-              <div style={{ background: C.bg0, borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 10, color: C.yellow, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>👤 CLIENTS</div>
                 {[{ key: 'clientDelay', label: 'Retard paiement (jours)', min: 0, max: 90, step: 5, fmt: v => `${v}j`, color: C.yellow }].map(f => (
                   <div key={f.key} style={{ marginBottom: 14 }}>
@@ -843,7 +843,7 @@ Données: ${JSON.stringify({
               </div>
 
               {/* RH */}
-              <div style={{ background: C.bg0, borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 10, color: C.violet, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>👥 RESSOURCES HUMAINES</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <span style={{ fontSize: 11, color: C.text1 }}>Nouvelles embauches</span>
@@ -856,7 +856,7 @@ Données: ${JSON.stringify({
               </div>
 
               {/* Financement */}
-              <div style={{ background: C.bg0, borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 12, border: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 10, color: C.green, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>🏦 FINANCEMENT</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <span style={{ fontSize: 11, color: C.text1 }}>Emprunt bancaire</span>
@@ -869,7 +869,7 @@ Données: ${JSON.stringify({
               </div>
 
               {/* Croissance */}
-              <div style={{ background: C.bg0, borderRadius: 8, padding: 12, marginBottom: 14, border: `1px solid ${C.border}` }}>
+              <div style={{ background: '#FAFAFA', borderRadius: 8, padding: 12, marginBottom: 14, border: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 10, color: C.blue, fontWeight: 700, marginBottom: 10, letterSpacing: '0.08em' }}>📈 CROISSANCE ADDITIONNELLE</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <span style={{ fontSize: 11, color: C.text1 }}>Taux additionnel</span>
@@ -930,7 +930,7 @@ Données: ${JSON.stringify({
                   { label: 'Coût embauches', value: `-${fmtS(whatIf.newHires * 150000 * horizon)} FDJ`, color: C.red },
                   { label: 'Capital injecté', value: `+${fmtS(whatIf.newLoan)} FDJ`, color: C.green },
                 ].map(item => (
-                  <div key={item.label} style={{ background: C.bg0, borderRadius: 8, padding: 10 }}>
+                  <div key={item.label} style={{ background: '#FAFAFA', borderRadius: 8, padding: 10 }}>
                     <div style={{ fontSize: 9, color: C.text2, marginBottom: 4 }}>{item.label}</div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: item.color, fontFamily: 'monospace' }}>{item.value}</div>
                   </div>
