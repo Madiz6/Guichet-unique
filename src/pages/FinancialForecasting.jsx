@@ -1375,7 +1375,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
               <>
                 <div style={{ background: '#F9FAFB', borderRadius: 12, padding: 20, border: '1px solid #E5E7EB', borderLeft: '4px solid #1A1A1A' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                    <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg,${C.blue},${C.purple})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🤖</div>
+                    <div style={{ width: 34, height: 34, borderRadius: 8, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🤖</div>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>Synthèse Exécutive IA</div>
                       <div style={{ fontSize: 10, color: '#6B6B6B' }}>Basé sur {transactions.filter(t => !t.is_settlement).length} transactions · Régression + ML</div>
