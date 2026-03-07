@@ -221,6 +221,27 @@ export default function Leasing() {
     }
   };
 
+  const handleLeasePaymentSuccess = async (paymentData) => {
+    if (!paymentGatewayPayment) return;
+    const payment = paymentGatewayPayment;
+    const leaseTmp = leases.find(l => l.id === payment.lease_id);
+    const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
+    // Register income transaction + update ledger
+    await registerLeasePaymentTransaction(
+      {
+        ...payment,
+        date_paiement: new Date().toISOString().split('T')[0],
+        methode_paiement: paymentData.payment_method || paymentData.note || 'Virement',
+      },
+      leaseTmp,
+      assetTmp
+    );
+    queryClient.invalidateQueries(['lease-payments']);
+    queryClient.invalidateQueries(['transactions']);
+    setPaymentGatewayPayment(null);
+    toast.success('Paiement enregistré — transaction créée');
+  };
+
   const sendPaymentReminderSMS = async (paymentId) => {
     try {
       await base44.functions.invoke('sendPaymentReminderSMS', { payment_id: paymentId });
