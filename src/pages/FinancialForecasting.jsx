@@ -753,7 +753,7 @@ Données: ${JSON.stringify({
                   const bg = `${c}11`;
                   const lbl = r.level === 'high' ? 'Risque Élevé' : r.level === 'medium' ? 'Risque Modéré' : 'Situation Saine';
                   return (
-                    <div key={i} style={{ background: C.bg1, border: `1px solid ${c}33`, borderRadius: 12, padding: 16, display: 'flex', gap: 12 }}>
+                    <div key={i} style={{ background: '#fff', border: `1px solid ${c}33`, borderRadius: 12, padding: 16, display: 'flex', gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 9, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{r.icon}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -894,7 +894,7 @@ Données: ${JSON.stringify({
                   { label: 'Impact Charges', val: -(whatIf.newHires * 150000 * horizon + whatIf.newLoan * 0.015 * horizon) },
                   { label: 'Impact Net', val: totalNet - (forecast.reduce((s, d) => s + d.base_noWhatIf, 0) - forecast.reduce((s, d) => s + d.dep_noWhatIf, 0)) },
                 ].map(({ label, val }) => (
-                  <div key={label} style={{ background: C.bg1, borderRadius: 10, padding: 14, textAlign: 'center', border: `1px solid ${C.border}` }}>
+                  <div key={label} style={{ background: '#fff', borderRadius: 10, padding: 14, textAlign: 'center', border: `1px solid ${C.border}` }}>
                     <div style={{ fontSize: 10, color: C.text2, marginBottom: 8 }}>{label}</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: val >= 0 ? C.green : C.red, fontFamily: 'monospace' }}>
                       {val >= 0 ? '+' : ''}{fmtS(val)} FDJ
@@ -1203,7 +1203,7 @@ Données: ${JSON.stringify({
                     { key: 'risks', title: '⚠️ Risques identifiés', color: C.red, icon: '⚠' },
                     { key: 'opportunities', title: '💡 Opportunités', color: C.green, icon: '✓' },
                   ].map(section => aiInsights[section.key]?.length > 0 && (
-                    <div key={section.key} style={{ background: C.bg1, borderRadius: 12, padding: 16, border: `1px solid ${section.color}22` }}>
+                    <div key={section.key} style={{ background: '#fff', borderRadius: 12, padding: 16, border: `1px solid ${section.color}22` }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: section.color, marginBottom: 12 }}>{section.title}</div>
                       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                         {aiInsights[section.key].map((item, i) => (
