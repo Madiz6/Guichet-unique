@@ -759,7 +759,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                 const rev = forecast.reduce((a, d) => a + d[scenarioRevKey[s.key]], 0);
                 const dep = forecast.reduce((a, d) => a + d[scenarioDepKey[s.key]], 0);
                 return (
-                  <div key={s.key} onClick={() => setScenario(s.key)} style={{ background: scenario === s.key ? `${s.color}11` : C.bg1, border: `2px solid ${scenario === s.key ? s.color : C.border}`, borderRadius: 16, padding: 18, cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <div key={s.key} onClick={() => setScenario(s.key)} style={{ background: scenario === s.key ? `${s.color}11` : '#FFFFFF', border: `2px solid ${scenario === s.key ? s.color : '#E5E7EB'}`, borderRadius: 16, padding: 18, cursor: 'pointer', transition: 'all 0.2s' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{s.icon} {s.label}</div>
                       <span style={{ fontSize: 10, background: `${s.color}22`, color: s.color, padding: '2px 8px', borderRadius: 20, fontWeight: 700 }}>{s.prob}</span>
