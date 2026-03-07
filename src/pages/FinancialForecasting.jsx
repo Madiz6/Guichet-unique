@@ -590,7 +590,7 @@ Données: ${JSON.stringify({
                   <YAxis tickFormatter={fmtS} tick={{ fill: '#6B6B6B', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<DarkTooltip />} />
                   <ReferenceLine x={historical[historical.length - 1]?.label} stroke={C.yellow} strokeDasharray="5 3" label={{ value: 'Auj.', fill: C.yellow, fontSize: 9 }} />
-                  <Area type="monotone" dataKey="rev" name="Revenus réels" stroke={C.accentBlue} fill="url(#gRev)" strokeWidth={2} dot={{ r: 2, fill: C.accentBlue }} connectNulls={false} />
+                  <Area type="monotone" dataKey="rev" name="Revenus réels" stroke="#2563EB" fill="url(#gRev)" strokeWidth={2} dot={{ r: 2, fill: C.accentBlue }} connectNulls={false} />
                   <Area type="monotone" dataKey="fc_rev" name="Revenus prévus" stroke={sc} fill="url(#gRev)" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 2, fill: sc }} connectNulls={false} />
                   <Area type="monotone" dataKey="dep" name="Dépenses réelles" stroke={C.red} fill="url(#gDep)" strokeWidth={2} dot={{ r: 2, fill: C.red }} connectNulls={false} />
                   <Area type="monotone" dataKey="fc_dep" name="Dépenses prévues" stroke={C.orange} fill="url(#gDep)" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 2, fill: C.orange }} connectNulls={false} />
