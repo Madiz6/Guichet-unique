@@ -123,7 +123,7 @@ function CashHeatmap({ data, cols }) {
     const t = max_ > min_ ? (v - min_) / (max_ - min_) : 0.5;
     if (t < 0.2) return { bg: `${C.red}33`, color: C.red };
     if (t < 0.4) return { bg: `${C.yellow}33`, color: C.yellow };
-    if (t < 0.65) return { bg: `${C.blue}33`, color: '#2563EB' };
+    if (t < 0.65) return { bg: '#2563EB33', color: '#2563EB' };
     return { bg: `${C.green}33`, color: C.green };
   };
   return (
