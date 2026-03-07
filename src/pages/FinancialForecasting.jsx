@@ -946,7 +946,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <span style={{ fontSize: 11, color: '#374151' }}>Perte d'un gros client</span>
                   <button onClick={() => setWhatIf(w => ({ ...w, clientChurn: !w.clientChurn }))}
-                    style={{ padding: '3px 12px', borderRadius: 20, border: `1px solid ${whatIf.clientChurn ? C.red : C.border}`, background: whatIf.clientChurn ? `${C.red}22` : 'transparent', color: whatIf.clientChurn ? C.red : C.text2, fontSize: 11, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    style={{ padding: '3px 12px', borderRadius: 20, border: `1px solid ${whatIf.clientChurn ? C.red : '#E5E7EB'}`, background: whatIf.clientChurn ? `${C.red}22` : 'transparent', color: whatIf.clientChurn ? C.red : '#6B6B6B', fontSize: 11, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
                     {whatIf.clientChurn ? 'ON' : 'OFF'}
                   </button>
                 </div>
