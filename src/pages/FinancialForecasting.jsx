@@ -1252,7 +1252,7 @@ Contexte: entreprise djiboutienne, secteur services, devise FDJ.`,
                   </div>
                 ))}
                 {Object.keys(feedbackGiven).length > 0 && (
-                  <div style={{ marginTop: 10, padding: '10px 14px', background: `${C.blue}11`, borderRadius: 8, fontSize: 11, color: '#2563EB' }}>
+                  <div style={{ marginTop: 10, padding: '10px 14px', background: '#EFF6FF', borderRadius: 8, fontSize: 11, color: '#2563EB' }}>
                     ✅ Feedback enregistré. Précision estimée : <strong>{Math.min(99, 94 + Object.values(feedbackGiven).filter(v => v === 'correct').length)}%</strong>
                   </div>
                 )}
