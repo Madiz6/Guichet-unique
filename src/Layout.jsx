@@ -147,7 +147,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#FAFAFA]">
+      <div className="min-h-screen flex w-full bg-[#FAFAFA] dark:bg-gray-950">
         <Sidebar className="border-r border-[#E5E7EB] bg-white">
           <SidebarHeader className="border-b border-[#F0F0F0] p-6">
             <Link to={createPageUrl("Home")} className="flex items-center gap-3">
