@@ -731,5 +731,6 @@ export default function Dashboard() {
         onSuccess={() => setShowCompanyWizard(false)}
       />
     </div>
+    </PullToRefresh>
   );
 }
