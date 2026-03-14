@@ -23,6 +23,19 @@ import SignatureSettings from "../components/settings/SignatureSettings";
 export default function Parametres() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('user');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      await base44.auth.logout();
+    } catch (e) {
+      // logout regardless
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
 
   // SMS Test State
   const [smsPhone, setSmsPhone] = useState('+253');
