@@ -917,7 +917,7 @@ function AgedTable({ title, items, buckets, total, type }) {
               <th className="text-right py-2.5 px-4 text-xs font-bold text-[#6B6B6B] uppercase">0–30</th>
               <th className="text-right py-2.5 px-4 text-xs font-bold text-[#6B6B6B] uppercase">31–60</th>
               <th className="text-right py-2.5 px-4 text-xs font-bold text-[#6B6B6B] uppercase">61–90</th>
-              <th className="text-right py-2.5 px-4 text-xs font-bold text-[#6B6B6B] uppercase">>90</th>
+              <th className="text-right py-2.5 px-4 text-xs font-bold text-[#6B6B6B] uppercase">{'>'}90</th>
               <th className="text-center py-2.5 px-4 text-xs font-bold text-[#6B6B6B] uppercase">Statut</th>
             </tr>
           </thead>

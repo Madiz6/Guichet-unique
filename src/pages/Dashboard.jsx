@@ -223,7 +223,8 @@ export default function Dashboard() {
   };
   
   return (
-    <PullToRefresh onRefresh={handleRefresh}><div className="min-h-screen bg-[#FAFAFA]">
+    <PullToRefresh onRefresh={handleRefresh}>
+    <div className="min-h-screen bg-[#FAFAFA]">
       <div className="p-4 md:p-8 max-w-[1600px] mx-auto">
         {/* AI Insights Banner */}
         <AIInsightsBanner
@@ -730,5 +731,6 @@ export default function Dashboard() {
         onSuccess={() => setShowCompanyWizard(false)}
       />
     </div>
+    </PullToRefresh>
   );
 }

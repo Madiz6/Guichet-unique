@@ -184,6 +184,7 @@ export default function Transactions() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
+
     <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">
       <div className="max-w-[1800px] mx-auto">
         <motion.div
