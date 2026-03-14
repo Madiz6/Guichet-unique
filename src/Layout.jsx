@@ -190,12 +190,13 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col">
-          <header className="bg-white border-b border-[#F0F0F0] px-6 py-4">
+        <main className="flex-1 flex flex-col" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+          <header className="bg-white border-b border-[#F0F0F0] px-4 md:px-6 py-3 md:py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4 md:hidden">
-                <SidebarTrigger className="hover:bg-[#F5F5F5] p-2 rounded-lg transition-colors duration-200" />
-                <Link to={createPageUrl("Home")} className="flex items-center gap-2">
+              <div className="flex items-center gap-2 md:hidden">
+                <MobileBackButton />
+                <SidebarTrigger className="hover:bg-[#F5F5F5] p-2 rounded-lg transition-colors duration-200 touch-target" />
+                <Link to={createPageUrl("Home")} className="flex items-center gap-2 select-none">
                   <img 
                     src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
                     alt="Paie360 Logo" 
