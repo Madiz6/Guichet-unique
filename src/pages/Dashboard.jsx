@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { meras } from "@/components/core/MerasClient";
+import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { useQuery } from "@tanstack/react-query";
 import { Users, TrendingUp, TrendingDown, FileText, DollarSign, ArrowRight, Building2, Plus, Calendar, Wallet, LayoutGrid, Key } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,7 +19,7 @@ export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('12M');
   const [showCompanyWizard, setShowCompanyWizard] = useState(false);
   
-  const { data: employees = [] } = useQuery({
+  const { data: employees = [], refetch: refetchEmployees } = useQuery({
     queryKey: ['employees'],
     queryFn: () => meras.entities.Employee.list(),
   });
@@ -42,7 +43,7 @@ export default function Dashboard() {
     queryFn: () => meras.entities.PayrollCycle.list('-created_date', 12),
   });
   
-  const { data: declarations = [] } = useQuery({
+  const { data: declarations = [], refetch: refetchDeclarations } = useQuery({
     queryKey: ['declarations'],
     queryFn: () => meras.entities.Declaration.list('-created_date', 10),
   });
@@ -72,6 +73,10 @@ export default function Dashboard() {
     queryFn: () => meras.entities.LeaseAsset.list(),
   });
   
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refetchEmployees(), refetchDeclarations()]);
+  }, [refetchEmployees, refetchDeclarations]);
+
   const activeEmployees = employees.filter(e => e.statut === 'Actif');
   const onHolidayEmployees = employees.filter(e => e.statut === 'En congé');
   
@@ -218,6 +223,7 @@ export default function Dashboard() {
   };
   
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="min-h-screen bg-[#FAFAFA]">
       <div className="p-4 md:p-8 max-w-[1600px] mx-auto">
         {/* AI Insights Banner */}
