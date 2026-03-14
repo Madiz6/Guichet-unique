@@ -237,9 +237,9 @@ export default function Dashboard() {
           >
             <Card className="border border-[#E5E7EB] swan-shadow bg-white">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-[#F5F5F5] flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-lg bg-[#F5F5F5] flex items-center justify-center flex-shrink-0">
                       <Building2 className="w-6 h-6 text-[#1A1A1A]" />
                     </div>
                     <div>
@@ -249,7 +249,7 @@ export default function Dashboard() {
                       </p>
                     </div>
                   </div>
-                  <Button onClick={() => setShowCompanyWizard(true)} className="bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white">
+                  <Button onClick={() => setShowCompanyWizard(true)} className="bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white w-full sm:w-auto">
                     <Plus className="w-4 h-4 mr-2" /> Créer mon entreprise
                   </Button>
                 </div>
