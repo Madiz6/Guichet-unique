@@ -48,7 +48,7 @@ export default function Employes() {
   };
   const queryClient = useQueryClient();
   
-  const { data: employees = [], isLoading } = useQuery({
+  const { data: employees = [], isLoading, refetch: refetchEmployees } = useQuery({
     queryKey: ['employees'],
     queryFn: () => base44.entities.Employee.list('-created_date'),
   });
