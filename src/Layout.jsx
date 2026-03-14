@@ -216,7 +216,7 @@ export default function Layout({ children, currentPageName }) {
                 
                 <div className="flex items-center gap-3 pl-4 border-l border-[#F0F0F0]">
                   <div className="relative group">
-                    <div className="flex items-center gap-3 cursor-pointer">
+                    <div className="flex items-center gap-3 cursor-pointer select-none">
                       <div className="text-right">
                         <p className="text-sm font-medium text-[#1A1A1A]">{user?.full_name}</p>
                         <p className="text-xs text-[#6B6B6B] font-normal">{user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</p>
