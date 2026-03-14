@@ -372,6 +372,49 @@ export default function Parametres() {
                         </span>
                       </div>
                     </div>
+
+                    {/* Delete Account */}
+                    <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="font-semibold text-red-700">Supprimer le compte</p>
+                          <p className="text-sm text-red-500 mt-1">Cette action est irréversible. Votre session sera terminée.</p>
+                        </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="border-red-300 text-red-600 hover:bg-red-100 flex-shrink-0 touch-target">
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Supprimer
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Supprimer votre compte ?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Cette action est irréversible. Pour confirmer, saisissez{' '}
+                                <strong>SUPPRIMER</strong> ci-dessous.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <Input
+                              value={deleteConfirmText}
+                              onChange={(e) => setDeleteConfirmText(e.target.value)}
+                              placeholder="Tapez SUPPRIMER"
+                              className="my-2"
+                            />
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => setDeleteConfirmText('')}>Annuler</AlertDialogCancel>
+                              <AlertDialogAction
+                                disabled={deleteConfirmText !== 'SUPPRIMER' || isDeletingAccount}
+                                onClick={handleDeleteAccount}
+                                className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+                              >
+                                {isDeletingAccount ? 'Suppression…' : 'Confirmer la suppression'}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
