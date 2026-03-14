@@ -69,6 +69,16 @@ export default function Employes() {
   
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Employee.create(data),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: ['employees'] });
+      const previous = queryClient.getQueryData(['employees']);
+      const optimistic = { ...newData, id: `temp-${Date.now()}`, statut: newData.statut || 'Actif' };
+      queryClient.setQueryData(['employees'], (old = []) => [optimistic, ...old]);
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['employees'], context.previous);
+    },
     onSuccess: async (newEmployee) => { // Made async to await email sending
       queryClient.invalidateQueries(['employees']);
       toast.success('Employé créé avec succès !');
@@ -157,6 +167,17 @@ export default function Employes() {
   
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Employee.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['employees'] });
+      const previous = queryClient.getQueryData(['employees']);
+      queryClient.setQueryData(['employees'], (old = []) =>
+        old.map(e => e.id === id ? { ...e, ...data } : e)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['employees'], context.previous);
+    },
     onSuccess: async (updatedEmployee) => {
       queryClient.invalidateQueries(['employees']);
       
@@ -183,6 +204,15 @@ export default function Employes() {
   
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Employee.delete(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['employees'] });
+      const previous = queryClient.getQueryData(['employees']);
+      queryClient.setQueryData(['employees'], (old = []) => old.filter(e => e.id !== id));
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['employees'], context.previous);
+    },
     onSuccess: async (_, deletedId) => {
       const deletedEmployee = employees.find(e => e.id === deletedId);
       

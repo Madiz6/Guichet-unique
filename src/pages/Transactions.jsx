@@ -68,6 +68,16 @@ export default function Transactions() {
 
   const createMutation = useMutation({
     mutationFn: (data) => meras.entities.Transaction.create(data),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+      const previous = queryClient.getQueryData(['transactions']);
+      const optimistic = { ...newData, id: `temp-${Date.now()}`, created_date: new Date().toISOString() };
+      queryClient.setQueryData(['transactions'], (old = []) => [optimistic, ...old]);
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['transactions'], context.previous);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['transactions']);
       setShowForm(false);
@@ -77,17 +87,35 @@ export default function Transactions() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => meras.entities.Transaction.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+      const previous = queryClient.getQueryData(['transactions']);
+      queryClient.setQueryData(['transactions'], (old = []) =>
+        old.map(t => t.id === id ? { ...t, ...data } : t)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['transactions'], context.previous);
+    },
     onSuccess: (updatedRecord, variables) => {
-      // Merge updated fields into selectedTransaction immediately so the drawer reflects changes at once
       setSelectedTransaction(prev => prev?.id === variables.id ? { ...prev, ...variables.data } : prev);
       setEditingTransaction(null);
-      // Refetch the list so the table row and stats cards update
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => meras.entities.Transaction.delete(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+      const previous = queryClient.getQueryData(['transactions']);
+      queryClient.setQueryData(['transactions'], (old = []) => old.filter(t => t.id !== id));
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['transactions'], context.previous);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['transactions']);
       setSelectedTransaction(null);

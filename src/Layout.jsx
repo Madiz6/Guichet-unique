@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
 import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3, BookOpen } from "lucide-react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import MobileBackButton from "@/components/layout/MobileBackButton";
@@ -23,11 +25,18 @@ import AICopilot from "@/components/ai/AICopilot";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
-  
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => meras.auth.me(),
   });
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try { await meras.auth.logout(); } finally { setIsDeletingAccount(false); }
+  };
   
   const isAdmin = user?.role === 'admin';
   
@@ -227,7 +236,7 @@ export default function Layout({ children, currentPageName }) {
                     </div>
                     
                     {/* Dropdown Menu */}
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg border border-[#E5E7EB] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 swan-shadow-lg">
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg border border-[#E5E7EB] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 swan-shadow-lg">
                       <div className="p-2">
                         <button
                           onClick={handleLogout}
@@ -238,6 +247,43 @@ export default function Layout({ children, currentPageName }) {
                           </svg>
                           Se déconnecter
                         </button>
+                        <div className="border-t border-[#F0F0F0] mt-1 pt-1">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-normal">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Supprimer le compte
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Supprimer votre compte ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Cette action est irréversible. Votre session sera terminée immédiatement.
+                                  Tapez <strong>SUPPRIMER</strong> pour confirmer.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <Input
+                                value={deleteConfirm}
+                                onChange={(e) => setDeleteConfirm(e.target.value)}
+                                placeholder="Tapez SUPPRIMER"
+                                className="my-2"
+                              />
+                              <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setDeleteConfirm('')}>Annuler</AlertDialogCancel>
+                                <AlertDialogAction
+                                  disabled={deleteConfirm !== 'SUPPRIMER' || isDeletingAccount}
+                                  onClick={handleDeleteAccount}
+                                  className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+                                >
+                                  {isDeletingAccount ? 'Suppression…' : 'Confirmer'}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </div>
                     </div>
                   </div>

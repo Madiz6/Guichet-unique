@@ -4,18 +4,36 @@ import { createPageUrl } from "@/utils";
 import { LayoutDashboard, Users, DollarSign, Settings } from "lucide-react";
 
 const tabs = [
-  { label: "Tableau de bord", icon: LayoutDashboard, url: createPageUrl("Dashboard") },
-  { label: "Employés",        icon: Users,           url: createPageUrl("Employes") },
-  { label: "Paie",            icon: DollarSign,      url: createPageUrl("Paie") },
-  { label: "Paramètres",      icon: Settings,        url: createPageUrl("Parametres") },
+  { label: "Tableau de bord", icon: LayoutDashboard, url: createPageUrl("Dashboard"), root: createPageUrl("Dashboard") },
+  { label: "Employés",        icon: Users,           url: createPageUrl("Employes"),  root: createPageUrl("Employes") },
+  { label: "Paie",            icon: DollarSign,      url: createPageUrl("Paie"),      root: createPageUrl("Paie") },
+  { label: "Paramètres",      icon: Settings,        url: createPageUrl("Parametres"),root: createPageUrl("Parametres") },
 ];
 
 const SCROLL_KEY = "bottomnav_scroll";
+const STACK_KEY  = "bottomnav_stack"; // last visited path per tab root
+
+// Which tab root does a given pathname belong to?
+function getTabRoot(pathname) {
+  // Find the tab whose root is a prefix of the current path
+  const match = tabs.find(t => pathname === t.root || pathname.startsWith(t.root + '/'));
+  return match?.root ?? null;
+}
 
 export default function BottomNavBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const prevPathRef = useRef(location.pathname);
+
+  // Persist last-visited path per tab root
+  useEffect(() => {
+    const tabRoot = getTabRoot(location.pathname);
+    if (tabRoot) {
+      const stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || "{}");
+      stack[tabRoot] = location.pathname;
+      sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
+    }
+  }, [location.pathname]);
 
   // Save scroll position of current page before navigating away
   useEffect(() => {
@@ -61,22 +79,29 @@ export default function BottomNavBar() {
     >
       <div className="flex items-stretch">
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.url;
+          const isActive = getTabRoot(location.pathname) === tab.root;
           return (
             <button
               key={tab.label}
               onClick={() => {
                 if (isActive) {
-                  // Reset scroll to top when re-tapping active tab
+                  // Re-tapping active tab: scroll to top and reset to root
                   const scrollable = document.querySelector("main");
                   if (scrollable) scrollable.scrollTop = 0;
                   else window.scrollTo(0, 0);
-                  // Clear saved scroll for this tab
+                  // Clear saved stack & scroll for this tab
+                  const stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || "{}");
+                  delete stack[tab.root];
+                  sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
                   const saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "{}");
-                  delete saved[tab.url];
+                  delete saved[tab.root];
                   sessionStorage.setItem(SCROLL_KEY, JSON.stringify(saved));
+                  if (location.pathname !== tab.root) navigate(tab.root);
                 } else {
-                  navigate(tab.url);
+                  // Switching to a different tab: restore last visited path
+                  const stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || "{}");
+                  const target = stack[tab.root] || tab.root;
+                  navigate(target);
                 }
               }}
               className="flex-1 flex flex-col items-center justify-center py-2 gap-1 select-none relative bg-transparent border-0 cursor-pointer"
