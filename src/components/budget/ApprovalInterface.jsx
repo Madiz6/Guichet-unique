@@ -23,6 +23,17 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
   const queryClient = useQueryClient();
 
   const approveMutation = useMutation({
+    onMutate: async ({ requestId }) => {
+      await queryClient.cancelQueries({ queryKey: ['expense-requests'] });
+      const previous = queryClient.getQueryData(['expense-requests']);
+      queryClient.setQueryData(['expense-requests'], (old) =>
+        old ? old.map(r => r.id === requestId ? { ...r, status: 'Approuvée' } : r) : old
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['expense-requests'], context.previous);
+    },
     mutationFn: async ({ requestId, request }) => {
       if (!currentUser) {
         throw new Error('Utilisateur non authentifié');
@@ -80,6 +91,17 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
   });
 
   const rejectMutation = useMutation({
+    onMutate: async ({ requestId }) => {
+      await queryClient.cancelQueries({ queryKey: ['expense-requests'] });
+      const previous = queryClient.getQueryData(['expense-requests']);
+      queryClient.setQueryData(['expense-requests'], (old) =>
+        old ? old.map(r => r.id === requestId ? { ...r, status: 'Rejetée' } : r) : old
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['expense-requests'], context.previous);
+    },
     mutationFn: async ({ requestId }) => {
       return await base44.entities.ExpenseRequest.update(requestId, {
         status: 'Rejetée',

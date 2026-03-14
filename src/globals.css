@@ -99,14 +99,25 @@
   }
 }
 
-/* user-select: none on all interactive UI chrome */
+/* user-select: none on interactive UI chrome */
 button,
 a,
 [role="button"],
 nav,
-.sidebar-menu-button {
+.sidebar-menu-button,
+label {
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* Allow text selection in data tables and form inputs */
+table td,
+table th,
+input,
+textarea,
+[contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* Dark mode via system preference */

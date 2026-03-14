@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useEffect, useRef, useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { LayoutDashboard, Users, DollarSign, Settings } from "lucide-react";
 
@@ -14,6 +14,7 @@ const SCROLL_KEY = "bottomnav_scroll";
 
 export default function BottomNavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const prevPathRef = useRef(location.pathname);
 
   // Save scroll position of current page before navigating away
@@ -62,10 +63,23 @@ export default function BottomNavBar() {
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.url;
           return (
-            <Link
+            <button
               key={tab.label}
-              to={tab.url}
-              className="flex-1 flex flex-col items-center justify-center py-2 gap-1 select-none relative"
+              onClick={() => {
+                if (isActive) {
+                  // Reset scroll to top when re-tapping active tab
+                  const scrollable = document.querySelector("main");
+                  if (scrollable) scrollable.scrollTop = 0;
+                  else window.scrollTo(0, 0);
+                  // Clear saved scroll for this tab
+                  const saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "{}");
+                  delete saved[tab.url];
+                  sessionStorage.setItem(SCROLL_KEY, JSON.stringify(saved));
+                } else {
+                  navigate(tab.url);
+                }
+              }}
+              className="flex-1 flex flex-col items-center justify-center py-2 gap-1 select-none relative bg-transparent border-0 cursor-pointer"
               style={{ minHeight: 56 }}
             >
               <tab.icon
@@ -83,7 +97,7 @@ export default function BottomNavBar() {
               {isActive && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#1A1A1A] dark:bg-white rounded-full" />
               )}
-            </Link>
+            </button>
           );
         })}
       </div>

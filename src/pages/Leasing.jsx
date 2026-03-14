@@ -225,6 +225,14 @@ export default function Leasing() {
   const handleLeasePaymentSuccess = async (paymentData) => {
     if (!paymentGatewayPayment) return;
     const payment = paymentGatewayPayment;
+
+    // Optimistic update — mark payment as Payé immediately
+    queryClient.setQueryData(['lease-payments'], (old) =>
+      old ? old.map(p => p.id === payment.id
+        ? { ...p, statut: 'Payé', date_paiement: new Date().toISOString().split('T')[0] }
+        : p
+      ) : old
+    );
     const leaseTmp = leases.find(l => l.id === payment.lease_id);
     const assetTmp = assets.find(a => a.id === leaseTmp?.asset_id);
     const methode = paymentData.payment_method || paymentData.note || 'Virement';
