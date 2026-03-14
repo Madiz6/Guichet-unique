@@ -527,6 +527,7 @@ export default function Employes() {
   
   return (
     <PermissionGuard permission="employees_view">
+    <PullToRefresh onRefresh={refetchEmployees}>
       <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
           <motion.div 
@@ -805,6 +806,7 @@ export default function Employes() {
           defaultPosition={company[`signatory_${signatureDialog.documentType}_position`] || ''}
         />
       </div>
+    </PullToRefresh>
     </PermissionGuard>
   );
 }
