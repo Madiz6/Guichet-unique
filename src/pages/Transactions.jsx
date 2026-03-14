@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { meras } from "@/components/core/MerasClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,14 @@ export default function Transactions() {
 
   const queryClient = useQueryClient();
 
-  const { data: transactions = [] } = useQuery({
+  const { data: transactions = [], refetch: refetchTransactions } = useQuery({
     queryKey: ['transactions'],
     queryFn: () => meras.entities.Transaction.list('-date'),
   });
+
+  const handleRefresh = useCallback(async () => {
+    await refetchTransactions();
+  }, [refetchTransactions]);
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
@@ -178,6 +183,7 @@ export default function Transactions() {
   }
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="min-h-screen bg-gradient-to-br from-[#F7F9FC] to-[#EEF2F6] p-6 md:p-8">
       <div className="max-w-[1800px] mx-auto">
         <motion.div
