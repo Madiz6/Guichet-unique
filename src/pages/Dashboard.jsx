@@ -347,7 +347,7 @@ export default function Dashboard() {
           >
             <Card className="border-0 shadow-sm">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                   <div>
                     <h3 className="text-lg font-semibold text-[#0F172A] mb-1">Salaire vs CNSS vs ITS</h3>
                     <p className="text-sm text-[#64748B]">Tendances mensuelles (en milliers)</p>
