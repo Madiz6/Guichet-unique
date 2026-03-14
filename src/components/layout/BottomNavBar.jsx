@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { LayoutDashboard, Users, DollarSign, Settings } from "lucide-react";
@@ -10,8 +10,48 @@ const tabs = [
   { label: "Paramètres",      icon: Settings,        url: createPageUrl("Parametres") },
 ];
 
+const SCROLL_KEY = "bottomnav_scroll";
+
 export default function BottomNavBar() {
   const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
+
+  // Save scroll position of current page before navigating away
+  useEffect(() => {
+    const saveScroll = () => {
+      const scrollable = document.querySelector("main") || window;
+      const scrollY = scrollable === window ? window.scrollY : scrollable.scrollTop;
+      const saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "{}");
+      saved[prevPathRef.current] = scrollY;
+      sessionStorage.setItem(SCROLL_KEY, JSON.stringify(saved));
+    };
+
+    // Save scroll before path changes
+    return () => {
+      saveScroll();
+      prevPathRef.current = location.pathname;
+    };
+  }, [location.pathname]);
+
+  // Restore scroll position when arriving at a tab page
+  useEffect(() => {
+    const isTab = tabs.some((t) => t.url === location.pathname);
+    if (!isTab) return;
+
+    const saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "{}");
+    const savedY = saved[location.pathname] ?? 0;
+
+    // Defer until the new page has rendered
+    const raf = requestAnimationFrame(() => {
+      const scrollable = document.querySelector("main");
+      if (scrollable) {
+        scrollable.scrollTop = savedY;
+      } else {
+        window.scrollTo(0, savedY);
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [location.pathname]);
 
   return (
     <nav
@@ -25,7 +65,7 @@ export default function BottomNavBar() {
             <Link
               key={tab.label}
               to={tab.url}
-              className="flex-1 flex flex-col items-center justify-center py-2 gap-1 select-none"
+              className="flex-1 flex flex-col items-center justify-center py-2 gap-1 select-none relative"
               style={{ minHeight: 56 }}
             >
               <tab.icon
@@ -41,7 +81,7 @@ export default function BottomNavBar() {
                 {tab.label}
               </span>
               {isActive && (
-                <span className="absolute bottom-0 w-8 h-0.5 bg-[#1A1A1A] dark:bg-white rounded-full" />
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#1A1A1A] dark:bg-white rounded-full" />
               )}
             </Link>
           );
