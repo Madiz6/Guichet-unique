@@ -74,6 +74,71 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Disable overscroll bounce on iOS/Android */
+    overscroll-behavior: none;
+  }
+  html {
+    overscroll-behavior: none;
+  }
+}
+
+/* Safe area insets for iOS/Android notch & home bar */
+@layer utilities {
+  .safe-top    { padding-top:    env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-left   { padding-left:   env(safe-area-inset-left); }
+  .safe-right  { padding-right:  env(safe-area-inset-right); }
+
+  /* 44×44px minimum touch target */
+  .touch-target {
+    min-width:  44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* user-select: none on all interactive UI chrome */
+button,
+a,
+[role="button"],
+nav,
+.sidebar-menu-button {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Dark mode via system preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 0 0% 98%;
+    --card: 222 40% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 222 40% 15%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 40% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 222 40% 20%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 222 40% 20%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 222 40% 25%;
+    --input: 222 40% 25%;
+    --ring: 0 0% 98%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
