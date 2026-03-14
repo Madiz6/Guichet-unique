@@ -264,26 +264,26 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h1 className="text-4xl font-semibold text-[#1A1A1A] mb-2 tracking-tight">
+              <h1 className="text-2xl md:text-4xl font-semibold text-[#1A1A1A] mb-1 tracking-tight">
                 Bienvenue, {company?.nom_entreprise || 'Admin'}
               </h1>
-              <p className="text-[#6B6B6B] flex items-center gap-2 font-normal">
-                    <span>{company?.nom_entreprise || 'Paie360'}</span>
-                    {company?.numero_affiliation && (
-                      <>
-                        <span>•</span>
-                        <span>N° {company.numero_affiliation}</span>
-                      </>
-                    )}
+              <p className="text-[#6B6B6B] flex flex-wrap items-center gap-1.5 font-normal text-sm">
+                <span>{company?.nom_entreprise || 'Paie360'}</span>
+                {company?.numero_affiliation && (
+                  <>
                     <span>•</span>
-                    <span className="text-[#1A1A1A] font-medium">Powered by Meras PSP</span>
-                  </p>
+                    <span>N° {company.numero_affiliation}</span>
+                  </>
+                )}
+                <span>•</span>
+                <span className="text-[#1A1A1A] font-medium">Powered by Meras PSP</span>
+              </p>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <p className="text-sm text-[#6B6B6B] font-normal">{format(new Date(), 'EEEE')}</p>
-              <p className="text-lg font-medium text-[#1A1A1A]">{format(new Date(), 'dd MMMM yyyy')}</p>
+              <p className="text-base font-medium text-[#1A1A1A]">{format(new Date(), 'dd MMMM yyyy')}</p>
             </div>
           </div>
         </motion.div>
