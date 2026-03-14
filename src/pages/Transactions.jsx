@@ -515,5 +515,6 @@ export default function Transactions() {
         budgets={budgets}
       />
     </div>
+    </PullToRefresh>
   );
 }
