@@ -644,31 +644,38 @@ export default function Dashboard() {
                 </Link>
               </div>
               
-              <div className="overflow-x-auto">
+              {/* Mobile cards view */}
+              <div className="block md:hidden space-y-3">
+                {declarations.slice(0, 5).map((decl) => (
+                  <div key={decl.id} className="p-4 rounded-lg border border-[#F1F5F9] bg-[#FAFAFA]">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-[#6366F1]" />
+                        <span className="font-mono text-sm font-medium text-[#0F172A]">{decl.numero_cotisation}</span>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${decl.statut === 'Payé' ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#F59E0B]/10 text-[#F59E0B]'}`}>{decl.statut}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 text-xs text-[#64748B]">
+                      <span>Période: <span className="text-[#0F172A] font-medium">{decl.periode}</span></span>
+                      <span>Régime: <span className="text-[#6366F1] font-medium">{decl.regime}</span></span>
+                      <span>Déclaré: <span className="text-[#0F172A]">{decl.created_date ? format(new Date(decl.created_date), 'dd/MM/yy') : '-'}</span></span>
+                      <span>Payé le: <span className="text-[#0F172A]">{decl.date_paiement ? format(new Date(decl.date_paiement), 'dd/MM/yy') : '-'}</span></span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop table view */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#E2E8F0]">
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Apple de cotisation
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Periode
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Date de declaration
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Date de paiements
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Regime
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Statut
-                      </th>
-                      <th className="text-right py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-                        Statut de Paiement
-                      </th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">N° Cotisation</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">Période</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">Date déclaration</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">Date paiement</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">Régime</th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">Statut</th>
+                      <th className="text-right py-3 px-4 text-xs font-semibold text-[#64748B] uppercase tracking-wider">Paiement</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -679,36 +686,20 @@ export default function Dashboard() {
                             <div className="w-8 h-8 rounded-lg bg-[#6366F1]/10 flex items-center justify-center">
                               <FileText className="w-4 h-4 text-[#6366F1]" />
                             </div>
-                            <span className="font-mono text-sm font-medium text-[#0F172A]">
-                              {decl.numero_cotisation}
-                            </span>
+                            <span className="font-mono text-sm font-medium text-[#0F172A]">{decl.numero_cotisation}</span>
                           </div>
                         </td>
-                        <td className="py-4 px-4 text-sm text-[#475569]">
-                          {decl.periode}
-                        </td>
-                        <td className="py-4 px-4 text-sm text-[#475569]">
-                          {decl.created_date ? format(new Date(decl.created_date), 'yyyy-MM-dd') : '-'}
-                        </td>
-                        <td className="py-4 px-4 text-sm text-[#475569]">
-                          {decl.date_paiement ? format(new Date(decl.date_paiement), 'yyyy-MM-dd') : '-'}
+                        <td className="py-4 px-4 text-sm text-[#475569]">{decl.periode}</td>
+                        <td className="py-4 px-4 text-sm text-[#475569]">{decl.created_date ? format(new Date(decl.created_date), 'yyyy-MM-dd') : '-'}</td>
+                        <td className="py-4 px-4 text-sm text-[#475569]">{decl.date_paiement ? format(new Date(decl.date_paiement), 'yyyy-MM-dd') : '-'}</td>
+                        <td className="py-4 px-4">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#6366F1]/10 text-[#6366F1]">{decl.regime}</span>
                         </td>
                         <td className="py-4 px-4">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#6366F1]/10 text-[#6366F1]">
-                            {decl.regime}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#F1F5F9] text-[#64748B]">
-                            Cloturé
-                          </span>
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#F1F5F9] text-[#64748B]">Clôturé</span>
                         </td>
                         <td className="py-4 px-4 text-right">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
-                            decl.statut === 'Payé'
-                              ? 'bg-[#10B981]/10 text-[#10B981]'
-                              : 'bg-[#F59E0B]/10 text-[#F59E0B]'
-                          }`}>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${decl.statut === 'Payé' ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#F59E0B]/10 text-[#F59E0B]'}`}>
                             {decl.statut === 'Payé' && (
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
