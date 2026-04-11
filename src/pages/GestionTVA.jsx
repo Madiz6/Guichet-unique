@@ -603,21 +603,32 @@ export default function GestionTVA() {
                     {filteredRevTx.length === 0 ? (
                       <tr><td colSpan={8} className="text-center py-12 text-[#9B9B9B]">Aucune transaction de revenu</td></tr>
                     ) : filteredRevTx.map(tx => {
-                      const autoExcl = isAutoExcluded(tx);
-                      const inclusion = autoExcl ? 'EXCLURE' : (tx.tva_inclusion || '—');
+                       const autoExcl = isAutoExcluded(tx);
+                       const inclusion = autoExcl ? 'EXCLURE' : (tx.tva_inclusion || '—');
 
-                      // TVA per-invoice logic: apply tax only if cumulative reaches 10M at/after this invoice
-                      let tvaAmt = 0;
-                      if (inclusion === 'INCLURE' && !autoExcl) {
-                       let cumul = 0;
-                       for (const t of [...includedTx].sort((a, b) => new Date(a.date) - new Date(b.date))) {
-                         cumul += t.amount || 0;
-                         if (t.id === tx.id) {
-                           tvaAmt = (cumul >= TVA_THRESHOLD) ? Math.round((tx.amount || 0) * TVA_RATE) : 0;
-                           break;
-                         }
+                       // TVA logic: once cumulative > 10M, all subsequent invoices get 10% TVA on full amount
+                       let tvaAmt = 0;
+                       if (inclusion === 'INCLURE' && !autoExcl) {
+                        let cumul = 0;
+                        const sorted = [...includedTx].sort((a, b) => new Date(a.date) - new Date(b.date));
+                        for (const t of sorted) {
+                          const prevCumul = cumul;
+                          cumul += t.amount || 0;
+                          if (t.id === tx.id) {
+                            if (cumul > TVA_THRESHOLD) {
+                              // Threshold crossed at/before this invoice
+                              if (prevCumul < TVA_THRESHOLD) {
+                                // This invoice crosses threshold: tax only amount above 10M
+                                tvaAmt = Math.round((cumul - TVA_THRESHOLD) * TVA_RATE);
+                              } else {
+                                // Already above threshold: tax full invoice
+                                tvaAmt = Math.round((tx.amount || 0) * TVA_RATE);
+                              }
+                            }
+                            break;
+                          }
+                        }
                        }
-                      }
                       const ttc = (tx.amount || 0) + tvaAmt;
                       const hasFacture = tx.attachments?.length > 0 || tx.numero_facture;
                       const conforme = inclusion === 'EXCLURE' || (inclusion === 'INCLURE' && hasFacture);
