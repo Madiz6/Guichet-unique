@@ -209,16 +209,32 @@ export default function GestionTVA() {
     return list;
   }, [revenueTransactions, includedTx, tvaActive, thresholdDate]);
 
-  // Monthly chart data
+  // Monthly chart data (TVA only applies above 10M cumulative threshold)
   const monthlyData = useMemo(() => {
     const byMonth = {};
-    revenueTransactions.forEach(t => {
+    let cumulativeTotal = 0;
+    const sorted = [...revenueTransactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    sorted.forEach(t => {
       if (!t.date) return;
       const m = t.date.substring(0, 7);
       if (!byMonth[m]) byMonth[m] = { month: m, taxable: 0, nonTaxable: 0, tva: 0 };
+      
       if (t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t)) {
-        byMonth[m].taxable += t.amount || 0;
-        byMonth[m].tva += Math.round((t.amount || 0) * TVA_RATE);
+        const txAmount = t.amount || 0;
+        byMonth[m].taxable += txAmount;
+        
+        // TVA only applies when crossing 10M threshold
+        const prevCumul = cumulativeTotal;
+        cumulativeTotal += txAmount;
+        if (cumulativeTotal > TVA_THRESHOLD && prevCumul < TVA_THRESHOLD) {
+          // This transaction crosses threshold
+          const amountAboveThreshold = cumulativeTotal - TVA_THRESHOLD;
+          byMonth[m].tva += Math.round(amountAboveThreshold * TVA_RATE);
+        } else if (cumulativeTotal > TVA_THRESHOLD) {
+          // Already above threshold, full amount taxed
+          byMonth[m].tva += Math.round(txAmount * TVA_RATE);
+        }
       } else {
         byMonth[m].nonTaxable += t.amount || 0;
       }
