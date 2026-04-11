@@ -204,8 +204,7 @@ export default function GestionTVA() {
   }, [revenueTransactions, includedTx, tvaActive, thresholdDate]);
 
   // Monthly chart data
-  // Alerts
-  const alerts = useMemo(() => {
+  const monthlyData = useMemo(() => {
     const list = [];
     if (!tvaActive && totalTaxable > TVA_THRESHOLD * 0.8) {
       list.push({ type: 'warning', msg: `CA classifié proche du seuil TVA (${(totalTaxable / 1_000_000).toFixed(1)}M / 10M DJF)`, icon: AlertTriangle });
@@ -224,6 +223,7 @@ export default function GestionTVA() {
     return list;
   }, [revenueTransactions, includedTx, tvaActive, thresholdDate]);
 
+  // Monthly chart data
   const monthlyData = useMemo(() => {
     const byMonth = {};
     revenueTransactions.forEach(t => {
