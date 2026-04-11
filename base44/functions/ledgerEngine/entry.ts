@@ -41,13 +41,19 @@ Deno.serve(async (req) => {
     const amount = Math.abs(transaction.amount || 0);
     const period = getAccountingPeriod(transaction.date);
 
-    // Create the primary ledger entry
+    // For client invoices marked as paid, create immediate bank posting instead of A/R
+    const useTemplate = (template_type === 'Facture client à encaisser' && transaction.payment_status === 'Payé')
+      ? { ...tpl, credit: '512', credit_label: 'Banque', debit: '512', debit_label: 'Banque', creates_debt: false }
+      : tpl;
+
+    // For paid client invoices, create the revenue entry (Banque -> Ventes)
+    const isPaidInvoice = template_type === 'Facture client à encaisser' && transaction.payment_status === 'Payé';
     const entry = await base44.asServiceRole.entities.LedgerEntry.create({
       transaction_id,
       date: transaction.date,
-      journal: tpl.journal,
-      debit_account: tpl.debit,
-      debit_account_label: tpl.debit_label,
+      journal: isPaidInvoice ? 'VTE' : tpl.journal,
+      debit_account: isPaidInvoice ? '512' : tpl.debit,
+      debit_account_label: isPaidInvoice ? 'Banque' : tpl.debit_label,
       credit_account: tpl.credit,
       credit_account_label: tpl.credit_label,
       amount,
@@ -55,7 +61,7 @@ Deno.serve(async (req) => {
       category: transaction.category,
       department: transaction.department,
       contact_name: transaction.contact_name,
-      status: tpl.creates_debt ? 'À comptabiliser' : 'Posted',
+      status: isPaidInvoice ? 'Posted' : (tpl.creates_debt ? 'À comptabiliser' : 'Posted'),
       is_offset: false,
       accounting_period: period,
       reference: transaction.numero_facture || '',
@@ -64,7 +70,7 @@ Deno.serve(async (req) => {
 
     // If creates a debt, create DebtCentralized record (only if none exists for this transaction)
     let debt = null;
-    if (tpl.creates_debt) {
+    if (tpl.creates_debt && !isPaidInvoice) {
       const existingDebts = await base44.asServiceRole.entities.DebtCentralized.filter({ transaction_id });
       if (existingDebts && existingDebts.length > 0) {
         debt = existingDebts[0];
