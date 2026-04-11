@@ -205,26 +205,6 @@ export default function GestionTVA() {
 
   // Monthly chart data
   const monthlyData = useMemo(() => {
-    const list = [];
-    if (!tvaActive && totalTaxable > TVA_THRESHOLD * 0.8) {
-      list.push({ type: 'warning', msg: `CA classifié proche du seuil TVA (${(totalTaxable / 1_000_000).toFixed(1)}M / 10M DJF)`, icon: AlertTriangle });
-    }
-    if (tvaActive) {
-      list.push({ type: 'info', msg: `TVA activée depuis le ${thresholdDate ? format(new Date(thresholdDate), 'dd/MM/yyyy') : 'N/A'}`, icon: Info });
-    }
-    const noInclusion = revenueTransactions.filter(t => !t.tva_inclusion && !isAutoExcluded(t));
-    if (noInclusion.length > 0) {
-      list.push({ type: 'error', msg: `${noInclusion.length} transaction(s) sans classification TVA`, icon: XCircle });
-    }
-    const noFacture = includedTx.filter(t => !t.attachments?.length && !t.numero_facture);
-    if (noFacture.length > 0) {
-      list.push({ type: 'error', msg: `${noFacture.length} transaction(s) taxables sans facture associée`, icon: AlertCircle });
-    }
-    return list;
-  }, [revenueTransactions, includedTx, tvaActive, thresholdDate]);
-
-  // Monthly chart data
-  const monthlyData = useMemo(() => {
     const byMonth = {};
     revenueTransactions.forEach(t => {
       if (!t.date) return;
