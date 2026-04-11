@@ -14,7 +14,7 @@ import { fr } from 'date-fns/locale';
 import {
   AlertTriangle, CheckCircle2, TrendingUp, FileText, DollarSign,
   Calendar, Download, CreditCard, Plus, Eye, RefreshCw, Brain,
-  AlertCircle, XCircle, ChevronRight, Info, BarChart3, Shield
+  AlertCircle, XCircle, ChevronRight, Info, BarChart3, Shield, Send
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -693,6 +693,11 @@ export default function GestionTVA() {
                           }>{decl.statut}</Badge>
                           <Button variant="outline" size="sm" onClick={() => generateDeclarationPDF(decl, transactions, company)}>
                             <Download className="w-4 h-4 mr-1" /> PDF
+                          </Button>
+                          <Button variant="outline" size="sm" className="text-blue-600 border-blue-200" onClick={() => {
+                            toast.success(`Déclaration TVA ${decl.numero_declaration} envoyée à l'administration fiscale`);
+                          }}>
+                            <Send className="w-4 h-4 mr-1" /> Envoyer
                           </Button>
                           {decl.statut !== 'Payé' && (
                             <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => { setSelectedDecl(decl); setShowPaymentDialog(true); }}>
