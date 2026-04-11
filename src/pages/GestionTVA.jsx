@@ -172,7 +172,8 @@ export default function GestionTVA() {
   const totalTaxable = useMemo(() =>
     includedTx.reduce((s, t) => s + (t.amount || 0), 0), [includedTx]);
 
-  const totalTVA = Math.round(totalTaxable * TVA_RATE);
+  // TVA is only due once the threshold is reached
+  const totalTVA = tvaActive ? Math.round(totalTaxable * TVA_RATE) : 0;
 
   // Alerts
   const alerts = useMemo(() => {
@@ -401,7 +402,7 @@ export default function GestionTVA() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label: 'CA Taxable', value: `${(totalTaxable / 1000).toFixed(0)}K DJF`, sub: `${includedTx.length} transactions`, color: 'blue' },
-                { label: 'TVA Due Totale', value: `${(totalTVA / 1000).toFixed(0)}K DJF`, sub: '10% du CA taxable', color: 'purple' },
+                { label: 'TVA Due Totale', value: tvaActive ? `${(totalTVA / 1000).toFixed(0)}K DJF` : '0 DJF', sub: tvaActive ? '10% du CA taxable' : 'Seuil non atteint', color: tvaActive ? 'purple' : 'gray' },
                 { label: 'Déclarations Payées', value: declarations.filter(d => d.statut === 'Payé').length, sub: `sur ${declarations.length} total`, color: 'green' },
                 { label: 'Alertes Actives', value: alerts.length, sub: 'à traiter', color: alerts.length > 0 ? 'red' : 'gray' },
               ].map((kpi, i) => (
@@ -551,7 +552,8 @@ export default function GestionTVA() {
                     ) : filteredRevTx.map(tx => {
                       const autoExcl = isAutoExcluded(tx);
                       const inclusion = autoExcl ? 'EXCLURE' : (tx.tva_inclusion || '—');
-                      const tvaAmt = inclusion === 'INCLURE' ? Math.round((tx.amount || 0) * TVA_RATE) : 0;
+                      // TVA only applies once threshold is reached
+                      const tvaAmt = (tvaActive && inclusion === 'INCLURE') ? Math.round((tx.amount || 0) * TVA_RATE) : 0;
                       const ttc = (tx.amount || 0) + tvaAmt;
                       const hasFacture = tx.attachments?.length > 0 || tx.numero_facture;
                       const conforme = inclusion === 'EXCLURE' || (inclusion === 'INCLURE' && hasFacture);
