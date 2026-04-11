@@ -455,7 +455,7 @@ export default function GestionTVA() {
                       {tvaActive && thresholdDate && ` — Activée depuis le ${format(new Date(thresholdDate), 'dd/MM/yyyy')}`}
                     </p>
                     <p className={`text-xs mt-1 ${tvaActive ? 'text-green-600' : 'text-yellow-600'}`}>
-                      CA total revenus : {totalCA.toLocaleString()} DJF — classifiez les transactions pour activer la TVA
+                      TVA 10% s'applique sur chaque facture une fois le seuil de 10M atteint. CA total revenus : {totalCA.toLocaleString()} DJF
                     </p>
                   </div>
                 </div>
@@ -476,7 +476,7 @@ export default function GestionTVA() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label: 'CA Taxable', value: `${(totalTaxable / 1000).toFixed(0)}K DJF`, sub: `${includedTx.length} transactions`, color: 'blue' },
-                { label: 'TVA Due Totale', value: tvaActive ? `${(totalTVACorrect / 1000).toFixed(0)}K DJF` : '0 DJF', sub: tvaActive ? '10% au-delà de 10M' : 'Seuil non atteint', color: tvaActive ? 'purple' : 'gray' },
+                { label: 'TVA Due Totale', value: tvaActive ? `${(totalTVACorrect / 1000).toFixed(0)}K DJF` : '0 DJF', sub: tvaActive ? '10% sur factures après seuil' : 'Seuil non atteint', color: tvaActive ? 'purple' : 'gray' },
                 { label: 'Déclarations Payées', value: declarations.filter(d => d.statut === 'Payé').length, sub: `sur ${declarations.length} total`, color: 'green' },
                 { label: 'Alertes Actives', value: alerts.length, sub: 'à traiter', color: alerts.length > 0 ? 'red' : 'gray' },
               ].map((kpi, i) => (
@@ -877,12 +877,23 @@ export default function GestionTVA() {
               monthTx = revenueTransactions.filter(t => t.date >= monthStart && t.date <= monthEnd);
               inclTx = monthTx.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t));
               const caT = inclTx.reduce((s, t) => s + (t.amount || 0), 0);
-              
-              // TVA applies only to amount above 10M threshold
+
+              // TVA: 10% on full invoice once cumulative threshold is crossed
               let tvaAmount = 0;
-              if (caT > TVA_THRESHOLD) {
-                const amountAboveThreshold = caT - TVA_THRESHOLD;
-                tvaAmount = Math.round(amountAboveThreshold * TVA_RATE);
+              let cumul = 0;
+              const allSorted = [...revenueTransactions]
+                .filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t))
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+              for (const t of allSorted) {
+                const prevCumul = cumul;
+                cumul += t.amount || 0;
+                const inMonth = t.date >= monthStart && t.date <= monthEnd;
+                if (prevCumul >= TVA_THRESHOLD || cumul > TVA_THRESHOLD) {
+                  // At or crossing threshold: 10% on full invoice
+                  if (inMonth) {
+                    tvaAmount += Math.round((t.amount || 0) * TVA_RATE);
+                  }
+                }
               }
               
               return (
