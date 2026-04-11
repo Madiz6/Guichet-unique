@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 // ===== TEMPLATE MAP =====
 const TEMPLATES = {
@@ -11,7 +11,7 @@ const TEMPLATES = {
   'Frais bancaires / prélèvements': { journal: 'BNQ',  debit: '627',  debit_label: 'Frais bancaires',    credit: '512',  credit_label: 'Banque',             creates_debt: false },
   'Déclaration CNSS/ITS':           { journal: 'CNSS', debit: '645',  debit_label: 'Charges sociales',   credit: '43x',  credit_label: 'Charges sociales',   creates_debt: true,  debt_type: 'Fiscal' },
   'Apport en capital':              { journal: 'BNQ',  debit: '512',  debit_label: 'Banque',             credit: '101',  credit_label: 'Capital',            creates_debt: false },
-  'Facture client à encaisser':     { journal: 'VTE',  debit: '411',  debit_label: 'Clients',            credit: '7xxx', credit_label: 'Ventes',             creates_debt: false },
+  'Facture client à encaisser':     { journal: 'VTE',  debit: '411',  debit_label: 'Clients',            credit: '7xx', credit_label: 'Ventes',             creates_debt: false },
   'Paiement client reçu':           { journal: 'VTE',  debit: '512',  debit_label: 'Banque',             credit: '411',  credit_label: 'Clients',            creates_debt: false },
   'Dette fournisseur':              { journal: 'ACH',  debit: '606',  debit_label: 'Achats',             credit: '401',  credit_label: 'Fournisseurs',       creates_debt: true,  debt_type: 'Fournisseur' },
   'Dette employé':                  { journal: 'OD',   debit: '455',  debit_label: 'Employé',            credit: '512',  credit_label: 'Banque',             creates_debt: true,  debt_type: 'Employé' },
@@ -41,36 +41,67 @@ Deno.serve(async (req) => {
     const amount = Math.abs(transaction.amount || 0);
     const period = getAccountingPeriod(transaction.date);
 
-    // For client invoices marked as paid, create immediate bank posting instead of A/R
-    const useTemplate = (template_type === 'Facture client à encaisser' && transaction.payment_status === 'Payé')
-      ? { ...tpl, credit: '512', credit_label: 'Banque', debit: '512', debit_label: 'Banque', creates_debt: false }
-      : tpl;
+    // Check TVA threshold: if revenue invoice crosses 10M cumulative, apply 10% TVA starting from this invoice
+    let shouldApplyTVA = false;
+    if (template_type === 'Facture client à encaisser' && transaction.tva_inclusion === 'INCLURE') {
+      const allRevenue = await base44.asServiceRole.entities.Transaction.filter({ type: 'Revenu' }) || [];
+      const cumulBefore = allRevenue
+        .filter(t => t.id !== transaction_id && t.tva_inclusion === 'INCLURE')
+        .reduce((s, t) => s + (t.amount || 0), 0);
+      shouldApplyTVA = (cumulBefore + amount) >= 10_000_000;
+    }
+
+    const tvaAmount = shouldApplyTVA ? Math.round(amount * 0.1) : 0;
+    const baseAmount = amount - tvaAmount;
 
     // For paid client invoices, create the revenue entry (Banque -> Ventes)
     const isPaidInvoice = template_type === 'Facture client à encaisser' && transaction.payment_status === 'Payé';
     const entry = await base44.asServiceRole.entities.LedgerEntry.create({
       transaction_id,
       date: transaction.date,
-      journal: isPaidInvoice ? 'VTE' : tpl.journal,
-      debit_account: isPaidInvoice ? '512' : tpl.debit,
-      debit_account_label: isPaidInvoice ? 'Banque' : tpl.debit_label,
+      journal: isPaidInvoice || shouldApplyTVA ? 'VTE' : tpl.journal,
+      debit_account: isPaidInvoice || shouldApplyTVA ? '512' : tpl.debit,
+      debit_account_label: isPaidInvoice || shouldApplyTVA ? 'Banque' : tpl.debit_label,
       credit_account: tpl.credit,
       credit_account_label: tpl.credit_label,
-      amount,
+      amount: baseAmount || amount,
       description: transaction.description || template_type,
       category: transaction.category,
       department: transaction.department,
       contact_name: transaction.contact_name,
-      status: isPaidInvoice ? 'Posted' : (tpl.creates_debt ? 'À comptabiliser' : 'Posted'),
+      status: isPaidInvoice || shouldApplyTVA ? 'Posted' : (tpl.creates_debt ? 'À comptabiliser' : 'Posted'),
       is_offset: false,
       accounting_period: period,
       reference: transaction.numero_facture || '',
       template_type,
     });
 
+    // If TVA applies, create separate entry for tax liability
+    if (shouldApplyTVA && tvaAmount > 0) {
+      await base44.asServiceRole.entities.LedgerEntry.create({
+        transaction_id,
+        date: transaction.date,
+        journal: 'VTE',
+        debit_account: '512',
+        debit_account_label: 'Banque',
+        credit_account: '4457',
+        credit_account_label: 'TVA à payer',
+        amount: tvaAmount,
+        description: `TVA 10% - ${transaction.description || template_type}`,
+        category: transaction.category,
+        department: transaction.department,
+        contact_name: transaction.contact_name,
+        status: 'Posted',
+        is_offset: false,
+        accounting_period: period,
+        reference: transaction.numero_facture || '',
+        template_type: 'TVA',
+      });
+    }
+
     // If creates a debt, create DebtCentralized record (only if none exists for this transaction)
     let debt = null;
-    if (tpl.creates_debt && !isPaidInvoice) {
+    if (tpl.creates_debt && !isPaidInvoice && !shouldApplyTVA) {
       const existingDebts = await base44.asServiceRole.entities.DebtCentralized.filter({ transaction_id });
       if (existingDebts && existingDebts.length > 0) {
         debt = existingDebts[0];
@@ -101,7 +132,7 @@ Deno.serve(async (req) => {
       booking_type: template_type,
     });
 
-    return Response.json({ success: true, ledger_entry: entry, debt });
+    return Response.json({ success: true, ledger_entry: entry, debt, tva_applied: shouldApplyTVA, tva_amount: tvaAmount });
   }
 
   // ===== ACTION: markPayment =====
