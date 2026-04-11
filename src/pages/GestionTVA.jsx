@@ -148,18 +148,23 @@ export default function GestionTVA() {
     return inclTotal >= TVA_THRESHOLD;
   }, [revenueTransactions]);
 
+  // Calculate TVA correctly: 10% only on amount ABOVE 10M threshold
+  const totalTVACorrect = useMemo(() => {
+    const inclTotal = includedTx.reduce((s, t) => s + (t.amount || 0), 0);
+    if (inclTotal <= TVA_THRESHOLD) return 0;
+    return Math.round((inclTotal - TVA_THRESHOLD) * TVA_RATE);
+  }, [includedTx]);
+
   // Find threshold crossing date (based on INCLURE transactions)
   const thresholdDate = useMemo(() => {
     let cumul = 0;
-    const sorted = [...revenueTransactions]
-      .filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t))
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sorted = [...includedTx].sort((a, b) => new Date(a.date) - new Date(b.date));
     for (const t of sorted) {
       cumul += t.amount || 0;
       if (cumul >= TVA_THRESHOLD) return t.date;
     }
     return null;
-  }, [revenueTransactions]);
+  }, [includedTx]);
 
   // TVA-included transactions
   const includedTx = useMemo(() =>
@@ -241,7 +246,8 @@ export default function GestionTVA() {
       const inclTx = monthTx.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t));
       const caT = inclTx.reduce((s, t) => s + (t.amount || 0), 0);
       const caNoT = monthTx.filter(t => t.tva_inclusion !== 'INCLURE' || isAutoExcluded(t)).reduce((s, t) => s + (t.amount || 0), 0);
-      const tva = Math.round(caT * TVA_RATE);
+      // TVA only on amount above 10M threshold
+      const tva = caT > TVA_THRESHOLD ? Math.round((caT - TVA_THRESHOLD) * TVA_RATE) : 0;
       const periodeLabel = format(new Date(`${year}-${month}-01`), 'MMMM yyyy', { locale: fr });
       const limitDate = format(addDays(new Date(`${year}-${month}-${lastDay}`), 15), 'yyyy-MM-dd');
 
@@ -433,7 +439,7 @@ export default function GestionTVA() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label: 'CA Taxable', value: `${(totalTaxable / 1000).toFixed(0)}K DJF`, sub: `${includedTx.length} transactions`, color: 'blue' },
-                { label: 'TVA Due Totale', value: tvaActive ? `${(totalTVA / 1000).toFixed(0)}K DJF` : '0 DJF', sub: tvaActive ? '10% du CA taxable' : 'Seuil non atteint', color: tvaActive ? 'purple' : 'gray' },
+                { label: 'TVA Due Totale', value: tvaActive ? `${(totalTVACorrect / 1000).toFixed(0)}K DJF` : '0 DJF', sub: tvaActive ? '10% au-delà de 10M' : 'Seuil non atteint', color: tvaActive ? 'purple' : 'gray' },
                 { label: 'Déclarations Payées', value: declarations.filter(d => d.statut === 'Payé').length, sub: `sur ${declarations.length} total`, color: 'green' },
                 { label: 'Alertes Actives', value: alerts.length, sub: 'à traiter', color: alerts.length > 0 ? 'red' : 'gray' },
               ].map((kpi, i) => (
