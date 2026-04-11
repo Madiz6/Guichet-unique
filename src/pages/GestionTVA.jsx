@@ -153,11 +153,22 @@ export default function GestionTVA() {
     revenueTransactions.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t)),
     [revenueTransactions]);
 
-  // Calculate TVA correctly: 10% only on amount ABOVE 10M threshold
+  // Calculate TVA correctly: 10% on full invoice amount once threshold is crossed
   const totalTVACorrect = useMemo(() => {
-    const inclTotal = includedTx.reduce((s, t) => s + (t.amount || 0), 0);
-    if (inclTotal <= TVA_THRESHOLD) return 0;
-    return Math.round((inclTotal - TVA_THRESHOLD) * TVA_RATE);
+    let cumul = 0;
+    let totalTVA = 0;
+    const sorted = [...includedTx].sort((a, b) => new Date(a.date) - new Date(b.date));
+    for (const t of sorted) {
+      if (cumul >= TVA_THRESHOLD) {
+        // Already above threshold: 10% on full invoice
+        totalTVA += Math.round((t.amount || 0) * TVA_RATE);
+      } else if (cumul + (t.amount || 0) > TVA_THRESHOLD) {
+        // This invoice crosses threshold: 10% on full invoice
+        totalTVA += Math.round((t.amount || 0) * TVA_RATE);
+      }
+      cumul += t.amount || 0;
+    }
+    return totalTVA;
   }, [includedTx]);
 
   // Find threshold crossing date (based on INCLURE transactions)
@@ -209,7 +220,7 @@ export default function GestionTVA() {
     return list;
   }, [revenueTransactions, includedTx, tvaActive, thresholdDate]);
 
-  // Monthly chart data (TVA only applies above 10M cumulative threshold)
+  // Monthly chart data: 10% TVA on full invoice once threshold is crossed
   const monthlyData = useMemo(() => {
     const byMonth = {};
     let cumulativeTotal = 0;
@@ -224,15 +235,14 @@ export default function GestionTVA() {
         const txAmount = t.amount || 0;
         byMonth[m].taxable += txAmount;
         
-        // TVA only applies when crossing 10M threshold
+        // 10% TVA applies once cumulative > 10M on full invoice
         const prevCumul = cumulativeTotal;
         cumulativeTotal += txAmount;
-        if (cumulativeTotal > TVA_THRESHOLD && prevCumul < TVA_THRESHOLD) {
-          // This transaction crosses threshold
-          const amountAboveThreshold = cumulativeTotal - TVA_THRESHOLD;
-          byMonth[m].tva += Math.round(amountAboveThreshold * TVA_RATE);
+        if (prevCumul >= TVA_THRESHOLD) {
+          // Already above threshold: 10% on full invoice
+          byMonth[m].tva += Math.round(txAmount * TVA_RATE);
         } else if (cumulativeTotal > TVA_THRESHOLD) {
-          // Already above threshold, full amount taxed
+          // This invoice crosses threshold: 10% on full invoice
           byMonth[m].tva += Math.round(txAmount * TVA_RATE);
         }
       } else {
@@ -606,7 +616,7 @@ export default function GestionTVA() {
                        const autoExcl = isAutoExcluded(tx);
                        const inclusion = autoExcl ? 'EXCLURE' : (tx.tva_inclusion || '—');
 
-                       // TVA logic: once cumulative > 10M, all subsequent invoices get 10% TVA on full amount
+                       // TVA logic: 10% on full invoice once cumulative >= 10M
                        let tvaAmt = 0;
                        if (inclusion === 'INCLURE' && !autoExcl) {
                         let cumul = 0;
@@ -615,15 +625,9 @@ export default function GestionTVA() {
                           const prevCumul = cumul;
                           cumul += t.amount || 0;
                           if (t.id === tx.id) {
-                            if (cumul > TVA_THRESHOLD) {
-                              // Threshold crossed at/before this invoice
-                              if (prevCumul < TVA_THRESHOLD) {
-                                // This invoice crosses threshold: tax only amount above 10M
-                                tvaAmt = Math.round((cumul - TVA_THRESHOLD) * TVA_RATE);
-                              } else {
-                                // Already above threshold: tax full invoice
-                                tvaAmt = Math.round((tx.amount || 0) * TVA_RATE);
-                              }
+                            if (prevCumul >= TVA_THRESHOLD || cumul > TVA_THRESHOLD) {
+                              // At or crossing threshold: 10% on full invoice
+                              tvaAmt = Math.round((tx.amount || 0) * TVA_RATE);
                             }
                             break;
                           }
