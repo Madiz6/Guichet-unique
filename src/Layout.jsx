@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3, BookOpen } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3, BookOpen, Receipt } from "lucide-react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import MobileBackButton from "@/components/layout/MobileBackButton";
 import {
@@ -123,6 +123,11 @@ export default function Layout({ children, currentPageName }) {
       title: "Prévisions IA",
       url: createPageUrl("FinancialForecasting"),
       icon: BarChart3,
+    },
+    {
+      title: "TVA & Fiscal",
+      url: createPageUrl("GestionTVA"),
+      icon: Receipt,
     },
 
     {

@@ -71,7 +71,7 @@ export default function PaymentSuccess() {
             <h1 className="text-3xl font-bold text-[#0F172A] mb-3">Paiement Réussi!</h1>
             
             <p className="text-lg text-[#64748B] mb-6">
-              Votre paiement de <span className="font-bold text-green-600">{amount?.toLocaleString()} DJF</span> a été traité avec succès
+              Votre paiement a été traité avec succès
             </p>
 
             {paymentDetails && (
