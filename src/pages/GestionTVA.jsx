@@ -301,17 +301,28 @@ export default function GestionTVA() {
     },
   });
 
-  // Mark as paid
+  // Process TVA declaration payment through gateway
   const payDeclMutation = useMutation({
-    mutationFn: (decl) => meras.entities.TVADeclaration.update(decl.id, {
-      statut: 'Payé',
-      date_paiement: format(new Date(), 'yyyy-MM-dd'),
-      payment_reference: `PAY-TVA-${Date.now()}`,
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['tva-declarations']);
-      setShowPaymentDialog(false);
-      toast.success('Paiement TVA enregistré');
+    mutationFn: async (decl) => {
+      const amount = decl.tva_finale || 0;
+      const ref = `TVA-${decl.mois_annee}-${Date.now()}`;
+      
+      // Initiate payment through gateway
+      const paymentRes = await meras.functions.invoke('merasInitiatePayment', {
+        amount,
+        reference: ref,
+        type: 'tva_declaration',
+        declaration_id: decl.id,
+      });
+      
+      if (paymentRes.data?.payment_url) {
+        window.location.href = paymentRes.data.payment_url;
+      } else {
+        throw new Error('Impossible de créer le lien de paiement');
+      }
+    },
+    onError: () => {
+      toast.error('Erreur lors du traitement du paiement');
     },
   });
 
