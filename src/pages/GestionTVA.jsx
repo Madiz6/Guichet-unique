@@ -153,23 +153,24 @@ export default function GestionTVA() {
     revenueTransactions.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t)),
     [revenueTransactions]);
 
-  // Calculate TVA correctly: 10% on full invoice amount once threshold is crossed
-  const totalTVACorrect = useMemo(() => {
+  // Calculate TVA for CURRENT MONTH ONLY (for dashboard display to match declarations)
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const currentMonthTVA = useMemo(() => {
     let cumul = 0;
-    let totalTVA = 0;
+    let monthTVA = 0;
     const sorted = [...includedTx].sort((a, b) => new Date(a.date) - new Date(b.date));
     for (const t of sorted) {
+      const inCurrentMonth = t.date?.substring(0, 7) === currentMonth;
       if (cumul >= TVA_THRESHOLD) {
-        // Already above threshold: 10% on full invoice
-        totalTVA += Math.round((t.amount || 0) * TVA_RATE);
+        if (inCurrentMonth) monthTVA += Math.round((t.amount || 0) * TVA_RATE);
       } else if (cumul + (t.amount || 0) > TVA_THRESHOLD) {
-        // This invoice crosses threshold: 10% on full invoice
-        totalTVA += Math.round((t.amount || 0) * TVA_RATE);
+        if (inCurrentMonth) monthTVA += Math.round((t.amount || 0) * TVA_RATE);
       }
       cumul += t.amount || 0;
     }
-    return totalTVA;
-  }, [includedTx]);
+    return monthTVA;
+  }, [includedTx, currentMonth]);
 
   // Find threshold crossing date (based on INCLURE transactions)
   const thresholdDate = useMemo(() => {
@@ -476,7 +477,7 @@ export default function GestionTVA() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label: 'CA Taxable', value: `${(totalTaxable / 1000).toFixed(0)}K DJF`, sub: `${includedTx.length} transactions`, color: 'blue' },
-                { label: 'TVA Due Totale', value: tvaActive ? `${(totalTVACorrect / 1000).toFixed(0)}K DJF` : '0 DJF', sub: tvaActive ? '10% sur factures après seuil' : 'Seuil non atteint', color: tvaActive ? 'purple' : 'gray' },
+                { label: 'TVA Due (Mois Courant)', value: tvaActive ? `${(currentMonthTVA / 1000).toFixed(0)}K DJF` : '0 DJF', sub: tvaActive ? '10% sur factures après seuil' : 'Seuil non atteint', color: tvaActive ? 'purple' : 'gray' },
                 { label: 'Déclarations Payées', value: declarations.filter(d => d.statut === 'Payé').length, sub: `sur ${declarations.length} total`, color: 'green' },
                 { label: 'Alertes Actives', value: alerts.length, sub: 'à traiter', color: alerts.length > 0 ? 'red' : 'gray' },
               ].map((kpi, i) => (
