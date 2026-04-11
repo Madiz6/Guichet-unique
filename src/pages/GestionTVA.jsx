@@ -107,6 +107,7 @@ export default function GestionTVA() {
   const [showDeclarationDialog, setShowDeclarationDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [selectedDecl, setSelectedDecl] = useState(null);
+  const [declFrequency, setDeclFrequency] = useState('monthly'); // 'monthly' or 'quarterly'
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState(null);
   const [declPeriode, setDeclPeriode] = useState(format(new Date(), 'yyyy-MM'));
@@ -342,6 +343,28 @@ export default function GestionTVA() {
             <Badge className={tvaActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}>
               {tvaActive ? '✅ TVA Active' : '⏳ Sous seuil TVA'}
             </Badge>
+            <div className="flex gap-2 border-l border-[#E5E7EB] pl-3">
+              <button
+                onClick={() => setDeclFrequency('monthly')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  declFrequency === 'monthly'
+                    ? 'bg-[#0066FF] text-white'
+                    : 'bg-[#F5F5F5] text-[#6B6B6B] hover:bg-[#E5E7EB]'
+                }`}
+              >
+                Mensuel
+              </button>
+              <button
+                onClick={() => setDeclFrequency('quarterly')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  declFrequency === 'quarterly'
+                    ? 'bg-[#0066FF] text-white'
+                    : 'bg-[#F5F5F5] text-[#6B6B6B] hover:bg-[#E5E7EB]'
+                }`}
+              >
+                Trimestriel
+              </button>
+            </div>
             <Button onClick={() => setShowDeclarationDialog(true)} className="bg-[#0066FF] hover:bg-[#0052CC] text-white">
               <Plus className="w-4 h-4 mr-2" /> Générer Déclaration
             </Button>
@@ -751,25 +774,55 @@ export default function GestionTVA() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Générer une Déclaration TVA</DialogTitle>
+            <p className="text-sm text-[#6B6B6B] mt-1">Fréquence: <span className="font-medium text-[#1A1A1A]">{declFrequency === 'monthly' ? 'Mensuelle' : 'Trimestrielle'}</span></p>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label>Période (AAAA-MM)</Label>
-              <Input
-                type="month"
-                value={declPeriode}
-                onChange={e => setDeclPeriode(e.target.value)}
-                className="mt-2"
-              />
+              <Label>{declFrequency === 'monthly' ? 'Mois (AAAA-MM)' : 'Trimestre (AAAA-Qx)'}</Label>
+              {declFrequency === 'monthly' ? (
+                <Input
+                  type="month"
+                  value={declPeriode}
+                  onChange={e => setDeclPeriode(e.target.value)}
+                  className="mt-2"
+                />
+              ) : (
+                <Select value={declPeriode} onValueChange={setDeclPeriode}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Sélectionner un trimestre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4].map(q => {
+                      const year = new Date().getFullYear();
+                      return (
+                        <SelectItem key={q} value={`${year}-Q${q}`}>
+                          Q{q} {year}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             {declPeriode && (() => {
-              const year = declPeriode.substring(0, 4);
-              const month = declPeriode.substring(5, 7);
-              const monthStart = `${year}-${month}-01`;
+              let year, month, monthStart, monthEnd, monthTx, inclTx;
+              if (declFrequency === 'monthly') {
+                year = declPeriode.substring(0, 4);
+                month = declPeriode.substring(5, 7);
+              monthStart = `${year}-${month}-01`;
               const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
-              const monthEnd = `${year}-${month}-${lastDay}`;
-              const monthTx = revenueTransactions.filter(t => t.date >= monthStart && t.date <= monthEnd);
-              const inclTx = monthTx.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t));
+              monthEnd = `${year}-${month}-${lastDay}`;
+              } else {
+              const q = parseInt(declPeriode.substring(6));
+              year = declPeriode.substring(0, 4);
+              const startMonth = ((q - 1) * 3) + 1;
+              const endMonth = q * 3;
+              monthStart = `${year}-${String(startMonth).padStart(2, '0')}-01`;
+              const lastDay = new Date(parseInt(year), endMonth, 0).getDate();
+              monthEnd = `${year}-${String(endMonth).padStart(2, '0')}-${lastDay}`;
+              }
+              monthTx = revenueTransactions.filter(t => t.date >= monthStart && t.date <= monthEnd);
+              inclTx = monthTx.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t));
               const caT = inclTx.reduce((s, t) => s + (t.amount || 0), 0);
               return (
                 <div className="bg-[#F0F7FF] rounded-xl p-4 space-y-2 text-sm">
