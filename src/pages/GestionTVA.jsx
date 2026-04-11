@@ -148,6 +148,11 @@ export default function GestionTVA() {
     return inclTotal >= TVA_THRESHOLD;
   }, [revenueTransactions]);
 
+  // TVA-included transactions
+  const includedTx = useMemo(() =>
+    revenueTransactions.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t)),
+    [revenueTransactions]);
+
   // Calculate TVA correctly: 10% only on amount ABOVE 10M threshold
   const totalTVACorrect = useMemo(() => {
     const inclTotal = includedTx.reduce((s, t) => s + (t.amount || 0), 0);
@@ -165,11 +170,6 @@ export default function GestionTVA() {
     }
     return null;
   }, [includedTx]);
-
-  // TVA-included transactions
-  const includedTx = useMemo(() =>
-    revenueTransactions.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t)),
-    [revenueTransactions]);
 
   const excludedTx = useMemo(() =>
     revenueTransactions.filter(t => t.tva_inclusion !== 'INCLURE' || isAutoExcluded(t)),
