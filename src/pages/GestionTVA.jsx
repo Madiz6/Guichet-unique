@@ -829,12 +829,21 @@ export default function GestionTVA() {
               monthTx = revenueTransactions.filter(t => t.date >= monthStart && t.date <= monthEnd);
               inclTx = monthTx.filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t));
               const caT = inclTx.reduce((s, t) => s + (t.amount || 0), 0);
+              
+              // TVA applies only to amount above 10M threshold
+              let tvaAmount = 0;
+              if (caT > TVA_THRESHOLD) {
+                const amountAboveThreshold = caT - TVA_THRESHOLD;
+                tvaAmount = Math.round(amountAboveThreshold * TVA_RATE);
+              }
+              
               return (
                 <div className="bg-[#F0F7FF] rounded-xl p-4 space-y-2 text-sm">
                   <div className="flex justify-between"><span className="text-[#6B6B6B]">Transactions du mois</span><span className="font-medium">{monthTx.length}</span></div>
                   <div className="flex justify-between"><span className="text-[#6B6B6B]">Transactions INCLURE</span><span className="font-medium text-green-600">{inclTx.length}</span></div>
                   <div className="flex justify-between"><span className="text-[#6B6B6B]">CA Taxable</span><span className="font-semibold text-[#0066FF]">{caT.toLocaleString()} DJF</span></div>
-                  <div className="flex justify-between border-t border-[#D1D5DB] pt-2"><span className="font-semibold">TVA Due (10%)</span><span className="font-bold text-[#7C3AED]">{Math.round(caT * TVA_RATE).toLocaleString()} DJF</span></div>
+                  <div className="flex justify-between"><span className="text-[#6B6B6B]">Seuil TVA</span><span className="font-medium text-amber-600">{caT >= TVA_THRESHOLD ? '✓ Dépassé' : `${Math.round(caT / 1_000_000 * 10)}%`}</span></div>
+                  <div className="flex justify-between border-t border-[#D1D5DB] pt-2"><span className="font-semibold">TVA Due</span><span className="font-bold text-[#7C3AED]">{tvaAmount.toLocaleString()} DJF</span></div>
                 </div>
               );
             })()}
