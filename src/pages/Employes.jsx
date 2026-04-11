@@ -177,6 +177,7 @@ export default function Employes() {
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(['employees'], context.previous);
+      toast.error(`Erreur lors de la mise à jour de l'employé`);
     },
     onSuccess: async (updatedEmployee) => {
       queryClient.invalidateQueries(['employees']);
@@ -197,9 +198,6 @@ export default function Employes() {
       setValidationErrors({}); // Clear errors on success
       toast.success('Employé mis à jour avec succès !');
     },
-    onError: (error) => {
-      toast.error(`Erreur lors de la mise à jour de l'employé: ${error.message}`);
-    }
   });
   
   const deleteMutation = useMutation({
@@ -212,6 +210,7 @@ export default function Employes() {
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(['employees'], context.previous);
+      toast.error(`Erreur lors de la suppression de l'employé`);
     },
     onSuccess: async (_, deletedId) => {
       const deletedEmployee = employees.find(e => e.id === deletedId);
@@ -230,9 +229,6 @@ export default function Employes() {
       queryClient.invalidateQueries(['employees']);
       toast.success('Employé supprimé avec succès !');
     },
-    onError: (error) => {
-      toast.error(`Erreur lors de la suppression de l'employé: ${error.message}`);
-    }
   });
 
   const validateStep = (step) => {

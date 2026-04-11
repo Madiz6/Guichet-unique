@@ -135,17 +135,24 @@ export default function GestionTVA() {
   const revenueTransactions = useMemo(() =>
     transactions.filter(t => t.type === 'Revenu'), [transactions]);
 
-  // Cumulative CA
+  // Cumulative CA (all revenue)
   const totalCA = useMemo(() =>
     revenueTransactions.reduce((s, t) => s + (t.amount || 0), 0), [revenueTransactions]);
 
-  // TVA active if CA >= seuil
-  const tvaActive = totalCA >= TVA_THRESHOLD;
+  // TVA active based on INCLURE-classified transactions only
+  const tvaActive = useMemo(() => {
+    const inclTotal = revenueTransactions
+      .filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t))
+      .reduce((s, t) => s + (t.amount || 0), 0);
+    return inclTotal >= TVA_THRESHOLD;
+  }, [revenueTransactions]);
 
-  // Find threshold crossing date
+  // Find threshold crossing date (based on INCLURE transactions)
   const thresholdDate = useMemo(() => {
     let cumul = 0;
-    const sorted = [...revenueTransactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sorted = [...revenueTransactions]
+      .filter(t => t.tva_inclusion === 'INCLURE' && !isAutoExcluded(t))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
     for (const t of sorted) {
       cumul += t.amount || 0;
       if (cumul >= TVA_THRESHOLD) return t.date;
@@ -170,8 +177,8 @@ export default function GestionTVA() {
   // Alerts
   const alerts = useMemo(() => {
     const list = [];
-    if (!tvaActive && totalCA > TVA_THRESHOLD * 0.8) {
-      list.push({ type: 'warning', msg: `CA proche du seuil TVA (${(totalCA / 1_000_000).toFixed(1)}M / 10M DJF)`, icon: AlertTriangle });
+    if (!tvaActive && totalTaxable > TVA_THRESHOLD * 0.8) {
+      list.push({ type: 'warning', msg: `CA classifié proche du seuil TVA (${(totalTaxable / 1_000_000).toFixed(1)}M / 10M DJF)`, icon: AlertTriangle });
     }
     if (tvaActive) {
       list.push({ type: 'info', msg: `TVA activée depuis le ${thresholdDate ? format(new Date(thresholdDate), 'dd/MM/yyyy') : 'N/A'}`, icon: Info });
@@ -366,22 +373,25 @@ export default function GestionTVA() {
                   </div>
                   <div>
                     <h3 className={`font-semibold text-base ${tvaActive ? 'text-green-800' : 'text-yellow-800'}`}>
-                      {tvaActive ? 'TVA activée — Seuil dépassé' : `Seuil TVA non atteint`}
+                      {tvaActive ? 'TVA activée — Seuil dépassé' : 'Seuil TVA non atteint'}
                     </h3>
                     <p className={`text-sm ${tvaActive ? 'text-green-700' : 'text-yellow-700'}`}>
-                      CA total : <strong>{totalCA.toLocaleString()} DJF</strong> / seuil : <strong>10 000 000 DJF</strong>
+                      CA classifié INCLURE : <strong>{totalTaxable.toLocaleString()} DJF</strong> / seuil : <strong>10 000 000 DJF</strong>
                       {tvaActive && thresholdDate && ` — Activée depuis le ${format(new Date(thresholdDate), 'dd/MM/yyyy')}`}
+                    </p>
+                    <p className={`text-xs mt-1 ${tvaActive ? 'text-green-600' : 'text-yellow-600'}`}>
+                      CA total revenus : {totalCA.toLocaleString()} DJF — classifiez les transactions pour activer la TVA
                     </p>
                   </div>
                 </div>
                 <div className="w-full md:w-64">
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-[#6B6B6B]">Progression</span>
-                    <span className="font-medium">{Math.min(100, Math.round(totalCA / TVA_THRESHOLD * 100))}%</span>
+                    <span className="font-medium">{Math.min(100, Math.round(totalTaxable / TVA_THRESHOLD * 100))}%</span>
                   </div>
                   <div className="w-full bg-white rounded-full h-2 border">
                     <div className={`h-2 rounded-full ${tvaActive ? 'bg-green-500' : 'bg-yellow-400'}`}
-                      style={{ width: `${Math.min(100, totalCA / TVA_THRESHOLD * 100)}%` }} />
+                      style={{ width: `${Math.min(100, totalTaxable / TVA_THRESHOLD * 100)}%` }} />
                   </div>
                 </div>
               </CardContent>
