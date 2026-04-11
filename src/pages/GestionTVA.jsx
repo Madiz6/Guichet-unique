@@ -172,8 +172,16 @@ export default function GestionTVA() {
   const totalTaxable = useMemo(() =>
     includedTx.reduce((s, t) => s + (t.amount || 0), 0), [includedTx]);
 
-  // TVA is only due once the threshold is reached
-  const totalTVA = tvaActive ? Math.round(totalTaxable * TVA_RATE) : 0;
+  // Calculate TVA per transaction: only invoices at/after threshold get 10% tax
+  const totalTVA = useMemo(() => {
+    let cumul = 0;
+    return includedTx
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .reduce((sum, tx) => {
+        cumul += tx.amount || 0;
+        return sum + ((cumul >= TVA_THRESHOLD) ? Math.round((tx.amount || 0) * TVA_RATE) : 0);
+      }, 0);
+  }, [includedTx]);
 
   // Alerts
   const alerts = useMemo(() => {
@@ -196,6 +204,26 @@ export default function GestionTVA() {
   }, [revenueTransactions, includedTx, tvaActive, thresholdDate]);
 
   // Monthly chart data
+  // Alerts
+  const alerts = useMemo(() => {
+    const list = [];
+    if (!tvaActive && totalTaxable > TVA_THRESHOLD * 0.8) {
+      list.push({ type: 'warning', msg: `CA classifié proche du seuil TVA (${(totalTaxable / 1_000_000).toFixed(1)}M / 10M DJF)`, icon: AlertTriangle });
+    }
+    if (tvaActive) {
+      list.push({ type: 'info', msg: `TVA activée depuis le ${thresholdDate ? format(new Date(thresholdDate), 'dd/MM/yyyy') : 'N/A'}`, icon: Info });
+    }
+    const noInclusion = revenueTransactions.filter(t => !t.tva_inclusion && !isAutoExcluded(t));
+    if (noInclusion.length > 0) {
+      list.push({ type: 'error', msg: `${noInclusion.length} transaction(s) sans classification TVA`, icon: XCircle });
+    }
+    const noFacture = includedTx.filter(t => !t.attachments?.length && !t.numero_facture);
+    if (noFacture.length > 0) {
+      list.push({ type: 'error', msg: `${noFacture.length} transaction(s) taxables sans facture associée`, icon: AlertCircle });
+    }
+    return list;
+  }, [revenueTransactions, includedTx, tvaActive, thresholdDate]);
+
   const monthlyData = useMemo(() => {
     const byMonth = {};
     revenueTransactions.forEach(t => {
@@ -552,8 +580,19 @@ export default function GestionTVA() {
                     ) : filteredRevTx.map(tx => {
                       const autoExcl = isAutoExcluded(tx);
                       const inclusion = autoExcl ? 'EXCLURE' : (tx.tva_inclusion || '—');
-                      // TVA only applies once threshold is reached
-                      const tvaAmt = (tvaActive && inclusion === 'INCLURE') ? Math.round((tx.amount || 0) * TVA_RATE) : 0;
+
+                      // TVA per-invoice logic: apply tax only if cumulative reaches 10M at/after this invoice
+                      let tvaAmt = 0;
+                      if (inclusion === 'INCLURE' && !autoExcl) {
+                       let cumul = 0;
+                       for (const t of [...includedTx].sort((a, b) => new Date(a.date) - new Date(b.date))) {
+                         cumul += t.amount || 0;
+                         if (t.id === tx.id) {
+                           tvaAmt = (cumul >= TVA_THRESHOLD) ? Math.round((tx.amount || 0) * TVA_RATE) : 0;
+                           break;
+                         }
+                       }
+                      }
                       const ttc = (tx.amount || 0) + tvaAmt;
                       const hasFacture = tx.attachments?.length > 0 || tx.numero_facture;
                       const conforme = inclusion === 'EXCLURE' || (inclusion === 'INCLURE' && hasFacture);
