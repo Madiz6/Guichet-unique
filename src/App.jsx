@@ -8,6 +8,8 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingWizard from './pages/OnboardingWizard';
+import AdminPortal from './pages/AdminPortal';
+import MesDossiers from './pages/MesDossiers';
 import AdminOverview from './pages/AdminOverview';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -63,6 +65,8 @@ const AuthenticatedApp = () => {
           />
         ))}
         <Route path="/onboarding" element={<OnboardingWizard />} />
+        <Route path="/AdminPortal" element={<LayoutWrapper currentPageName="AdminPortal"><AdminPortal /></LayoutWrapper>} />
+        <Route path="/MesDossiers" element={<LayoutWrapper currentPageName="MesDossiers"><MesDossiers /></LayoutWrapper>} />
         <Route
           path="/AdminOverview"
           element={

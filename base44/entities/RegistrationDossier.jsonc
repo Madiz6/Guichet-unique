@@ -1,0 +1,108 @@
+{
+  "name": "RegistrationDossier",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "ID de la soci\u00e9t\u00e9 cr\u00e9\u00e9e"
+    },
+    "envelope_id": {
+      "type": "string",
+      "description": "ID unique de l'enveloppe (style DocuSign)"
+    },
+    "applicant_email": {
+      "type": "string",
+      "description": "Email du demandeur"
+    },
+    "applicant_name": {
+      "type": "string",
+      "description": "Nom du demandeur"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Nom de l'entreprise"
+    },
+    "forme_juridique": {
+      "type": "string",
+      "description": "Forme juridique"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "En attente",
+        "En cours de traitement",
+        "Valid\u00e9",
+        "Rejet\u00e9",
+        "Modification requise"
+      ],
+      "default": "En attente",
+      "description": "Statut du dossier"
+    },
+    "step_data": {
+      "type": "object",
+      "description": "Toutes les donn\u00e9es saisies lors de l'onboarding"
+    },
+    "admin_comment": {
+      "type": "string",
+      "description": "Commentaire de l'agent"
+    },
+    "admin_email": {
+      "type": "string",
+      "description": "Email de l'agent traitant"
+    },
+    "date_soumission": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de soumission"
+    },
+    "date_traitement": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de traitement"
+    },
+    "payment_confirmed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Paiement confirm\u00e9"
+    },
+    "payment_amount": {
+      "type": "number",
+      "description": "Montant pay\u00e9 (DJF)"
+    },
+    "docs_supplementaires": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Documents compl\u00e9mentaires ajout\u00e9s par le demandeur"
+    },
+    "signature_data": {
+      "type": "string",
+      "description": "Donn\u00e9es de signature num\u00e9rique"
+    },
+    "pdf_formulaire_url": {
+      "type": "string",
+      "description": "URL du formulaire unique g\u00e9n\u00e9r\u00e9"
+    },
+    "pdf_statuts_url": {
+      "type": "string",
+      "description": "URL des statuts g\u00e9n\u00e9r\u00e9s"
+    }
+  },
+  "required": [
+    "applicant_email",
+    "company_name",
+    "envelope_id"
+  ]
+}

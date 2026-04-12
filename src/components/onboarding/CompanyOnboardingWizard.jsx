@@ -79,9 +79,11 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       const idData = stepData.identification?.data || {};
       const activiteData = stepData.activite || {};
       const docsData = stepData.documents?.docs || {};
+      const envelopeId = stepData.signature?.envelope_id || '';
+      const companyName = activiteData.commercial_names?.[0] || activiteData.raison_sociale || `Entreprise`;
 
       const company = await meras.entities.Company.create({
-        nom_entreprise: activiteData.commercial_names?.[0] || activiteData.raison_sociale || `Entreprise de ${idData.prenom} ${idData.nom}`,
+        nom_entreprise: companyName,
         nif: docsData.nif || '',
         numero_affiliation: '',
         raison_sociale: activiteData.raison_sociale || '',
@@ -97,12 +99,28 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
           representant: idData,
           notaire: stepData.identification?.notaire,
           rep_type: stepData.identification?.rep_type,
-          signature: stepData.signature?.signature_data ? '[SIGNED]' : null,
           dispositions: stepData.dispositions,
           partenaires: stepData.partenaires?.partners || [],
           employes: stepData.employes?.employees || [],
           commercial_names: activiteData.commercial_names || [],
         }),
+      });
+
+      // Create registration dossier for tracking
+      const user = await base44.auth.me();
+      await meras.entities.RegistrationDossier.create({
+        company_id: company.id,
+        envelope_id: envelopeId,
+        applicant_email: user?.email || '',
+        applicant_name: user?.full_name || `${idData.prenom || ''} ${idData.nom || ''}`.trim(),
+        company_name: companyName,
+        forme_juridique: activiteData.forme_juridique || '',
+        statut: 'En attente',
+        step_data: stepData,
+        signature_data: stepData.signature?.signature_data ? '[SIGNED]' : null,
+        payment_confirmed: true,
+        payment_amount: 5000,
+        date_soumission: new Date().toISOString().split('T')[0],
       });
 
       await base44.auth.updateMe({

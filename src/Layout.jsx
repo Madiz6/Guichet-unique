@@ -95,6 +95,8 @@ export default function Layout({ children, currentPageName }) {
       label: "Administration",
       items: [
         { title: "Portail d'Entreprise", url: createPageUrl("CompanySetup"), icon: Building2 },
+        { title: "Mes Dossiers", url: "/MesDossiers", icon: FileText },
+        ...(isAdmin ? [{ title: "Portail Admin ANPI", url: "/AdminPortal", icon: Globe }] : []),
         ...(isAdmin ? [{ title: "Sécurité", url: createPageUrl("SecurityDocumentation"), icon: Shield }] : []),
         { title: "Paramètres", url: createPageUrl("Parametres"), icon: Settings },
         ...(isAdmin ? [{ title: "Vue Globale Admin", url: "/AdminOverview", icon: Globe }] : []),
