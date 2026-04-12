@@ -55,7 +55,9 @@ export default function ExistingCompanySetup({ onBack, onSuccess }) {
 
   const handleSubmit = async () => {
     setSaving(true);
-    await meras.entities.Company.create({ ...form, ...docs });
+    const company = await meras.entities.Company.create({ ...form, ...docs });
+    // Link user to this company
+    await base44.auth.updateMe({ company_id: company.id, company_name: company.nom_entreprise, onboarding_completed: true });
     setSaving(false);
     toast.success('Entreprise configurée avec succès !');
     onSuccess();

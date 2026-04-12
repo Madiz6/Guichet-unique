@@ -1,0 +1,30 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user",
+        "manager",
+        "accountant"
+      ],
+      "default": "user",
+      "description": "R\u00f4le de l'utilisateur"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "ID de l'entreprise associ\u00e9e"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Nom de l'entreprise (cache)"
+    },
+    "onboarding_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Onboarding termin\u00e9"
+    }
+  }
+}

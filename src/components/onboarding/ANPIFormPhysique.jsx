@@ -39,7 +39,7 @@ export default function ANPIFormPhysique({ onBack, onSuccess }) {
   const handleSubmit = async () => {
     if (!agreed) { toast.error('Veuillez accepter les termes et conditions.'); return; }
     setSubmitting(true);
-    await meras.entities.Company.create({
+    const company = await meras.entities.Company.create({
       nom_entreprise: form.nom_commercial || form.adresse || 'Mon Entreprise',
       nif: form.nif || '',
       numero_affiliation: form.affiliation || '',
@@ -52,6 +52,7 @@ export default function ANPIFormPhysique({ onBack, onSuccess }) {
       type_entreprise: 'EURL',
       ...docs,
     });
+    await base44.auth.updateMe({ company_id: company.id, company_name: company.nom_entreprise, onboarding_completed: true });
     setSubmitting(false);
     setSubmitted(true);
   };

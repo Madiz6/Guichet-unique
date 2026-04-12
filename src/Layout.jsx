@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3, BookOpen, Receipt } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3, BookOpen, Receipt, Globe } from "lucide-react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
+import AdminCompanyBanner from "@/components/layout/AdminCompanyBanner";
 import MobileBackButton from "@/components/layout/MobileBackButton";
 import {
   Sidebar,
@@ -96,6 +97,7 @@ export default function Layout({ children, currentPageName }) {
         { title: "Portail d'Entreprise", url: createPageUrl("CompanySetup"), icon: Building2 },
         ...(isAdmin ? [{ title: "Sécurité", url: createPageUrl("SecurityDocumentation"), icon: Shield }] : []),
         { title: "Paramètres", url: createPageUrl("Parametres"), icon: Settings },
+        ...(isAdmin ? [{ title: "Vue Globale Admin", url: "/AdminOverview", icon: Globe }] : []),
       ]
     },
   ];
@@ -245,6 +247,7 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </header>
 
+          <AdminCompanyBanner />
           {/* Extra bottom padding on mobile for bottom nav bar */}
           <div className="flex-1 pb-16 md:pb-0">
               {children}
