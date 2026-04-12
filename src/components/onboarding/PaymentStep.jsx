@@ -4,27 +4,33 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, CreditCard, Shield, Clock, Loader2, Building2, FileText, Download } from 'lucide-react';
 import { generateFormulairePDF } from './PDFGenerator.jsx';
 
-const REGISTRATION_FEE = 5000;
+const TIERS = [
+  { id: 'express', label: 'Express', delay: '45 minutes', amount: 45000, color: 'border-purple-400 bg-purple-50', badge: 'bg-purple-600', desc: 'Traitement prioritaire immédiat', icon: '⚡' },
+  { id: 'standard', label: 'Standard', delay: '24 heures', amount: 30000, color: 'border-blue-400 bg-blue-50', badge: 'bg-blue-600', desc: 'Traitement le jour même', icon: '🕐', popular: true },
+  { id: 'economique', label: 'Économique', delay: '72 heures', amount: 25000, color: 'border-gray-300 bg-gray-50', badge: 'bg-gray-600', desc: 'Traitement dans les 3 jours ouvrables', icon: '📋' },
+];
 
 export default function PaymentStep({ stepData, onSuccess }) {
   const [paying, setPaying] = useState(false);
   const [paid, setPaid] = useState(false);
   const [error, setError] = useState('');
+  const [selectedTier, setSelectedTier] = useState('standard');
   const [downloading, setDownloading] = useState(false);
 
   const activite = stepData?.activite || {};
   const companyName = activite.commercial_names?.[0] || activite.raison_sociale || 'Votre entreprise';
   const envelopeId = stepData?.signature?.envelope_id || 'N/A';
+  const tier = TIERS.find(t => t.id === selectedTier) || TIERS[1];
 
   const handlePay = async () => {
     setPaying(true);
     setError('');
     try {
       const response = await base44.functions.invoke('merasInitiatePayment', {
-        amount: REGISTRATION_FEE,
+        amount: tier.amount,
         currency: 'DJF',
-        description: `Frais d'enregistrement - Guichet Unique ANPI - ${companyName}`,
-        metadata: { type: 'onboarding_registration', company: companyName },
+        description: `Frais d'enregistrement (${tier.label} - ${tier.delay}) - Guichet Unique ANPI - ${companyName}`,
+        metadata: { type: 'onboarding_registration', company: companyName, tier: tier.id },
       });
       if (response?.data?.payment_url) {
         const popup = window.open(response.data.payment_url, '_blank', 'width=600,height=700');
@@ -93,7 +99,8 @@ export default function PaymentStep({ stepData, onSuccess }) {
           <div className="p-4 bg-[#F0F4FF] border border-[#C7D2FE] rounded-xl text-left">
             <p className="text-xs text-[#3730A3] font-semibold mb-2">Reçu de paiement</p>
             <div className="space-y-1 text-xs text-[#4338CA]">
-              <div className="flex justify-between"><span>Montant payé</span><span className="font-bold">{REGISTRATION_FEE.toLocaleString()} DJF</span></div>
+              <div className="flex justify-between"><span>Montant payé</span><span className="font-bold">{tier.amount.toLocaleString()} DJF</span></div>
+              <div className="flex justify-between"><span>Formule</span><span className="font-medium">{tier.label} ({tier.delay})</span></div>
               <div className="flex justify-between"><span>Entreprise</span><span className="font-medium">{companyName}</span></div>
               <div className="flex justify-between"><span>Date</span><span>{new Date().toLocaleDateString('fr-FR')}</span></div>
               <div className="flex justify-between"><span>Ref. Envelope</span><span className="font-mono">{envelopeId.substring(0, 8)}...</span></div>
@@ -112,7 +119,23 @@ export default function PaymentStep({ stepData, onSuccess }) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-[#1A1A1A] mb-1">Paiement des frais d'enregistrement</h2>
-        <p className="text-sm text-[#6B6B6B]">Réglez les frais pour finaliser votre dossier au Guichet Unique</p>
+        <p className="text-sm text-[#6B6B6B]">Choisissez votre formule de traitement</p>
+      </div>
+
+      {/* Tier selector */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {TIERS.map(t => (
+          <button key={t.id} type="button" onClick={() => setSelectedTier(t.id)}
+            className={`relative flex flex-col items-center text-center p-4 rounded-xl border-2 transition-all ${selectedTier === t.id ? t.color + ' shadow-md' : 'border-[#E5E7EB] bg-white hover:border-[#C4C4C4]'}`}>
+            {t.popular && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-xs px-3 py-0.5 rounded-full bg-blue-600 text-white font-semibold">Recommandé</span>}
+            <span className="text-2xl mb-1">{t.icon}</span>
+            <p className="font-bold text-sm text-[#1A1A1A]">{t.label}</p>
+            <p className="text-2xl font-bold text-[#1A1A1A] mt-1">{t.amount.toLocaleString()}<span className="text-xs font-normal text-[#6B6B6B] ml-1">DJF</span></p>
+            <p className="text-xs text-[#6B6B6B] mt-1">⏱ {t.delay}</p>
+            <p className="text-xs text-[#9B9B9B] mt-0.5">{t.desc}</p>
+            {selectedTier === t.id && <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#1A1A1A] flex items-center justify-center"><CheckCircle2 className="w-3 h-3 text-white" /></div>}
+          </button>
+        ))}
       </div>
 
       <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
@@ -131,14 +154,14 @@ export default function PaymentStep({ stepData, onSuccess }) {
       <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
         <div className="flex items-center justify-between p-4 bg-[#F9F9F9] rounded-xl mb-4">
           <div>
-            <p className="text-sm text-[#6B6B6B]">Frais de dossier — Guichet Unique ANPI</p>
-            <p className="text-xs text-[#9B9B9B] mt-0.5">Paiement unique, non remboursable</p>
+            <p className="text-sm font-semibold text-[#1A1A1A]">{tier.icon} Formule {tier.label}</p>
+            <p className="text-xs text-[#6B6B6B] mt-0.5">Traitement en {tier.delay} — non remboursable</p>
           </div>
-          <p className="text-2xl font-bold text-[#1A1A1A]">{REGISTRATION_FEE.toLocaleString()} <span className="text-sm font-normal text-[#6B6B6B]">DJF</span></p>
+          <p className="text-2xl font-bold text-[#1A1A1A]">{tier.amount.toLocaleString()} <span className="text-sm font-normal text-[#6B6B6B]">DJF</span></p>
         </div>
         {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>}
         <Button onClick={handlePay} disabled={paying} className="w-full bg-[#1A1A1A] hover:bg-[#333] text-white h-12 text-base font-medium">
-          {paying ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Initialisation...</> : <><CreditCard className="w-4 h-4 mr-2" /> Payer {REGISTRATION_FEE.toLocaleString()} DJF</>}
+          {paying ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Initialisation...</> : <><CreditCard className="w-4 h-4 mr-2" /> Payer {tier.amount.toLocaleString()} DJF</>}
         </Button>
         <div className="flex items-center justify-center gap-2 mt-3">
           <Shield className="w-3.5 h-3.5 text-[#9B9B9B]" />
