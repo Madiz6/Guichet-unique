@@ -1,64 +1,26 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Upload, CheckCircle2, Plus, Loader2 } from 'lucide-react';
+import { Upload, CheckCircle2, Loader2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 const REQUIRED_DOCS = [
-  { key: 'licence_entreprise_url', label: "Licence d'entreprise", required: true },
-  { key: 'registre_commerce_url', label: 'Registre de commerce', required: true },
-  { key: 'certificat_cnss_url', label: "Certificat d'affiliation CNSS", required: true },
-  { key: 'nif_document_url', label: 'NIF (document)', required: true },
-];
-const OPTIONAL_DOCS = [
-  { key: 'patente_url', label: 'Patente (DGI)' },
-  { key: 'statut_societe_url', label: 'Statut de la société' },
-  { key: 'contrat_bail_url', label: 'Contrat de bail' },
-  { key: 'immatriculation_cnss_url', label: 'Immatriculation CNSS' },
+  { key: 'formulaire_gui_url', label: 'Formulaire unique GUI', desc: 'Formulaire officiel du Guichet Unique d\'Investissement' },
+  { key: 'statuts_signes_url', label: 'Statuts de la société signés', desc: 'Statuts originaux signés par tous les associés' },
 ];
 
 export default function DocumentsStep({ value, onChange }) {
   const docs = value?.docs || {};
-  const customDocs = value?.custom_docs || [];
   const [uploading, setUploading] = useState({});
-  const [newDocTitle, setNewDocTitle] = useState('');
 
   const handleUpload = async (key, file) => {
     setUploading(p => ({ ...p, [key]: true }));
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    const newDocs = { ...docs, [key]: file_url };
-    onChange({ docs: newDocs, custom_docs: customDocs });
+    onChange({ docs: { ...docs, [key]: file_url } });
     setUploading(p => ({ ...p, [key]: false }));
-    toast.success('Document téléchargé');
+    toast.success('Document téléchargé avec succès');
   };
 
-  const addCustomDoc = () => {
-    if (!newDocTitle.trim()) return;
-    const key = `custom_${Date.now()}`;
-    onChange({ docs, custom_docs: [...customDocs, { key, label: newDocTitle }] });
-    setNewDocTitle('');
-  };
-
-  const DocRow = ({ docKey, label, required }) => (
-    <div className="flex items-center justify-between p-3 rounded-lg border border-[#E5E7EB] bg-white">
-      <div className="flex items-center gap-3">
-        {docs[docKey] ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> : <div className={`w-4 h-4 rounded-full border-2 shrink-0 ${required ? 'border-red-400' : 'border-[#D1D5DB]'}`} />}
-        <span className="text-sm text-[#1A1A1A]">{label}{required && <span className="text-red-500 ml-1">*</span>}</span>
-      </div>
-      <label className="cursor-pointer">
-        {uploading[docKey] ? <Loader2 className="w-4 h-4 animate-spin text-[#6B6B6B]" /> : (
-          <span className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-            <Upload className="w-3 h-3" />{docs[docKey] ? 'Changer' : 'Télécharger'}
-          </span>
-        )}
-        <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
-          onChange={e => e.target.files[0] && handleUpload(docKey, e.target.files[0])}
-          disabled={!!uploading[docKey]}
-        />
-      </label>
-    </div>
-  );
+  const allDone = REQUIRED_DOCS.every(d => docs[d.key]);
 
   return (
     <div className="space-y-6">
@@ -67,24 +29,50 @@ export default function DocumentsStep({ value, onChange }) {
         <p className="text-sm text-[#6B6B6B] mt-1">Pièces justificatives requises pour l'enregistrement</p>
       </div>
 
-      <div>
-        <p className="text-sm font-medium text-[#1A1A1A] mb-3">Documents obligatoires</p>
-        <div className="space-y-2">
-          {REQUIRED_DOCS.map(d => <DocRow key={d.key} docKey={d.key} label={d.label} required />)}
+      {allDone && (
+        <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+          <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-green-700">Tous les documents sont téléchargés</p>
+            <p className="text-xs text-green-500 mt-0.5">Votre dossier documentaire est complet</p>
+          </div>
         </div>
+      )}
+
+      <div className="space-y-4">
+        {REQUIRED_DOCS.map(doc => (
+          <div key={doc.key} className="bg-white border border-[#E5E7EB] rounded-xl p-5">
+            <div className="flex items-start gap-4">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${docs[doc.key] ? 'bg-green-100' : 'bg-[#F5F5F5]'}`}>
+                {docs[doc.key] ? <CheckCircle2 className="w-5 h-5 text-green-600" /> : <FileText className="w-5 h-5 text-[#9B9B9B]" />}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  <p className="font-medium text-sm text-[#1A1A1A]">{doc.label}</p>
+                  <span className="text-xs text-red-500 font-medium">* Obligatoire</span>
+                </div>
+                <p className="text-xs text-[#6B6B6B]">{doc.desc}</p>
+                {docs[doc.key] ? (
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Téléchargé</span>
+                    <label className="cursor-pointer text-xs text-blue-600 hover:underline">
+                      Remplacer <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => e.target.files[0] && handleUpload(doc.key, e.target.files[0])} />
+                    </label>
+                  </div>
+                ) : (
+                  <label className="mt-3 flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed border-[#E5E7EB] rounded-lg px-4 py-3 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                    {uploading[doc.key] ? <><Loader2 className="w-4 h-4 animate-spin text-blue-600" /><span className="text-sm text-blue-600">Téléchargement...</span></> : <><Upload className="w-4 h-4 text-[#9B9B9B]" /><span className="text-sm text-[#6B6B6B]">Cliquez pour télécharger (PDF, JPG, PNG)</span></>}
+                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => e.target.files[0] && handleUpload(doc.key, e.target.files[0])} />
+                  </label>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div>
-        <p className="text-sm font-medium text-[#1A1A1A] mb-3">Documents optionnels</p>
-        <div className="space-y-2">
-          {OPTIONAL_DOCS.map(d => <DocRow key={d.key} docKey={d.key} label={d.label} />)}
-          {customDocs.map(d => <DocRow key={d.key} docKey={d.key} label={d.label} />)}
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <Input value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)} placeholder="Titre du document personnalisé" className="text-sm" onKeyDown={e => e.key === 'Enter' && addCustomDoc()} />
-        <Button onClick={addCustomDoc} variant="outline" className="shrink-0"><Plus className="w-4 h-4" /></Button>
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+        <p className="text-xs text-blue-700"><strong>Note :</strong> Ces documents sont requis pour valider votre dossier au Guichet Unique. Formats acceptés : PDF, JPG, PNG.</p>
       </div>
     </div>
   );
