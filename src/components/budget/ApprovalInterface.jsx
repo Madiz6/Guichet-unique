@@ -86,7 +86,6 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
     },
     onError: (error) => {
       toast.error(`Erreur d'approbation: ${error.message}`);
-      console.error('Approval error:', error);
     },
   });
 

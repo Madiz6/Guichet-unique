@@ -16,6 +16,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
 
   const data = value || {};
   const fields = data.data || {};
+  const docType = data.doc_type || 'cni';
 
   const handleDocUpload = async (file, side) => {
     setUploading(p => ({ ...p, [side]: true }));
@@ -26,10 +27,8 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
       document_front_url: side === 'front' ? file_url : data.document_front_url,
       document_back_url: side === 'back' ? file_url : data.document_back_url,
     };
-    // Keep document_url as front for backwards compat
     onChange({ ...data, ...newUrls, document_url: newUrls.document_front_url || newUrls.document_back_url });
 
-    // Extract only when we have at least the front
     const frontUrl = newUrls.document_front_url;
     const backUrl = newUrls.document_back_url;
     if (!frontUrl) return;
@@ -88,6 +87,11 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
 
   const updateField = (k, v) => onChange({ ...data, data: { ...fields, [k]: v } });
 
+  const sides = [
+    { side: 'front', label: docType === 'passeport' ? 'Page principale' : 'Recto (avant)', urlKey: 'document_front_url' },
+    ...(docType === 'cni' ? [{ side: 'back', label: 'Verso (arrière)', urlKey: 'document_back_url' }] : []),
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -95,13 +99,33 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
         <p className="text-sm text-[#6B6B6B]">Téléchargez votre pièce d'identité pour extraction automatique des données</p>
       </div>
 
-      {/* Document Upload — Front & Back */}
+      {/* Document Upload */}
       <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-        <h3 className="font-medium text-[#1A1A1A] mb-4 flex items-center gap-2"><ScanLine className="w-4 h-4 text-blue-600" /> Pièce d'identité</h3>
+        <h3 className="font-medium text-[#1A1A1A] mb-4 flex items-center gap-2">
+          <ScanLine className="w-4 h-4 text-blue-600" /> Pièce d'identité
+        </h3>
+
+        {/* Doc type toggle */}
+        <div className="flex gap-3 mb-4">
+          {[{ val: 'cni', label: "Carte d'identité" }, { val: 'passeport', label: 'Passeport' }].map(({ val, label }) => (
+            <button key={val} type="button"
+              onClick={() => onChange({ ...data, doc_type: val, document_back_url: val === 'passeport' ? undefined : data.document_back_url })}
+              className={`px-4 py-2 rounded-lg text-sm border transition-all ${
+                docType === val
+                  ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
+                  : 'bg-white text-[#6B6B6B] border-[#E5E7EB] hover:border-[#1A1A1A]'
+              }`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[{ side: 'front', label: 'Recto (avant)', urlKey: 'document_front_url' }, { side: 'back', label: 'Verso (arrière)', urlKey: 'document_back_url' }].map(({ side, label, urlKey }) => (
+          {sides.map(({ side, label, urlKey }) => (
             <div key={side}>
-              <p className="text-xs font-medium text-[#6B6B6B] mb-2">{label}{side === 'front' && <span className="text-red-500 ml-1">*</span>}</p>
+              <p className="text-xs font-medium text-[#6B6B6B] mb-2">
+                {label}{side === 'front' && <span className="text-red-500 ml-1">*</span>}
+              </p>
               {data[urlKey] ? (
                 <div className="border border-green-300 bg-green-50 rounded-lg p-3">
                   <div className="flex items-center justify-between">
@@ -116,7 +140,8 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
                       />
                     </label>
                   </div>
-                  <img src={data[urlKey]} alt={label} className="mt-2 w-full h-24 object-cover rounded border border-green-200" onError={e => e.target.style.display='none'} />
+                  <img src={data[urlKey]} alt={label} className="mt-2 w-full h-24 object-cover rounded border border-green-200"
+                    onError={e => { e.target.style.display = 'none'; }} />
                 </div>
               ) : (
                 <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-all h-32">
@@ -125,7 +150,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
                       <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
                       <span className="text-xs text-[#6B6B6B]">Téléchargement...</span>
                     </div>
-                  ) : extracting && side === 'front' ? (
+                  ) : (extracting && side === 'front') ? (
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
                       <span className="text-xs text-[#6B6B6B]">Extraction IA...</span>
@@ -133,7 +158,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
                   ) : (
                     <>
                       <Upload className="w-5 h-5 text-[#9B9B9B] mb-1" />
-                      <span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br/>(JPG, PNG, PDF)</span>
+                      <span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br />(JPG, PNG, PDF)</span>
                     </>
                   )}
                   <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
@@ -145,6 +170,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
             </div>
           ))}
         </div>
+
         {extracting && (
           <div className="mt-3 flex items-center gap-2 text-sm text-purple-600">
             <Loader2 className="w-4 h-4 animate-spin" /> Extraction IA en cours depuis recto{data.document_back_url ? ' + verso' : ''}...
@@ -185,7 +211,9 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
       {/* Biometric / Selfie */}
       {showBiometric && data.document_url && (
         <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-          <h3 className="font-medium text-[#1A1A1A] mb-3 flex items-center gap-2"><Camera className="w-4 h-4 text-purple-600" /> Vérification biométrique</h3>
+          <h3 className="font-medium text-[#1A1A1A] mb-3 flex items-center gap-2">
+            <Camera className="w-4 h-4 text-purple-600" /> Vérification biométrique
+          </h3>
           {data.selfie_url ? (
             <div className="flex items-center gap-3">
               <img src={data.selfie_url} alt="selfie" className="w-16 h-16 rounded-full object-cover border-2 border-green-400" />
