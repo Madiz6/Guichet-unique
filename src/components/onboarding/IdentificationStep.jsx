@@ -7,39 +7,56 @@ import { Upload, CheckCircle2, Camera, Loader2, ScanLine } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function IdentificationStep({ value, onChange, showBiometric }) {
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState({ front: false, back: false });
   const [extracting, setExtracting] = useState(false);
   const [selfieUploading, setSelfieUploading] = useState(false);
-  const videoRef = useRef(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [stream, setStream] = useState(null);
+  const videoRef = useRef(null);
 
   const data = value || {};
   const fields = data.data || {};
 
-  const handleDocUpload = async (file) => {
-    setUploading(true);
+  const handleDocUpload = async (file, side) => {
+    setUploading(p => ({ ...p, [side]: true }));
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setUploading(false);
+    setUploading(p => ({ ...p, [side]: false }));
+
+    const newUrls = {
+      document_front_url: side === 'front' ? file_url : data.document_front_url,
+      document_back_url: side === 'back' ? file_url : data.document_back_url,
+    };
+    // Keep document_url as front for backwards compat
+    onChange({ ...data, ...newUrls, document_url: newUrls.document_front_url || newUrls.document_back_url });
+
+    // Extract only when we have at least the front
+    const frontUrl = newUrls.document_front_url;
+    const backUrl = newUrls.document_back_url;
+    if (!frontUrl) return;
+
     setExtracting(true);
     try {
+      const fileUrls = [frontUrl, ...(backUrl ? [backUrl] : [])];
       const extracted = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extract all identity information from this document. Return JSON with fields: nom, prenom, date_naissance, nationalite, numero_identite, adresse, email, telephone. If a field is not found, use empty string.`,
-        file_urls: [file_url],
+        prompt: `You are given ${fileUrls.length === 2 ? 'the front and back' : 'the front'} of an identity document. Extract ALL visible information. Return JSON with: nom, prenom, date_naissance (YYYY-MM-DD format), lieu_naissance, nationalite, numero_identite, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, sexe, email, telephone, profession, pere_nom, mere_nom. Use empty string for any field not found.`,
+        file_urls: fileUrls,
         response_json_schema: {
           type: 'object',
           properties: {
             nom: { type: 'string' }, prenom: { type: 'string' },
-            date_naissance: { type: 'string' }, nationalite: { type: 'string' },
-            numero_identite: { type: 'string' }, adresse: { type: 'string' },
+            date_naissance: { type: 'string' }, lieu_naissance: { type: 'string' },
+            nationalite: { type: 'string' }, numero_identite: { type: 'string' },
+            date_emission: { type: 'string' }, date_expiration: { type: 'string' },
+            adresse: { type: 'string' }, sexe: { type: 'string' },
             email: { type: 'string' }, telephone: { type: 'string' },
+            profession: { type: 'string' }, pere_nom: { type: 'string' }, mere_nom: { type: 'string' },
           }
         }
       });
-      onChange({ ...data, document_url: file_url, data: extracted });
-      toast.success('Données extraites avec succès');
+      onChange({ ...data, ...newUrls, document_url: frontUrl, data: extracted });
+      toast.success(`Données extraites depuis ${fileUrls.length === 2 ? 'recto + verso' : 'le recto'}`);
     } catch {
-      onChange({ ...data, document_url: file_url });
+      onChange({ ...data, ...newUrls, document_url: frontUrl });
       toast.info('Document téléchargé — veuillez remplir les données manuellement');
     }
     setExtracting(false);
@@ -78,32 +95,60 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
         <p className="text-sm text-[#6B6B6B]">Téléchargez votre pièce d'identité pour extraction automatique des données</p>
       </div>
 
-      {/* Document Upload */}
+      {/* Document Upload — Front & Back */}
       <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-        <h3 className="font-medium text-[#1A1A1A] mb-3 flex items-center gap-2"><ScanLine className="w-4 h-4 text-blue-600" /> Pièce d'identité</h3>
-        {data.document_url ? (
-          <div className="flex items-center gap-2 text-green-600 text-sm">
-            <CheckCircle2 className="w-4 h-4" /> Document téléchargé
-            <button onClick={() => onChange({ ...data, document_url: null })} className="ml-2 text-xs text-[#9B9B9B] hover:text-red-500">Changer</button>
+        <h3 className="font-medium text-[#1A1A1A] mb-4 flex items-center gap-2"><ScanLine className="w-4 h-4 text-blue-600" /> Pièce d'identité</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[{ side: 'front', label: 'Recto (avant)', urlKey: 'document_front_url' }, { side: 'back', label: 'Verso (arrière)', urlKey: 'document_back_url' }].map(({ side, label, urlKey }) => (
+            <div key={side}>
+              <p className="text-xs font-medium text-[#6B6B6B] mb-2">{label}{side === 'front' && <span className="text-red-500 ml-1">*</span>}</p>
+              {data[urlKey] ? (
+                <div className="border border-green-300 bg-green-50 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-green-600 text-sm">
+                      <CheckCircle2 className="w-4 h-4" /> Téléchargé
+                    </div>
+                    <label className="cursor-pointer text-xs text-blue-600 hover:underline">
+                      Changer
+                      <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={e => e.target.files[0] && handleDocUpload(e.target.files[0], side)}
+                        disabled={uploading[side] || extracting}
+                      />
+                    </label>
+                  </div>
+                  <img src={data[urlKey]} alt={label} className="mt-2 w-full h-24 object-cover rounded border border-green-200" onError={e => e.target.style.display='none'} />
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-all h-32">
+                  {uploading[side] ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                      <span className="text-xs text-[#6B6B6B]">Téléchargement...</span>
+                    </div>
+                  ) : extracting && side === 'front' ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                      <span className="text-xs text-[#6B6B6B]">Extraction IA...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-[#9B9B9B] mb-1" />
+                      <span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br/>(JPG, PNG, PDF)</span>
+                    </>
+                  )}
+                  <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={e => e.target.files[0] && handleDocUpload(e.target.files[0], side)}
+                    disabled={uploading[side] || extracting}
+                  />
+                </label>
+              )}
+            </div>
+          ))}
+        </div>
+        {extracting && (
+          <div className="mt-3 flex items-center gap-2 text-sm text-purple-600">
+            <Loader2 className="w-4 h-4 animate-spin" /> Extraction IA en cours depuis recto{data.document_back_url ? ' + verso' : ''}...
           </div>
-        ) : (
-          <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-8 cursor-pointer hover:border-blue-400 transition-all">
-            {uploading || extracting ? (
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                <span className="text-sm text-[#6B6B6B]">{uploading ? 'Téléchargement...' : 'Extraction IA en cours...'}</span>
-              </div>
-            ) : (
-              <>
-                <Upload className="w-6 h-6 text-[#9B9B9B] mb-2" />
-                <span className="text-sm text-[#9B9B9B]">Cliquez pour télécharger (CNI, Passeport)</span>
-              </>
-            )}
-            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
-              onChange={e => e.target.files[0] && handleDocUpload(e.target.files[0])}
-              disabled={uploading || extracting}
-            />
-          </label>
         )}
       </div>
 
@@ -115,9 +160,16 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
             {[
               { k: 'nom', label: 'Nom' }, { k: 'prenom', label: 'Prénom' },
               { k: 'date_naissance', label: 'Date de naissance', type: 'date' },
+              { k: 'lieu_naissance', label: 'Lieu de naissance' },
               { k: 'nationalite', label: 'Nationalité' },
+              { k: 'sexe', label: 'Sexe' },
               { k: 'numero_identite', label: "N° d'identité" },
+              { k: 'date_emission', label: "Date d'émission", type: 'date' },
+              { k: 'date_expiration', label: "Date d'expiration", type: 'date' },
               { k: 'adresse', label: 'Adresse' },
+              { k: 'profession', label: 'Profession' },
+              { k: 'pere_nom', label: 'Nom du père' },
+              { k: 'mere_nom', label: 'Nom de la mère' },
               { k: 'email', label: 'Email', type: 'email' },
               { k: 'telephone', label: 'Téléphone' },
             ].map(f => (
