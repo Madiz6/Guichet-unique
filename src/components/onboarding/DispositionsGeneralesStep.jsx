@@ -1,132 +1,66 @@
 import React, { useState } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText, Shield, CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const CLAUSES = [
-  {
-    id: 'identite',
-    title: 'Déclaration sur l\'identité',
-    text: 'Je déclare que les informations fournies concernant mon identité sont exactes, complètes et authentiques. Je m\'engage à informer immédiatement l\'autorité compétente de tout changement relatif à ma situation personnelle ou professionnelle.'
-  },
-  {
-    id: 'activite',
-    title: 'Déclaration sur l\'activité',
-    text: 'Je déclare que l\'activité exercée est légale, conforme à la réglementation djiboutienne en vigueur, et ne contrevient pas aux lois et règlements applicables. Je m\'engage à ne pas exercer d\'activités illicites ou contraires à l\'ordre public.'
-  },
-  {
-    id: 'blanchiment',
-    title: 'Lutte contre le blanchiment d\'argent (LBA)',
-    text: 'Je déclare que les fonds utilisés pour la création et le fonctionnement de l\'entreprise proviennent de sources légales. Je m\'engage à respecter les dispositions relatives à la lutte contre le blanchiment de capitaux et le financement du terrorisme (LBC/FT) conformément à la loi djiboutienne.'
-  },
-  {
-    id: 'fiscalite',
-    title: 'Obligations fiscales',
-    text: 'Je m\'engage à respecter toutes les obligations fiscales découlant de l\'exercice de mon activité professionnelle, notamment en matière de déclaration et de paiement des impôts, taxes et contributions sociales auprès des autorités compétentes (DGI, CNSS).'
-  },
-  {
-    id: 'protection',
-    title: 'Protection des données personnelles',
-    text: 'J\'accepte que mes données personnelles soient collectées, traitées et conservées conformément à la réglementation en vigueur sur la protection des données, dans le cadre exclusif de la gestion de mon entreprise et des obligations légales associées.'
-  },
-  {
-    id: 'sanctions',
-    title: 'Sanctions et responsabilités',
-    text: 'Je reconnais que toute fausse déclaration ou omission intentionnelle peut entraîner des sanctions administratives, civiles ou pénales prévues par la législation djiboutienne. Je prends l\'entière responsabilité des informations fournies dans ce formulaire.'
-  },
+  { id: 'lba', title: 'Lutte contre le blanchiment (LBA)', desc: "Je déclare que les fonds utilisés pour la création de cette entreprise sont d'origine licite et je m'engage à respecter les dispositions de la loi sur la lutte contre le blanchiment d'argent." },
+  { id: 'fiscal', title: 'Obligations fiscales', desc: "Je m'engage à respecter toutes les obligations fiscales en vigueur à Djibouti, notamment le paiement de la TVA, de l'impôt sur les sociétés et autres taxes applicables." },
+  { id: 'data', title: 'Protection des données personnelles', desc: "Je consens au traitement de mes données personnelles conformément à la politique de confidentialité et aux lois en vigueur sur la protection des données." },
+  { id: 'cnss', title: 'Obligations CNSS', desc: "Je m'engage à affilier mes employés à la Caisse Nationale de Sécurité Sociale (CNSS) et à effectuer les déclarations et cotisations dans les délais légaux." },
+  { id: 'anpi', title: 'Conformité ANPI', desc: "Je reconnais avoir pris connaissance des statuts et règlements de l'Agence Nationale de Promotion des Investissements et m'engage à respecter ses directives." },
+  { id: 'veracite', title: 'Véracité des informations', desc: "Je certifie que toutes les informations fournies dans ce dossier sont exactes, complètes et véridiques. Toute fausse déclaration engage ma responsabilité pénale." },
 ];
 
-export default function DispositionsGeneralesStep({ value = {}, onChange }) {
-  const [accepted, setAccepted] = useState(value.accepted || {});
-  const [scrolled, setScrolled] = useState(false);
-
-  const allAccepted = CLAUSES.every(c => accepted[c.id]);
+export default function DispositionsGeneralesStep({ value, onChange }) {
+  const accepted = value?.accepted || {};
 
   const toggle = (id) => {
-    const updated = { ...accepted, [id]: !accepted[id] };
-    setAccepted(updated);
-    onChange({ accepted: updated, all_accepted: CLAUSES.every(c => updated[c.id]) });
+    const next = { ...accepted, [id]: !accepted[id] };
+    const all_accepted = CLAUSES.every(c => next[c.id]);
+    onChange({ accepted: next, all_accepted });
   };
 
+  const acceptAll = () => {
+    const next = {};
+    CLAUSES.forEach(c => next[c.id] = true);
+    onChange({ accepted: next, all_accepted: true });
+  };
+
+  const doneCount = CLAUSES.filter(c => accepted[c.id]).length;
+
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#1A1A1A] to-[#333] rounded-2xl p-6 text-white">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-            <FileText className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-lg">Dispositions Générales</h3>
-            <p className="text-white/70 text-sm">Veuillez lire et accepter les conditions réglementaires</p>
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-[#1A1A1A]">Dispositions générales</h2>
+          <p className="text-sm text-[#6B6B6B] mt-1">{doneCount}/{CLAUSES.length} clauses acceptées</p>
         </div>
-        <div className="mt-3 flex items-center gap-2">
-          <div className={`h-1.5 flex-1 rounded-full ${allAccepted ? 'bg-green-400' : 'bg-white/20'} transition-all`}>
-            <div
-              className="h-full bg-white rounded-full transition-all"
-              style={{ width: `${(Object.values(accepted).filter(Boolean).length / CLAUSES.length) * 100}%` }}
-            />
-          </div>
-          <span className="text-white/70 text-xs shrink-0">
-            {Object.values(accepted).filter(Boolean).length}/{CLAUSES.length}
-          </span>
-        </div>
+        <Button variant="outline" onClick={acceptAll} className="text-sm">Tout accepter</Button>
       </div>
 
-      {/* Status */}
-      {!allAccepted && (
-        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-          <p className="text-amber-700 text-sm">Vous devez accepter toutes les clauses pour continuer.</p>
-        </div>
-      )}
-      {allAccepted && (
-        <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
-          <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
-          <p className="text-green-700 text-sm font-medium">Toutes les dispositions ont été acceptées.</p>
-        </div>
-      )}
+      {/* Progress */}
+      <div className="w-full bg-[#F5F5F5] rounded-full h-2">
+        <div className="bg-green-500 h-2 rounded-full transition-all" style={{ width: `${(doneCount / CLAUSES.length) * 100}%` }} />
+      </div>
 
-      {/* Clauses */}
       <div className="space-y-3">
-        {CLAUSES.map(clause => (
-          <div
-            key={clause.id}
-            className={`border rounded-xl p-5 transition-all ${accepted[clause.id] ? 'border-green-300 bg-green-50/50' : 'border-[#E5E7EB] bg-white'}`}
+        {CLAUSES.map(c => (
+          <div key={c.id}
+            onClick={() => toggle(c.id)}
+            className={`border rounded-xl p-4 cursor-pointer transition-all ${accepted[c.id] ? 'border-green-400 bg-green-50' : 'border-[#E5E7EB] bg-white hover:border-[#1A1A1A]'}`}
           >
-            <div className="flex items-start gap-4">
-              <Checkbox
-                id={clause.id}
-                checked={!!accepted[clause.id]}
-                onCheckedChange={() => toggle(clause.id)}
-                className="mt-0.5"
-              />
-              <div className="flex-1">
-                <Label htmlFor={clause.id} className="font-semibold text-[#1A1A1A] text-sm cursor-pointer mb-2 block">
-                  {clause.title}
-                  {accepted[clause.id] && <CheckCircle2 className="w-4 h-4 text-green-600 inline ml-2" />}
-                </Label>
-                <p className="text-xs text-[#6B6B6B] leading-relaxed">{clause.text}</p>
+            <div className="flex items-start gap-3">
+              <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${accepted[c.id] ? 'border-green-500 bg-green-500' : 'border-[#D1D5DB]'}`}>
+                {accepted[c.id] && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+              </div>
+              <div>
+                <p className="font-medium text-[#1A1A1A] text-sm">{c.title}</p>
+                <p className="text-xs text-[#6B6B6B] mt-1 leading-relaxed">{c.desc}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Accept all */}
-      <button
-        onClick={() => {
-          const all = {};
-          CLAUSES.forEach(c => all[c.id] = true);
-          setAccepted(all);
-          onChange({ accepted: all, all_accepted: true });
-        }}
-        className="w-full py-3 border-2 border-dashed border-[#E5E7EB] rounded-xl text-sm text-[#6B6B6B] hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors"
-      >
-        Tout accepter d'un coup
-      </button>
     </div>
   );
 }
