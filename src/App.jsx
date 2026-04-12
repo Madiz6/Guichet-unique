@@ -7,6 +7,7 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
+import OnboardingWizard from './pages/OnboardingWizard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { AnimatePresence } from 'framer-motion';
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
             }
           />
         ))}
+        <Route path="/onboarding" element={<OnboardingWizard />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </AnimatePresence>

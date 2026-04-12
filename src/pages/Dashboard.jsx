@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { meras } from "@/components/core/MerasClient";
 import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +20,8 @@ export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('12M');
   const [showCompanyWizard, setShowCompanyWizard] = useState(false);
   
+  const navigate = useNavigate();
+
   const { data: employees = [], refetch: refetchEmployees } = useQuery({
     queryKey: ['employees'],
     queryFn: () => meras.entities.Employee.list(),
@@ -31,12 +34,12 @@ export default function Dashboard() {
   
   const company = companies[0] || {};
 
-  // Auto-open wizard for new users without company
+  // Redirect new users to onboarding wizard
   React.useEffect(() => {
     if (!loadingCompanies && companies.length === 0) {
-      setShowCompanyWizard(true);
+      navigate('/onboarding');
     }
-  }, [loadingCompanies, companies.length]);
+  }, [loadingCompanies, companies.length, navigate]);
   
   const { data: cycles = [] } = useQuery({
     queryKey: ['payroll-cycles'],
