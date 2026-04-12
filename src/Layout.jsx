@@ -52,110 +52,51 @@ export default function Layout({ children, currentPageName }) {
     meras.auth.logout();
   };
   
-  const navigationItems = [
+  const navigationGroups = [
     {
-      title: "Accueil",
-      url: createPageUrl("Home"),
-      icon: Home,
+      label: null,
+      items: [
+        { title: "Accueil", url: createPageUrl("Home"), icon: Home },
+        { title: "Tableau de bord", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+      ]
     },
     {
-      title: "Tableau de bord",
-      url: createPageUrl("Dashboard"),
-      icon: LayoutDashboard,
+      label: "RH & Paie",
+      items: [
+        { title: "Employés", url: createPageUrl("Employes"), icon: Users },
+        { title: "Paie", url: createPageUrl("Paie"), icon: DollarSign },
+        { title: "Déclarations CNSS", url: createPageUrl("Declarations"), icon: FileText },
+        { title: "Congés", url: createPageUrl("Conges"), icon: Calendar },
+        { title: "Contacts", url: createPageUrl("Contacts"), icon: Users },
+      ]
     },
     {
-      title: "Employés",
-      url: createPageUrl("Employes"),
-      icon: Users,
+      label: "Finance & Comptabilité",
+      items: [
+        { title: "Transactions", url: createPageUrl("Transactions"), icon: DollarSign },
+        { title: "Gestion Budgétaire", url: createPageUrl("BudgetManagement"), icon: BarChart3 },
+        { title: "Demandes d'Achat", url: createPageUrl("PurchaseRequests"), icon: FileSpreadsheet },
+        { title: "Comptabilité", url: createPageUrl("Comptabilite"), icon: BarChart3 },
+        { title: "Grand Livre & Dettes", url: createPageUrl("GrandLivre"), icon: BookOpen },
+        { title: "États Financiers", url: createPageUrl("EtatsFinanciers"), icon: FileText },
+        { title: "Prévisions IA", url: createPageUrl("FinancialForecasting"), icon: BarChart3 },
+        { title: "TVA & Fiscal", url: createPageUrl("GestionTVA"), icon: Receipt },
+      ]
     },
     {
-      title: "Paie",
-      url: createPageUrl("Paie"),
-      icon: DollarSign,
+      label: "Services",
+      items: [
+        { title: "Gestion de Location", url: createPageUrl("Leasing"), icon: Building2 },
+        { title: "Autres Services", url: createPageUrl("AutresServices"), icon: Headphones },
+      ]
     },
     {
-      title: "Déclarations",
-      url: createPageUrl("Declarations"),
-      icon: FileText,
-    },
-    {
-      title: "Congés",
-      url: createPageUrl("Conges"),
-      icon: Calendar,
-    },
-    {
-      title: "Transactions",
-      url: createPageUrl("Transactions"),
-      icon: DollarSign,
-    },
-    {
-      title: "Gestion Budgétaire",
-      url: createPageUrl("BudgetManagement"),
-      icon: DollarSign,
-    },
-    {
-      title: "Demandes d'Achat",
-      url: createPageUrl("PurchaseRequests"),
-      icon: FileSpreadsheet,
-    },
-    {
-      title: "Contacts",
-      url: createPageUrl("Contacts"),
-      icon: Users,
-    },
-
-    {
-      title: "Comptabilité",
-      url: createPageUrl("Comptabilite"),
-      icon: BarChart3,
-    },
-    {
-      title: "Grand Livre & Dettes",
-      url: createPageUrl("GrandLivre"),
-      icon: BookOpen,
-    },
-    {
-      title: "États Financiers",
-      url: createPageUrl("EtatsFinanciers"),
-      icon: FileText,
-    },
-    {
-      title: "Prévisions IA",
-      url: createPageUrl("FinancialForecasting"),
-      icon: BarChart3,
-    },
-    {
-      title: "TVA & Fiscal",
-      url: createPageUrl("GestionTVA"),
-      icon: Receipt,
-    },
-
-    {
-      title: "Gestion de Location",
-      url: createPageUrl("Leasing"),
-      icon: Building2,
-    },
-    {
-      title: "Autres Services",
-      url: createPageUrl("AutresServices"),
-      icon: Headphones,
-    },
-    {
-      title: "Portail d'Entreprise",
-      url: createPageUrl("CompanySetup"),
-      icon: Building2,
-    },
-    ...(isAdmin ? [
-      {
-        title: "Sécurité",
-        url: createPageUrl("SecurityDocumentation"),
-        icon: Shield,
-      }
-    ] : []),
-    {
-      title: "Paramètres",
-      url: createPageUrl("Parametres"),
-      icon: Settings,
+      label: "Administration",
+      items: [
+        { title: "Portail d'Entreprise", url: createPageUrl("CompanySetup"), icon: Building2 },
+        ...(isAdmin ? [{ title: "Sécurité", url: createPageUrl("SecurityDocumentation"), icon: Shield }] : []),
+        { title: "Paramètres", url: createPageUrl("Parametres"), icon: Settings },
+      ]
     },
   ];
 
@@ -178,29 +119,36 @@ export default function Layout({ children, currentPageName }) {
           </SidebarHeader>
           
           <SidebarContent className="p-3">
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        className={`mb-1 rounded-lg transition-all duration-200 ${
-                          location.pathname === item.url 
-                            ? 'bg-[#1A1A1A] text-white' 
-                            : 'hover:bg-[#F5F5F5] text-[#6B6B6B] hover:text-[#1A1A1A]'
-                        }`}
-                      >
-                        <Link to={item.url} className="flex items-center gap-3 px-4 py-2.5">
-                          <item.icon className="w-4 h-4" />
-                          <span className="font-normal text-sm">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+            {navigationGroups.map((group, gi) => (
+              <SidebarGroup key={gi}>
+                {group.label && (
+                  <p className="px-4 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#9B9B9B] mt-2">
+                    {group.label}
+                  </p>
+                )}
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          className={`mb-0.5 rounded-lg transition-all duration-200 ${
+                            location.pathname === item.url
+                              ? 'bg-[#1A1A1A] text-white'
+                              : 'hover:bg-[#F5F5F5] text-[#6B6B6B] hover:text-[#1A1A1A]'
+                          }`}
+                        >
+                          <Link to={item.url} className="flex items-center gap-3 px-4 py-2.5">
+                            <item.icon className="w-4 h-4" />
+                            <span className="font-normal text-sm">{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
           </SidebarContent>
         </Sidebar>
 
