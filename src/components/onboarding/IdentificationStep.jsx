@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 const EXTRACT_FIELDS = [
   { k: 'nom', label: 'Nom' },
   { k: 'prenom', label: 'Prénom' },
+  { k: 'nni', label: 'NNI (N° National d\'Identification)' },
   { k: 'date_naissance', label: 'Date de naissance', type: 'date' },
   { k: 'lieu_naissance', label: 'Lieu de naissance' },
   { k: 'nationalite', label: 'Nationalité' },
@@ -22,6 +23,8 @@ const EXTRACT_FIELDS = [
   { k: 'mere_nom', label: 'Nom de la mère' },
   { k: 'email', label: 'Email', type: 'email' },
   { k: 'telephone', label: 'Téléphone' },
+  { k: 'mrz_line1', label: 'MRZ Ligne 1' },
+  { k: 'mrz_line2', label: 'MRZ Ligne 2' },
 ];
 
 export default function IdentificationStep({ value, onChange, showBiometric }) {
@@ -56,7 +59,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
     try {
       const fileUrls = [frontUrl, ...(backUrl ? [backUrl] : [])];
       const extracted = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are given ${fileUrls.length === 2 ? 'the front and back' : 'the front'} of an identity document. Extract ALL visible information. Return JSON with: nom, prenom, date_naissance (YYYY-MM-DD format), lieu_naissance, nationalite, numero_identite, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, sexe, email, telephone, profession, pere_nom, mere_nom. Use empty string for any field not found.`,
+        prompt: `You are given ${fileUrls.length === 2 ? 'the front AND back sides' : 'the front'} of an identity document. Extract ALL visible information from BOTH sides if provided. The back of the ID typically contains the NNI (Numéro National d'Identification), machine-readable zone (MRZ), address, and other details. Return JSON with: nom, prenom, date_naissance (YYYY-MM-DD format), lieu_naissance, nationalite, numero_identite, nni (Numéro National d'Identification - very important, found on back), date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, sexe, email, telephone, profession, pere_nom, mere_nom, mrz_line1, mrz_line2. Use empty string for any field not found.`,
         file_urls: fileUrls,
         response_json_schema: {
           type: 'object',
@@ -64,10 +67,12 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
             nom: { type: 'string' }, prenom: { type: 'string' },
             date_naissance: { type: 'string' }, lieu_naissance: { type: 'string' },
             nationalite: { type: 'string' }, numero_identite: { type: 'string' },
+            nni: { type: 'string' },
             date_emission: { type: 'string' }, date_expiration: { type: 'string' },
             adresse: { type: 'string' }, sexe: { type: 'string' },
             email: { type: 'string' }, telephone: { type: 'string' },
             profession: { type: 'string' }, pere_nom: { type: 'string' }, mere_nom: { type: 'string' },
+            mrz_line1: { type: 'string' }, mrz_line2: { type: 'string' },
           },
         },
       });
