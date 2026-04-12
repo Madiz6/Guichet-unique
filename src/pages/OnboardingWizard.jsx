@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { meras } from '@/components/core/MerasClient';
 import { Building2, PlusCircle } from 'lucide-react';
 import ExistingCompanySetup from '../components/onboarding/ExistingCompanySetup';
-import CreateCompanyWizard from '../components/onboarding/CreateCompanyWizard';
+import CompanyOnboardingWizard from '../components/onboarding/CompanyOnboardingWizard';
 
 export default function OnboardingWizard() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function OnboardingWizard() {
     <ExistingCompanySetup onBack={() => setChoice(null)} onSuccess={() => navigate('/Dashboard')} />
   );
   if (choice === 'create') return (
-    <CreateCompanyWizard onBack={() => setChoice(null)} onSuccess={() => navigate('/Dashboard')} />
+    <CompanyOnboardingWizard onBack={() => setChoice(null)} onSuccess={() => navigate('/Dashboard')} />
   );
 
   return (
@@ -67,6 +67,11 @@ export default function OnboardingWizard() {
           </div>
           <p className="font-semibold text-[#1A1A1A] mb-2">Créer une Entreprise</p>
           <p className="text-xs text-[#6B6B6B]">Je veux créer et enregistrer une nouvelle entreprise via le Guichet Unique ANPI.</p>
+          <div className="mt-3 flex flex-wrap gap-1 justify-center">
+            <span className="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full border border-green-200">IA extraction</span>
+            <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-200">Biométrie</span>
+            <span className="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full border border-purple-200">6 étapes</span>
+          </div>
         </button>
       </div>
 

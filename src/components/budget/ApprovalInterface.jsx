@@ -101,6 +101,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(['expense-requests'], context.previous);
+      toast.error(`Erreur lors du rejet`);
     },
     mutationFn: async ({ requestId }) => {
       return await base44.entities.ExpenseRequest.update(requestId, {
@@ -117,10 +118,6 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       setShowRejectDialog(null);
       setRejectReason('');
       setViewingRequest(null);
-    },
-    onError: (error) => {
-      toast.error(`Erreur lors du rejet: ${error.message}`);
-      console.error('Rejection error:', error);
     },
   });
 

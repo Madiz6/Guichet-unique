@@ -78,6 +78,7 @@ export default function Employes() {
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(['employees'], context.previous);
+      toast.error(`Erreur lors de la création de l'employé`);
     },
     onSuccess: async (newEmployee) => { // Made async to await email sending
       queryClient.invalidateQueries(['employees']);
@@ -150,7 +151,6 @@ export default function Employes() {
           toast.success('E-mail de bienvenue envoyé !');
         } catch (emailError) {
           console.error('Erreur lors de l\'envoi de l\'e-mail de bienvenue:', emailError);
-          // Don't fail the employee creation if email fails
           toast.warning('Employé créé, mais l\'e-mail de bienvenue n\'a pas pu être envoyé.');
         }
       } else if (newEmployee.email && !company?.email) {
@@ -159,10 +159,6 @@ export default function Employes() {
         toast.info('Employé créé, mais aucun e-mail de bienvenue n\'a été envoyé car l\'e-mail de l\'employé est manquant.');
       }
     },
-    onError: (error) => {
-      toast.error(`Erreur lors de la création de l'employé: ${error.message}`);
-      console.error(error); // Log detailed error
-    }
   });
   
   const updateMutation = useMutation({
