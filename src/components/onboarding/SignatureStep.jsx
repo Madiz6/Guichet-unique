@@ -11,8 +11,17 @@ export default function SignatureStep({ value, onChange, stepData }) {
 
   const activite = stepData?.activite || {};
   const idData = stepData?.identification?.data || {};
+  const repType = stepData?.identification?.rep_type || 'physique';
+  const notaire = stepData?.identification?.notaire || {};
   const companyName = activite.commercial_names?.[0] || activite.raison_sociale || '_______________';
-  const signerName = idData.prenom ? `${idData.prenom} ${idData.nom}` : '_______________';
+  const signerName = repType === 'notaire'
+    ? (notaire.nom || '_______________')
+    : (idData.prenom ? `${idData.prenom} ${idData.nom}` : '_______________');
+  const signerRole = repType === 'notaire'
+    ? `Notaire / Mandataire légal — ${notaire.nom_commercial || 'Cabinet notarial'}`
+    : activite.forme_juridique === 'Association' ? 'Président de l\'association'
+    : ['SA', 'SAS'].includes(activite.forme_juridique) ? 'Directeur Général / Président'
+    : 'Gérant — Représentant légal de la société';
   const today = new Date().toLocaleDateString('fr-FR');
   const envelopeId = value?.envelope_id || generateEnvelopeId();
 
@@ -162,7 +171,7 @@ export default function SignatureStep({ value, onChange, stepData }) {
                   </div>
                   <div>
                     <p className="font-semibold text-xs text-[#1A2B6B]">Zone de signature — {signerName}</p>
-                    <p className="text-xs text-[#6B6B6B]">Gérant / Représentant légal</p>
+                    <p className="text-xs text-[#6B6B6B]">{signerRole}</p>
                   </div>
                 </div>
                 {signed ? (
