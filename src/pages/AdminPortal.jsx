@@ -10,7 +10,7 @@ import {
   Search, CheckCircle2, XCircle, Eye, FileText, Users, UserSquare2,
   Building2, ArrowLeft, AlertTriangle, Clock, Download, Shield,
   PenLine, Image, ChevronRight, Mail, Phone, MapPin, Calendar,
-  DollarSign, Briefcase, RefreshCw
+  DollarSign, Briefcase, RefreshCw, Award, Printer, Hash
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -77,6 +77,8 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
   const [activeTab, setActiveTab] = useState('representant');
   const [comment, setComment] = useState(dossier.admin_comment || '');
   const [saving, setSaving] = useState(false);
+  const [generatingLicense, setGeneratingLicense] = useState(false);
+  const [licenseData, setLicenseData] = useState(null);
 
   const stepData = dossier.step_data || {};
   const identification = stepData.identification || {};
@@ -93,6 +95,30 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
   const handleAction = (statut) => {
     setSaving(true);
     onAction(dossier.id, statut, comment, () => setSaving(false));
+  };
+
+  const handleGenerateLicense = async () => {
+    setGeneratingLicense(true);
+    try {
+      const { base44 } = await import('@/api/base44Client');
+      const response = await base44.functions.invoke('generateLicense', { dossier_id: dossier.id });
+      if (response.data?.success) {
+        setLicenseData(response.data);
+        toast.success(`Licence générée : ${response.data.license_number}`);
+        onAction(dossier.id, 'Validé', comment, () => {});
+        if (response.data.pdf_base64) {
+          const link = document.createElement('a');
+          link.href = response.data.pdf_base64;
+          link.download = `licence-${response.data.license_number}.pdf`;
+          link.click();
+        }
+      } else {
+        toast.error(response.data?.error || 'Erreur de génération');
+      }
+    } catch (e) {
+      toast.error('Erreur : ' + e.message);
+    }
+    setGeneratingLicense(false);
   };
 
   return (
@@ -442,7 +468,42 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
             <Button onClick={() => handleAction('Validé')} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm justify-start">
               <CheckCircle2 className="w-4 h-4 mr-2" /> Valider et approuver
             </Button>
+            <div className="border-t border-[#E5E7EB] my-1" />
+            <Button
+              onClick={handleGenerateLicense}
+              disabled={generatingLicense || saving}
+              className="w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white text-sm justify-start"
+            >
+              {generatingLicense
+                ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Génération...</>
+                : <><Award className="w-4 h-4 mr-2" /> Valider &amp; Générer la Licence
+              </>}
+            </Button>
           </div>
+
+          {(dossier.license_number || licenseData) && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
+              <div className="flex items-center gap-2 mb-1">
+                <Award className="w-4 h-4 text-green-600" />
+                <p className="text-sm font-semibold text-green-700">Licence émise</p>
+              </div>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between"><span className="text-green-600">N° Licence</span><span className="font-mono font-bold text-green-800">{licenseData?.license_number || dossier.license_number}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">NIF</span><span className="font-medium text-green-800">{licenseData?.nif || dossier.nif}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">N° Registre</span><span className="font-medium text-green-800">{licenseData?.numero_registre || dossier.numero_registre}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">Émission</span><span className="font-medium">{licenseData?.license_issued_date || dossier.license_issued_date}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">Expiration</span><span className="font-medium">{licenseData?.license_expiry_date || dossier.license_expiry_date}</span></div>
+              </div>
+              {(licenseData?.pdf_base64 || dossier.license_pdf_url) && (
+                <a
+                  href={licenseData?.pdf_base64 || dossier.license_pdf_url}
+                  download={`licence-${licenseData?.license_number || dossier.license_number}.pdf`}
+                  className="flex items-center gap-1.5 text-xs text-green-700 hover:underline font-medium mt-1">
+                  <Download className="w-3 h-3" /> Télécharger la licence PDF
+                </a>
+              )}
+            </div>
+          )}
 
           {dossier.admin_comment && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
