@@ -33,61 +33,9 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) queryClient.setQueryData(['expense-requests'], context.previous);
+      toast.error(`Erreur d'approbation: ${_err?.message}`);
     },
     mutationFn: async ({ requestId, request }) => {
-      if (!currentUser) {
-        throw new Error('Utilisateur non authentifié');
-      }
-
-      // Fetch fresh budget from DB to get all required fields
-      const allBudgets = await base44.entities.Budget.list();
-      const budget = allBudgets.find(b => b.id === request.budget_id);
-      
-      if (!budget) {
-        throw new Error('Budget introuvable');
-      }
-
-      // Ensure fiscal_year is present (required field)
-      if (!budget.fiscal_year) {
-        budget.fiscal_year = new Date().getFullYear().toString();
-      }
-
-      // Update budget - add to committed
-      const newCommitted = (budget.amount_committed || 0) + request.amount_requested;
-      const newAvailable = budget.amount_allocated - (budget.amount_used || 0) - newCommitted;
-
-      await base44.entities.Budget.update(budget.id, {
-        fiscal_year: budget.fiscal_year,
-        budget_type: budget.budget_type || 'Département',
-        period: budget.period || 'Annuel',
-        amount_allocated: budget.amount_allocated,
-        amount_committed: newCommitted,
-        amount_available: newAvailable,
-        amount_used: budget.amount_used || 0,
-        status: budget.status || 'Actif',
-      });
-
-      // Update request status
-      const updatedRequest = await base44.entities.ExpenseRequest.update(requestId, {
-        status: 'Approuvée',
-        approved_by: currentUser.email,
-        approver_name: currentUser.full_name,
-        date_approved: new Date().toISOString().split('T')[0]
-      });
-
-      console.log('Approval successful:', updatedRequest);
-      return updatedRequest;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expense-requests'] });
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      toast.success('Demande approuvée et budget engagé');
-      setViewingRequest(null);
-    },
-    onError: (error) => {
-      toast.error(`Erreur d'approbation: ${error.message}`);
-    },
-  });
 
   const rejectMutation = useMutation({
     onMutate: async ({ requestId }) => {

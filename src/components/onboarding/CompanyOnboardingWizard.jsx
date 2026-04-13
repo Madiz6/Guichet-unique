@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import IdentificationStep from './IdentificationStep.jsx';
-
+import AttestationPouvoirStep from './AttestationPouvoirStep.jsx';
 import DispositionsGeneralesStep from './DispositionsGeneralesStep.jsx';
 import DeclarationActiviteStep from './DeclarationActiviteStep.jsx';
 import DeclarationPartenairesStep from './DeclarationPartenairesStep.jsx';
@@ -20,9 +20,10 @@ import PaymentStep from './PaymentStep.jsx';
 const STEPS = [
   { id: 'identification', number: 1, title: 'Identification', subtitle: 'Représentant légal', icon: Shield },
   { id: 'dispositions', number: 2, title: 'Dispositions', subtitle: 'Clauses générales', icon: FileText },
-  { id: 'activite', number: 4, title: 'Activité', subtitle: 'Nature & juridique', icon: Briefcase },
-  { id: 'partenaires', number: 5, title: 'Partenaires', subtitle: 'Associés & actionnaires', icon: Users },
-  { id: 'employes', number: 6, title: 'Employés', subtitle: 'Personnel initial', icon: UserSquare2 },
+  { id: 'activite', number: 3, title: 'Activité', subtitle: 'Nature & juridique', icon: Briefcase },
+  { id: 'partenaires', number: 4, title: 'Partenaires', subtitle: 'Associés & actionnaires', icon: Users },
+  { id: 'employes', number: 5, title: 'Employés', subtitle: 'Personnel initial', icon: UserSquare2 },
+  { id: 'attestation', number: 6, title: 'Attestation', subtitle: 'Pouvoir & habilitation', icon: Shield },
   { id: 'documents', number: 7, title: 'Documents', subtitle: 'Pièces justificatives', icon: FolderOpen },
   { id: 'paiement', number: 8, title: 'Paiement', subtitle: 'Frais d\'enregistrement', icon: CreditCard },
 ];
@@ -46,10 +47,15 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       if (repType === 'notaire') return !!(data?.notaire?.nom && data?.notaire?.rcs);
       return !!(data?.document_url && data?.data?.nom);
     }
-    if (step.id === 'signature') return !!(data?.signature_data);
+    if (step.id === 'attestation') return !!(data?.signed && data?.accepted);
     if (step.id === 'dispositions') return !!(data?.all_accepted);
     if (step.id === 'activite') return !!(data?.secteur_principal && data?.activite_description && data?.forme_juridique);
-    if (step.id === 'documents') return !!(data?.docs?.formulaire_gui_url && data?.docs?.statuts_signes_url);
+    if (step.id === 'documents') {
+      const d = data?.docs || {};
+      const statutsOk = d.statuts_mode === 'online' ? !!(d.statuts_signed) : !!(d.statuts_signes_url);
+      const formulaireOk = d.formulaire_mode === 'online' ? !!(d.formulaire_signed) : !!(d.formulaire_gui_url);
+      return statutsOk && formulaireOk;
+    }
     if (step.id === 'paiement') return true;
     return true;
   };
@@ -192,7 +198,8 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
           {step.id === 'activite' && <DeclarationActiviteStep value={stepData.activite} onChange={updateStep} />}
           {step.id === 'partenaires' && <DeclarationPartenairesStep value={stepData.partenaires} onChange={updateStep} />}
           {step.id === 'employes' && <DeclarationEmployesStep value={stepData.employes} onChange={updateStep} />}
-          {step.id === 'documents' && <DocumentsStep value={stepData.documents} onChange={updateStep} />}
+          {step.id === 'attestation' && <AttestationPouvoirStep value={stepData.attestation} onChange={updateStep} stepData={stepData} />}
+          {step.id === 'documents' && <DocumentsStep value={stepData.documents} onChange={updateStep} stepData={stepData} />}
           {step.id === 'paiement' && <PaymentStep stepData={stepData} onSuccess={onSuccess} />}
         </div>
       </div>

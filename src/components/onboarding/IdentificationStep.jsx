@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import PhoneInput from './PhoneInput.jsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -235,7 +236,11 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
                 {EXTRACT_FIELDS.map(f => (
                   <div key={f.k}>
                     <Label className="text-xs text-[#6B6B6B]">{f.label}</Label>
-                    <Input type={f.type || 'text'} value={fields[f.k] || ''} onChange={e => updateField(f.k, e.target.value)} className="mt-1 text-sm" />
+                    {f.k === 'telephone' ? (
+                      <PhoneInput value={fields[f.k] || ''} onChange={v => updateField(f.k, v)} />
+                    ) : (
+                      <Input type={f.type || 'text'} value={fields[f.k] || ''} onChange={e => updateField(f.k, e.target.value)} className="mt-1 text-sm" />
+                    )}
                   </div>
                 ))}
               </div>
@@ -291,7 +296,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
             </div>
             <div>
               <Label className="text-xs text-[#6B6B6B]">Numéro de mobile <span className="text-red-500">*</span></Label>
-              <Input value={notaire.telephone || ''} onChange={e => updateNotaire('telephone', e.target.value)} className="mt-1 text-sm" placeholder="+253 XX XX XX XX" />
+              <PhoneInput value={notaire.telephone || ''} onChange={v => updateNotaire('telephone', v)} />
             </div>
           </div>
         </div>
