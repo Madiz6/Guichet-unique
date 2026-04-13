@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { meras } from '@/components/core/MerasClient';
-import { Building2, PlusCircle } from 'lucide-react';
-import ExistingCompanySetup from '../components/onboarding/ExistingCompanySetup';
+import { PlusCircle } from 'lucide-react';
 import CompanyOnboardingWizard from '../components/onboarding/CompanyOnboardingWizard';
 
 export default function OnboardingWizard() {
@@ -27,9 +26,6 @@ export default function OnboardingWizard() {
     </div>
   );
 
-  if (choice === 'existing') return (
-    <ExistingCompanySetup onBack={() => setChoice(null)} onSuccess={() => navigate('/Dashboard')} />
-  );
   if (choice === 'create') return (
     <CompanyOnboardingWizard onBack={() => setChoice(null)} onSuccess={() => navigate('/Dashboard')} />
   );
@@ -47,17 +43,6 @@ export default function OnboardingWizard() {
       </div>
 
       <div className="flex gap-6 flex-wrap justify-center">
-        <button
-          onClick={() => setChoice('existing')}
-          className="w-64 p-8 bg-white border border-[#E5E7EB] rounded-2xl hover:border-[#185FA5] hover:shadow-lg transition-all text-center group cursor-pointer"
-        >
-          <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-100 transition-colors">
-            <Building2 className="w-7 h-7 text-blue-600" />
-          </div>
-          <p className="font-semibold text-[#1A1A1A] mb-2">Entreprise Existante</p>
-          <p className="text-xs text-[#6B6B6B]">Mon entreprise est déjà enregistrée. Je veux la configurer sur Paie360.</p>
-        </button>
-
         <button
           onClick={() => setChoice('create')}
           className="w-64 p-8 bg-white border border-[#E5E7EB] rounded-2xl hover:border-[#3B6D11] hover:shadow-lg transition-all text-center group cursor-pointer"
