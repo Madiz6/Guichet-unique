@@ -92,8 +92,29 @@ export default function DeclarationActiviteStep({ value, onChange }) {
         </div>
         <div>
           <Label className="text-sm font-medium">Activités secondaires</Label>
-          <Input value={(data.activites_secondaires || []).join(', ')} onChange={e => set('activites_secondaires', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-            placeholder="Séparées par des virgules" className="mt-1" />
+          <div className="mt-1 space-y-2">
+            <SecteurSearchSelect
+              value={''}
+              onChange={v => {
+                if (v && !(data.activites_secondaires || []).includes(v)) {
+                  set('activites_secondaires', [...(data.activites_secondaires || []), v]);
+                }
+              }}
+              placeholder="Ajouter une activité secondaire..."
+            />
+            {(data.activites_secondaires || []).length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {(data.activites_secondaires || []).map((a, i) => (
+                  <span key={i} className="flex items-center gap-1.5 bg-[#F0F4FF] border border-[#C7D2FE] text-[#3730A3] text-xs px-3 py-1.5 rounded-full">
+                    {a}
+                    <button type="button" onClick={() => set('activites_secondaires', (data.activites_secondaires || []).filter((_, idx) => idx !== i))} className="hover:text-red-500 ml-0.5">
+                      <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div>
           <Label className="text-sm font-medium">Nombre d'employés prévus</Label>
