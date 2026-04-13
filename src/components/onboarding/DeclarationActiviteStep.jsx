@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Info } from 'lucide-react';
@@ -9,9 +9,17 @@ const FORMES = ['SARL', 'SA', 'SAS', 'EURL', 'Company', 'Association'];
 const REGIMES = ['Régime général', 'Régime simplifié', 'Forfaitaire', 'Zone franche'];
 
 export default function DeclarationActiviteStep({ value, onChange }) {
+  const [manualInput, setManualInput] = useState('');
   const data = value || {};
   const set = (k, v) => onChange({ ...data, [k]: v });
   const commercialNames = data.commercial_names || ['', '', ''];
+
+  const addActivity = (v) => {
+    const trimmed = v.trim();
+    if (trimmed && !(data.activites_secondaires || []).includes(trimmed)) {
+      set('activites_secondaires', [...(data.activites_secondaires || []), trimmed]);
+    }
+  };
   const setName = (i, v) => {
     const next = [...commercialNames];
     next[i] = v;
@@ -95,13 +103,26 @@ export default function DeclarationActiviteStep({ value, onChange }) {
           <div className="mt-1 space-y-2">
             <SecteurSearchSelect
               value={''}
-              onChange={v => {
-                if (v && !(data.activites_secondaires || []).includes(v)) {
-                  set('activites_secondaires', [...(data.activites_secondaires || []), v]);
-                }
-              }}
-              placeholder="Ajouter une activité secondaire..."
+              onChange={v => addActivity(v)}
+              placeholder="Rechercher et ajouter une activité..."
             />
+            <div className="flex gap-2">
+              <Input
+                value={manualInput}
+                onChange={e => setManualInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addActivity(manualInput); setManualInput(''); } }}
+                placeholder="Ou saisir manuellement et appuyer Entrée..."
+                className="text-sm flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => { addActivity(manualInput); setManualInput(''); }}
+                disabled={!manualInput.trim()}
+                className="px-3 py-1.5 bg-[#1A1A1A] text-white rounded-md text-sm disabled:opacity-40 hover:bg-[#333] transition-colors shrink-0"
+              >
+                Ajouter
+              </button>
+            </div>
             {(data.activites_secondaires || []).length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {(data.activites_secondaires || []).map((a, i) => (
