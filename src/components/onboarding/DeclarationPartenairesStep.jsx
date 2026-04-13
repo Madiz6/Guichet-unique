@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PhoneInput from './PhoneInput.jsx';
-import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine } from 'lucide-react';
+import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 const EXTRACT_FIELDS = [
   { k: 'nom', label: 'Nom' },
   { k: 'prenom', label: 'Prénom' },
-  { k: 'nni', label: 'NNI (N° National d\'Identification)' },
+  { k: 'nni', label: 'NNI' },
   { k: 'date_naissance', label: 'Date de naissance', type: 'date' },
   { k: 'lieu_naissance', label: 'Lieu de naissance' },
   { k: 'nationalite', label: 'Nationalité' },
@@ -66,26 +66,23 @@ function DocUpload({ label, onUploaded }) {
   );
 }
 
+// Extracts data once — deduplicates calls using a ref flag
 function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
   const [uploading, setUploading] = useState({ front: false, back: false });
   const [extracting, setExtracting] = useState(false);
+  const [extracted, setExtracted] = useState(false);
   const [docType, setDocType] = useState('cni');
+  const extractedRef = useRef(false);
 
-  const handle = async (file, side) => {
-    setUploading(p => ({ ...p, [side]: true }));
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setUploading(p => ({ ...p, [side]: false }));
-    if (side === 'front') onFront(file_url); else onBack(file_url);
-
-    const frontU = side === 'front' ? file_url : frontUrl;
-    const backU = side === 'back' ? file_url : backUrl;
+  const doExtract = async (frontU, backU) => {
+    if (extractedRef.current) return; // prevent duplicate extraction
     const urls = [frontU, backU].filter(Boolean);
     if (!frontU) return;
-
+    extractedRef.current = true;
     setExtracting(true);
     try {
       const r = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extract ALL data from ${urls.length === 2 ? 'front AND back of' : 'this'} identity document. Return JSON with: nom, prenom, date_naissance (YYYY-MM-DD), lieu_naissance, nationalite, sexe, numero_identite, nni, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, profession, pere_nom, mere_nom, email, telephone. Use empty string for missing fields.`,
+        prompt: `Extract identity document fields. Return JSON: nom, prenom, date_naissance (YYYY-MM-DD), lieu_naissance, nationalite, sexe, numero_identite, nni, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, profession, pere_nom, mere_nom, email, telephone. Empty string for missing.`,
         file_urls: urls,
         response_json_schema: {
           type: 'object',
@@ -102,16 +99,40 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
         },
       });
       onExtracted(r);
+      setExtracted(true);
       toast.success('Données extraites automatiquement');
     } catch {
-      toast.info('Téléchargé — remplissez les données manuellement');
+      extractedRef.current = false;
+      toast.info('Téléchargé — remplissez manuellement');
     }
     setExtracting(false);
   };
 
+  const reExtract = async () => {
+    if (!frontUrl) return;
+    extractedRef.current = false;
+    await doExtract(frontUrl, backUrl);
+  };
+
+  const handle = async (file, side) => {
+    setUploading(p => ({ ...p, [side]: true }));
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setUploading(p => ({ ...p, [side]: false }));
+    if (side === 'front') {
+      onFront(file_url);
+      // Extract immediately with front; back can come later
+      extractedRef.current = false;
+      await doExtract(file_url, backUrl);
+    } else {
+      onBack(file_url);
+      // If front already extracted, offer re-extract with both via button (don't auto-call again)
+      setExtracted(false);
+    }
+  };
+
   const sides = [
-    { s: 'front', label: docType === 'passeport' ? 'Page principale *' : 'Recto (avant) *', url: frontUrl },
-    ...(docType === 'cni' ? [{ s: 'back', label: 'Verso (arrière)', url: backUrl }] : []),
+    { s: 'front', label: docType === 'passeport' ? 'Page principale *' : 'Recto *', url: frontUrl },
+    ...(docType === 'cni' ? [{ s: 'back', label: 'Verso (NNI)', url: backUrl }] : []),
   ];
 
   return (
@@ -119,15 +140,24 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <ScanLine className="w-3.5 h-3.5 text-blue-600" />
-          <span className="text-xs font-medium text-[#1A1A1A]">Pièce d'identité (extraction auto)</span>
+          <span className="text-xs font-medium text-[#1A1A1A]">Pièce d'identité</span>
+          {extracting && <span className="text-xs text-purple-600 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Extraction IA...</span>}
         </div>
-        <div className="flex gap-1.5">
-          {[{ val: 'cni', label: "Carte d'identité" }, { val: 'passeport', label: 'Passeport' }].map(({ val, label }) => (
-            <button key={val} type="button" onClick={() => setDocType(val)}
-              className={`text-xs px-2 py-0.5 rounded border transition-all ${docType === val ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]' : 'border-[#E5E7EB] text-[#6B6B6B]'}`}>
-              {label}
+        <div className="flex items-center gap-2">
+          {extracted && backUrl && (
+            <button type="button" onClick={reExtract} disabled={extracting}
+              className="text-xs text-blue-600 flex items-center gap-1 hover:underline disabled:opacity-50">
+              <RefreshCw className="w-3 h-3" /> Réextraire recto+verso
             </button>
-          ))}
+          )}
+          <div className="flex gap-1.5">
+            {[{ val: 'cni', label: 'CNI' }, { val: 'passeport', label: 'Passeport' }].map(({ val, label }) => (
+              <button key={val} type="button" onClick={() => setDocType(val)}
+                className={`text-xs px-2 py-0.5 rounded border transition-all ${docType === val ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]' : 'border-[#E5E7EB] text-[#6B6B6B]'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -138,7 +168,7 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
             {url ? (
               <div className="border border-green-300 bg-green-50 rounded-lg p-2">
                 <div className="flex items-center justify-between text-xs text-green-600 mb-1">
-                  <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Téléchargé</span>
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> OK</span>
                   <label className="text-blue-600 cursor-pointer hover:underline">
                     Changer<input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={e => e.target.files[0] && handle(e.target.files[0], s)} />
                   </label>
@@ -148,8 +178,8 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
             ) : (
               <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-3 cursor-pointer hover:border-blue-400 transition-all h-24">
                 {uploading[s]
-                  ? <><Loader2 className="w-4 h-4 animate-spin text-blue-600 mb-1" /><span className="text-xs text-[#6B6B6B]">...</span></>
-                  : <><Upload className="w-4 h-4 text-[#9B9B9B] mb-1" /><span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br/>(JPG, PNG, PDF)</span></>
+                  ? <><Loader2 className="w-4 h-4 animate-spin text-blue-600 mb-1" /><span className="text-xs text-[#6B6B6B]">Envoi...</span></>
+                  : <><Upload className="w-4 h-4 text-[#9B9B9B] mb-1" /><span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br />(JPG, PNG, PDF)</span></>
                 }
                 <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={e => e.target.files[0] && handle(e.target.files[0], s)} />
               </label>
@@ -157,12 +187,6 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
           </div>
         ))}
       </div>
-
-      {extracting && (
-        <div className="flex items-center gap-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-600">
-          <Loader2 className="w-3.5 h-3.5 animate-spin" /> Extraction IA en cours...
-        </div>
-      )}
     </div>
   );
 }
@@ -194,28 +218,16 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
             mergeFields(i, updates);
           }}
         />
-
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
-          <h4 className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide mb-3">Informations extraites</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {EXTRACT_FIELDS.map(f => (
-              <div key={f.k}>
-                <Label className="text-xs text-[#6B6B6B]">{f.label}</Label>
-                <Input
-                  type={f.type || 'text'}
-                  value={p[fk(f.k)] || ''}
-                  onChange={e => setField(i, fk(f.k), e.target.value)}
-                  className="mt-1 text-sm"
-                />
-              </div>
-            ))}
-            <div>
-              <Label className="text-xs text-[#6B6B6B]">Numéro de mobile</Label>
-              <PhoneInput
-                value={p[fk('telephone')] || ''}
-                onChange={v => setField(i, fk('telephone'), v)}
-              />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {EXTRACT_FIELDS.map(f => (
+            <div key={f.k}>
+              <Label className="text-xs text-[#6B6B6B]">{f.label}</Label>
+              <Input type={f.type || 'text'} value={p[fk(f.k)] || ''} onChange={e => setField(i, fk(f.k), e.target.value)} className="mt-1 text-sm" />
             </div>
+          ))}
+          <div>
+            <Label className="text-xs text-[#6B6B6B]">Numéro de mobile</Label>
+            <PhoneInput value={p[fk('telephone')] || ''} onChange={v => setField(i, fk('telephone'), v)} />
           </div>
         </div>
       </div>
@@ -311,14 +323,12 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                       <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" />
                     </div>
                   </div>
-
                   <div className="border-t border-[#F0F0F0] pt-3 space-y-2">
                     <p className="text-xs font-medium text-[#1A1A1A] mb-2">Documents de la société</p>
                     <DocUpload label="Copie du registre de commerce" onUploaded={url => setField(i, 'registre_url', url)} />
                     <DocUpload label="Copie certifiée des statuts (avec traduction)" onUploaded={url => setField(i, 'statuts_url', url)} />
                     <DocUpload label="Décision de créer une succursale à Djibouti" onUploaded={url => setField(i, 'decision_url', url)} />
                   </div>
-
                   <div className="border-t border-[#F0F0F0] pt-3">
                     <p className="text-sm font-medium text-[#1A1A1A] mb-3">Représentant de la société actionnaire</p>
                     {renderPersonFields(p, i, 'rep_')}
