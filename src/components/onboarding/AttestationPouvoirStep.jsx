@@ -56,6 +56,7 @@ export default function AttestationPouvoirStep({ value, onChange, stepData }) {
     setHasSignature(true);
     setSigned(false);
   };
+
   const draw = (e) => {
     e.preventDefault();
     if (!drawing) return;
@@ -64,6 +65,7 @@ export default function AttestationPouvoirStep({ value, onChange, stepData }) {
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
   };
+
   const stopDraw = (e) => { e.preventDefault(); setDrawing(false); };
 
   const clear = () => {

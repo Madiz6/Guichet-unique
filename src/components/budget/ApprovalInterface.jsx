@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, Eye, Upload, FileText, AlertTriangle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Upload, FileText, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -36,6 +36,42 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
       toast.error(`Erreur d'approbation: ${_err?.message}`);
     },
     mutationFn: async ({ requestId, request }) => {
+      if (!currentUser) throw new Error('Utilisateur non authentifié');
+
+      const allBudgets = await base44.entities.Budget.list();
+      const budget = allBudgets.find(b => b.id === request.budget_id);
+      if (!budget) throw new Error('Budget introuvable');
+
+      if (!budget.fiscal_year) budget.fiscal_year = new Date().getFullYear().toString();
+
+      const newCommitted = (budget.amount_committed || 0) + request.amount_requested;
+      const newAvailable = budget.amount_allocated - (budget.amount_used || 0) - newCommitted;
+
+      await base44.entities.Budget.update(budget.id, {
+        fiscal_year: budget.fiscal_year,
+        budget_type: budget.budget_type || 'Département',
+        period: budget.period || 'Annuel',
+        amount_allocated: budget.amount_allocated,
+        amount_committed: newCommitted,
+        amount_available: newAvailable,
+        amount_used: budget.amount_used || 0,
+        status: budget.status || 'Actif',
+      });
+
+      return await base44.entities.ExpenseRequest.update(requestId, {
+        status: 'Approuvée',
+        approved_by: currentUser.email,
+        approver_name: currentUser.full_name,
+        date_approved: new Date().toISOString().split('T')[0]
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expense-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      toast.success('Demande approuvée et budget engagé');
+      setViewingRequest(null);
+    },
+  });
 
   const rejectMutation = useMutation({
     onMutate: async ({ requestId }) => {
@@ -72,8 +108,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
     mutationFn: async ({ requestId, request, receiptUrl, actualAmount }) => {
       const allBudgets = await base44.entities.Budget.list();
       const budget = allBudgets.find(b => b.id === request.budget_id);
-      
-      // If it was committed, reduce committed and add to used
+
       let newCommitted = budget.amount_committed || 0;
       let newUsed = budget.amount_used || 0;
 
@@ -97,7 +132,6 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
         status: budget.status || 'Actif',
       });
 
-      // Update request to executed
       return await base44.entities.ExpenseRequest.update(requestId, {
         status: 'Exécutée',
         amount_executed: actualAmount,
@@ -118,26 +152,13 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*,application/pdf';
-    
     fileInput.onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
-      try {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        const amount = parseFloat(receiptAmount) || request.amount_requested;
-        
-        executeExpenseMutation.mutate({
-          requestId: request.id,
-          request,
-          receiptUrl: file_url,
-          actualAmount: amount
-        });
-      } catch (error) {
-        toast.error('Erreur lors du téléchargement');
-      }
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const amount = parseFloat(receiptAmount) || request.amount_requested;
+      executeExpenseMutation.mutate({ requestId: request.id, request, receiptUrl: file_url, actualAmount: amount });
     };
-    
     fileInput.click();
   };
 
@@ -192,13 +213,9 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                       <TableCell className="max-w-xs truncate text-sm">{request.description}</TableCell>
                       <TableCell className="text-right">
                         <div>
-                          <p className="font-bold text-[#0A2540]">
-                            {request.amount_requested.toLocaleString()} DJF
-                          </p>
+                          <p className="font-bold text-[#0A2540]">{request.amount_requested.toLocaleString()} DJF</p>
                           {request.amount_executed > 0 && (
-                            <p className="text-xs text-green-600">
-                              Exécuté: {request.amount_executed.toLocaleString()} DJF
-                            </p>
+                            <p className="text-xs text-green-600">Exécuté: {request.amount_executed.toLocaleString()} DJF</p>
                           )}
                         </div>
                       </TableCell>
@@ -210,60 +227,33 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                           {getStatusBadge(request.status)}
                           {request.policy_violation && (
                             <Badge className="bg-amber-100 text-amber-700 text-xs">
-                              <AlertTriangle className="w-3 h-3 mr-1" />
-                              Politique
+                              <AlertTriangle className="w-3 h-3 mr-1" />Politique
                             </Badge>
                           )}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setViewingRequest(request)}
-                          >
+                          <Button size="sm" variant="outline" onClick={() => setViewingRequest(request)}>
                             <Eye className="w-4 h-4" />
                           </Button>
-                          
                           {!isMyRequests && request.status === 'En attente' && currentUser && (
                             <>
-                              <Button
-                                size="sm"
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  approveMutation.mutate({ requestId: request.id, request });
-                                }}
-                                disabled={approveMutation.isPending}
-                              >
+                              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white"
+                                onClick={(e) => { e.stopPropagation(); approveMutation.mutate({ requestId: request.id, request }); }}
+                                disabled={approveMutation.isPending}>
                                 <CheckCircle className="w-4 h-4" />
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-red-600 hover:bg-red-50"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowRejectDialog(request);
-                                }}
-                              >
+                              <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50"
+                                onClick={(e) => { e.stopPropagation(); setShowRejectDialog(request); }}>
                                 <XCircle className="w-4 h-4" />
                               </Button>
                             </>
                           )}
-
                           {isMyRequests && (request.status === 'Engagée' || request.status === 'Approuvée') && (
-                            <Button
-                              size="sm"
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setUploadingReceipt(request);
-                              }}
-                            >
-                              <Upload className="w-4 h-4 mr-1" />
-                              Reçu
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white"
+                              onClick={(e) => { e.stopPropagation(); setUploadingReceipt(request); }}>
+                              <Upload className="w-4 h-4 mr-1" />Reçu
                             </Button>
                           )}
                         </div>
@@ -282,7 +272,6 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
         <DialogContent className="max-w-2xl bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F5]">
           {viewingRequest && (
             <div className="space-y-8 p-6">
-              {/* Requester Card */}
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB]">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-white text-2xl font-bold">
@@ -293,66 +282,39 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                     <p className="text-[#6B6B6B] font-normal">{viewingRequest.department_name}</p>
                   </div>
                 </div>
-
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-1">Description</p>
                     <p className="text-sm text-[#1A1A1A]">{viewingRequest.description}</p>
                   </div>
-
                   {viewingRequest.contact_name && (
                     <div>
                       <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-1">Fournisseur</p>
                       <p className="text-sm text-[#1A1A1A]">{viewingRequest.contact_name}</p>
                     </div>
                   )}
-
                   <div>
-                    <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-2">Requested payout amount</p>
-                    <p className="text-4xl font-bold text-[#1A1A1A] mb-1">
-                      {viewingRequest.amount_requested.toLocaleString()} DJF
-                    </p>
-                    <p className="text-xs text-[#6B6B6B]">
-                      1 DJF = 0.35 CAD (1,758.48 CAD)
-                    </p>
+                    <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-2">Montant demandé</p>
+                    <p className="text-4xl font-bold text-[#1A1A1A] mb-1">{viewingRequest.amount_requested.toLocaleString()} DJF</p>
                   </div>
-
-                  <div className="pt-2">
-                    {getStatusBadge(viewingRequest.status)}
-                  </div>
-
+                  <div className="pt-2">{getStatusBadge(viewingRequest.status)}</div>
                   {viewingRequest.status === 'En attente' && !isMyRequests && currentUser && (
                     <div className="flex gap-3 pt-2">
-                      <Button
-                        onClick={() => {
-                          setShowRejectDialog(viewingRequest);
-                          setViewingRequest(null);
-                        }}
+                      <Button onClick={() => { setShowRejectDialog(viewingRequest); setViewingRequest(null); }}
                         className="flex-1 bg-[#FF4D6A] hover:bg-[#E6445E] text-white font-medium rounded-xl h-12"
-                        disabled={approveMutation.isPending || rejectMutation.isPending}
-                      >
-                        Reject
+                        disabled={approveMutation.isPending || rejectMutation.isPending}>
+                        Rejeter
                       </Button>
-                      <Button
-                        onClick={() => {
-                          approveMutation.mutate({ requestId: viewingRequest.id, request: viewingRequest });
-                        }}
+                      <Button onClick={() => approveMutation.mutate({ requestId: viewingRequest.id, request: viewingRequest })}
                         disabled={approveMutation.isPending || rejectMutation.isPending}
-                        className="flex-1 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12"
-                      >
-                        {approveMutation.isPending ? 'Approving...' : 'Approve'}
+                        className="flex-1 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12">
+                        {approveMutation.isPending ? 'En cours...' : 'Approuver'}
                       </Button>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Connecting Line */}
-              <div className="flex justify-center">
-                <div className="w-px h-12 bg-gradient-to-b from-[#E5E7EB] via-[#E5E7EB] to-transparent"></div>
-              </div>
-
-              {/* Admin/Manager Card */}
               {viewingRequest.approved_by && (
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB]">
                   <div className="flex items-center gap-4 mb-6">
@@ -364,56 +326,44 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                       <p className="text-[#6B6B6B] font-normal">Admin</p>
                     </div>
                   </div>
-
                   {isMyRequests && (viewingRequest.status === 'Engagée' || viewingRequest.status === 'Approuvée') && (
-                    <Button
-                      onClick={() => setUploadingReceipt(viewingRequest)}
-                      className="w-full bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12"
-                    >
-                      Reimburse expense
+                    <Button onClick={() => setUploadingReceipt(viewingRequest)}
+                      className="w-full bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white font-medium rounded-xl h-12">
+                      Télécharger le reçu
                     </Button>
                   )}
                 </div>
               )}
 
-              {/* Additional Info */}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Request Number</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">Numéro</p>
                   <p className="font-mono font-medium text-[#1A1A1A]">{viewingRequest.request_number}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Category</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">Catégorie</p>
                   <p className="font-medium text-[#1A1A1A]">{viewingRequest.category}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6B6B6B] mb-1">Request Date</p>
+                  <p className="text-xs text-[#6B6B6B] mb-1">Date demande</p>
                   <p className="font-medium text-[#1A1A1A]">
                     {viewingRequest.date_requested && format(new Date(viewingRequest.date_requested), 'dd/MM/yyyy')}
                   </p>
                 </div>
                 {viewingRequest.date_approved && (
                   <div>
-                    <p className="text-xs text-[#6B6B6B] mb-1">Approval Date</p>
-                    <p className="font-medium text-[#1A1A1A]">
-                      {format(new Date(viewingRequest.date_approved), 'dd/MM/yyyy')}
-                    </p>
+                    <p className="text-xs text-[#6B6B6B] mb-1">Date approbation</p>
+                    <p className="font-medium text-[#1A1A1A]">{format(new Date(viewingRequest.date_approved), 'dd/MM/yyyy')}</p>
                   </div>
                 )}
               </div>
 
               {viewingRequest.receipt_url && (
-                <div>
-                  <a
-                    href={viewingRequest.receipt_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 p-4 bg-white border border-[#E5E7EB] rounded-xl hover:shadow-md transition-all"
-                  >
-                    <FileText className="w-5 h-5 text-[#1A1A1A]" />
-                    <span className="text-[#1A1A1A] font-medium">View Receipt</span>
-                  </a>
-                </div>
+                <a href={viewingRequest.receipt_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 p-4 bg-white border border-[#E5E7EB] rounded-xl hover:shadow-md transition-all">
+                  <FileText className="w-5 h-5 text-[#1A1A1A]" />
+                  <span className="text-[#1A1A1A] font-medium">Voir le reçu</span>
+                </a>
               )}
 
               {viewingRequest.policy_violation && (
@@ -421,7 +371,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
                   <div className="flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-[#8B6914] mt-0.5" />
                     <div>
-                      <p className="font-semibold text-[#8B6914] mb-1">Policy Violation</p>
+                      <p className="font-semibold text-[#8B6914] mb-1">Violation de politique</p>
                       <p className="text-sm text-[#8B6914]">{viewingRequest.policy_violation_reason}</p>
                     </div>
                   </div>
@@ -430,7 +380,7 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
 
               {viewingRequest.rejection_reason && (
                 <div className="p-4 bg-[#FFEBEE] border border-[#FFCDD2] rounded-xl">
-                  <p className="font-semibold text-[#C62828] mb-1">Rejection Reason</p>
+                  <p className="font-semibold text-[#C62828] mb-1">Motif de rejet</p>
                   <p className="text-sm text-[#C62828]">{viewingRequest.rejection_reason}</p>
                 </div>
               )}
@@ -448,23 +398,14 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
           <div className="space-y-4">
             <div>
               <Label>Raison du rejet *</Label>
-              <Textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Expliquez pourquoi cette demande est rejetée..."
-                className="mt-2"
-                rows={4}
-              />
+              <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Expliquez pourquoi cette demande est rejetée..." className="mt-2" rows={4} />
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowRejectDialog(null)}>
-                Annuler
-              </Button>
-              <Button
-                className="bg-red-600 hover:bg-red-700"
+              <Button variant="outline" onClick={() => setShowRejectDialog(null)}>Annuler</Button>
+              <Button className="bg-red-600 hover:bg-red-700"
                 onClick={() => rejectMutation.mutate({ requestId: showRejectDialog.id })}
-                disabled={!rejectReason || rejectMutation.isPending}
-              >
+                disabled={!rejectReason || rejectMutation.isPending}>
                 {rejectMutation.isPending ? 'Rejet en cours...' : 'Confirmer le Rejet'}
               </Button>
             </div>
@@ -481,23 +422,16 @@ export default function ApprovalInterface({ requests, budgets, departments, curr
           <div className="space-y-4">
             <div>
               <Label>Montant Réel (DJF)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={receiptAmount}
+              <Input type="number" step="0.01" value={receiptAmount}
                 onChange={(e) => setReceiptAmount(e.target.value)}
-                placeholder={uploadingReceipt?.amount_requested}
-                className="mt-2"
-              />
+                placeholder={uploadingReceipt?.amount_requested} className="mt-2" />
               <p className="text-xs text-[#697586] mt-1">
-                Laissez vide pour utiliser le montant demandé: {uploadingReceipt?.amount_requested.toLocaleString()} DJF
+                Laissez vide pour utiliser le montant demandé: {uploadingReceipt?.amount_requested?.toLocaleString()} DJF
               </p>
             </div>
-            <Button
-              className="w-full bg-blue-600 hover:bg-blue-700"
+            <Button className="w-full bg-blue-600 hover:bg-blue-700"
               onClick={() => handleUploadReceipt(uploadingReceipt)}
-              disabled={executeExpenseMutation.isPending}
-            >
+              disabled={executeExpenseMutation.isPending}>
               <Upload className="w-4 h-4 mr-2" />
               {executeExpenseMutation.isPending ? 'Téléchargement...' : 'Télécharger le Reçu'}
             </Button>
