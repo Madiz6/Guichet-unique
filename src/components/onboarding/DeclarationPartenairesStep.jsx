@@ -48,11 +48,15 @@ function DocUpload({ label, onUploaded }) {
   const [done, setDone] = useState(false);
   const handle = async (file) => {
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setDone(true);
+      onUploaded(file_url);
+      toast.success('Document téléchargé');
+    } catch {
+      toast.error('Erreur de téléchargement — vérifiez votre connexion');
+    }
     setUploading(false);
-    setDone(true);
-    onUploaded(file_url);
-    toast.success('Document téléchargé');
   };
   return (
     <div>
@@ -116,7 +120,15 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
 
   const handle = async (file, side) => {
     setUploading(p => ({ ...p, [side]: true }));
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    let file_url;
+    try {
+      const res = await base44.integrations.Core.UploadFile({ file });
+      file_url = res.file_url;
+    } catch {
+      setUploading(p => ({ ...p, [side]: false }));
+      toast.error('Erreur de téléchargement — vérifiez votre connexion');
+      return;
+    }
     setUploading(p => ({ ...p, [side]: false }));
     if (side === 'front') {
       onFront(file_url);

@@ -53,7 +53,15 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
 
   const handleDocUpload = async (file, side) => {
     setUploading(p => ({ ...p, [side]: true }));
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    let file_url;
+    try {
+      const res = await base44.integrations.Core.UploadFile({ file });
+      file_url = res.file_url;
+    } catch {
+      setUploading(p => ({ ...p, [side]: false }));
+      toast.error('Erreur de téléchargement — vérifiez votre connexion et réessayez');
+      return;
+    }
     setUploading(p => ({ ...p, [side]: false }));
 
     const newUrls = {
@@ -153,7 +161,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
 
       {/* PHYSIQUE */}
       {repType === 'physique' && (
-        <>
+        <div className="space-y-6">
           <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
             <h3 className="font-medium text-[#1A1A1A] mb-4 flex items-center gap-2">
               <ScanLine className="w-4 h-4 text-blue-600" /> Pièce d'identité
@@ -260,7 +268,7 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
               onSkip={() => onChange({ ...data, biometric: { skipped: true } })}
             />
           )}
-        </>
+        </div>
       )}
 
       {/* NOTAIRE */}
