@@ -9,13 +9,13 @@ import { Label } from '@/components/ui/label';
 import {
   Search, CheckCircle2, XCircle, Eye, FileText, Users, UserSquare2,
   Building2, ArrowLeft, AlertTriangle, Clock, Download, Shield,
-  PenLine, Image, ChevronRight, Mail, Phone, MapPin, Calendar,
-  DollarSign, Briefcase, RefreshCw, Award, Printer, Hash
+  PenLine, Image, ChevronRight, RefreshCw, Award, Briefcase
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
-import { generateFormulairePDF, generateStatutsPDF } from '../components/onboarding/PDFGenerator.jsx';
+import { generateFormulairePDF, generateStatutsPDF } from '@/components/onboarding/PDFGenerator.jsx';
+import ApprovalWorkflow from '@/components/admin/ApprovalWorkflow.jsx';
 
 const STATUS_COLORS = {
   'En attente': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -23,6 +23,12 @@ const STATUS_COLORS = {
   'Validé': 'bg-green-100 text-green-700 border-green-200',
   'Rejeté': 'bg-red-100 text-red-700 border-red-200',
   'Modification requise': 'bg-orange-100 text-orange-700 border-orange-200',
+};
+
+const COLOR_MAP = {
+  blue: { light: 'bg-blue-50 border-blue-200', icon: 'text-blue-600' },
+  purple: { light: 'bg-purple-50 border-purple-200', icon: 'text-purple-600' },
+  green: { light: 'bg-green-50 border-green-200', icon: 'text-green-600' },
 };
 
 function Field({ label, value, className = '' }) {
@@ -40,10 +46,7 @@ function DocImage({ url, label }) {
     <a href={url} target="_blank" rel="noopener noreferrer"
       className="block border border-[#E5E7EB] rounded-xl overflow-hidden hover:shadow-md transition-shadow">
       <img src={url} alt={label} className="w-full h-36 object-cover bg-gray-100"
-        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
-      <div className="hidden items-center justify-center h-36 bg-[#F5F5F5]">
-        <FileText className="w-8 h-8 text-[#9B9B9B]" />
-      </div>
+        onError={e => { e.target.style.display = 'none'; }} />
       <div className="px-3 py-2 flex items-center gap-1.5 text-xs text-[#6B6B6B] border-t border-[#E5E7EB]">
         <Image className="w-3 h-3" />{label}
         <ChevronRight className="w-3 h-3 ml-auto" />
@@ -73,14 +76,19 @@ const TABS = [
   { id: 'documents', label: 'Documents', icon: FileText },
 ];
 
-function DossierDetail({ dossier, user, onBack, onAction }) {
+function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
   const [activeTab, setActiveTab] = useState('representant');
   const [comment, setComment] = useState(dossier.admin_comment || '');
   const [saving, setSaving] = useState(false);
   const [generatingLicense, setGeneratingLicense] = useState(false);
   const [licenseData, setLicenseData] = useState(null);
+  const [localDossier, setLocalDossier] = useState(dossier);
 
-  const stepData = dossier.step_data || {};
+  const workflowComplete = ['odpic', 'dgi', 'cnss'].every(
+    k => localDossier.approval_workflow?.[k]?.approved
+  );
+
+  const stepData = localDossier.step_data || {};
   const identification = stepData.identification || {};
   const idData = identification.data || {};
   const repType = identification.rep_type || 'physique';
@@ -92,20 +100,43 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
   const attestation = stepData.attestation || {};
   const esignature = stepData.esignature || {};
 
-  const handleAction = (statut) => {
+  const handleAction = async (statut) => {
     setSaving(true);
-    onAction(dossier.id, statut, comment, () => setSaving(false));
+    try {
+      const updated = await base44.entities.RegistrationDossier.update(localDossier.id, {
+        statut, admin_comment: comment, admin_email: user?.email,
+        date_traitement: new Date().toISOString().split('T')[0]
+      });
+      setLocalDossier(prev => ({ ...prev, ...updated }));
+      onUpdateDossier(updated);
+      toast.success('Dossier mis à jour');
+    } catch (e) { toast.error(e.message); }
+    setSaving(false);
+  };
+
+  const handleWorkflowSave = async (updates) => {
+    const merged = { ...localDossier, ...updates };
+    setLocalDossier(merged);
+    await base44.entities.RegistrationDossier.update(localDossier.id, updates);
+    onUpdateDossier(merged);
+  };
+
+  const handleWorkflowComplete = (workflowState) => {
+    const merged = { ...localDossier, approval_workflow: workflowState };
+    setLocalDossier(merged);
+    onUpdateDossier(merged);
   };
 
   const handleGenerateLicense = async () => {
     setGeneratingLicense(true);
     try {
-      const { base44 } = await import('@/api/base44Client');
-      const response = await base44.functions.invoke('generateLicense', { dossier_id: dossier.id });
+      const response = await base44.functions.invoke('generateLicense', { dossier_id: localDossier.id });
       if (response.data?.success) {
         setLicenseData(response.data);
+        const updated = { ...localDossier, ...response.data, statut: 'Validé' };
+        setLocalDossier(updated);
+        onUpdateDossier(updated);
         toast.success(`Licence générée : ${response.data.license_number}`);
-        onAction(dossier.id, 'Validé', comment, () => {});
         if (response.data.pdf_base64) {
           const link = document.createElement('a');
           link.href = response.data.pdf_base64;
@@ -115,11 +146,11 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
       } else {
         toast.error(response.data?.error || 'Erreur de génération');
       }
-    } catch (e) {
-      toast.error('Erreur : ' + e.message);
-    }
+    } catch (e) { toast.error('Erreur : ' + e.message); }
     setGeneratingLicense(false);
   };
+
+  const currentLicense = licenseData || (localDossier.license_number ? localDossier : null);
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -132,13 +163,13 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
             </button>
             <div className="w-px h-5 bg-white/20" />
             <div>
-              <h1 className="font-bold text-lg">{dossier.company_name}</h1>
-              <p className="text-xs text-blue-200 font-mono">{dossier.envelope_id}</p>
+              <h1 className="font-bold text-lg">{localDossier.company_name}</h1>
+              <p className="text-xs text-blue-200 font-mono">{localDossier.envelope_id}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge className={`${STATUS_COLORS[dossier.statut]} border text-xs px-3 py-1`}>{dossier.statut}</Badge>
-            {dossier.payment_confirmed && (
+            <Badge className={`${STATUS_COLORS[localDossier.statut]} border text-xs px-3 py-1`}>{localDossier.statut}</Badge>
+            {localDossier.payment_confirmed && (
               <Badge className="bg-green-500 text-white text-xs px-3 py-1">Paiement confirmé</Badge>
             )}
           </div>
@@ -148,7 +179,67 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 flex gap-6">
         {/* Main content */}
         <div className="flex-1 min-w-0 space-y-4">
-          {/* Tabs */}
+
+          {/* Approval Workflow */}
+          <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-[#E5E7EB] bg-[#F9F9F9] flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[#1A2B6B]" />
+              <p className="text-sm font-semibold text-[#1A1A1A]">Processus de validation réglementaire</p>
+              <span className="text-xs text-[#9B9B9B] ml-1">ODPIC → DGI → CNSS</span>
+            </div>
+            <div className="p-5">
+              {workflowComplete ? (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-green-700">Toutes les étapes réglementaires sont validées (ODPIC, DGI, CNSS)</p>
+                    <p className="text-xs text-green-600 mt-0.5">Vous pouvez procéder à la validation finale et à l'émission de la licence.</p>
+                  </div>
+                </div>
+              ) : (
+                <ApprovalWorkflow
+                  dossier={localDossier}
+                  onSave={handleWorkflowSave}
+                  onWorkflowComplete={handleWorkflowComplete}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Issued documents panel — shown after workflow complete */}
+          {workflowComplete && (
+            <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
+              <div className="px-5 py-3 border-b border-[#E5E7EB] bg-[#F9F9F9]">
+                <p className="text-sm font-semibold text-[#1A1A1A]">Documents émis par les organismes</p>
+              </div>
+              <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                {['odpic', 'dgi', 'cnss'].map(sid => {
+                  const wf = localDossier.approval_workflow?.[sid] || {};
+                  const meta = { odpic: { label: 'ODPIC', color: 'blue' }, dgi: { label: 'DGI', color: 'purple' }, cnss: { label: 'CNSS', color: 'green' } }[sid];
+                  const uploadedDocs = wf.uploaded_docs || {};
+                  const cols = COLOR_MAP[meta.color];
+                  return (
+                    <div key={sid} className={`${cols.light} border rounded-xl p-3 space-y-2`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle2 className={`w-4 h-4 ${cols.icon}`} />
+                        <span className="text-xs font-bold text-[#1A1A1A]">{meta.label}</span>
+                      </div>
+                      {Object.entries(uploadedDocs).filter(([, url]) => url).map(([k, url]) => (
+                        <a key={k} href={url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
+                          <FileText className="w-3 h-3 shrink-0" />
+                          {k.replace(`${sid}_`, '').replace(/_url$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                        </a>
+                      ))}
+                      {wf.comment && <p className="text-[10px] text-[#6B6B6B] italic mt-1">{wf.comment}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Dossier detail tabs */}
           <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
             <div className="flex border-b border-[#E5E7EB] overflow-x-auto">
               {TABS.map(({ id, label, icon: Icon }) => (
@@ -165,12 +256,9 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
               {/* REPRÉSENTANT */}
               {activeTab === 'representant' && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className={repType === 'notaire' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}>
-                      {repType === 'notaire' ? 'Représentant moral (Notaire)' : 'Représentant physique'}
-                    </Badge>
-                  </div>
-
+                  <Badge className={repType === 'notaire' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}>
+                    {repType === 'notaire' ? 'Représentant moral (Notaire)' : 'Représentant physique'}
+                  </Badge>
                   {repType === 'physique' ? (
                     <>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -187,7 +275,7 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
                         <Field label="Nom de la mère" value={idData.mere_nom} />
                         <Field label="Date émission" value={idData.date_emission} />
                         <Field label="Date expiration" value={idData.date_expiration} />
-                        <Field label="Email" value={idData.email} className="col-span-1" />
+                        <Field label="Email" value={idData.email} />
                         <Field label="Téléphone" value={idData.telephone} />
                         <Field label="Adresse" value={idData.adresse} className="col-span-full" />
                         {idData.mrz_line1 && <Field label="MRZ Ligne 1" value={idData.mrz_line1} className="col-span-full font-mono" />}
@@ -210,7 +298,6 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
                       <Field label="Adresse" className="col-span-2" value={notaire.adresse} />
                     </div>
                   )}
-
                   {identification.biometric && (
                     <div className={`p-3 rounded-xl border text-sm ${identification.biometric.liveness ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
                       <strong>Vérification biométrique :</strong>{' '}
@@ -297,13 +384,9 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
                             <Field label="Email" value={p.email} />
                             <Field label="Apport" value={p.apport ? `${Number(p.apport).toLocaleString()} DJF` : '—'} />
                           </div>
-                          {(p.registre_url || p.statuts_url || p.decision_url) && (
-                            <div className="space-y-2">
-                              <DocLink url={p.registre_url} label="Registre de commerce" />
-                              <DocLink url={p.statuts_url} label="Statuts certifiés" />
-                              <DocLink url={p.decision_url} label="Décision de création succursale" />
-                            </div>
-                          )}
+                          <DocLink url={p.registre_url} label="Registre de commerce" />
+                          <DocLink url={p.statuts_url} label="Statuts certifiés" />
+                          <DocLink url={p.decision_url} label="Décision de création succursale" />
                           {(p.rep_nom || p.rep_prenom) && (
                             <div className="border-t border-[#E5E7EB] pt-3">
                               <p className="text-xs font-semibold text-[#6B6B6B] mb-2">Représentant de la société</p>
@@ -370,7 +453,6 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
                       {attestation.signed_at && <p className="text-xs text-[#6B6B6B] mt-0.5">Signée par <strong>{attestation.signed_by}</strong> le {new Date(attestation.signed_at).toLocaleString('fr-FR')}</p>}
                     </div>
                   </div>
-
                   {attestation.signature_data && (
                     <div className="border border-[#E5E7EB] rounded-xl overflow-hidden">
                       <div className="px-4 py-2 bg-[#F9F9F9] border-b border-[#E5E7EB] flex items-center gap-2 text-xs font-medium text-[#6B6B6B]">
@@ -381,16 +463,13 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
                       </div>
                     </div>
                   )}
-
                   <div className={`p-4 rounded-xl border flex items-start gap-3 ${esignature.signed ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
                     {esignature.signed ? <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" /> : <AlertTriangle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />}
                     <div>
                       <p className="font-semibold text-sm">{esignature.signed ? 'Documents officiels signés électroniquement' : 'Signature officielle non effectuée'}</p>
                       {esignature.envelope_id && <p className="text-xs font-mono text-[#6B6B6B] mt-0.5">Envelope ID: {esignature.envelope_id}</p>}
-                      {esignature.signed_at && <p className="text-xs text-[#6B6B6B]">Signés le {new Date(esignature.signed_at).toLocaleString('fr-FR')}</p>}
                     </div>
                   </div>
-
                   {esignature.signature_data && (
                     <div className="border border-[#E5E7EB] rounded-xl overflow-hidden">
                       <div className="px-4 py-2 bg-[#F9F9F9] border-b border-[#E5E7EB] flex items-center gap-2 text-xs font-medium text-[#6B6B6B]">
@@ -411,16 +490,14 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
                     <DocLink url={docs.statuts_signes_url || docs.statuts_pdf_url} label="Statuts signés" />
                     <DocLink url={docs.formulaire_gui_url || docs.formulaire_pdf_url} label="Formulaire GUI signé" />
                   </div>
-
-                  {Object.entries(docs).filter(([k, v]) => v && k.endsWith('_url') && !['statuts_mode','formulaire_mode','statuts_signed','formulaire_signed'].includes(k)).map(([key, url]) => (
+                  {Object.entries(docs).filter(([k, v]) => v && k.endsWith('_url') && !['statuts_mode', 'formulaire_mode', 'statuts_signed', 'formulaire_signed'].includes(k)).map(([key, url]) => (
                     <DocLink key={key} url={url} label={key.replace(/_url$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} />
                   ))}
-
                   <div className="flex gap-2 flex-wrap pt-2 border-t border-[#E5E7EB]">
-                    <Button variant="outline" size="sm" onClick={() => generateFormulairePDF({ ...stepData, signature: esignature }, dossier.envelope_id)} className="text-xs">
+                    <Button variant="outline" size="sm" onClick={() => generateFormulairePDF({ ...stepData, signature: esignature }, localDossier.envelope_id)} className="text-xs">
                       <Download className="w-3.5 h-3.5 mr-1" /> Formulaire GUI PDF
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => generateStatutsPDF({ ...stepData, signature: esignature }, dossier.envelope_id)} className="text-xs">
+                    <Button variant="outline" size="sm" onClick={() => generateStatutsPDF({ ...stepData, signature: esignature }, localDossier.envelope_id)} className="text-xs">
                       <Download className="w-3.5 h-3.5 mr-1" /> Statuts PDF
                     </Button>
                   </div>
@@ -436,13 +513,13 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
           <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 space-y-3">
             <h3 className="font-semibold text-sm text-[#1A1A1A]">Informations du dossier</h3>
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between"><span className="text-[#9B9B9B]">Demandeur</span><span className="font-medium">{dossier.applicant_name}</span></div>
-              <div className="flex justify-between"><span className="text-[#9B9B9B]">Email</span><span className="font-medium">{dossier.applicant_email}</span></div>
-              <div className="flex justify-between"><span className="text-[#9B9B9B]">Forme juridique</span><span className="font-medium">{dossier.forme_juridique || '—'}</span></div>
-              <div className="flex justify-between"><span className="text-[#9B9B9B]">Soumis le</span><span className="font-medium">{dossier.date_soumission ? format(new Date(dossier.date_soumission), 'dd/MM/yyyy') : '—'}</span></div>
-              {dossier.date_traitement && <div className="flex justify-between"><span className="text-[#9B9B9B]">Traité le</span><span className="font-medium">{format(new Date(dossier.date_traitement), 'dd/MM/yyyy')}</span></div>}
-              {dossier.payment_amount && <div className="flex justify-between"><span className="text-[#9B9B9B]">Montant payé</span><span className="font-medium text-green-600">{Number(dossier.payment_amount).toLocaleString()} DJF</span></div>}
-              {dossier.admin_email && <div className="flex justify-between"><span className="text-[#9B9B9B]">Agent traitant</span><span className="font-medium">{dossier.admin_email}</span></div>}
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Demandeur</span><span className="font-medium">{localDossier.applicant_name}</span></div>
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Email</span><span className="font-medium">{localDossier.applicant_email}</span></div>
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Forme juridique</span><span className="font-medium">{localDossier.forme_juridique || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Soumis le</span><span className="font-medium">{localDossier.date_soumission ? format(new Date(localDossier.date_soumission), 'dd/MM/yyyy') : '—'}</span></div>
+              {localDossier.date_traitement && <div className="flex justify-between"><span className="text-[#9B9B9B]">Traité le</span><span className="font-medium">{format(new Date(localDossier.date_traitement), 'dd/MM/yyyy')}</span></div>}
+              {localDossier.payment_amount && <div className="flex justify-between"><span className="text-[#9B9B9B]">Montant payé</span><span className="font-medium text-green-600">{Number(localDossier.payment_amount).toLocaleString()} DJF</span></div>}
+              {localDossier.admin_email && <div className="flex justify-between"><span className="text-[#9B9B9B]">Agent traitant</span><span className="font-medium">{localDossier.admin_email}</span></div>}
             </div>
           </div>
 
@@ -455,7 +532,7 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
 
           {/* Action buttons */}
           <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 space-y-2">
-            <h3 className="font-semibold text-sm text-[#1A1A1A] mb-3">Actions</h3>
+            <h3 className="font-semibold text-sm text-[#1A1A1A] mb-3">Actions rapides</h3>
             <Button onClick={() => handleAction('En cours de traitement')} disabled={saving} variant="outline" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 text-sm justify-start">
               <Clock className="w-4 h-4 mr-2" /> Mettre en traitement
             </Button>
@@ -465,39 +542,47 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
             <Button onClick={() => handleAction('Rejeté')} disabled={saving} className="w-full bg-red-600 hover:bg-red-700 text-white text-sm justify-start">
               <XCircle className="w-4 h-4 mr-2" /> Rejeter le dossier
             </Button>
-            <Button onClick={() => handleAction('Validé')} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm justify-start">
-              <CheckCircle2 className="w-4 h-4 mr-2" /> Valider et approuver
-            </Button>
-            <div className="border-t border-[#E5E7EB] my-1" />
-            <Button
-              onClick={handleGenerateLicense}
-              disabled={generatingLicense || saving}
-              className="w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white text-sm justify-start"
-            >
-              {generatingLicense
-                ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Génération...</>
-                : <><Award className="w-4 h-4 mr-2" /> Valider &amp; Générer la Licence
-              </>}
-            </Button>
+            {workflowComplete && (
+              <>
+                <Button onClick={() => handleAction('Validé')} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm justify-start">
+                  <CheckCircle2 className="w-4 h-4 mr-2" /> Valider et approuver
+                </Button>
+                <div className="border-t border-[#E5E7EB] my-1" />
+                <Button
+                  onClick={handleGenerateLicense}
+                  disabled={generatingLicense || saving}
+                  className="w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white text-sm justify-start"
+                >
+                  {generatingLicense
+                    ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Génération...</>
+                    : <><Award className="w-4 h-4 mr-2" /> Valider &amp; Générer la Licence</>
+                  }
+                </Button>
+              </>
+            )}
+            {!workflowComplete && (
+              <p className="text-xs text-[#9B9B9B] text-center pt-1">Complétez les 3 étapes (ODPIC, DGI, CNSS) pour débloquer la validation finale.</p>
+            )}
           </div>
 
-          {(dossier.license_number || licenseData) && (
+          {/* License info */}
+          {currentLicense && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
               <div className="flex items-center gap-2 mb-1">
                 <Award className="w-4 h-4 text-green-600" />
                 <p className="text-sm font-semibold text-green-700">Licence émise</p>
               </div>
               <div className="space-y-1 text-xs">
-                <div className="flex justify-between"><span className="text-green-600">N° Licence</span><span className="font-mono font-bold text-green-800">{licenseData?.license_number || dossier.license_number}</span></div>
-                <div className="flex justify-between"><span className="text-green-600">NIF</span><span className="font-medium text-green-800">{licenseData?.nif || dossier.nif}</span></div>
-                <div className="flex justify-between"><span className="text-green-600">N° Registre</span><span className="font-medium text-green-800">{licenseData?.numero_registre || dossier.numero_registre}</span></div>
-                <div className="flex justify-between"><span className="text-green-600">Émission</span><span className="font-medium">{licenseData?.license_issued_date || dossier.license_issued_date}</span></div>
-                <div className="flex justify-between"><span className="text-green-600">Expiration</span><span className="font-medium">{licenseData?.license_expiry_date || dossier.license_expiry_date}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">N° Licence</span><span className="font-mono font-bold text-green-800">{currentLicense.license_number}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">NIF</span><span className="font-medium text-green-800">{currentLicense.nif}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">N° Registre</span><span className="font-medium text-green-800">{currentLicense.numero_registre}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">Émission</span><span className="font-medium">{currentLicense.license_issued_date}</span></div>
+                <div className="flex justify-between"><span className="text-green-600">Expiration</span><span className="font-medium">{currentLicense.license_expiry_date}</span></div>
               </div>
-              {(licenseData?.pdf_base64 || dossier.license_pdf_url) && (
+              {(licenseData?.pdf_base64 || currentLicense.license_pdf_url) && (
                 <a
-                  href={licenseData?.pdf_base64 || dossier.license_pdf_url}
-                  download={`licence-${licenseData?.license_number || dossier.license_number}.pdf`}
+                  href={licenseData?.pdf_base64 || currentLicense.license_pdf_url}
+                  download={`licence-${currentLicense.license_number}.pdf`}
                   className="flex items-center gap-1.5 text-xs text-green-700 hover:underline font-medium mt-1">
                   <Download className="w-3 h-3" /> Télécharger la licence PDF
                 </a>
@@ -505,10 +590,10 @@ function DossierDetail({ dossier, user, onBack, onAction }) {
             </div>
           )}
 
-          {dossier.admin_comment && (
+          {localDossier.admin_comment && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
               <p className="text-xs font-semibold text-amber-700 mb-1">Dernier commentaire</p>
-              <p className="text-xs text-amber-800">{dossier.admin_comment}</p>
+              <p className="text-xs text-amber-800">{localDossier.admin_comment}</p>
             </div>
           )}
         </div>
@@ -529,16 +614,6 @@ export default function AdminPortal() {
     queryFn: () => base44.entities.RegistrationDossier.list('-created_date'),
   });
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.RegistrationDossier.update(id, data),
-    onSuccess: (updated) => {
-      queryClient.invalidateQueries(['registration-dossiers']);
-      // Refresh the selected dossier with updated data
-      setSelectedDossier(prev => prev ? { ...prev, ...updated } : null);
-      toast.success('Dossier mis à jour');
-    },
-  });
-
   if (user && user.role !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
@@ -557,13 +632,9 @@ export default function AdminPortal() {
         dossier={selectedDossier}
         user={user}
         onBack={() => setSelectedDossier(null)}
-        onAction={(id, statut, comment, cb) => {
-          updateMutation.mutate({
-            id, data: {
-              statut, admin_comment: comment, admin_email: user?.email,
-              date_traitement: new Date().toISOString().split('T')[0]
-            }
-          }, { onSettled: cb });
+        onUpdateDossier={(updated) => {
+          queryClient.invalidateQueries(['registration-dossiers']);
+          setSelectedDossier(prev => ({ ...prev, ...updated }));
         }}
       />
     );
@@ -577,11 +648,11 @@ export default function AdminPortal() {
   });
 
   const stats = [
-    { label: 'Total', count: dossiers.length, color: 'bg-gray-100 text-gray-700' },
-    { label: 'En attente', count: dossiers.filter(d => d.statut === 'En attente').length, color: 'bg-amber-100 text-amber-700' },
-    { label: 'En cours', count: dossiers.filter(d => d.statut === 'En cours de traitement').length, color: 'bg-blue-100 text-blue-700' },
-    { label: 'Validés', count: dossiers.filter(d => d.statut === 'Validé').length, color: 'bg-green-100 text-green-700' },
-    { label: 'Rejetés', count: dossiers.filter(d => d.statut === 'Rejeté').length, color: 'bg-red-100 text-red-700' },
+    { label: 'Total', count: dossiers.length, color: 'bg-gray-100 text-gray-700', key: '' },
+    { label: 'En attente', count: dossiers.filter(d => d.statut === 'En attente').length, color: 'bg-amber-100 text-amber-700', key: 'En attente' },
+    { label: 'En cours', count: dossiers.filter(d => d.statut === 'En cours de traitement').length, color: 'bg-blue-100 text-blue-700', key: 'En cours de traitement' },
+    { label: 'Validés', count: dossiers.filter(d => d.statut === 'Validé').length, color: 'bg-green-100 text-green-700', key: 'Validé' },
+    { label: 'Rejetés', count: dossiers.filter(d => d.statut === 'Rejeté').length, color: 'bg-red-100 text-red-700', key: 'Rejeté' },
   ];
 
   return (
@@ -612,8 +683,8 @@ export default function AdminPortal() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {stats.map(s => (
-            <button key={s.label} onClick={() => setFilterStatus(s.label === 'Total' ? '' : s.label === 'En cours' ? 'En cours de traitement' : s.label.slice(0,-1))}
-              className={`${s.color} rounded-xl p-4 text-center transition-all hover:opacity-80 ${(filterStatus === (s.label === 'En cours' ? 'En cours de traitement' : s.label.slice(0,-1)) || (s.label === 'Total' && !filterStatus)) ? 'ring-2 ring-offset-1 ring-current' : ''}`}>
+            <button key={s.label} onClick={() => setFilterStatus(s.key)}
+              className={`${s.color} rounded-xl p-4 text-center transition-all hover:opacity-80 ${filterStatus === s.key ? 'ring-2 ring-offset-1 ring-current' : ''}`}>
               <p className="text-2xl font-bold">{s.count}</p>
               <p className="text-xs font-medium mt-0.5">{s.label}</p>
             </button>
@@ -638,40 +709,54 @@ export default function AdminPortal() {
             <table className="w-full text-sm">
               <thead className="bg-[#F9F9F9] border-b border-[#E5E7EB]">
                 <tr>
-                  {['Envelope ID', 'Entreprise', 'Demandeur', 'Email', 'Forme juridique', 'Soumission', 'Statut', ''].map(h => (
+                  {['Envelope ID', 'Entreprise', 'Demandeur', 'Email', 'Forme juridique', 'Soumission', 'Workflow', 'Statut', ''].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
-                  <tr><td colSpan={8} className="text-center py-12 text-[#9B9B9B]">
+                  <tr><td colSpan={9} className="text-center py-12 text-[#9B9B9B]">
                     <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 opacity-50" />
                     Chargement des dossiers...
                   </td></tr>
                 ) : filtered.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center py-12 text-[#9B9B9B]">
+                  <tr><td colSpan={9} className="text-center py-12 text-[#9B9B9B]">
                     <Building2 className="w-8 h-8 mx-auto mb-2 opacity-30" />
                     Aucun dossier trouvé
                   </td></tr>
-                ) : filtered.map(d => (
-                  <tr key={d.id} className="border-b border-[#F0F0F0] hover:bg-[#FAFAFA] cursor-pointer" onClick={() => setSelectedDossier(d)}>
-                    <td className="px-4 py-3 font-mono text-xs text-[#1A2B6B]">{d.envelope_id?.substring(0, 10)}...</td>
-                    <td className="px-4 py-3 font-semibold text-[#1A1A1A] max-w-[160px] truncate">{d.company_name}</td>
-                    <td className="px-4 py-3 text-[#6B6B6B]">{d.applicant_name}</td>
-                    <td className="px-4 py-3 text-[#6B6B6B] text-xs">{d.applicant_email}</td>
-                    <td className="px-4 py-3 text-[#6B6B6B]">{d.forme_juridique || '—'}</td>
-                    <td className="px-4 py-3 text-[#6B6B6B] whitespace-nowrap">{d.date_soumission ? format(new Date(d.date_soumission), 'dd/MM/yyyy') : '—'}</td>
-                    <td className="px-4 py-3">
-                      <Badge className={`${STATUS_COLORS[d.statut] || 'bg-gray-100 text-gray-700'} border text-xs`}>{d.statut}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Button size="sm" variant="outline" className="text-xs h-7" onClick={e => { e.stopPropagation(); setSelectedDossier(d); }}>
-                        <Eye className="w-3 h-3 mr-1" /> Voir
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                ) : filtered.map(d => {
+                  const wf = d.approval_workflow || {};
+                  const stepsOk = ['odpic', 'dgi', 'cnss'].filter(k => wf[k]?.approved).length;
+                  return (
+                    <tr key={d.id} className="border-b border-[#F0F0F0] hover:bg-[#FAFAFA] cursor-pointer" onClick={() => setSelectedDossier(d)}>
+                      <td className="px-4 py-3 font-mono text-xs text-[#1A2B6B]">{d.envelope_id?.substring(0, 10)}...</td>
+                      <td className="px-4 py-3 font-semibold text-[#1A1A1A] max-w-[160px] truncate">{d.company_name}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">{d.applicant_name}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B] text-xs">{d.applicant_email}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">{d.forme_juridique || '—'}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B] whitespace-nowrap">{d.date_soumission ? format(new Date(d.date_soumission), 'dd/MM/yyyy') : '—'}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1">
+                          {['odpic', 'dgi', 'cnss'].map(k => (
+                            <span key={k} title={k.toUpperCase()} className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold
+                              ${wf[k]?.approved ? 'bg-green-500 text-white' : 'bg-[#E5E7EB] text-[#9B9B9B]'}`}>
+                              {k[0].toUpperCase()}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge className={`${STATUS_COLORS[d.statut] || 'bg-gray-100 text-gray-700'} border text-xs`}>{d.statut}</Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button size="sm" variant="outline" className="text-xs h-7" onClick={e => { e.stopPropagation(); setSelectedDossier(d); }}>
+                          <Eye className="w-3 h-3 mr-1" /> Voir
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
