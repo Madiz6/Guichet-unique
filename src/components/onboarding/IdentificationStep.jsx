@@ -187,10 +187,10 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
                       ) : (extracting && side === 'front') ? (
                         <div className="flex flex-col items-center gap-2"><Loader2 className="w-5 h-5 animate-spin text-purple-600" /><span className="text-xs text-[#6B6B6B]">Extraction IA...</span></div>
                       ) : (
-                        <React.Fragment>
-                          <Upload className="w-5 h-5 text-[#9B9B9B] mb-1" />
+                        <div className="flex flex-col items-center gap-1">
+                          <Upload className="w-5 h-5 text-[#9B9B9B]" />
                           <span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br />(JPG, PNG, PDF)</span>
-                        </React.Fragment>
+                        </div>
                       )}
                       <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => e.target.files[0] && handleDocUpload(e.target.files[0], side)} disabled={uploading[side] || extracting} />
                     </label>
