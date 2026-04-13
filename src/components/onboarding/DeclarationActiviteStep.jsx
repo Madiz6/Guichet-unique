@@ -2,8 +2,9 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Info } from 'lucide-react';
+import SecteurSearchSelect from './SecteurSearchSelect.jsx';
 
-const SECTEURS = ['Commerce', 'Services', 'Industrie', 'Agriculture', 'Transport', 'BTP', 'Tourisme', 'Finance', 'Santé', 'Éducation', 'Autre'];
+
 const FORMES = ['SARL', 'SA', 'SAS', 'EURL', 'Company', 'Association'];
 const REGIMES = ['Régime général', 'Régime simplifié', 'Forfaitaire', 'Zone franche'];
 
@@ -58,10 +59,9 @@ export default function DeclarationActiviteStep({ value, onChange }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label className="text-sm font-medium">Secteur principal <span className="text-red-500">*</span></Label>
-            <select value={data.secteur_principal || ''} onChange={e => set('secteur_principal', e.target.value)} className="mt-1 w-full border border-input rounded-md px-3 py-2 text-sm bg-transparent">
-              <option value="">Sélectionner...</option>
-              {SECTEURS.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
+            <div className="mt-1">
+              <SecteurSearchSelect value={data.secteur_principal || ''} onChange={v => set('secteur_principal', v)} />
+            </div>
           </div>
           <div>
             <Label className="text-sm font-medium">Forme juridique <span className="text-red-500">*</span></Label>
