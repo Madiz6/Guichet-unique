@@ -15,6 +15,7 @@ import DeclarationActiviteStep from './DeclarationActiviteStep.jsx';
 import DeclarationPartenairesStep from './DeclarationPartenairesStep.jsx';
 import DeclarationEmployesStep from './DeclarationEmployesStep.jsx';
 import DocumentsStep from './DocumentsStep.jsx';
+import ESignatureStep from './ESignatureStep.jsx';
 import PaymentStep from './PaymentStep.jsx';
 
 const STEPS = [
@@ -25,7 +26,8 @@ const STEPS = [
   { id: 'employes', number: 5, title: 'Employés', subtitle: 'Personnel initial', icon: UserSquare2 },
   { id: 'attestation', number: 6, title: 'Attestation', subtitle: 'Pouvoir & habilitation', icon: Shield },
   { id: 'documents', number: 7, title: 'Documents', subtitle: 'Pièces justificatives', icon: FolderOpen },
-  { id: 'paiement', number: 8, title: 'Paiement', subtitle: 'Frais d\'enregistrement', icon: CreditCard },
+  { id: 'esignature', number: 8, title: 'Signature', subtitle: 'Signature électronique', icon: Shield },
+  { id: 'paiement', number: 9, title: 'Paiement', subtitle: 'Frais d\'enregistrement', icon: CreditCard },
 ];
 
 export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
@@ -56,6 +58,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       const formulaireOk = d.formulaire_mode === 'online' ? !!(d.formulaire_signed) : !!(d.formulaire_gui_url);
       return statutsOk && formulaireOk;
     }
+    if (step.id === 'esignature') return !!(data?.signed && data?.signature_data);
     if (step.id === 'paiement') return true;
     return true;
   };
@@ -200,6 +203,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
           {step.id === 'employes' && <DeclarationEmployesStep value={stepData.employes} onChange={updateStep} />}
           {step.id === 'attestation' && <AttestationPouvoirStep value={stepData.attestation} onChange={updateStep} stepData={stepData} />}
           {step.id === 'documents' && <DocumentsStep value={stepData.documents} onChange={updateStep} stepData={stepData} />}
+          {step.id === 'esignature' && <ESignatureStep value={stepData.esignature} onChange={updateStep} stepData={stepData} />}
           {step.id === 'paiement' && <PaymentStep stepData={stepData} onSuccess={onSuccess} />}
         </div>
       </div>
