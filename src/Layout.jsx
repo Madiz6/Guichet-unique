@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { LayoutDashboard, Users, Calendar, Building2, Settings, DollarSign, FileText, FileSpreadsheet, Home, Shield, Mailbox, Headphones, Plane, BarChart3, BookOpen, Receipt, Globe } from "lucide-react";
+import { Home, FileText, Globe, Building2, Shield } from "lucide-react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import AdminCompanyBanner from "@/components/layout/AdminCompanyBanner";
 import MobileBackButton from "@/components/layout/MobileBackButton";
@@ -58,50 +58,17 @@ export default function Layout({ children, currentPageName }) {
       label: null,
       items: [
         { title: "Accueil", url: createPageUrl("Home"), icon: Home },
-        { title: "Tableau de bord", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
-      ]
-    },
-    {
-      label: "RH & Paie",
-      items: [
-        { title: "Employés", url: createPageUrl("Employes"), icon: Users },
-        { title: "Paie", url: createPageUrl("Paie"), icon: DollarSign },
-        { title: "Déclarations CNSS", url: createPageUrl("Declarations"), icon: FileText },
-        { title: "Congés", url: createPageUrl("Conges"), icon: Calendar },
-        { title: "Contacts", url: createPageUrl("Contacts"), icon: Users },
-      ]
-    },
-    {
-      label: "Finance & Comptabilité",
-      items: [
-        { title: "Transactions", url: createPageUrl("Transactions"), icon: DollarSign },
-        { title: "Gestion Budgétaire", url: createPageUrl("BudgetManagement"), icon: BarChart3 },
-        { title: "Demandes d'Achat", url: createPageUrl("PurchaseRequests"), icon: FileSpreadsheet },
-        { title: "Comptabilité", url: createPageUrl("Comptabilite"), icon: BarChart3 },
-        { title: "Grand Livre & Dettes", url: createPageUrl("GrandLivre"), icon: BookOpen },
-        { title: "États Financiers", url: createPageUrl("EtatsFinanciers"), icon: FileText },
-        { title: "Prévisions IA", url: createPageUrl("FinancialForecasting"), icon: BarChart3 },
-        { title: "TVA & Fiscal", url: createPageUrl("GestionTVA"), icon: Receipt },
-      ]
-    },
-    {
-      label: "Services",
-      items: [
-        { title: "Gestion de Location", url: createPageUrl("Leasing"), icon: Building2 },
-        { title: "Autres Services", url: createPageUrl("AutresServices"), icon: Headphones },
-      ]
-    },
-    {
-      label: "Administration",
-      items: [
-        { title: "Portail d'Entreprise", url: createPageUrl("CompanySetup"), icon: Building2 },
         { title: "Mes Dossiers", url: "/MesDossiers", icon: FileText },
-        ...(isAdmin ? [{ title: "Portail Admin ANPI", url: "/AdminPortal", icon: Globe }] : []),
-        ...(isAdmin ? [{ title: "Sécurité", url: createPageUrl("SecurityDocumentation"), icon: Shield }] : []),
-        { title: "Paramètres", url: createPageUrl("Parametres"), icon: Settings },
-        ...(isAdmin ? [{ title: "Vue Globale Admin", url: "/AdminOverview", icon: Globe }] : []),
       ]
     },
+    ...(isAdmin ? [{
+      label: "Administration ANPI",
+      items: [
+        { title: "Portail Admin ANPI", url: "/AdminPortal", icon: Globe },
+        { title: "Vue Globale Admin", url: "/AdminOverview", icon: Building2 },
+        { title: "Sécurité", url: createPageUrl("SecurityDocumentation"), icon: Shield },
+      ]
+    }] : []),
   ];
 
   return (
