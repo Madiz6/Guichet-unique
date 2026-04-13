@@ -87,7 +87,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       const idData = stepData.identification?.data || {};
       const activiteData = stepData.activite || {};
       const docsData = stepData.documents?.docs || {};
-      const envelopeId = stepData.signature?.envelope_id || '';
+      const envelopeId = stepData.esignature?.envelope_id || '';
       const companyName = activiteData.commercial_names?.[0] || activiteData.raison_sociale || `Entreprise`;
 
       const company = await meras.entities.Company.create({
@@ -125,7 +125,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
         forme_juridique: activiteData.forme_juridique || '',
         statut: 'En attente',
         step_data: stepData,
-        signature_data: stepData.signature?.signature_data ? '[SIGNED]' : null,
+        signature_data: stepData.esignature?.signature_data ? '[SIGNED]' : null,
         payment_confirmed: true,
         payment_amount: 5000,
         date_soumission: new Date().toISOString().split('T')[0],

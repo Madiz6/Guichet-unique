@@ -54,7 +54,7 @@ export default function PaymentStep({ stepData, onSuccess }) {
 
   const activite = stepData?.activite || {};
   const companyName = activite.commercial_names?.[0] || activite.raison_sociale || 'Votre entreprise';
-  const envelopeId = stepData?.signature?.envelope_id || 'N/A';
+  const envelopeId = stepData?.esignature?.envelope_id || 'N/A';
   const tier = TIERS.find(t => t.id === selectedTier) || TIERS[1];
 
   const patenteAmount = getPatenteAmount(activite.secteur_principal, activite.activite_description);
@@ -89,7 +89,8 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const handleDownloadPDF = () => {
     setDownloading(true);
     try {
-      generateFormulairePDF(stepData, envelopeId);
+      const enriched = { ...stepData, signature: stepData.esignature };
+      generateFormulairePDF(enriched, envelopeId);
     } finally {
       setDownloading(false);
     }

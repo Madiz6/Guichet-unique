@@ -29,7 +29,7 @@ export default function ESignatureStep({ value, onChange, stepData }) {
     ? (notaire.nom || '___')
     : (idData.prenom ? `${idData.prenom} ${idData.nom}`.trim() : '___');
   const today = new Date().toLocaleDateString('fr-FR');
-  const envelopeId = value?.envelope_id || stepData?.signature?.envelope_id || `ENV-${Date.now().toString(36).toUpperCase()}`;
+  const envelopeId = value?.envelope_id || stepData?.esignature?.envelope_id || `ENV-${Date.now().toString(36).toUpperCase()}`;
 
   useEffect(() => {
     const canvas = canvasRef.current;
