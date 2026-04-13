@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, CreditCard, Shield, Clock, Loader2, Building2, FileText, Download } from 'lucide-react';
+import { CheckCircle2, CreditCard, Shield, Clock, Building2, FileText, Download, Loader2 } from 'lucide-react';
 import { generateFormulairePDF } from './PDFGenerator.jsx';
+import MerasPaymentGateway from '@/components/payments/MerasPaymentGateway.jsx';
 
 // Service tier surcharges only (added on top of base fees)
 const TIERS = [
@@ -46,9 +46,8 @@ const ODPIC = 24000;
 const STATUS_FEES = 18000;
 
 export default function PaymentStep({ stepData, onSuccess }) {
-  const [paying, setPaying] = useState(false);
+  const [showGateway, setShowGateway] = useState(false);
   const [paid, setPaid] = useState(false);
-  const [error, setError] = useState('');
   const [selectedTier, setSelectedTier] = useState('standard');
   const [downloading, setDownloading] = useState(false);
 
@@ -60,30 +59,9 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const patenteAmount = getPatenteAmount(activite.secteur_principal, activite.activite_description);
   const totalAmount = patenteAmount + ODPIC + STATUS_FEES + tier.surcharge;
 
-  const handlePay = async () => {
-    setPaying(true);
-    setError('');
-    try {
-      const response = await base44.functions.invoke('merasInitiatePayment', {
-        amount: totalAmount,
-        currency: 'DJF',
-        description: `Frais d'enregistrement (${tier.label} - ${tier.delay}) - Guichet Unique ANPI - ${companyName}`,
-        metadata: { type: 'onboarding_registration', company: companyName, tier: tier.id },
-      });
-      if (response?.data?.payment_url) {
-        const popup = window.open(response.data.payment_url, '_blank', 'width=600,height=700');
-        const timer = setInterval(() => {
-          if (!popup || popup.closed) { clearInterval(timer); setPaid(true); setPaying(false); }
-        }, 1000);
-      } else {
-        setPaid(true);
-        setPaying(false);
-      }
-    } catch {
-      // For demo purposes, allow proceeding
-      setPaid(true);
-      setPaying(false);
-    }
+  const handlePaymentSuccess = () => {
+    setShowGateway(false);
+    setPaid(true);
   };
 
   const handleDownloadPDF = () => {
@@ -223,17 +201,24 @@ export default function PaymentStep({ stepData, onSuccess }) {
           </div>
           <p className="text-xs text-[#9B9B9B]">Traitement en {tier.delay} — non remboursable</p>
         </div>
-        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>}
-        <Button onClick={handlePay} disabled={paying} className="w-full bg-[#1A1A1A] hover:bg-[#333] text-white h-12 text-base font-medium">
-          {paying ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Initialisation...</> : <><CreditCard className="w-4 h-4 mr-2" /> Payer {totalAmount.toLocaleString()} DJF</>}
+        <Button onClick={() => setShowGateway(true)} className="w-full bg-[#1A1A1A] hover:bg-[#333] text-white h-12 text-base font-medium">
+          <CreditCard className="w-4 h-4 mr-2" /> Payer {totalAmount.toLocaleString()} DJF
         </Button>
         <div className="flex items-center justify-center gap-2 mt-3">
           <Shield className="w-3.5 h-3.5 text-[#9B9B9B]" />
           <p className="text-xs text-[#9B9B9B]">Paiement sécurisé via Meras Payment Gateway</p>
         </div>
-      </div>
+        </div>
 
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+        <MerasPaymentGateway
+        isOpen={showGateway}
+        onClose={() => setShowGateway(false)}
+        amount={totalAmount}
+        description={`Frais d'enregistrement (${tier.label} - ${tier.delay}) - ANPI - ${companyName}`}
+        onSuccess={handlePaymentSuccess}
+        />
+
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
         <Building2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
         <p className="text-xs text-blue-700">Après le paiement, votre dossier sera transmis au Guichet Unique ANPI. Vous serez notifié dans les <strong>48 heures ouvrables</strong>.</p>
       </div>
