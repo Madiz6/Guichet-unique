@@ -175,7 +175,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
               const isDone = completedSteps.has(i);
               const StepIcon = s.icon;
               return (
-                <React.Fragment key={s.id}>
+                <div key={s.id} className="flex items-center gap-1 shrink-0">
                   <button onClick={() => isDone && setCurrentStep(i)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all shrink-0 ${isActive ? 'bg-[#1A1A1A] text-white' : isDone ? 'bg-green-100 text-green-700 cursor-pointer hover:bg-green-200' : 'bg-[#F5F5F5] text-[#9B9B9B] cursor-default'}`}>
                     {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : <StepIcon className="w-3.5 h-3.5" />}
@@ -183,7 +183,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
                     <span className="md:hidden">{i + 1}</span>
                   </button>
                   {i < STEPS.length - 1 && <ChevronRight className="w-3 h-3 text-[#D1D5DB] shrink-0" />}
-                </React.Fragment>
+                </div>
               );
             })}
           </div>
