@@ -23,15 +23,14 @@ const EXTRACT_FIELDS = [
   { k: 'pere_nom', label: 'Nom du père' },
   { k: 'mere_nom', label: 'Nom de la mère' },
   { k: 'email', label: 'Email', type: 'email' },
-  { k: 'telephone', label: 'Numéro de mobile', isPhone: true },
 ];
 
 const emptyPhysique = () => ({
   type: 'physique', nom: '', prenom: '', nni: '', email: '', telephone: '',
   adresse: '', nationalite: '', date_naissance: '', lieu_naissance: '', sexe: '',
   numero_identite: '', date_emission: '', date_expiration: '', profession: '',
-  pere_nom: '', mere_nom: '', mrz_line1: '', mrz_line2: '',
-  part_percent: '', apport: '', doc_front: '', doc_back: ''
+  pere_nom: '', mere_nom: '', part_percent: '', apport: '',
+  doc_front: '', doc_back: ''
 });
 
 const emptyMorale = () => ({
@@ -67,7 +66,7 @@ function DocUpload({ label, onUploaded }) {
   );
 }
 
-function IdExtract({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
+function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
   const [uploading, setUploading] = useState({ front: false, back: false });
   const [extracting, setExtracting] = useState(false);
   const [docType, setDocType] = useState('cni');
@@ -81,12 +80,12 @@ function IdExtract({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
     const frontU = side === 'front' ? file_url : frontUrl;
     const backU = side === 'back' ? file_url : backUrl;
     const urls = [frontU, backU].filter(Boolean);
-    if (urls.length === 0) return;
+    if (!frontU) return;
 
     setExtracting(true);
     try {
       const r = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are given ${urls.length === 2 ? 'the front AND back sides' : 'the front'} of an identity document. Extract ALL visible information. The back typically contains NNI, MRZ, address. Return JSON with: nom, prenom, date_naissance (YYYY-MM-DD), lieu_naissance, nationalite, sexe, numero_identite, nni, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, profession, pere_nom, mere_nom, email, telephone, mrz_line1, mrz_line2. Use empty string for missing fields.`,
+        prompt: `Extract ALL data from ${urls.length === 2 ? 'front AND back of' : 'this'} identity document. Return JSON with: nom, prenom, date_naissance (YYYY-MM-DD), lieu_naissance, nationalite, sexe, numero_identite, nni, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, profession, pere_nom, mere_nom, email, telephone. Use empty string for missing fields.`,
         file_urls: urls,
         response_json_schema: {
           type: 'object',
@@ -99,25 +98,28 @@ function IdExtract({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
             adresse: { type: 'string' }, profession: { type: 'string' },
             pere_nom: { type: 'string' }, mere_nom: { type: 'string' },
             email: { type: 'string' }, telephone: { type: 'string' },
-            mrz_line1: { type: 'string' }, mrz_line2: { type: 'string' },
           },
         },
       });
       onExtracted(r);
-      toast.success(`Données extraites depuis ${urls.length === 2 ? 'recto + verso' : 'le recto'}`);
-    } catch { toast.info('Remplissez manuellement'); }
+      toast.success('Données extraites automatiquement');
+    } catch {
+      toast.info('Téléchargé — remplissez les données manuellement');
+    }
     setExtracting(false);
   };
 
-  const sides = [{ s: 'front', label: docType === 'passeport' ? 'Page principale' : 'Recto (avant)', url: frontUrl }];
-  if (docType === 'cni') sides.push({ s: 'back', label: 'Verso (arrière)', url: backUrl });
+  const sides = [
+    { s: 'front', label: docType === 'passeport' ? 'Page principale *' : 'Recto (avant) *', url: frontUrl },
+    ...(docType === 'cni' ? [{ s: 'back', label: 'Verso (arrière)', url: backUrl }] : []),
+  ];
 
   return (
-    <div className="space-y-3 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+    <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <ScanLine className="w-3.5 h-3.5 text-blue-600" />
-          <span className="text-xs font-medium text-[#1A1A1A]">Pièce d'identité</span>
+          <span className="text-xs font-medium text-[#1A1A1A]">Pièce d'identité (extraction auto)</span>
         </div>
         <div className="flex gap-1.5">
           {[{ val: 'cni', label: "Carte d'identité" }, { val: 'passeport', label: 'Passeport' }].map(({ val, label }) => (
@@ -128,33 +130,34 @@ function IdExtract({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
           ))}
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-3">
         {sides.map(({ s, label, url }) => (
           <div key={s}>
-            <p className="text-xs text-[#6B6B6B] mb-1">{label}{s === 'front' && <span className="text-red-500 ml-1">*</span>}</p>
+            <p className="text-xs text-[#6B6B6B] mb-1">{label}</p>
             {url ? (
               <div className="border border-green-300 bg-green-50 rounded-lg p-2">
-                <div className="flex items-center justify-between text-xs text-green-600">
-                  <div className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Téléchargé</div>
-                  <label className="text-blue-600 cursor-pointer hover:underline">Changer
-                    <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={e => e.target.files[0] && handle(e.target.files[0], s)} />
+                <div className="flex items-center justify-between text-xs text-green-600 mb-1">
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Téléchargé</span>
+                  <label className="text-blue-600 cursor-pointer hover:underline">
+                    Changer<input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={e => e.target.files[0] && handle(e.target.files[0], s)} />
                   </label>
                 </div>
-                <img src={url} alt={label} className="mt-1.5 w-full h-16 object-cover rounded border border-green-200" onError={e => { e.target.style.display = 'none'; }} />
+                <img src={url} alt={label} className="w-full h-16 object-cover rounded" onError={e => { e.target.style.display = 'none'; }} />
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-4 cursor-pointer hover:border-blue-400 transition-all h-24">
-                {uploading[s] ? (
-                  <div className="flex flex-col items-center gap-1"><Loader2 className="w-4 h-4 animate-spin text-blue-600" /><span className="text-xs text-[#6B6B6B]">Téléchargement...</span></div>
-                ) : (
-                  <><Upload className="w-4 h-4 text-[#9B9B9B] mb-1" /><span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br />(JPG, PNG, PDF)</span></>
-                )}
+              <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-3 cursor-pointer hover:border-blue-400 transition-all h-24">
+                {uploading[s]
+                  ? <><Loader2 className="w-4 h-4 animate-spin text-blue-600 mb-1" /><span className="text-xs text-[#6B6B6B]">...</span></>
+                  : <><Upload className="w-4 h-4 text-[#9B9B9B] mb-1" /><span className="text-xs text-[#9B9B9B] text-center">Cliquez pour télécharger<br/>(JPG, PNG, PDF)</span></>
+                }
                 <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" onChange={e => e.target.files[0] && handle(e.target.files[0], s)} />
               </label>
             )}
           </div>
         ))}
       </div>
+
       {extracting && (
         <div className="flex items-center gap-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-600">
           <Loader2 className="w-3.5 h-3.5 animate-spin" /> Extraction IA en cours...
@@ -164,80 +167,60 @@ function IdExtract({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
   );
 }
 
-function PartnerPhysiqueFields({ p, i, set, merge, prefix = '' }) {
-  const hasDoc = p[prefix + 'doc_front'] || p[prefix + 'doc_back'];
-  const fieldKey = (k) => prefix ? `rep_${k}` : k;
+export default function DeclarationPartenairesStep({ value, onChange }) {
+  const partners = value?.partners || [];
+  const total = partners.reduce((s, p) => s + (parseFloat(p.part_percent) || 0), 0);
 
-  return (
-    <div className="space-y-4">
-      <IdExtract
-        frontUrl={p[prefix + 'doc_front']}
-        backUrl={p[prefix + 'doc_back']}
-        onFront={url => set(i, prefix + 'doc_front', url)}
-        onBack={url => set(i, prefix + 'doc_back', url)}
-        onExtracted={d => {
-          const updates = {};
-          ['nom', 'prenom', 'nni', 'date_naissance', 'lieu_naissance', 'nationalite', 'sexe',
-            'numero_identite', 'date_emission', 'date_expiration', 'adresse', 'profession',
-            'pere_nom', 'mere_nom', 'email', 'telephone', 'mrz_line1', 'mrz_line2'].forEach(k => {
-            if (d[k]) updates[fieldKey(k)] = d[k];
-          });
-          merge(i, updates);
-        }}
-      />
+  const update = (next) => onChange({ partners: next });
+  const add = (type) => update([...partners, type === 'physique' ? emptyPhysique() : emptyMorale()]);
+  const remove = (i) => update(partners.filter((_, idx) => idx !== i));
+  const setField = (i, k, v) => update(partners.map((p, idx) => idx === i ? { ...p, [k]: v } : p));
+  const mergeFields = (i, obj) => update(partners.map((p, idx) => idx === i ? { ...p, ...obj } : p));
 
-      {hasDoc && (
+  const renderPersonFields = (p, i, keyPrefix) => {
+    const fk = (k) => keyPrefix ? `${keyPrefix}${k}` : k;
+    return (
+      <div className="space-y-4">
+        <IdScanSection
+          frontUrl={p[fk('doc_front')]}
+          backUrl={p[fk('doc_back')]}
+          onFront={url => setField(i, fk('doc_front'), url)}
+          onBack={url => setField(i, fk('doc_back'), url)}
+          onExtracted={d => {
+            const updates = {};
+            [...EXTRACT_FIELDS, { k: 'telephone' }].forEach(f => {
+              if (d[f.k]) updates[fk(f.k)] = d[f.k];
+            });
+            mergeFields(i, updates);
+          }}
+        />
+
         <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
-          <h4 className="text-sm font-medium text-[#1A1A1A] mb-3">Informations extraites</h4>
+          <h4 className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide mb-3">Informations extraites</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {EXTRACT_FIELDS.map(f => (
               <div key={f.k}>
                 <Label className="text-xs text-[#6B6B6B]">{f.label}</Label>
-                {f.isPhone ? (
-                  <PhoneInput value={p[fieldKey(f.k)] || ''} onChange={v => set(i, fieldKey(f.k), v)} />
-                ) : (
-                  <Input type={f.type || 'text'} value={p[fieldKey(f.k)] || ''} onChange={e => set(i, fieldKey(f.k), e.target.value)} className="mt-1 text-sm" />
-                )}
+                <Input
+                  type={f.type || 'text'}
+                  value={p[fk(f.k)] || ''}
+                  onChange={e => setField(i, fk(f.k), e.target.value)}
+                  className="mt-1 text-sm"
+                />
               </div>
             ))}
             <div>
-              <Label className="text-xs text-[#6B6B6B]">MRZ Ligne 1</Label>
-              <Input value={p[fieldKey('mrz_line1')] || ''} onChange={e => set(i, fieldKey('mrz_line1'), e.target.value)} className="mt-1 text-sm font-mono" />
-            </div>
-            <div>
-              <Label className="text-xs text-[#6B6B6B]">MRZ Ligne 2</Label>
-              <Input value={p[fieldKey('mrz_line2')] || ''} onChange={e => set(i, fieldKey('mrz_line2'), e.target.value)} className="mt-1 text-sm font-mono" />
+              <Label className="text-xs text-[#6B6B6B]">Numéro de mobile</Label>
+              <PhoneInput
+                value={p[fk('telephone')] || ''}
+                onChange={v => setField(i, fk('telephone'), v)}
+              />
             </div>
           </div>
         </div>
-      )}
-
-      {!hasDoc && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {EXTRACT_FIELDS.map(f => (
-            <div key={f.k}>
-              <Label className="text-xs">{f.label}</Label>
-              {f.isPhone ? (
-                <PhoneInput value={p[fieldKey(f.k)] || ''} onChange={v => set(i, fieldKey(f.k), v)} />
-              ) : (
-                <Input type={f.type || 'text'} value={p[fieldKey(f.k)] || ''} onChange={e => set(i, fieldKey(f.k), e.target.value)} className="mt-1 text-sm" />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function DeclarationPartenairesStep({ value, onChange }) {
-  const partners = value?.partners || [];
-  const total = partners.reduce((s, p) => s + (parseFloat(p.part_percent) || 0), 0);
-  const update = (next) => onChange({ partners: next });
-  const add = (type) => update([...partners, type === 'physique' ? emptyPhysique() : emptyMorale()]);
-  const remove = (i) => update(partners.filter((_, idx) => idx !== i));
-  const set = (i, k, v) => update(partners.map((p, idx) => idx === i ? { ...p, [k]: v } : p));
-  const merge = (i, obj) => update(partners.map((p, idx) => idx === i ? { ...p, ...obj } : p));
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -247,8 +230,12 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
           <p className="text-sm text-[#6B6B6B] mt-1">Associés et actionnaires (optionnel)</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => add('physique')} variant="outline" size="sm" className="text-xs flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" /> Personne physique</Button>
-          <Button onClick={() => add('morale')} variant="outline" size="sm" className="text-xs flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" /> Personne morale</Button>
+          <Button onClick={() => add('physique')} variant="outline" size="sm" className="text-xs flex items-center gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> Personne physique
+          </Button>
+          <Button onClick={() => add('morale')} variant="outline" size="sm" className="text-xs flex items-center gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> Personne morale
+          </Button>
         </div>
       </div>
 
@@ -277,42 +264,64 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                 <span className={`text-xs px-3 py-1 rounded-full font-medium ${p.type === 'physique' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
                   {p.type === 'physique' ? 'Personne physique' : 'Personne morale'}
                 </span>
-                <button onClick={() => remove(i)} className="text-[#9B9B9B] hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => remove(i)} className="text-[#9B9B9B] hover:text-red-500">
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
 
               {p.type === 'physique' ? (
                 <div className="space-y-4">
-                  <PartnerPhysiqueFields p={p} i={i} set={set} merge={merge} prefix="" />
-                  <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#F0F0F0]">
+                  {renderPersonFields(p, i, '')}
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#F0F0F0]">
                     <div>
                       <Label className="text-xs">Part (%) <span className="text-red-500">*</span></Label>
-                      <Input type="number" value={p.part_percent} onChange={e => set(i, 'part_percent', e.target.value)} className="mt-1 text-sm" placeholder="0" />
+                      <Input type="number" value={p.part_percent || ''} onChange={e => setField(i, 'part_percent', e.target.value)} className="mt-1 text-sm" placeholder="0" />
                     </div>
                     <div>
                       <Label className="text-xs">Apport (DJF)</Label>
-                      <Input type="number" value={p.apport} onChange={e => set(i, 'apport', e.target.value)} className="mt-1 text-sm" placeholder="0" />
+                      <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" placeholder="0" />
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="md:col-span-2"><Label className="text-xs">Raison sociale <span className="text-red-500">*</span></Label><Input value={p.raison_sociale} onChange={e => set(i, 'raison_sociale', e.target.value)} className="mt-1 text-sm" /></div>
-                    <div className="md:col-span-2"><Label className="text-xs">Siège social</Label><Input value={p.siege_social} onChange={e => set(i, 'siege_social', e.target.value)} className="mt-1 text-sm" /></div>
-                    <div><Label className="text-xs">N° immatriculation (RCS)</Label><Input value={p.rcs} onChange={e => set(i, 'rcs', e.target.value)} className="mt-1 text-sm" /></div>
-                    <div><Label className="text-xs">Email</Label><Input type="email" value={p.email} onChange={e => set(i, 'email', e.target.value)} className="mt-1 text-sm" /></div>
-                    <div><Label className="text-xs">Part (%)</Label><Input type="number" value={p.part_percent} onChange={e => set(i, 'part_percent', e.target.value)} className="mt-1 text-sm" /></div>
-                    <div><Label className="text-xs">Apport (DJF)</Label><Input type="number" value={p.apport} onChange={e => set(i, 'apport', e.target.value)} className="mt-1 text-sm" /></div>
+                    <div className="md:col-span-2">
+                      <Label className="text-xs">Raison sociale <span className="text-red-500">*</span></Label>
+                      <Input value={p.raison_sociale || ''} onChange={e => setField(i, 'raison_sociale', e.target.value)} className="mt-1 text-sm" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label className="text-xs">Siège social</Label>
+                      <Input value={p.siege_social || ''} onChange={e => setField(i, 'siege_social', e.target.value)} className="mt-1 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">N° immatriculation (RCS)</Label>
+                      <Input value={p.rcs || ''} onChange={e => setField(i, 'rcs', e.target.value)} className="mt-1 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Email</Label>
+                      <Input type="email" value={p.email || ''} onChange={e => setField(i, 'email', e.target.value)} className="mt-1 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Part (%)</Label>
+                      <Input type="number" value={p.part_percent || ''} onChange={e => setField(i, 'part_percent', e.target.value)} className="mt-1 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Apport (DJF)</Label>
+                      <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" />
+                    </div>
                   </div>
+
                   <div className="border-t border-[#F0F0F0] pt-3 space-y-2">
                     <p className="text-xs font-medium text-[#1A1A1A] mb-2">Documents de la société</p>
-                    <DocUpload label="Copie du registre de commerce" onUploaded={url => set(i, 'registre_url', url)} />
-                    <DocUpload label="Copie certifiée des statuts (avec traduction)" onUploaded={url => set(i, 'statuts_url', url)} />
-                    <DocUpload label="Décision de créer une succursale à Djibouti" onUploaded={url => set(i, 'decision_url', url)} />
+                    <DocUpload label="Copie du registre de commerce" onUploaded={url => setField(i, 'registre_url', url)} />
+                    <DocUpload label="Copie certifiée des statuts (avec traduction)" onUploaded={url => setField(i, 'statuts_url', url)} />
+                    <DocUpload label="Décision de créer une succursale à Djibouti" onUploaded={url => setField(i, 'decision_url', url)} />
                   </div>
+
                   <div className="border-t border-[#F0F0F0] pt-3">
-                    <p className="text-xs font-medium text-[#1A1A1A] mb-3">Représentant de la société actionnaire</p>
-                    <PartnerPhysiqueFields p={p} i={i} set={set} merge={merge} prefix="rep_" />
+                    <p className="text-sm font-medium text-[#1A1A1A] mb-3">Représentant de la société actionnaire</p>
+                    {renderPersonFields(p, i, 'rep_')}
                   </div>
                 </div>
               )}
