@@ -4,11 +4,46 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, CreditCard, Shield, Clock, Loader2, Building2, FileText, Download } from 'lucide-react';
 import { generateFormulairePDF } from './PDFGenerator.jsx';
 
+// Service tier surcharges only (added on top of base fees)
 const TIERS = [
-  { id: 'express', label: 'Express', delay: '45 minutes', amount: 45000, color: 'border-purple-400 bg-purple-50', badge: 'bg-purple-600', desc: 'Traitement prioritaire immédiat', icon: '⚡' },
-  { id: 'standard', label: 'Standard', delay: '24 heures', amount: 30000, color: 'border-blue-400 bg-blue-50', badge: 'bg-blue-600', desc: 'Traitement le jour même', icon: '🕐', popular: true },
-  { id: 'economique', label: 'Économique', delay: '72 heures', amount: 25000, color: 'border-gray-300 bg-gray-50', badge: 'bg-gray-600', desc: 'Traitement dans les 3 jours ouvrables', icon: '📋' },
+  { id: 'express', label: 'Express', delay: '45 minutes', surcharge: 25000, color: 'border-purple-400 bg-purple-50', desc: 'Traitement prioritaire immédiat', icon: '⚡' },
+  { id: 'standard', label: 'Standard', delay: '24 heures', surcharge: 15000, color: 'border-blue-400 bg-blue-50', desc: 'Traitement le jour même', icon: '🕐', popular: true },
+  { id: 'economique', label: 'Économique', delay: '72 heures', surcharge: 0, color: 'border-gray-300 bg-gray-50', desc: 'Traitement dans les 3 jours ouvrables', icon: '📋' },
 ];
+
+// Patente fee table by activity sector (DJF)
+const PATENTE_TABLE = [
+  { keywords: ['import', 'export', 'commerce international', 'négoce'], amount: 180000 },
+  { keywords: ['banque', 'finance', 'assurance', 'microfinance', 'crédit'], amount: 250000 },
+  { keywords: ['btp', 'construction', 'bâtiment', 'travaux', 'génie civil'], amount: 120000 },
+  { keywords: ['hôtel', 'hôtellerie', 'hébergement', 'tourisme'], amount: 150000 },
+  { keywords: ['restaurant', 'restauration', 'café', 'alimentation', 'traiteur'], amount: 80000 },
+  { keywords: ['transport', 'logistique', 'fret', 'transit', 'messagerie'], amount: 100000 },
+  { keywords: ['informatique', 'technologie', 'numérique', 'it', 'telecom', 'télécommunication'], amount: 90000 },
+  { keywords: ['médical', 'santé', 'clinique', 'pharmacie', 'soins', 'médecine'], amount: 110000 },
+  { keywords: ['éducation', 'formation', 'école', 'enseignement', 'université'], amount: 70000 },
+  { keywords: ['énergie', 'pétrole', 'gaz', 'carburant', 'électricité'], amount: 200000 },
+  { keywords: ['industrie', 'manufacture', 'production', 'usine', 'fabrication'], amount: 140000 },
+  { keywords: ['agriculture', 'pêche', 'élevage', 'agro'], amount: 60000 },
+  { keywords: ['immobilier', 'foncier', 'location', 'bail', 'gérance'], amount: 130000 },
+  { keywords: ['conseil', 'consulting', 'audit', 'juridique', 'comptabilité', 'expertise'], amount: 85000 },
+  { keywords: ['communication', 'publicité', 'media', 'presse', 'audiovisuel'], amount: 75000 },
+  { keywords: ['sécurité', 'gardiennage', 'surveillance'], amount: 65000 },
+  { keywords: ['nettoyage', 'entretien', 'maintenance', 'facility'], amount: 55000 },
+];
+
+const DEFAULT_PATENTE = 75000;
+
+function getPatenteAmount(secteur, description) {
+  const text = `${secteur || ''} ${description || ''}`.toLowerCase();
+  for (const row of PATENTE_TABLE) {
+    if (row.keywords.some(k => text.includes(k))) return row.amount;
+  }
+  return DEFAULT_PATENTE;
+}
+
+const ODPIC = 24000;
+const STATUS_FEES = 18000;
 
 export default function PaymentStep({ stepData, onSuccess }) {
   const [paying, setPaying] = useState(false);
@@ -22,12 +57,15 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const envelopeId = stepData?.signature?.envelope_id || 'N/A';
   const tier = TIERS.find(t => t.id === selectedTier) || TIERS[1];
 
+  const patenteAmount = getPatenteAmount(activite.secteur_principal, activite.activite_description);
+  const totalAmount = patenteAmount + ODPIC + STATUS_FEES + tier.surcharge;
+
   const handlePay = async () => {
     setPaying(true);
     setError('');
     try {
       const response = await base44.functions.invoke('merasInitiatePayment', {
-        amount: tier.amount,
+        amount: totalAmount,
         currency: 'DJF',
         description: `Frais d'enregistrement (${tier.label} - ${tier.delay}) - Guichet Unique ANPI - ${companyName}`,
         metadata: { type: 'onboarding_registration', company: companyName, tier: tier.id },
@@ -99,7 +137,7 @@ export default function PaymentStep({ stepData, onSuccess }) {
           <div className="p-4 bg-[#F0F4FF] border border-[#C7D2FE] rounded-xl text-left">
             <p className="text-xs text-[#3730A3] font-semibold mb-2">Reçu de paiement</p>
             <div className="space-y-1 text-xs text-[#4338CA]">
-              <div className="flex justify-between"><span>Montant payé</span><span className="font-bold">{tier.amount.toLocaleString()} DJF</span></div>
+              <div className="flex justify-between"><span>Montant payé</span><span className="font-bold">{totalAmount.toLocaleString()} DJF</span></div>
               <div className="flex justify-between"><span>Formule</span><span className="font-medium">{tier.label} ({tier.delay})</span></div>
               <div className="flex justify-between"><span>Entreprise</span><span className="font-medium">{companyName}</span></div>
               <div className="flex justify-between"><span>Date</span><span>{new Date().toLocaleDateString('fr-FR')}</span></div>
@@ -124,18 +162,34 @@ export default function PaymentStep({ stepData, onSuccess }) {
 
       {/* Tier selector */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {TIERS.map(t => (
-          <button key={t.id} type="button" onClick={() => setSelectedTier(t.id)}
-            className={`relative flex flex-col items-center text-center p-4 rounded-xl border-2 transition-all ${selectedTier === t.id ? t.color + ' shadow-md' : 'border-[#E5E7EB] bg-white hover:border-[#C4C4C4]'}`}>
-            {t.popular && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-xs px-3 py-0.5 rounded-full bg-blue-600 text-white font-semibold">Recommandé</span>}
-            <span className="text-2xl mb-1">{t.icon}</span>
-            <p className="font-bold text-sm text-[#1A1A1A]">{t.label}</p>
-            <p className="text-2xl font-bold text-[#1A1A1A] mt-1">{t.amount.toLocaleString()}<span className="text-xs font-normal text-[#6B6B6B] ml-1">DJF</span></p>
-            <p className="text-xs text-[#6B6B6B] mt-1">⏱ {t.delay}</p>
-            <p className="text-xs text-[#9B9B9B] mt-0.5">{t.desc}</p>
-            {selectedTier === t.id && <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#1A1A1A] flex items-center justify-center"><CheckCircle2 className="w-3 h-3 text-white" /></div>}
-          </button>
-        ))}
+        {TIERS.map(t => {
+          const tierTotal = patenteAmount + ODPIC + STATUS_FEES + t.surcharge;
+          return (
+            <button key={t.id} type="button" onClick={() => setSelectedTier(t.id)}
+              className={`relative flex flex-col items-start text-left p-4 rounded-xl border-2 transition-all ${selectedTier === t.id ? t.color + ' shadow-md' : 'border-[#E5E7EB] bg-white hover:border-[#C4C4C4]'}`}>
+              {t.popular && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-xs px-3 py-0.5 rounded-full bg-blue-600 text-white font-semibold">Recommandé</span>}
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">{t.icon}</span>
+                <p className="font-bold text-sm text-[#1A1A1A]">{t.label}</p>
+                {selectedTier === t.id && <div className="ml-auto w-5 h-5 rounded-full bg-[#1A1A1A] flex items-center justify-center"><CheckCircle2 className="w-3 h-3 text-white" /></div>}
+              </div>
+              <div className="w-full space-y-1 text-xs text-[#6B6B6B] mb-3">
+                <div className="flex justify-between"><span>1. Patente</span><span className="font-medium text-[#1A1A1A]">{patenteAmount.toLocaleString()} DJF</span></div>
+                <div className="flex justify-between"><span>2. ODPIC</span><span className="font-medium text-[#1A1A1A]">{ODPIC.toLocaleString()} DJF</span></div>
+                <div className="flex justify-between"><span>3. Statuts</span><span className="font-medium text-[#1A1A1A]">{STATUS_FEES.toLocaleString()} DJF</span></div>
+                <div className="flex justify-between border-t border-dashed border-[#E5E7EB] pt-1">
+                  <span>{t.label} {t.surcharge > 0 ? `(+${t.surcharge.toLocaleString()})` : '(inclus)'}</span>
+                  <span className="font-medium text-[#1A1A1A]">{t.surcharge > 0 ? `${t.surcharge.toLocaleString()} DJF` : '0 DJF'}</span>
+                </div>
+              </div>
+              <p className="text-xs text-[#6B6B6B] mb-1">⏱ {t.delay} — {t.desc}</p>
+              <div className="w-full flex justify-between items-center pt-2 border-t border-[#E5E7EB]">
+                <span className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Total à payer</span>
+                <span className="text-lg font-bold text-[#1A1A1A]">{tierTotal.toLocaleString()} <span className="text-xs font-normal">DJF</span></span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
@@ -152,16 +206,25 @@ export default function PaymentStep({ stepData, onSuccess }) {
       </div>
 
       <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-        <div className="flex items-center justify-between p-4 bg-[#F9F9F9] rounded-xl mb-4">
-          <div>
-            <p className="text-sm font-semibold text-[#1A1A1A]">{tier.icon} Formule {tier.label}</p>
-            <p className="text-xs text-[#6B6B6B] mt-0.5">Traitement en {tier.delay} — non remboursable</p>
+        <div className="p-4 bg-[#F9F9F9] rounded-xl mb-4 space-y-2">
+          <p className="text-sm font-semibold text-[#1A1A1A] mb-2">{tier.icon} Formule {tier.label} — Récapitulatif</p>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between text-[#6B6B6B]"><span>1. Patente ({activite.secteur_principal || 'Activité générale'})</span><span className="font-medium text-[#1A1A1A]">{patenteAmount.toLocaleString()} DJF</span></div>
+            <div className="flex justify-between text-[#6B6B6B]"><span>2. ODPIC</span><span className="font-medium text-[#1A1A1A]">{ODPIC.toLocaleString()} DJF</span></div>
+            <div className="flex justify-between text-[#6B6B6B]"><span>3. Statuts</span><span className="font-medium text-[#1A1A1A]">{STATUS_FEES.toLocaleString()} DJF</span></div>
+            {tier.surcharge > 0 && (
+              <div className="flex justify-between text-[#6B6B6B]"><span>Frais de traitement {tier.label}</span><span className="font-medium text-[#1A1A1A]">+{tier.surcharge.toLocaleString()} DJF</span></div>
+            )}
           </div>
-          <p className="text-2xl font-bold text-[#1A1A1A]">{tier.amount.toLocaleString()} <span className="text-sm font-normal text-[#6B6B6B]">DJF</span></p>
+          <div className="flex justify-between items-center pt-2 border-t border-[#E5E7EB]">
+            <span className="text-sm font-bold text-[#1A1A1A]">Total à payer</span>
+            <span className="text-2xl font-bold text-[#1A1A1A]">{totalAmount.toLocaleString()} <span className="text-sm font-normal text-[#6B6B6B]">DJF</span></span>
+          </div>
+          <p className="text-xs text-[#9B9B9B]">Traitement en {tier.delay} — non remboursable</p>
         </div>
         {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>}
         <Button onClick={handlePay} disabled={paying} className="w-full bg-[#1A1A1A] hover:bg-[#333] text-white h-12 text-base font-medium">
-          {paying ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Initialisation...</> : <><CreditCard className="w-4 h-4 mr-2" /> Payer {tier.amount.toLocaleString()} DJF</>}
+          {paying ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Initialisation...</> : <><CreditCard className="w-4 h-4 mr-2" /> Payer {totalAmount.toLocaleString()} DJF</>}
         </Button>
         <div className="flex items-center justify-center gap-2 mt-3">
           <Shield className="w-3.5 h-3.5 text-[#9B9B9B]" />
