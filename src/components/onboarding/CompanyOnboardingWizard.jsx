@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Shield, FileText, Briefcase, Users, UserSquare2, FolderOpen, CreditCard,
-  ChevronRight, ChevronLeft, CheckCircle2, Loader2, PenLine
+  ChevronRight, ChevronLeft, CheckCircle2, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import IdentificationStep from './IdentificationStep.jsx';
-import SignatureStep from './SignatureStep.jsx';
+
 import DispositionsGeneralesStep from './DispositionsGeneralesStep.jsx';
 import DeclarationActiviteStep from './DeclarationActiviteStep.jsx';
 import DeclarationPartenairesStep from './DeclarationPartenairesStep.jsx';
@@ -19,8 +19,7 @@ import PaymentStep from './PaymentStep.jsx';
 
 const STEPS = [
   { id: 'identification', number: 1, title: 'Identification', subtitle: 'Représentant légal', icon: Shield },
-  { id: 'signature', number: 2, title: 'Signature', subtitle: 'Signature numérique', icon: PenLine },
-  { id: 'dispositions', number: 3, title: 'Dispositions', subtitle: 'Clauses générales', icon: FileText },
+  { id: 'dispositions', number: 2, title: 'Dispositions', subtitle: 'Clauses générales', icon: FileText },
   { id: 'activite', number: 4, title: 'Activité', subtitle: 'Nature & juridique', icon: Briefcase },
   { id: 'partenaires', number: 5, title: 'Partenaires', subtitle: 'Associés & actionnaires', icon: Users },
   { id: 'employes', number: 6, title: 'Employés', subtitle: 'Personnel initial', icon: UserSquare2 },
@@ -189,7 +188,6 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 pb-32">
           {step.id === 'identification' && <IdentificationStep value={stepData.identification} onChange={updateStep} showBiometric={true} />}
-          {step.id === 'signature' && <SignatureStep value={stepData.signature} onChange={updateStep} />}
           {step.id === 'dispositions' && <DispositionsGeneralesStep value={stepData.dispositions} onChange={updateStep} />}
           {step.id === 'activite' && <DeclarationActiviteStep value={stepData.activite} onChange={updateStep} />}
           {step.id === 'partenaires' && <DeclarationPartenairesStep value={stepData.partenaires} onChange={updateStep} />}
