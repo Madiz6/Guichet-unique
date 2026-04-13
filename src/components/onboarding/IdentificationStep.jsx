@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, CheckCircle2, Camera, Loader2, ScanLine, User, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
+import BiometricVerification from './BiometricVerification.jsx';
 
 const EXTRACT_FIELDS = [
   { k: 'nom', label: 'Nom' },
@@ -242,30 +243,17 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
           )}
 
           {showBiometric && data.document_url && (
-            <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-              <h3 className="font-medium text-[#1A1A1A] mb-3 flex items-center gap-2">
-                <Camera className="w-4 h-4 text-purple-600" /> Vérification biométrique
-              </h3>
-              {data.selfie_url ? (
-                <div className="flex items-center gap-3">
-                  <img src={data.selfie_url} alt="selfie" className="w-16 h-16 rounded-full object-cover border-2 border-green-400" />
-                  <div className="text-sm text-green-600 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Photo validée</div>
-                </div>
-              ) : cameraActive ? (
-                <div className="space-y-3">
-                  <video ref={videoRef} autoPlay className="w-full max-w-sm rounded-xl mx-auto" />
-                  <div className="flex gap-2 justify-center">
-                    <Button onClick={takeSelfie} className="bg-purple-600 hover:bg-purple-700 text-white">Prendre la photo</Button>
-                    <Button variant="outline" onClick={() => { stream?.getTracks().forEach(t => t.stop()); setCameraActive(false); }}>Annuler</Button>
-                  </div>
-                </div>
-              ) : (
-                <Button variant="outline" onClick={startCamera} className="flex items-center gap-2">
-                  {selfieUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                  Activer la caméra
-                </Button>
-              )}
-            </div>
+            <BiometricVerification
+              idPhotoUrl={data.document_front_url || data.document_url}
+              onComplete={(result) => {
+                onChange({
+                  ...data,
+                  selfie_url: result.selfie_url,
+                  biometric: result.biometric,
+                });
+              }}
+              onSkip={() => onChange({ ...data, biometric: { skipped: true } })}
+            />
           )}
         </>
       )}
