@@ -4,42 +4,476 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Search, CheckCircle2, XCircle, Eye, FileText, Users, UserSquare2, Building2, ChevronRight, ArrowLeft, AlertTriangle, Clock, Download } from 'lucide-react';
+import {
+  Search, CheckCircle2, XCircle, Eye, FileText, Users, UserSquare2,
+  Building2, ArrowLeft, AlertTriangle, Clock, Download, Shield,
+  PenLine, Image, ChevronRight, Mail, Phone, MapPin, Calendar,
+  DollarSign, Briefcase, RefreshCw
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { generateFormulairePDF, generateStatutsPDF } from '../components/onboarding/PDFGenerator.jsx';
 
 const STATUS_COLORS = {
-  'En attente': 'bg-amber-100 text-amber-700',
-  'En cours de traitement': 'bg-blue-100 text-blue-700',
-  'Validé': 'bg-green-100 text-green-700',
-  'Rejeté': 'bg-red-100 text-red-700',
-  'Modification requise': 'bg-orange-100 text-orange-700',
+  'En attente': 'bg-amber-100 text-amber-700 border-amber-200',
+  'En cours de traitement': 'bg-blue-100 text-blue-700 border-blue-200',
+  'Validé': 'bg-green-100 text-green-700 border-green-200',
+  'Rejeté': 'bg-red-100 text-red-700 border-red-200',
+  'Modification requise': 'bg-orange-100 text-orange-700 border-orange-200',
 };
+
+function Field({ label, value, className = '' }) {
+  return (
+    <div className={`p-3 bg-[#F9F9F9] rounded-lg ${className}`}>
+      <p className="text-xs text-[#9B9B9B] mb-0.5">{label}</p>
+      <p className="text-sm font-medium text-[#1A1A1A] break-words">{value || '—'}</p>
+    </div>
+  );
+}
+
+function DocImage({ url, label }) {
+  if (!url) return null;
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer"
+      className="block border border-[#E5E7EB] rounded-xl overflow-hidden hover:shadow-md transition-shadow">
+      <img src={url} alt={label} className="w-full h-36 object-cover bg-gray-100"
+        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+      <div className="hidden items-center justify-center h-36 bg-[#F5F5F5]">
+        <FileText className="w-8 h-8 text-[#9B9B9B]" />
+      </div>
+      <div className="px-3 py-2 flex items-center gap-1.5 text-xs text-[#6B6B6B] border-t border-[#E5E7EB]">
+        <Image className="w-3 h-3" />{label}
+        <ChevronRight className="w-3 h-3 ml-auto" />
+      </div>
+    </a>
+  );
+}
+
+function DocLink({ url, label }) {
+  if (!url) return null;
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer"
+      className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F9F9F9] transition-all text-sm">
+      <FileText className="w-4 h-4 text-blue-600 shrink-0" />
+      <span className="text-[#1A1A1A]">{label}</span>
+      <ChevronRight className="w-4 h-4 text-[#9B9B9B] ml-auto" />
+    </a>
+  );
+}
+
+const TABS = [
+  { id: 'representant', label: 'Représentant', icon: UserSquare2 },
+  { id: 'activite', label: 'Activité', icon: Briefcase },
+  { id: 'partenaires', label: 'Partenaires', icon: Users },
+  { id: 'employes', label: 'Employés', icon: UserSquare2 },
+  { id: 'attestation', label: 'Attestation', icon: Shield },
+  { id: 'documents', label: 'Documents', icon: FileText },
+];
+
+function DossierDetail({ dossier, user, onBack, onAction }) {
+  const [activeTab, setActiveTab] = useState('representant');
+  const [comment, setComment] = useState(dossier.admin_comment || '');
+  const [saving, setSaving] = useState(false);
+
+  const stepData = dossier.step_data || {};
+  const identification = stepData.identification || {};
+  const idData = identification.data || {};
+  const repType = identification.rep_type || 'physique';
+  const notaire = identification.notaire || {};
+  const activite = stepData.activite || {};
+  const partenaires = stepData.partenaires?.partners || [];
+  const employes = stepData.employes?.employees || [];
+  const docs = stepData.documents?.docs || {};
+  const attestation = stepData.attestation || {};
+  const esignature = stepData.esignature || {};
+
+  const handleAction = (statut) => {
+    setSaving(true);
+    onAction(dossier.id, statut, comment, () => setSaving(false));
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FAFAFA]">
+      {/* Header */}
+      <div className="bg-[#1A2B6B] text-white px-6 py-4 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button onClick={onBack} className="flex items-center gap-1.5 text-blue-200 hover:text-white transition-colors text-sm">
+              <ArrowLeft className="w-4 h-4" /> Retour
+            </button>
+            <div className="w-px h-5 bg-white/20" />
+            <div>
+              <h1 className="font-bold text-lg">{dossier.company_name}</h1>
+              <p className="text-xs text-blue-200 font-mono">{dossier.envelope_id}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge className={`${STATUS_COLORS[dossier.statut]} border text-xs px-3 py-1`}>{dossier.statut}</Badge>
+            {dossier.payment_confirmed && (
+              <Badge className="bg-green-500 text-white text-xs px-3 py-1">Paiement confirmé</Badge>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 flex gap-6">
+        {/* Main content */}
+        <div className="flex-1 min-w-0 space-y-4">
+          {/* Tabs */}
+          <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
+            <div className="flex border-b border-[#E5E7EB] overflow-x-auto">
+              {TABS.map(({ id, label, icon: Icon }) => (
+                <button key={id} onClick={() => setActiveTab(id)}
+                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-all shrink-0
+                    ${activeTab === id ? 'border-[#1A2B6B] text-[#1A2B6B] bg-blue-50/50' : 'border-transparent text-[#6B6B6B] hover:text-[#1A1A1A]'}`}>
+                  <Icon className="w-3.5 h-3.5" />
+                  {id === 'partenaires' ? `${label} (${partenaires.length})` : id === 'employes' ? `${label} (${employes.length})` : label}
+                </button>
+              ))}
+            </div>
+
+            <div className="p-5">
+              {/* REPRÉSENTANT */}
+              {activeTab === 'representant' && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className={repType === 'notaire' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}>
+                      {repType === 'notaire' ? 'Représentant moral (Notaire)' : 'Représentant physique'}
+                    </Badge>
+                  </div>
+
+                  {repType === 'physique' ? (
+                    <>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <Field label="Nom" value={idData.nom} />
+                        <Field label="Prénom" value={idData.prenom} />
+                        <Field label="NNI" value={idData.nni} />
+                        <Field label="N° Identité" value={idData.numero_identite} />
+                        <Field label="Date naissance" value={idData.date_naissance} />
+                        <Field label="Lieu naissance" value={idData.lieu_naissance} />
+                        <Field label="Nationalité" value={idData.nationalite} />
+                        <Field label="Sexe" value={idData.sexe} />
+                        <Field label="Profession" value={idData.profession} />
+                        <Field label="Nom du père" value={idData.pere_nom} />
+                        <Field label="Nom de la mère" value={idData.mere_nom} />
+                        <Field label="Date émission" value={idData.date_emission} />
+                        <Field label="Date expiration" value={idData.date_expiration} />
+                        <Field label="Email" value={idData.email} className="col-span-1" />
+                        <Field label="Téléphone" value={idData.telephone} />
+                        <Field label="Adresse" value={idData.adresse} className="col-span-full" />
+                        {idData.mrz_line1 && <Field label="MRZ Ligne 1" value={idData.mrz_line1} className="col-span-full font-mono" />}
+                        {idData.mrz_line2 && <Field label="MRZ Ligne 2" value={idData.mrz_line2} className="col-span-full font-mono" />}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <DocImage url={identification.document_front_url} label="Pièce d'identité — Recto" />
+                        <DocImage url={identification.document_back_url} label="Pièce d'identité — Verso" />
+                        <DocImage url={identification.selfie_url} label="Photo biométrique" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Nom du notaire" value={notaire.nom} />
+                      <Field label="Nom commercial" value={notaire.nom_commercial} />
+                      <Field label="N° RCS" value={notaire.rcs} />
+                      <Field label="NIF" value={notaire.nif} />
+                      <Field label="Email" value={notaire.email} />
+                      <Field label="Téléphone" value={notaire.telephone} />
+                      <Field label="Adresse" className="col-span-2" value={notaire.adresse} />
+                    </div>
+                  )}
+
+                  {identification.biometric && (
+                    <div className={`p-3 rounded-xl border text-sm ${identification.biometric.liveness ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-600'}`}>
+                      <strong>Vérification biométrique :</strong>{' '}
+                      {identification.biometric.skipped ? 'Ignorée' : identification.biometric.liveness ? `Passée — Qualité: ${identification.biometric.quality}` : 'Non effectuée'}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ACTIVITÉ */}
+              {activeTab === 'activite' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <Field label="Raison sociale" value={activite.raison_sociale} />
+                    <Field label="Forme juridique" value={activite.forme_juridique} />
+                    <Field label="Secteur principal" value={activite.secteur_principal} />
+                    <Field label="Capital social" value={activite.capital_social ? `${Number(activite.capital_social).toLocaleString()} DJF` : '—'} />
+                    <Field label="Régime fiscal" value={activite.regime_fiscal} />
+                    <Field label="Nb employés prévus" value={activite.nb_employes_prevus} />
+                    <Field label="1er choix nom" value={activite.commercial_names?.[0]} />
+                    <Field label="2ème choix nom" value={activite.commercial_names?.[1]} />
+                    <Field label="3ème choix nom" value={activite.commercial_names?.[2]} />
+                  </div>
+                  {activite.activite_description && (
+                    <div className="p-3 bg-[#F9F9F9] rounded-lg">
+                      <p className="text-xs text-[#9B9B9B] mb-1">Description de l'activité</p>
+                      <p className="text-sm text-[#1A1A1A]">{activite.activite_description}</p>
+                    </div>
+                  )}
+                  {activite.activites_secondaires?.length > 0 && (
+                    <div className="p-3 bg-[#F9F9F9] rounded-lg">
+                      <p className="text-xs text-[#9B9B9B] mb-2">Activités secondaires</p>
+                      <div className="flex flex-wrap gap-2">
+                        {activite.activites_secondaires.map((a, i) => (
+                          <Badge key={i} className="bg-blue-100 text-blue-700 text-xs">{a}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* PARTENAIRES */}
+              {activeTab === 'partenaires' && (
+                <div className="space-y-4">
+                  {partenaires.length === 0 ? (
+                    <div className="text-center py-10 text-[#9B9B9B]">
+                      <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Aucun partenaire déclaré</p>
+                    </div>
+                  ) : partenaires.map((p, i) => (
+                    <div key={i} className="border border-[#E5E7EB] rounded-xl p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Badge className={p.type === 'physique' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}>
+                          {p.type === 'physique' ? 'Personne physique' : 'Personne morale'}
+                        </Badge>
+                        <span className="font-semibold text-sm">
+                          {p.type === 'physique' ? `${p.prenom || ''} ${p.nom || ''}`.trim() : p.raison_sociale}
+                        </span>
+                        <Badge className="ml-auto bg-gray-100 text-gray-700">{p.part_percent || '—'}%</Badge>
+                      </div>
+                      {p.type === 'physique' ? (
+                        <>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            <Field label="NNI" value={p.nni} />
+                            <Field label="N° Identité" value={p.numero_identite} />
+                            <Field label="Email" value={p.email} />
+                            <Field label="Téléphone" value={p.telephone} />
+                            <Field label="Nationalité" value={p.nationalite} />
+                            <Field label="Date naissance" value={p.date_naissance} />
+                            <Field label="Apport" value={p.apport ? `${Number(p.apport).toLocaleString()} DJF` : '—'} />
+                            <Field label="Adresse" value={p.adresse} />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <DocImage url={p.doc_front} label="Pièce d'identité — Recto" />
+                            <DocImage url={p.doc_back} label="Pièce d'identité — Verso" />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Field label="Siège social" value={p.siege_social} />
+                            <Field label="RCS" value={p.rcs} />
+                            <Field label="Email" value={p.email} />
+                            <Field label="Apport" value={p.apport ? `${Number(p.apport).toLocaleString()} DJF` : '—'} />
+                          </div>
+                          {(p.registre_url || p.statuts_url || p.decision_url) && (
+                            <div className="space-y-2">
+                              <DocLink url={p.registre_url} label="Registre de commerce" />
+                              <DocLink url={p.statuts_url} label="Statuts certifiés" />
+                              <DocLink url={p.decision_url} label="Décision de création succursale" />
+                            </div>
+                          )}
+                          {(p.rep_nom || p.rep_prenom) && (
+                            <div className="border-t border-[#E5E7EB] pt-3">
+                              <p className="text-xs font-semibold text-[#6B6B6B] mb-2">Représentant de la société</p>
+                              <div className="grid grid-cols-2 gap-2">
+                                <Field label="Nom" value={`${p.rep_prenom || ''} ${p.rep_nom || ''}`.trim()} />
+                                <Field label="NNI" value={p.rep_nni} />
+                                <Field label="Email" value={p.rep_email} />
+                                <Field label="Téléphone" value={p.rep_telephone} />
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 mt-3">
+                                <DocImage url={p.rep_doc_front} label="Pièce d'identité représentant — Recto" />
+                                <DocImage url={p.rep_doc_back} label="Pièce d'identité représentant — Verso" />
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* EMPLOYÉS */}
+              {activeTab === 'employes' && (
+                <div className="space-y-3">
+                  {employes.length === 0 ? (
+                    <div className="text-center py-10 text-[#9B9B9B]">
+                      <UserSquare2 className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Aucun employé déclaré</p>
+                    </div>
+                  ) : employes.map((e, i) => (
+                    <div key={i} className="border border-[#E5E7EB] rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="font-semibold text-sm">{e.prenom} {e.nom}</span>
+                        <Badge className="bg-gray-100 text-gray-700 text-xs">{e.emploi_occupe}</Badge>
+                        <Badge className="ml-auto bg-blue-100 text-blue-700 text-xs">{e.type_contrat}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <Field label="Type employé" value={e.type_employe} />
+                        <Field label="Salaire" value={e.salaire_base ? `${Number(e.salaire_base).toLocaleString()} DJF` : '—'} />
+                        <Field label="Nom mère" value={e.nom_mere} />
+                        <Field label="Matricule CNSS" value={e.matricule_cnss} />
+                        <Field label="Date embauche" value={e.date_embauche} />
+                        <Field label="NNI" value={e.nni} />
+                        <Field label="Nationalité" value={e.nationalite} />
+                        <Field label="Date naissance" value={e.date_naissance} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 mt-3">
+                        <DocImage url={e.doc_front} label="Pièce d'identité — Recto" />
+                        <DocImage url={e.doc_back} label="Pièce d'identité — Verso" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ATTESTATION & SIGNATURE */}
+              {activeTab === 'attestation' && (
+                <div className="space-y-4">
+                  <div className={`p-4 rounded-xl border flex items-start gap-3 ${attestation.signed ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                    {attestation.signed ? <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" /> : <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />}
+                    <div>
+                      <p className="font-semibold text-sm">{attestation.signed ? 'Attestation signée et acceptée' : 'Attestation non signée'}</p>
+                      {attestation.signed_at && <p className="text-xs text-[#6B6B6B] mt-0.5">Signée par <strong>{attestation.signed_by}</strong> le {new Date(attestation.signed_at).toLocaleString('fr-FR')}</p>}
+                    </div>
+                  </div>
+
+                  {attestation.signature_data && (
+                    <div className="border border-[#E5E7EB] rounded-xl overflow-hidden">
+                      <div className="px-4 py-2 bg-[#F9F9F9] border-b border-[#E5E7EB] flex items-center gap-2 text-xs font-medium text-[#6B6B6B]">
+                        <PenLine className="w-3.5 h-3.5" /> Signature — Attestation de pouvoir
+                      </div>
+                      <div className="p-4 bg-white">
+                        <img src={attestation.signature_data} alt="Signature attestation" className="max-h-24 object-contain" />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className={`p-4 rounded-xl border flex items-start gap-3 ${esignature.signed ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                    {esignature.signed ? <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" /> : <AlertTriangle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />}
+                    <div>
+                      <p className="font-semibold text-sm">{esignature.signed ? 'Documents officiels signés électroniquement' : 'Signature officielle non effectuée'}</p>
+                      {esignature.envelope_id && <p className="text-xs font-mono text-[#6B6B6B] mt-0.5">Envelope ID: {esignature.envelope_id}</p>}
+                      {esignature.signed_at && <p className="text-xs text-[#6B6B6B]">Signés le {new Date(esignature.signed_at).toLocaleString('fr-FR')}</p>}
+                    </div>
+                  </div>
+
+                  {esignature.signature_data && (
+                    <div className="border border-[#E5E7EB] rounded-xl overflow-hidden">
+                      <div className="px-4 py-2 bg-[#F9F9F9] border-b border-[#E5E7EB] flex items-center gap-2 text-xs font-medium text-[#6B6B6B]">
+                        <Shield className="w-3.5 h-3.5" /> Signature — Documents officiels
+                      </div>
+                      <div className="p-4 bg-white">
+                        <img src={esignature.signature_data} alt="Signature officielle" className="max-h-24 object-contain" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* DOCUMENTS */}
+              {activeTab === 'documents' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <DocLink url={docs.statuts_signes_url || docs.statuts_pdf_url} label="Statuts signés" />
+                    <DocLink url={docs.formulaire_gui_url || docs.formulaire_pdf_url} label="Formulaire GUI signé" />
+                  </div>
+
+                  {Object.entries(docs).filter(([k, v]) => v && k.endsWith('_url') && !['statuts_mode','formulaire_mode','statuts_signed','formulaire_signed'].includes(k)).map(([key, url]) => (
+                    <DocLink key={key} url={url} label={key.replace(/_url$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} />
+                  ))}
+
+                  <div className="flex gap-2 flex-wrap pt-2 border-t border-[#E5E7EB]">
+                    <Button variant="outline" size="sm" onClick={() => generateFormulairePDF({ ...stepData, signature: esignature }, dossier.envelope_id)} className="text-xs">
+                      <Download className="w-3.5 h-3.5 mr-1" /> Formulaire GUI PDF
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => generateStatutsPDF({ ...stepData, signature: esignature }, dossier.envelope_id)} className="text-xs">
+                      <Download className="w-3.5 h-3.5 mr-1" /> Statuts PDF
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar — actions */}
+        <div className="w-80 shrink-0 space-y-4">
+          {/* Dossier meta */}
+          <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 space-y-3">
+            <h3 className="font-semibold text-sm text-[#1A1A1A]">Informations du dossier</h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Demandeur</span><span className="font-medium">{dossier.applicant_name}</span></div>
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Email</span><span className="font-medium">{dossier.applicant_email}</span></div>
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Forme juridique</span><span className="font-medium">{dossier.forme_juridique || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-[#9B9B9B]">Soumis le</span><span className="font-medium">{dossier.date_soumission ? format(new Date(dossier.date_soumission), 'dd/MM/yyyy') : '—'}</span></div>
+              {dossier.date_traitement && <div className="flex justify-between"><span className="text-[#9B9B9B]">Traité le</span><span className="font-medium">{format(new Date(dossier.date_traitement), 'dd/MM/yyyy')}</span></div>}
+              {dossier.payment_amount && <div className="flex justify-between"><span className="text-[#9B9B9B]">Montant payé</span><span className="font-medium text-green-600">{Number(dossier.payment_amount).toLocaleString()} DJF</span></div>}
+              {dossier.admin_email && <div className="flex justify-between"><span className="text-[#9B9B9B]">Agent traitant</span><span className="font-medium">{dossier.admin_email}</span></div>}
+            </div>
+          </div>
+
+          {/* Admin comment */}
+          <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 space-y-3">
+            <Label className="text-sm font-semibold text-[#1A1A1A]">Commentaire de suivi</Label>
+            <Textarea value={comment} onChange={e => setComment(e.target.value)}
+              placeholder="Commentaire visible par le demandeur..." rows={4} className="text-sm" />
+          </div>
+
+          {/* Action buttons */}
+          <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 space-y-2">
+            <h3 className="font-semibold text-sm text-[#1A1A1A] mb-3">Actions</h3>
+            <Button onClick={() => handleAction('En cours de traitement')} disabled={saving} variant="outline" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 text-sm justify-start">
+              <Clock className="w-4 h-4 mr-2" /> Mettre en traitement
+            </Button>
+            <Button onClick={() => handleAction('Modification requise')} disabled={saving} variant="outline" className="w-full text-orange-600 border-orange-200 hover:bg-orange-50 text-sm justify-start">
+              <AlertTriangle className="w-4 h-4 mr-2" /> Demander modification
+            </Button>
+            <Button onClick={() => handleAction('Rejeté')} disabled={saving} className="w-full bg-red-600 hover:bg-red-700 text-white text-sm justify-start">
+              <XCircle className="w-4 h-4 mr-2" /> Rejeter le dossier
+            </Button>
+            <Button onClick={() => handleAction('Validé')} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm justify-start">
+              <CheckCircle2 className="w-4 h-4 mr-2" /> Valider et approuver
+            </Button>
+          </div>
+
+          {dossier.admin_comment && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-xs font-semibold text-amber-700 mb-1">Dernier commentaire</p>
+              <p className="text-xs text-amber-800">{dossier.admin_comment}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPortal() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [selected, setSelected] = useState(null);
-  const [comment, setComment] = useState('');
-  const [activeTab, setActiveTab] = useState('representant');
+  const [selectedDossier, setSelectedDossier] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
-  const { data: dossiers = [], isLoading } = useQuery({
+  const { data: dossiers = [], isLoading, refetch } = useQuery({
     queryKey: ['registration-dossiers'],
     queryFn: () => base44.entities.RegistrationDossier.list('-created_date'),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.RegistrationDossier.update(id, data),
-    onSuccess: () => {
+    onSuccess: (updated) => {
       queryClient.invalidateQueries(['registration-dossiers']);
+      // Refresh the selected dossier with updated data
+      setSelectedDossier(prev => prev ? { ...prev, ...updated } : null);
       toast.success('Dossier mis à jour');
     },
   });
@@ -56,25 +490,38 @@ export default function AdminPortal() {
     );
   }
 
+  if (selectedDossier) {
+    return (
+      <DossierDetail
+        dossier={selectedDossier}
+        user={user}
+        onBack={() => setSelectedDossier(null)}
+        onAction={(id, statut, comment, cb) => {
+          updateMutation.mutate({
+            id, data: {
+              statut, admin_comment: comment, admin_email: user?.email,
+              date_traitement: new Date().toISOString().split('T')[0]
+            }
+          }, { onSettled: cb });
+        }}
+      />
+    );
+  }
+
   const filtered = dossiers.filter(d => {
     const q = search.toLowerCase();
-    const matchSearch = !q || d.company_name?.toLowerCase().includes(q) || d.applicant_name?.toLowerCase().includes(q) || d.envelope_id?.toLowerCase().includes(q);
+    const matchSearch = !q || d.company_name?.toLowerCase().includes(q) || d.applicant_name?.toLowerCase().includes(q) || d.envelope_id?.toLowerCase().includes(q) || d.applicant_email?.toLowerCase().includes(q);
     const matchStatus = !filterStatus || d.statut === filterStatus;
     return matchSearch && matchStatus;
   });
 
-  const handleAction = (id, statut) => {
-    updateMutation.mutate({ id, data: { statut, admin_comment: comment, admin_email: user?.email, date_traitement: new Date().toISOString().split('T')[0] } });
-    setComment('');
-    setSelected(null);
-  };
-
-  const stepData = selected?.step_data || {};
-  const idData = stepData?.identification?.data || {};
-  const activite = stepData?.activite || {};
-  const partenaires = stepData?.partenaires?.partners || [];
-  const employes = stepData?.employes?.employees || [];
-  const docs = stepData?.documents?.docs || {};
+  const stats = [
+    { label: 'Total', count: dossiers.length, color: 'bg-gray-100 text-gray-700' },
+    { label: 'En attente', count: dossiers.filter(d => d.statut === 'En attente').length, color: 'bg-amber-100 text-amber-700' },
+    { label: 'En cours', count: dossiers.filter(d => d.statut === 'En cours de traitement').length, color: 'bg-blue-100 text-blue-700' },
+    { label: 'Validés', count: dossiers.filter(d => d.statut === 'Validé').length, color: 'bg-green-100 text-green-700' },
+    { label: 'Rejetés', count: dossiers.filter(d => d.statut === 'Rejeté').length, color: 'bg-red-100 text-red-700' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -87,32 +534,36 @@ export default function AdminPortal() {
               <p className="text-xs text-blue-200">Gestion des dossiers d'enregistrement d'entreprises</p>
             </div>
           </div>
-          <Link to="/Dashboard"><Button variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/10"><ArrowLeft className="w-4 h-4 mr-1" /> Tableau de bord</Button></Link>
+          <div className="flex items-center gap-2">
+            <button onClick={() => refetch()} className="p-2 rounded-lg hover:bg-white/10 transition-colors" title="Rafraîchir">
+              <RefreshCw className="w-4 h-4 text-blue-200" />
+            </button>
+            <Link to="/Dashboard">
+              <Button variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/10">
+                <ArrowLeft className="w-4 h-4 mr-1" /> Tableau de bord
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-4">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-5">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {[
-            { label: 'Total', count: dossiers.length, color: 'bg-gray-100 text-gray-700' },
-            { label: 'En attente', count: dossiers.filter(d => d.statut === 'En attente').length, color: 'bg-amber-100 text-amber-700' },
-            { label: 'En cours', count: dossiers.filter(d => d.statut === 'En cours de traitement').length, color: 'bg-blue-100 text-blue-700' },
-            { label: 'Validés', count: dossiers.filter(d => d.statut === 'Validé').length, color: 'bg-green-100 text-green-700' },
-            { label: 'Rejetés', count: dossiers.filter(d => d.statut === 'Rejeté').length, color: 'bg-red-100 text-red-700' },
-          ].map(s => (
-            <div key={s.label} className={`${s.color} rounded-xl p-3 text-center`}>
+          {stats.map(s => (
+            <button key={s.label} onClick={() => setFilterStatus(s.label === 'Total' ? '' : s.label === 'En cours' ? 'En cours de traitement' : s.label.slice(0,-1))}
+              className={`${s.color} rounded-xl p-4 text-center transition-all hover:opacity-80 ${(filterStatus === (s.label === 'En cours' ? 'En cours de traitement' : s.label.slice(0,-1)) || (s.label === 'Total' && !filterStatus)) ? 'ring-2 ring-offset-1 ring-current' : ''}`}>
               <p className="text-2xl font-bold">{s.count}</p>
-              <p className="text-xs font-medium">{s.label}</p>
-            </div>
+              <p className="text-xs font-medium mt-0.5">{s.label}</p>
+            </button>
           ))}
         </div>
 
         {/* Filters */}
         <div className="flex gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-48">
+          <div className="relative flex-1 min-w-56">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9B9B9B]" />
-            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par nom, envelope ID..." className="pl-9" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par nom, email, envelope ID..." className="pl-9" />
           </div>
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-input rounded-md px-3 py-2 text-sm bg-white">
             <option value="">Tous les statuts</option>
@@ -121,196 +572,55 @@ export default function AdminPortal() {
         </div>
 
         {/* Table */}
-        <Card className="border border-[#E5E7EB]">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-[#F9F9F9] border-b border-[#E5E7EB]">
-                  <tr>
-                    {['Envelope ID', 'Entreprise', 'Demandeur', 'Forme', 'Soumission', 'Statut', 'Actions'].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B]">{h}</th>
-                    ))}
+        <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F9F9F9] border-b border-[#E5E7EB]">
+                <tr>
+                  {['Envelope ID', 'Entreprise', 'Demandeur', 'Email', 'Forme juridique', 'Soumission', 'Statut', ''].map(h => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr><td colSpan={8} className="text-center py-12 text-[#9B9B9B]">
+                    <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 opacity-50" />
+                    Chargement des dossiers...
+                  </td></tr>
+                ) : filtered.length === 0 ? (
+                  <tr><td colSpan={8} className="text-center py-12 text-[#9B9B9B]">
+                    <Building2 className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    Aucun dossier trouvé
+                  </td></tr>
+                ) : filtered.map(d => (
+                  <tr key={d.id} className="border-b border-[#F0F0F0] hover:bg-[#FAFAFA] cursor-pointer" onClick={() => setSelectedDossier(d)}>
+                    <td className="px-4 py-3 font-mono text-xs text-[#1A2B6B]">{d.envelope_id?.substring(0, 10)}...</td>
+                    <td className="px-4 py-3 font-semibold text-[#1A1A1A] max-w-[160px] truncate">{d.company_name}</td>
+                    <td className="px-4 py-3 text-[#6B6B6B]">{d.applicant_name}</td>
+                    <td className="px-4 py-3 text-[#6B6B6B] text-xs">{d.applicant_email}</td>
+                    <td className="px-4 py-3 text-[#6B6B6B]">{d.forme_juridique || '—'}</td>
+                    <td className="px-4 py-3 text-[#6B6B6B] whitespace-nowrap">{d.date_soumission ? format(new Date(d.date_soumission), 'dd/MM/yyyy') : '—'}</td>
+                    <td className="px-4 py-3">
+                      <Badge className={`${STATUS_COLORS[d.statut] || 'bg-gray-100 text-gray-700'} border text-xs`}>{d.statut}</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button size="sm" variant="outline" className="text-xs h-7" onClick={e => { e.stopPropagation(); setSelectedDossier(d); }}>
+                        <Eye className="w-3 h-3 mr-1" /> Voir
+                      </Button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {isLoading ? (
-                    <tr><td colSpan={7} className="text-center py-8 text-[#9B9B9B]">Chargement...</td></tr>
-                  ) : filtered.length === 0 ? (
-                    <tr><td colSpan={7} className="text-center py-8 text-[#9B9B9B]">Aucun dossier trouvé</td></tr>
-                  ) : filtered.map(d => (
-                    <tr key={d.id} className="border-b border-[#F0F0F0] hover:bg-[#FAFAFA]">
-                      <td className="px-4 py-3 font-mono text-xs text-[#1A2B6B]">{d.envelope_id?.substring(0, 8)}...</td>
-                      <td className="px-4 py-3 font-medium text-[#1A1A1A]">{d.company_name}</td>
-                      <td className="px-4 py-3 text-[#6B6B6B]">{d.applicant_name}</td>
-                      <td className="px-4 py-3 text-[#6B6B6B]">{d.forme_juridique || '—'}</td>
-                      <td className="px-4 py-3 text-[#6B6B6B]">{d.date_soumission ? format(new Date(d.date_soumission), 'dd/MM/yyyy') : '—'}</td>
-                      <td className="px-4 py-3"><Badge className={STATUS_COLORS[d.statut] || 'bg-gray-100 text-gray-700'}>{d.statut}</Badge></td>
-                      <td className="px-4 py-3">
-                        <button onClick={() => { setSelected(d); setComment(d.admin_comment || ''); setActiveTab('representant'); }}
-                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium">
-                          <Eye className="w-3.5 h-3.5" /> Voir
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Detail Dialog */}
-      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          {selected && (
-            <div className="space-y-4">
-              <DialogHeader>
-                <DialogTitle className="flex items-center justify-between flex-wrap gap-2">
-                  <span>{selected.company_name}</span>
-                  <Badge className={STATUS_COLORS[selected.statut]}>{selected.statut}</Badge>
-                </DialogTitle>
-                <p className="font-mono text-xs text-[#6B6B6B]">Envelope ID: {selected.envelope_id}</p>
-              </DialogHeader>
-
-              {/* Tabs */}
-              <div className="flex border-b overflow-x-auto gap-1">
-                {[
-                  { id: 'representant', label: 'Représentant', icon: UserSquare2 },
-                  { id: 'activite', label: 'Activité', icon: Building2 },
-                  { id: 'partenaires', label: `Partenaires (${partenaires.length})`, icon: Users },
-                  { id: 'employes', label: `Employés (${employes.length})`, icon: UserSquare2 },
-                  { id: 'documents', label: 'Documents', icon: FileText },
-                ].map(({ id, label, icon: Icon }) => (
-                  <button key={id} onClick={() => setActiveTab(id)}
-                    className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 whitespace-nowrap transition-all ${activeTab === id ? 'border-[#1A2B6B] text-[#1A2B6B]' : 'border-transparent text-[#6B6B6B]'}`}>
-                    <Icon className="w-3.5 h-3.5" />{label}
-                  </button>
                 ))}
-              </div>
-
-              {activeTab === 'representant' && (
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  {[
-                    ['Nom', idData.nom], ['Prénom', idData.prenom], ['N° Identité', idData.numero_identite],
-                    ['NNI', idData.nni], ['Date naissance', idData.date_naissance], ['Nationalité', idData.nationalite],
-                    ['Email', idData.email], ['Téléphone', idData.telephone], ['Adresse', idData.adresse],
-                  ].map(([label, val]) => (
-                    <div key={label} className="p-2 bg-[#F9F9F9] rounded-lg">
-                      <p className="text-xs text-[#9B9B9B]">{label}</p>
-                      <p className="font-medium text-[#1A1A1A]">{val || '—'}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'activite' && (
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  {[
-                    ['Raison sociale', activite.raison_sociale],
-                    ['Forme juridique', activite.forme_juridique],
-                    ['Secteur', activite.secteur_principal],
-                    ['Capital social', activite.capital_social ? `${Number(activite.capital_social).toLocaleString()} DJF` : '—'],
-                    ['1er choix nom', activite.commercial_names?.[0]],
-                    ['2ème choix nom', activite.commercial_names?.[1]],
-                    ['3ème choix nom', activite.commercial_names?.[2]],
-                    ['Activité secondaire', (activite.activites_secondaires || []).join(', ')],
-                  ].map(([label, val]) => (
-                    <div key={label} className="p-2 bg-[#F9F9F9] rounded-lg">
-                      <p className="text-xs text-[#9B9B9B]">{label}</p>
-                      <p className="font-medium text-[#1A1A1A]">{val || '—'}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'partenaires' && (
-                <div className="space-y-3">
-                  {partenaires.length === 0 ? <p className="text-sm text-[#9B9B9B] text-center py-4">Aucun partenaire déclaré</p> :
-                    partenaires.map((p, i) => (
-                      <div key={i} className="border border-[#E5E7EB] rounded-xl p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className={p.type === 'physique' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}>{p.type === 'physique' ? 'Personne physique' : 'Personne morale'}</Badge>
-                          <span className="font-medium text-sm">{p.type === 'physique' ? `${p.prenom} ${p.nom}` : p.raison_sociale}</span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 text-xs">
-                          <div><span className="text-[#9B9B9B]">Part</span><p className="font-medium">{p.part_percent || '—'}%</p></div>
-                          <div><span className="text-[#9B9B9B]">Apport</span><p className="font-medium">{p.apport ? `${Number(p.apport).toLocaleString()} DJF` : '—'}</p></div>
-                          <div><span className="text-[#9B9B9B]">Email</span><p className="font-medium">{p.email || '—'}</p></div>
-                        </div>
-                      </div>
-                    ))
-                  }
-                </div>
-              )}
-
-              {activeTab === 'employes' && (
-                <div className="space-y-3">
-                  {employes.length === 0 ? <p className="text-sm text-[#9B9B9B] text-center py-4">Aucun employé déclaré</p> :
-                    employes.map((e, i) => (
-                      <div key={i} className="border border-[#E5E7EB] rounded-xl p-4">
-                        <p className="font-medium text-sm mb-2">{e.prenom} {e.nom} — <span className="text-[#6B6B6B]">{e.emploi_occupe}</span></p>
-                        <div className="grid grid-cols-3 gap-2 text-xs">
-                          <div><span className="text-[#9B9B9B]">Type</span><p>{e.type_employe}</p></div>
-                          <div><span className="text-[#9B9B9B]">Contrat</span><p>{e.type_contrat}</p></div>
-                          <div><span className="text-[#9B9B9B]">Salaire</span><p>{e.salaire_base ? `${Number(e.salaire_base).toLocaleString()} DJF` : '—'}</p></div>
-                          <div><span className="text-[#9B9B9B]">Nom mère</span><p>{e.nom_mere || '—'}</p></div>
-                          <div><span className="text-[#9B9B9B]">Matricule CNSS</span><p>{e.matricule_cnss || '—'}</p></div>
-                          <div><span className="text-[#9B9B9B]">Embauche</span><p>{e.date_embauche || '—'}</p></div>
-                        </div>
-                      </div>
-                    ))
-                  }
-                </div>
-              )}
-
-              {activeTab === 'documents' && (
-                <div className="space-y-3">
-                  {Object.entries(docs).map(([key, url]) => url && (
-                    <a key={key} href={url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F9F9F9] transition-all">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm capitalize">{key.replace(/_url$/, '').replace(/_/g, ' ')}</span>
-                      <ChevronRight className="w-4 h-4 text-[#9B9B9B] ml-auto" />
-                    </a>
-                  ))}
-                  <div className="flex gap-2 mt-2">
-                    <Button variant="outline" size="sm" onClick={() => generateFormulairePDF(stepData, selected.envelope_id)} className="text-xs">
-                      <Download className="w-3.5 h-3.5 mr-1" /> Formulaire GUI PDF
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => generateStatutsPDF(stepData, selected.envelope_id)} className="text-xs">
-                      <Download className="w-3.5 h-3.5 mr-1" /> Statuts PDF
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Admin comment + actions */}
-              <div className="border-t border-[#E5E7EB] pt-4 space-y-3">
-                <div>
-                  <Label className="text-sm font-medium">Commentaire de suivi</Label>
-                  <Textarea value={comment} onChange={e => setComment(e.target.value)}
-                    placeholder="Ajoutez un commentaire visible par le demandeur..." rows={3} className="mt-1" />
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  <Button onClick={() => handleAction(selected.id, 'En cours de traitement')} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs">
-                    <Clock className="w-3.5 h-3.5 mr-1" /> En cours de traitement
-                  </Button>
-                  <Button onClick={() => handleAction(selected.id, 'Modification requise')} variant="outline" className="text-orange-600 border-orange-200 hover:bg-orange-50 text-xs">
-                    <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Modification requise
-                  </Button>
-                  <Button onClick={() => handleAction(selected.id, 'Rejeté')} className="bg-red-600 hover:bg-red-700 text-white text-xs">
-                    <XCircle className="w-3.5 h-3.5 mr-1" /> Rejeter
-                  </Button>
-                  <Button onClick={() => handleAction(selected.id, 'Validé')} className="bg-green-600 hover:bg-green-700 text-white text-xs">
-                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Valider le dossier
-                  </Button>
-                </div>
-              </div>
+              </tbody>
+            </table>
+          </div>
+          {filtered.length > 0 && (
+            <div className="px-4 py-3 border-t border-[#F0F0F0] text-xs text-[#9B9B9B]">
+              {filtered.length} dossier{filtered.length > 1 ? 's' : ''} affiché{filtered.length > 1 ? 's' : ''}
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
     </div>
   );
 }
