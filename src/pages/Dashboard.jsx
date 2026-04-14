@@ -27,6 +27,11 @@ export default function Dashboard() {
     queryFn: () => meras.entities.Employee.list(),
   });
   
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => meras.auth.me(),
+  });
+
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
     queryKey: ['companies'],
     queryFn: () => meras.entities.Company.list(),
@@ -34,12 +39,12 @@ export default function Dashboard() {
   
   const company = companies[0] || {};
 
-  // Redirect new users to onboarding wizard
+  // Redirect non-admin users with no company to onboarding
   React.useEffect(() => {
-    if (!loadingCompanies && companies.length === 0) {
+    if (!loadingCompanies && companies.length === 0 && user && user.role !== 'admin') {
       navigate('/onboarding');
     }
-  }, [loadingCompanies, companies.length, navigate]);
+  }, [loadingCompanies, companies.length, user, navigate]);
   
   const { data: cycles = [] } = useQuery({
     queryKey: ['payroll-cycles'],
@@ -238,7 +243,37 @@ export default function Dashboard() {
         />
 
         {/* No Company Alert */}
-        {companies.length === 0 && (
+        {companies.length === 0 && user?.role === 'admin' && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Card className="border border-[#1A2B6B]/20 bg-gradient-to-r from-[#1A2B6B]/5 to-blue-50 swan-shadow">
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-[#1A2B6B] flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[#1A1A1A] tracking-tight">Portail Administrateur ANPI</h3>
+                      <p className="text-sm text-[#6B6B6B] mt-1 font-normal">
+                        Gérez les dossiers d'enregistrement d'entreprises depuis le portail admin
+                      </p>
+                    </div>
+                  </div>
+                  <Link to="/AdminPortal">
+                    <Button className="bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white w-full sm:w-auto">
+                      <ArrowRight className="w-4 h-4 mr-2" /> Accéder au Portail Admin
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+        {companies.length === 0 && user?.role !== 'admin' && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
