@@ -256,9 +256,12 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
               {/* REPRÉSENTANT */}
               {activeTab === 'representant' && (
                 <div className="space-y-4">
-                  <Badge className={repType === 'notaire' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}>
-                    {repType === 'notaire' ? 'Représentant moral (Notaire)' : 'Représentant physique'}
+                  <Badge className={identification.entity_type === 'morale' ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'}>
+                    {identification.entity_type === 'morale' ? 'Personne Morale' : 'Personne Physique'}
                   </Badge>
+                  {identification.via_notaire && (
+                    <Badge className="bg-amber-100 text-amber-700">Via Notaire / Mandataire</Badge>
+                  )}
                   {repType === 'physique' ? (
                     <>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

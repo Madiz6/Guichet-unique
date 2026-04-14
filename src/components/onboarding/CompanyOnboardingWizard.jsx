@@ -45,8 +45,8 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
   const validateCurrentStep = () => {
     const data = stepData[step.id];
     if (step.id === 'identification') {
-      const repType = data?.rep_type || 'physique';
-      if (repType === 'notaire') return !!(data?.notaire?.nom && data?.notaire?.rcs);
+      if (!data?.entity_type || data?.via_notaire === null || data?.via_notaire === undefined) return false;
+      if (data.via_notaire) return !!(data?.notaire?.nom && data?.notaire?.rcs);
       return !!(data?.document_url && data?.data?.nom);
     }
     if (step.id === 'attestation') return !!(data?.signed && data?.accepted);
