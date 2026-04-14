@@ -155,11 +155,11 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       <div className="bg-white border-b border-[#E5E7EB] px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png"
-              alt="Paie360" className="w-8 h-8 object-contain" />
+            <img src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/c259d5408_Untitled-design-1.png"
+              alt="Guichet UN" className="w-8 h-8 object-contain" />
             <div>
-              <h1 className="font-semibold text-[#1A1A1A]">Enregistrement d'entreprise</h1>
-              <p className="text-xs text-[#6B6B6B]">Guichet Unique ANPI — Djibouti</p>
+              <h1 className="font-semibold text-[#1A1A1A]">Guichet UN</h1>
+              <p className="text-xs text-[#6B6B6B]">Enregistrement d'entreprise — ANPI Djibouti</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

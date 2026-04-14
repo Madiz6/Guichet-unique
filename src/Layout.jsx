@@ -78,12 +78,12 @@ export default function Layout({ children, currentPageName }) {
           <SidebarHeader className="border-b border-[#F0F0F0] p-6">
             <Link to={createPageUrl("Home")} className="flex items-center gap-3">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
-                  alt="Paie360 Logo" 
+                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/c259d5408_Untitled-design-1.png" 
+                  alt="Guichet UN Logo" 
                   className="w-10 h-10 object-contain"
                 />
                 <div>
-                  <h2 className="font-semibold text-[#1A1A1A] text-lg tracking-tight">Paie360</h2>
+                  <h2 className="font-semibold text-[#1A1A1A] text-lg tracking-tight">Guichet UN</h2>
                   <p className="text-xs text-[#6B6B6B] font-normal">Powered by Meras PSP</p>
                 </div>
               </Link>
@@ -131,12 +131,12 @@ export default function Layout({ children, currentPageName }) {
                 <SidebarTrigger className="hover:bg-[#F5F5F5] p-2 rounded-lg transition-colors duration-200 touch-target" />
                 <Link to={createPageUrl("Home")} className="flex items-center gap-2 select-none">
                   <img 
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
-                    alt="Paie360 Logo" 
+                    src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/c259d5408_Untitled-design-1.png" 
+                    alt="Guichet UN Logo" 
                     className="w-8 h-8 object-contain"
                   />
                   <div>
-                    <h1 className="text-lg font-semibold text-[#1A1A1A] tracking-tight">Paie360</h1>
+                    <h1 className="text-lg font-semibold text-[#1A1A1A] tracking-tight">Guichet UN</h1>
                     <p className="text-[10px] text-[#6B6B6B] -mt-1 font-normal">Powered by Meras PSP</p>
                   </div>
                 </Link>

@@ -48,11 +48,11 @@ export default function Home() {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
               <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
-                alt="Paie360" 
+                src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/c259d5408_Untitled-design-1.png" 
+                alt="Guichet UN" 
                 className="w-10 h-10"
               />
-              <span className="text-2xl font-bold text-gray-900">Paie360</span>
+              <span className="text-2xl font-bold text-gray-900">Guichet UN</span>
             </div>
             
             <div className="hidden md:flex items-center gap-8">
@@ -734,11 +734,11 @@ export default function Home() {
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-6">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68f0ad9dc27bcf0743295786/b5d1a4740_brandmark-design-26.png" 
-                  alt="Logo" 
+                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/c259d5408_Untitled-design-1.png" 
+                  alt="Guichet UN" 
                   className="w-10 h-10"
                 />
-                <span className="text-2xl font-bold text-gray-900">Paie360</span>
+                <span className="text-2xl font-bold text-gray-900">Guichet UN</span>
               </div>
               <p className="text-gray-600 max-w-md">
                 La solution RH complète pour les entreprises Djiboutiennes
@@ -765,7 +765,7 @@ export default function Home() {
           </div>
           
           <div className="border-t pt-8 text-center text-gray-600">
-            <p>© 2025 Paie360. Powered by <span className="text-purple-600 font-bold">Meras PSP</span></p>
+            <p>© 2025 Guichet UN. Powered by <span className="text-purple-600 font-bold">Meras PSP</span></p>
           </div>
         </div>
       </footer>
