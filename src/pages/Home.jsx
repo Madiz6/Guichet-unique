@@ -48,7 +48,7 @@ export default function Home() {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
               <img 
-                src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/c259d5408_Untitled-design-1.png" 
+                src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png" 
                 alt="Guichet UN" 
                 className="w-10 h-10"
               />
@@ -734,7 +734,7 @@ export default function Home() {
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-6">
                 <img 
-                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/c259d5408_Untitled-design-1.png" 
+                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png" 
                   alt="Guichet UN" 
                   className="w-10 h-10"
                 />

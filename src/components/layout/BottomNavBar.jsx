@@ -107,11 +107,19 @@ export default function BottomNavBar() {
               className="flex-1 flex flex-col items-center justify-center py-2 gap-1 select-none relative bg-transparent border-0 cursor-pointer"
               style={{ minHeight: 56 }}
             >
-              <tab.icon
-                className={`w-5 h-5 transition-colors ${
-                  isActive ? "text-[#1A1A1A] dark:text-white" : "text-[#9CA3AF]"
-                }`}
-              />
+              {tab.label === "Tableau de bord" ? (
+                <img
+                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+                  alt="Dashboard"
+                  className={`w-6 h-6 object-contain transition-opacity ${isActive ? "opacity-100" : "opacity-40"}`}
+                />
+              ) : (
+                <tab.icon
+                  className={`w-5 h-5 transition-colors ${
+                    isActive ? "text-[#1A1A1A] dark:text-white" : "text-[#9CA3AF]"
+                  }`}
+                />
+              )}
               <span
                 className={`text-[10px] font-medium transition-colors leading-tight text-center ${
                   isActive ? "text-[#1A1A1A] dark:text-white" : "text-[#9CA3AF]"
