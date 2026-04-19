@@ -108,12 +108,12 @@ function IdDocUploader({ data, onChange, showBiometric }) {
         <div className="flex gap-3 mb-4">
           {[{ val: 'cni', label: "Carte d'identité" }, { val: 'passeport', label: 'Passeport' }].map(({ val, label }) => (
             <button key={val} type="button" onClick={() => handleDocTypeChange(val)}
-              className={`px-4 py-2 rounded-lg text-sm border transition-all ${docType === val ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]' : 'bg-white text-[#6B6B6B] border-[#E5E7EB] hover:border-[#1A1A1A]'}`}>
+              className={`px-4 py-2.5 rounded-xl text-sm border transition-all active:scale-[0.97] min-h-[44px] ${docType === val ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]' : 'bg-white text-[#6B6B6B] border-[#E5E7EB]'}`}>
               {label}
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {sides.map(({ side, label, urlKey }) => (
             <div key={side}>
               <p className="text-xs font-medium text-[#6B6B6B] mb-2">{label}{side === 'front' && <span className="text-red-500 ml-1">*</span>}</p>
@@ -128,7 +128,7 @@ function IdDocUploader({ data, onChange, showBiometric }) {
                   <img src={data[urlKey]} alt={label} className="mt-2 w-full h-24 object-cover rounded border border-green-200" onError={e => { e.target.style.display = 'none'; }} />
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-all h-32">
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-6 cursor-pointer hover:border-blue-400 active:border-blue-500 transition-all h-36 sm:h-32">
                   {uploading[side] ? (
                     <div className="flex flex-col items-center gap-2"><Loader2 className="w-5 h-5 animate-spin text-blue-600" /><span className="text-xs text-[#6B6B6B]">Téléchargement...</span></div>
                   ) : (extracting && side === 'front') ? (
@@ -180,8 +180,8 @@ function IdDocUploader({ data, onChange, showBiometric }) {
       {data.document_url && (
         <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
           <h3 className="font-medium text-[#1A1A1A] mb-4">Informations extraites</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {EXTRACT_FIELDS.map(f => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {EXTRACT_FIELDS.map(f => (
               <div key={f.k}>
                 <Label className="text-xs text-[#6B6B6B]">{f.label}</Label>
                 {f.k === 'telephone' ? (
@@ -215,7 +215,7 @@ function NotaireForm({ notaire, onChange }) {
       <h3 className="font-medium text-[#1A1A1A] flex items-center gap-2">
         <Scale className="w-4 h-4 text-amber-600" /> Informations du Notaire / Mandataire
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label className="text-xs text-[#6B6B6B]">Nom complet du notaire <span className="text-red-500">*</span></Label>
           <Input value={notaire.nom || ''} onChange={e => update('nom', e.target.value)} className="mt-1 text-sm" placeholder="Nom complet" />
@@ -280,30 +280,31 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
         <Label className="text-sm font-semibold text-[#1A1A1A] mb-3 block">
           1. Type d'entité à enregistrer <span className="text-red-500">*</span>
         </Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             {
               val: 'physique',
               label: 'Personne Physique',
-              desc: 'Entrepreneur individuel, commerçant, artisan — agissant en son nom propre',
+              desc: 'Entrepreneur individuel, commerçant, artisan',
               Icon: User,
             },
             {
               val: 'morale',
               label: 'Personne Morale',
-              desc: 'Société (SARL, SA, SAS…), association ou autre entité juridique',
+              desc: 'Société (SARL, SA, SAS…), association',
               Icon: Building2,
             },
           ].map(({ val, label, desc, Icon }) => (
             <button key={val} type="button" onClick={() => setEntityType(val)}
-              className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${entityType === val ? 'border-[#1A1A1A] bg-[#F9F9F9]' : 'border-[#E5E7EB] hover:border-[#C4C4C4]'}`}>
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${entityType === val ? 'bg-[#1A1A1A] text-white' : 'bg-[#F5F5F5] text-[#6B6B6B]'}`}>
-                <Icon className="w-4 h-4" />
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all active:scale-[0.98] ${entityType === val ? 'border-[#1A1A1A] bg-[#F9F9F9]' : 'border-[#E5E7EB]'}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${entityType === val ? 'bg-[#1A1A1A] text-white' : 'bg-[#F5F5F5] text-[#6B6B6B]'}`}>
+                <Icon className="w-5 h-5" />
               </div>
               <div>
                 <p className="font-semibold text-sm text-[#1A1A1A]">{label}</p>
-                <p className="text-xs text-[#9B9B9B] mt-0.5">{desc}</p>
+                <p className="text-xs text-[#9B9B9B] mt-0.5 leading-snug">{desc}</p>
               </div>
+              {entityType === val && <CheckCircle2 className="w-5 h-5 text-[#1A1A1A] ml-auto shrink-0" />}
             </button>
           ))}
         </div>
@@ -315,34 +316,35 @@ export default function IdentificationStep({ value, onChange, showBiometric }) {
           <Label className="text-sm font-semibold text-[#1A1A1A] mb-3 block">
             2. Mode d'enregistrement <span className="text-red-500">*</span>
           </Label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               {
                 val: false,
                 label: 'Je m\'enregistre moi-même',
                 desc: entityType === 'physique'
-                  ? 'Vous remplissez et soumettez le dossier en personne'
-                  : 'Le représentant légal de la société soumet le dossier directement',
+                  ? 'Vous soumettez le dossier en personne'
+                  : 'Le représentant légal soumet directement',
                 Icon: User,
                 color: 'blue',
               },
               {
                 val: true,
                 label: 'Via un notaire / mandataire',
-                desc: 'Un notaire ou mandataire agréé effectue les démarches à votre place avec procuration',
+                desc: 'Un notaire agréé agit en votre nom avec procuration',
                 Icon: Scale,
                 color: 'amber',
               },
             ].map(({ val, label, desc, Icon, color }) => (
               <button key={String(val)} type="button" onClick={() => setViaNotaire(val)}
-                className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${viaNotaire === val ? 'border-[#1A1A1A] bg-[#F9F9F9]' : 'border-[#E5E7EB] hover:border-[#C4C4C4]'}`}>
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${viaNotaire === val ? 'bg-[#1A1A1A] text-white' : color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'}`}>
-                  <Icon className="w-4 h-4" />
+                className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all active:scale-[0.98] ${viaNotaire === val ? 'border-[#1A1A1A] bg-[#F9F9F9]' : 'border-[#E5E7EB]'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${viaNotaire === val ? 'bg-[#1A1A1A] text-white' : color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'}`}>
+                  <Icon className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="font-semibold text-sm text-[#1A1A1A]">{label}</p>
-                  <p className="text-xs text-[#9B9B9B] mt-0.5">{desc}</p>
+                  <p className="text-xs text-[#9B9B9B] mt-0.5 leading-snug">{desc}</p>
                 </div>
+                {viaNotaire === val && <CheckCircle2 className="w-5 h-5 text-[#1A1A1A] ml-auto shrink-0" />}
               </button>
             ))}
           </div>
