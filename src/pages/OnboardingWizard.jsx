@@ -4,10 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { meras } from '@/components/core/MerasClient';
 import { PlusCircle } from 'lucide-react';
 import CompanyOnboardingWizard from '../components/onboarding/CompanyOnboardingWizard';
+import OnboardingSplash from '../components/onboarding/OnboardingSplash';
 
 export default function OnboardingWizard() {
   const navigate = useNavigate();
   const [choice, setChoice] = useState(null);
+  const [showSplash, setShowSplash] = useState(false);
 
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ['companies-onboarding'],
@@ -24,6 +26,10 @@ export default function OnboardingWizard() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
     </div>
+  );
+
+  if (showSplash) return (
+    <OnboardingSplash onComplete={() => { setShowSplash(false); setChoice('create'); }} />
   );
 
   if (choice === 'create') return (
@@ -44,7 +50,7 @@ export default function OnboardingWizard() {
 
       <div className="flex gap-6 flex-wrap justify-center">
         <button
-          onClick={() => setChoice('create')}
+          onClick={() => setShowSplash(true)}
           className="w-64 p-8 bg-white border border-[#E5E7EB] rounded-2xl hover:border-[#3B6D11] hover:shadow-lg transition-all text-center group cursor-pointer"
         >
           <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition-colors">
