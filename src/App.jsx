@@ -11,6 +11,7 @@ import OnboardingWizard from './pages/OnboardingWizard';
 import AdminPortal from './pages/AdminPortal';
 import MesDossiers from './pages/MesDossiers';
 import AdminOverview from './pages/AdminOverview';
+import ActesModificatifs from './pages/ActesModificatifs';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { AnimatePresence } from 'framer-motion';
@@ -67,6 +68,7 @@ const AuthenticatedApp = () => {
         <Route path="/onboarding" element={<OnboardingWizard />} />
         <Route path="/AdminPortal" element={<LayoutWrapper currentPageName="AdminPortal"><AdminPortal /></LayoutWrapper>} />
         <Route path="/MesDossiers" element={<LayoutWrapper currentPageName="MesDossiers"><MesDossiers /></LayoutWrapper>} />
+        <Route path="/ActesModificatifs" element={<LayoutWrapper currentPageName="ActesModificatifs"><ActesModificatifs /></LayoutWrapper>} />
         <Route
           path="/AdminOverview"
           element={

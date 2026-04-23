@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Home, FileText, Globe, Building2, Shield } from "lucide-react";
+import { Home, FileText, Globe, Building2, Shield, FilePen } from "lucide-react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import AdminCompanyBanner from "@/components/layout/AdminCompanyBanner";
 import MobileBackButton from "@/components/layout/MobileBackButton";
@@ -66,6 +66,7 @@ export default function Layout({ children, currentPageName }) {
       items: [
         { title: "Portail Admin ANPI", url: "/AdminPortal", icon: Globe },
         { title: "Vue Globale Admin", url: "/AdminOverview", icon: Building2 },
+        { title: "Actes Modificatifs", url: "/ActesModificatifs", icon: FilePen },
         { title: "Sécurité", url: createPageUrl("SecurityDocumentation"), icon: Shield },
       ]
     }] : []),
