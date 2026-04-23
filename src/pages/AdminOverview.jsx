@@ -10,6 +10,7 @@ import {
   Building2, Users, Eye, Search, ShieldCheck, Globe,
   BarChart3, TrendingUp, DollarSign, ArrowRight, X, RefreshCw
 } from 'lucide-react';
+import KYCComplianceBadge from '@/components/admin/KYCComplianceBadge';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -244,6 +245,8 @@ export default function AdminOverview() {
                             <><Eye className="w-3 h-3 mr-1" /> Voir cette entreprise</>
                           )}
                         </Button>
+
+                        <KYCComplianceBadge company={company} />
                       </CardContent>
                     </Card>
                   );
