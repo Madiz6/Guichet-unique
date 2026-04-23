@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { generateFormulairePDF, generateStatutsPDF } from '@/components/onboarding/PDFGenerator.jsx';
 import ApprovalWorkflow from '@/components/admin/ApprovalWorkflow.jsx';
+import ShareholderTree from '@/components/onboarding/ShareholderTree.jsx';
 
 const STATUS_COLORS = {
   'En attente': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -75,6 +76,48 @@ const TABS = [
   { id: 'attestation', label: 'Attestation', icon: Shield },
   { id: 'documents', label: 'Documents', icon: FileText },
 ];
+
+function UBOAdminPanel({ partner }) {
+  const percent = parseFloat(partner.part_percent) || 0;
+  const isUBO = percent >= 25 || partner.ubo_manual === true;
+  if (!isUBO) return null;
+  const isPEP = partner.pep_status === true;
+  return (
+    <div className={`mt-3 p-3 rounded-xl border ${isPEP ? 'border-red-300 bg-red-50' : 'border-amber-200 bg-amber-50'}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <Shield className="w-3.5 h-3.5 text-amber-500" />
+        <span className="text-xs font-semibold text-[#1A1A1A]">Bénéficiaire Effectif (UBO)</span>
+        {isPEP && <span className="text-[10px] bg-red-200 text-red-700 rounded-full px-1.5 py-0.5 flex items-center gap-0.5"><AlertTriangle className="w-2.5 h-2.5" /> PEP — Diligence renforcée</span>}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px]">
+        <div className="p-2 bg-white rounded-lg border border-[#E5E7EB]">
+          <p className="text-[#9B9B9B]">Part capital</p>
+          <p className="font-bold text-[#1A1A1A]">{percent}%</p>
+        </div>
+        <div className="p-2 bg-white rounded-lg border border-[#E5E7EB]">
+          <p className="text-[#9B9B9B]">Droits de vote</p>
+          <p className="font-bold text-[#1A1A1A]">{partner.voting_rights_percent || '—'}%</p>
+        </div>
+        <div className="p-2 bg-white rounded-lg border border-[#E5E7EB]">
+          <p className="text-[#9B9B9B]">Contrôle indirect</p>
+          <p className="font-bold text-[#1A1A1A]">{partner.indirect_control === 'oui' ? `Oui — ${partner.controlling_entity_name || '?'}` : 'Non'}</p>
+        </div>
+        <div className="p-2 bg-white rounded-lg border border-[#E5E7EB]">
+          <p className="text-[#9B9B9B]">PPE/PEP</p>
+          <p className={`font-bold ${isPEP ? 'text-red-600' : 'text-green-600'}`}>{isPEP ? 'OUI ⚠' : 'Non'}</p>
+        </div>
+        <div className="p-2 bg-white rounded-lg border border-[#E5E7EB]">
+          <p className="text-[#9B9B9B]">Sanctions</p>
+          <p className={`font-bold ${partner.sanctions_clear ? 'text-green-600' : 'text-amber-600'}`}>{partner.sanctions_clear ? '✓ Déclarée conforme' : '⚠ Non déclarée'}</p>
+        </div>
+        <div className="p-2 bg-white rounded-lg border border-[#E5E7EB] col-span-2">
+          <p className="text-[#9B9B9B]">Déclaration UBO signée</p>
+          <p className={`font-bold ${partner.ubo_declaration_signed ? 'text-green-600' : 'text-red-500'}`}>{partner.ubo_declaration_signed ? '✓ Signée' : '✗ Non signée'}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
   const [activeTab, setActiveTab] = useState('representant');
@@ -346,6 +389,10 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
               {/* PARTENAIRES */}
               {activeTab === 'partenaires' && (
                 <div className="space-y-4">
+                  {/* Shareholder Tree */}
+                  {partenaires.length > 0 && (
+                    <ShareholderTree partners={partenaires} companyName={localDossier.company_name || 'Société'} />
+                  )}
                   {partenaires.length === 0 ? (
                     <div className="text-center py-10 text-[#9B9B9B]">
                       <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -378,6 +425,7 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
                             <DocImage url={p.doc_front} label="Pièce d'identité — Recto" />
                             <DocImage url={p.doc_back} label="Pièce d'identité — Verso" />
                           </div>
+                          <UBOAdminPanel partner={p} />
                         </>
                       ) : (
                         <>
@@ -390,6 +438,7 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
                           <DocLink url={p.registre_url} label="Registre de commerce" />
                           <DocLink url={p.statuts_url} label="Statuts certifiés" />
                           <DocLink url={p.decision_url} label="Décision de création succursale" />
+                          <UBOAdminPanel partner={p} />
                           {(p.rep_nom || p.rep_prenom) && (
                             <div className="border-t border-[#E5E7EB] pt-3">
                               <p className="text-xs font-semibold text-[#6B6B6B] mb-2">Représentant de la société</p>

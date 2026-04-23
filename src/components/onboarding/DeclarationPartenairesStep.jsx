@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PhoneInput from './PhoneInput.jsx';
 import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw } from 'lucide-react';
+import UBOSection from './UBOSection.jsx';
+import ShareholderTree from './ShareholderTree.jsx';
 import { toast } from 'sonner';
 
 const EXTRACT_FIELDS = [
@@ -306,6 +308,7 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                       <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" placeholder="0" />
                     </div>
                   </div>
+                  <UBOSection partner={p} index={i} setField={setField} />
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -345,11 +348,17 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                     <p className="text-sm font-medium text-[#1A1A1A] mb-3">Représentant de la société actionnaire</p>
                     {renderPersonFields(p, i, 'rep_')}
                   </div>
+                  <UBOSection partner={p} index={i} setField={setField} />
                 </div>
               )}
             </div>
           ))}
         </div>
+      )}
+
+      {/* Shareholder Tree — shown when 2+ partners or any UBO */}
+      {partners.length >= 1 && (
+        <ShareholderTree partners={partners} companyName="Société en cours de création" />
       )}
     </div>
   );
