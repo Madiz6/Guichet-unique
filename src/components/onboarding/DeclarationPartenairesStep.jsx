@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PhoneInput from './PhoneInput.jsx';
+import CountrySelect, { COUNTRIES } from './CountrySelect.jsx';
 import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw } from 'lucide-react';
 import UBOSection from './UBOSection.jsx';
 import MoraleUBOSection from './MoraleUBOSection.jsx';
@@ -16,8 +17,8 @@ const EXTRACT_FIELDS = [
   { k: 'nni', label: 'NNI' },
   { k: 'date_naissance', label: 'Date de naissance', type: 'date' },
   { k: 'lieu_naissance', label: 'Lieu de naissance' },
-  { k: 'nationalite', label: 'Nationalité' },
-  { k: 'sexe', label: 'Sexe' },
+  { k: 'nationalite', label: 'Nationalité', type: 'country' },
+  { k: 'sexe', label: 'Sexe', type: 'sexe' },
   { k: 'numero_identite', label: "N° d'identité" },
   { k: 'date_emission', label: "Date d'émission", type: 'date' },
   { k: 'date_expiration', label: "Date d'expiration", type: 'date' },
@@ -248,7 +249,20 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
           {EXTRACT_FIELDS.map(f => (
             <div key={f.k}>
               <Label className="text-xs text-[#6B6B6B]">{f.label}</Label>
-              <Input type={f.type || 'text'} value={p[fk(f.k)] || ''} onChange={e => setField(i, fk(f.k), e.target.value)} className="mt-1 text-sm" />
+              {f.type === 'country' ? (
+                <div className="mt-1">
+                  <CountrySelect value={p[fk(f.k)] || ''} onChange={v => setField(i, fk(f.k), v)} placeholder="Sélectionner une nationalité" />
+                </div>
+              ) : f.type === 'sexe' ? (
+                <select value={p[fk(f.k)] || ''} onChange={e => setField(i, fk(f.k), e.target.value)}
+                  className="mt-1 w-full border border-input rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-ring">
+                  <option value="">— Sélectionner —</option>
+                  <option value="Masculin">Masculin</option>
+                  <option value="Féminin">Féminin</option>
+                </select>
+              ) : (
+                <Input type={f.type || 'text'} value={p[fk(f.k)] || ''} onChange={e => setField(i, fk(f.k), e.target.value)} className="mt-1 text-sm" />
+              )}
             </div>
           ))}
           <div>
@@ -338,7 +352,9 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                       </div>
                       <div>
                         <Label className="text-xs">Pays d'immatriculation <span className="text-red-500">*</span></Label>
-                        <Input value={p.pays_immatriculation || ''} onChange={e => setField(i, 'pays_immatriculation', e.target.value)} className="mt-1 text-sm" placeholder="Ex: France, Djibouti..." />
+                        <div className="mt-1">
+                          <CountrySelect value={p.pays_immatriculation || ''} onChange={v => setField(i, 'pays_immatriculation', v)} placeholder="Sélectionner un pays" required />
+                        </div>
                       </div>
                       <div>
                         <Label className="text-xs">N° immatriculation (RCS / RCCM)</Label>
