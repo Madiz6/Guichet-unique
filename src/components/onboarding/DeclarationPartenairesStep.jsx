@@ -27,12 +27,19 @@ const EXTRACT_FIELDS = [
   { k: 'email', label: 'Email', type: 'email' },
 ];
 
+const emptyUBO = () => ({
+  ubo_manual: false, voting_rights_percent: '', indirect_control: '',
+  controlling_entity_name: '', pep_status: null, sanctions_clear: false,
+  ubo_declaration_signed: false,
+});
+
 const emptyPhysique = () => ({
   type: 'physique', nom: '', prenom: '', nni: '', email: '', telephone: '',
   adresse: '', nationalite: '', date_naissance: '', lieu_naissance: '', sexe: '',
   numero_identite: '', date_emission: '', date_expiration: '', profession: '',
   pere_nom: '', mere_nom: '', part_percent: '', apport: '',
-  doc_front: '', doc_back: ''
+  doc_front: '', doc_back: '',
+  ...emptyUBO(),
 });
 
 const emptyMorale = () => ({
@@ -42,7 +49,8 @@ const emptyMorale = () => ({
   rep_adresse: '', rep_nationalite: '', rep_date_naissance: '', rep_lieu_naissance: '',
   rep_sexe: '', rep_numero_identite: '', rep_date_emission: '', rep_date_expiration: '',
   rep_profession: '', rep_pere_nom: '', rep_mere_nom: '',
-  rep_doc_front: '', rep_doc_back: ''
+  rep_doc_front: '', rep_doc_back: '',
+  ...emptyUBO(),
 });
 
 function DocUpload({ label, onUploaded }) {

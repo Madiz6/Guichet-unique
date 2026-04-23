@@ -74,11 +74,12 @@ function PartnerNode({ partner, companyName }) {
 }
 
 export default function ShareholderTree({ partners = [], companyName = 'Soci√©t√©' }) {
-  if (partners.length === 0) return null;
+  const validPartners = partners.filter(Boolean);
+  if (validPartners.length === 0) return null;
 
-  const total = partners.reduce((s, p) => s + (parseFloat(p.part_percent) || 0), 0);
-  const ubos = partners.filter(p => parseFloat(p.part_percent) >= 25 || p.ubo_manual === true);
-  const peps = partners.filter(p => p.pep_status === true);
+  const total = validPartners.reduce((s, p) => s + (parseFloat(p.part_percent) || 0), 0);
+  const ubos = validPartners.filter(p => parseFloat(p.part_percent) >= 25 || p.ubo_manual === true);
+  const peps = validPartners.filter(p => p.pep_status === true);
 
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
@@ -112,7 +113,7 @@ export default function ShareholderTree({ partners = [], companyName = 'Soci√©t√
 
         {/* Connector + children */}
         <div className="flex items-start gap-4 mt-0 flex-wrap justify-center">
-          {partners.map((partner, i) => (
+          {validPartners.map((partner, i) => (
             <PartnerNode key={i} partner={partner} companyName={companyName} />
           ))}
         </div>
@@ -142,7 +143,7 @@ export default function ShareholderTree({ partners = [], companyName = 'Soci√©t√
         </div>
         {/* Legend */}
         <div className="flex flex-wrap gap-3 mt-2">
-          {partners.map((p, i) => {
+          {validPartners.map((p, i) => {
             const pct = parseFloat(p.part_percent) || 0;
             if (pct === 0) return null;
             const colors = ['bg-blue-400', 'bg-purple-400', 'bg-amber-400', 'bg-green-400', 'bg-pink-400', 'bg-teal-400'];
@@ -167,6 +168,7 @@ export default function ShareholderTree({ partners = [], companyName = 'Soci√©t√
           </p>
           <div className="space-y-2">
             {ubos.map((p, i) => {
+              if (!p) return null;
               const name = p.type === 'physique'
                 ? `${p.prenom || ''} ${p.nom || ''}`.trim()
                 : p.raison_sociale || '';

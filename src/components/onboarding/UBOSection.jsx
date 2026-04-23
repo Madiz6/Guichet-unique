@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Shield, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 
 export default function UBOSection({ partner, index, setField }) {
+  if (!partner) return null;
   const percent = parseFloat(partner.part_percent) || 0;
   const isAutoUBO = percent >= 25;
   const isUBO = isAutoUBO || partner.ubo_manual === true;
