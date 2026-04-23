@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import PhoneInput from './PhoneInput.jsx';
 import CountrySelect, { COUNTRIES } from './CountrySelect.jsx';
 import CompanyLookup from './CompanyLookup.jsx';
-import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw, PencilLine, ChevronDown, ChevronUp } from 'lucide-react';
 import UBOSection from './UBOSection.jsx';
 import MoraleUBOSection from './MoraleUBOSection.jsx';
 import ShareholderTree from './ShareholderTree.jsx';
@@ -222,12 +222,24 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
 export default function DeclarationPartenairesStep({ value, onChange }) {
   const partners = value?.partners || [];
   const total = partners.reduce((s, p) => s + (parseFloat(p.part_percent) || 0), 0);
+  const [manualOpen, setManualOpen] = React.useState({});
 
   const update = (next) => onChange({ partners: next });
   const add = (type) => update([...partners, type === 'physique' ? emptyPhysique() : emptyMorale()]);
   const remove = (i) => update(partners.filter((_, idx) => idx !== i));
   const setField = (i, k, v) => update(partners.map((p, idx) => idx === i ? { ...p, [k]: v } : p));
-  const mergeFields = (i, obj) => update(partners.map((p, idx) => idx === i ? { ...p, ...obj } : p));
+  const mergeFields = (i, obj) => {
+    update(partners.map((p, idx) => idx === i ? { ...p, ...obj } : p));
+    // Auto-open manual section when data is applied from lookup
+    setManualOpen(prev => ({ ...prev, [i]: true }));
+  };
+
+  const isManualOpen = (i) => {
+    if (manualOpen[i] !== undefined) return manualOpen[i];
+    // Default: open if partner already has data
+    const p = partners[i];
+    return !!(p?.raison_sociale || p?.rcs || p?.pays_immatriculation);
+  };
 
   const renderPersonFields = (p, i, keyPrefix) => {
     const fk = (k) => keyPrefix ? `${keyPrefix}${k}` : k;
@@ -345,45 +357,67 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                     onApply={data => mergeFields(i, data)}
                   />
 
-                  {/* ── Corporate Identity ── */}
-                  <div>
-                    <p className="text-xs font-bold text-[#6B6B6B] uppercase tracking-wide mb-2">Identité de la société actionnaire</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="md:col-span-2">
-                        <Label className="text-xs">Raison sociale <span className="text-red-500">*</span></Label>
-                        <Input value={p.raison_sociale || ''} onChange={e => setField(i, 'raison_sociale', e.target.value)} className="mt-1 text-sm" />
+                  {/* ── Manual Entry Toggle ── */}
+                  <div className="border border-[#E5E7EB] rounded-xl overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setManualOpen(prev => ({ ...prev, [i]: !isManualOpen(i) }))}
+                      className="w-full flex items-center justify-between px-4 py-3 bg-[#F9F9F9] hover:bg-[#F0F0F0] transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-2">
+                        <PencilLine className="w-4 h-4 text-[#6B6B6B]" />
+                        <span className="text-xs font-semibold text-[#1A1A1A]">Saisie manuelle des informations</span>
+                        {p.raison_sociale && (
+                          <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{p.raison_sociale}</span>
+                        )}
                       </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-xs">Siège social (adresse complète)</Label>
-                        <Input value={p.siege_social || ''} onChange={e => setField(i, 'siege_social', e.target.value)} className="mt-1 text-sm" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Pays d'immatriculation <span className="text-red-500">*</span></Label>
-                        <div className="mt-1">
-                          <CountrySelect value={p.pays_immatriculation || ''} onChange={v => setField(i, 'pays_immatriculation', v)} placeholder="Sélectionner un pays" required />
+                      {isManualOpen(i)
+                        ? <ChevronUp className="w-4 h-4 text-[#9B9B9B]" />
+                        : <ChevronDown className="w-4 h-4 text-[#9B9B9B]" />
+                      }
+                    </button>
+
+                    {isManualOpen(i) && (
+                      <div className="p-4 space-y-3">
+                        <p className="text-xs text-[#9B9B9B]">Remplissez manuellement si la recherche automatique n'a pas trouvé les informations.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="md:col-span-2">
+                            <Label className="text-xs">Raison sociale <span className="text-red-500">*</span></Label>
+                            <Input value={p.raison_sociale || ''} onChange={e => setField(i, 'raison_sociale', e.target.value)} className="mt-1 text-sm" />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label className="text-xs">Siège social (adresse complète)</Label>
+                            <Input value={p.siege_social || ''} onChange={e => setField(i, 'siege_social', e.target.value)} className="mt-1 text-sm" />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Pays d'immatriculation <span className="text-red-500">*</span></Label>
+                            <div className="mt-1">
+                              <CountrySelect value={p.pays_immatriculation || ''} onChange={v => setField(i, 'pays_immatriculation', v)} placeholder="Sélectionner un pays" required />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs">N° immatriculation (RCS / RCCM)</Label>
+                            <Input value={p.rcs || ''} onChange={e => setField(i, 'rcs', e.target.value)} className="mt-1 text-sm" />
+                          </div>
+                          <div>
+                            <Label className="text-xs">NIF / Identifiant fiscal</Label>
+                            <Input value={p.nif || ''} onChange={e => setField(i, 'nif', e.target.value)} className="mt-1 text-sm" />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Email</Label>
+                            <Input type="email" value={p.email || ''} onChange={e => setField(i, 'email', e.target.value)} className="mt-1 text-sm" />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Part (%) <span className="text-red-500">*</span></Label>
+                            <Input type="number" value={p.part_percent || ''} onChange={e => setField(i, 'part_percent', e.target.value)} className="mt-1 text-sm" />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Apport (DJF)</Label>
+                            <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" />
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <Label className="text-xs">N° immatriculation (RCS / RCCM)</Label>
-                        <Input value={p.rcs || ''} onChange={e => setField(i, 'rcs', e.target.value)} className="mt-1 text-sm" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">NIF / Identifiant fiscal</Label>
-                        <Input value={p.nif || ''} onChange={e => setField(i, 'nif', e.target.value)} className="mt-1 text-sm" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Email</Label>
-                        <Input type="email" value={p.email || ''} onChange={e => setField(i, 'email', e.target.value)} className="mt-1 text-sm" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Part (%) <span className="text-red-500">*</span></Label>
-                        <Input type="number" value={p.part_percent || ''} onChange={e => setField(i, 'part_percent', e.target.value)} className="mt-1 text-sm" />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Apport (DJF)</Label>
-                        <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" />
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* ── Corporate Documents ── */}
