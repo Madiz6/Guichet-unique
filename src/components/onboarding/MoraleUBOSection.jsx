@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import CountrySelect from './CountrySelect.jsx';
+import CompanyLookup from './CompanyLookup.jsx';
 import {
   Shield, AlertTriangle, CheckCircle2, Info, Plus, Trash2,
   User, Upload, Loader2, ScanLine, Building2, Eye, ChevronDown, ChevronUp
@@ -323,6 +324,12 @@ function UBOMoraleForm({ ubo, onChange, onRemove, index }) {
 
       {!collapsed && (
         <>
+          {/* Company Lookup */}
+          <CompanyLookup
+            currentRaisonSociale={ubo.raison_sociale || ''}
+            onApply={data => onChange({ ...ubo, ...data })}
+          />
+
           {/* Corporate identity */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="md:col-span-2">

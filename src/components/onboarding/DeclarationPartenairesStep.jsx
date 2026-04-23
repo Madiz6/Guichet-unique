@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PhoneInput from './PhoneInput.jsx';
 import CountrySelect, { COUNTRIES } from './CountrySelect.jsx';
+import CompanyLookup from './CompanyLookup.jsx';
 import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw } from 'lucide-react';
 import UBOSection from './UBOSection.jsx';
 import MoraleUBOSection from './MoraleUBOSection.jsx';
@@ -338,6 +339,12 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* ── Company Lookup ── */}
+                  <CompanyLookup
+                    currentRaisonSociale={p.raison_sociale || ''}
+                    onApply={data => mergeFields(i, data)}
+                  />
+
                   {/* ── Corporate Identity ── */}
                   <div>
                     <p className="text-xs font-bold text-[#6B6B6B] uppercase tracking-wide mb-2">Identité de la société actionnaire</p>
