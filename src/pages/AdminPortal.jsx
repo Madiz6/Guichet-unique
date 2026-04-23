@@ -19,6 +19,7 @@ import ApprovalWorkflow from '@/components/admin/ApprovalWorkflow.jsx';
 import ShareholderTree from '@/components/onboarding/ShareholderTree.jsx';
 import AMLScreeningPanel from '@/components/admin/AMLScreeningPanel.jsx';
 import DossierEditPanel from '@/components/admin/DossierEditPanel.jsx';
+import ActesModificatifsPanel from '@/components/admin/ActesModificatifsPanel.jsx';
 
 const STATUS_COLORS = {
   'En attente': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -233,6 +234,9 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
               onUpdateDossier(updated);
             }}
           />
+
+          {/* Actes Modificatifs */}
+          <ActesModificatifsPanel dossier={localDossier} user={user} />
 
           {/* AML Screening */}
           <AMLScreeningPanel dossier={localDossier} />

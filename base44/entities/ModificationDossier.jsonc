@@ -1,0 +1,125 @@
+{
+  "name": "ModificationDossier",
+  "type": "object",
+  "properties": {
+    "registration_dossier_id": {
+      "type": "string",
+      "description": "ID du dossier d'enregistrement original"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Nom de l'entreprise"
+    },
+    "envelope_id": {
+      "type": "string",
+      "description": "Envelope ID original"
+    },
+    "applicant_email": {
+      "type": "string",
+      "description": "Email du demandeur"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "physique",
+        "morale"
+      ],
+      "description": "Type d'entit\u00e9"
+    },
+    "type_acte": {
+      "type": "string",
+      "enum": [
+        "Changement si\u00e8ge social",
+        "Changement nom commercial",
+        "Extension objet social",
+        "Changement objet social",
+        "Inscription location-g\u00e9rance",
+        "Cession fonds de commerce",
+        "Changement repr\u00e9sentant l\u00e9gal",
+        "Changement forme juridique",
+        "Nomination administrateurs",
+        "Approbation des comptes",
+        "Dissolution",
+        "Radiation"
+      ],
+      "description": "Type d'acte modificatif"
+    },
+    "description_modification": {
+      "type": "string",
+      "description": "Description d\u00e9taill\u00e9e"
+    },
+    "donnees_modification": {
+      "type": "object",
+      "description": "Nouvelles donn\u00e9es selon le type d'acte"
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Documents justificatifs"
+    },
+    "via_representant": {
+      "type": "boolean",
+      "default": false
+    },
+    "representant_nom": {
+      "type": "string"
+    },
+    "representant_qualite": {
+      "type": "string",
+      "enum": [
+        "Notaire",
+        "Avocat",
+        "Huissier de justice"
+      ]
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "En cours d'\u00e9tude",
+        "Approuv\u00e9",
+        "Rejet\u00e9"
+      ],
+      "default": "En cours d'\u00e9tude"
+    },
+    "admin_email": {
+      "type": "string"
+    },
+    "admin_comment": {
+      "type": "string"
+    },
+    "recepisse_number": {
+      "type": "string"
+    },
+    "montant_redevance": {
+      "type": "number"
+    },
+    "redevance_payee": {
+      "type": "boolean",
+      "default": false
+    },
+    "date_soumission": {
+      "type": "string",
+      "format": "date"
+    },
+    "date_traitement": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "registration_dossier_id",
+    "company_name",
+    "applicant_email",
+    "type_acte"
+  ]
+}
