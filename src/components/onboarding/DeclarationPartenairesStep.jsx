@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import PhoneInput from './PhoneInput.jsx';
 import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw } from 'lucide-react';
 import UBOSection from './UBOSection.jsx';
+import MoraleUBOSection from './MoraleUBOSection.jsx';
 import ShareholderTree from './ShareholderTree.jsx';
 import { toast } from 'sonner';
 
@@ -43,13 +44,16 @@ const emptyPhysique = () => ({
 });
 
 const emptyMorale = () => ({
-  type: 'morale', raison_sociale: '', siege_social: '', rcs: '', email: '',
+  type: 'morale', raison_sociale: '', siege_social: '', rcs: '', nif: '',
+  pays_immatriculation: '', email: '', telephone: '',
   part_percent: '', apport: '', registre_url: '', statuts_url: '', decision_url: '',
+  liste_dirigeants_url: '', organigramme_url: '',
   rep_nom: '', rep_prenom: '', rep_nni: '', rep_email: '', rep_telephone: '',
   rep_adresse: '', rep_nationalite: '', rep_date_naissance: '', rep_lieu_naissance: '',
   rep_sexe: '', rep_numero_identite: '', rep_date_emission: '', rep_date_expiration: '',
   rep_profession: '', rep_pere_nom: '', rep_mere_nom: '',
   rep_doc_front: '', rep_doc_back: '',
+  ubos_personnes_physiques: [], // FATF look-through UBOs
   ...emptyUBO(),
 });
 
@@ -320,43 +324,68 @@ export default function DeclarationPartenairesStep({ value, onChange }) {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="md:col-span-2">
-                      <Label className="text-xs">Raison sociale <span className="text-red-500">*</span></Label>
-                      <Input value={p.raison_sociale || ''} onChange={e => setField(i, 'raison_sociale', e.target.value)} className="mt-1 text-sm" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <Label className="text-xs">Siège social</Label>
-                      <Input value={p.siege_social || ''} onChange={e => setField(i, 'siege_social', e.target.value)} className="mt-1 text-sm" />
-                    </div>
-                    <div>
-                      <Label className="text-xs">N° immatriculation (RCS)</Label>
-                      <Input value={p.rcs || ''} onChange={e => setField(i, 'rcs', e.target.value)} className="mt-1 text-sm" />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Email</Label>
-                      <Input type="email" value={p.email || ''} onChange={e => setField(i, 'email', e.target.value)} className="mt-1 text-sm" />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Part (%)</Label>
-                      <Input type="number" value={p.part_percent || ''} onChange={e => setField(i, 'part_percent', e.target.value)} className="mt-1 text-sm" />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Apport (DJF)</Label>
-                      <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" />
+                  {/* ── Corporate Identity ── */}
+                  <div>
+                    <p className="text-xs font-bold text-[#6B6B6B] uppercase tracking-wide mb-2">Identité de la société actionnaire</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="md:col-span-2">
+                        <Label className="text-xs">Raison sociale <span className="text-red-500">*</span></Label>
+                        <Input value={p.raison_sociale || ''} onChange={e => setField(i, 'raison_sociale', e.target.value)} className="mt-1 text-sm" />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label className="text-xs">Siège social (adresse complète)</Label>
+                        <Input value={p.siege_social || ''} onChange={e => setField(i, 'siege_social', e.target.value)} className="mt-1 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Pays d'immatriculation <span className="text-red-500">*</span></Label>
+                        <Input value={p.pays_immatriculation || ''} onChange={e => setField(i, 'pays_immatriculation', e.target.value)} className="mt-1 text-sm" placeholder="Ex: France, Djibouti..." />
+                      </div>
+                      <div>
+                        <Label className="text-xs">N° immatriculation (RCS / RCCM)</Label>
+                        <Input value={p.rcs || ''} onChange={e => setField(i, 'rcs', e.target.value)} className="mt-1 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">NIF / Identifiant fiscal</Label>
+                        <Input value={p.nif || ''} onChange={e => setField(i, 'nif', e.target.value)} className="mt-1 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Email</Label>
+                        <Input type="email" value={p.email || ''} onChange={e => setField(i, 'email', e.target.value)} className="mt-1 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Part (%) <span className="text-red-500">*</span></Label>
+                        <Input type="number" value={p.part_percent || ''} onChange={e => setField(i, 'part_percent', e.target.value)} className="mt-1 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Apport (DJF)</Label>
+                        <Input type="number" value={p.apport || ''} onChange={e => setField(i, 'apport', e.target.value)} className="mt-1 text-sm" />
+                      </div>
                     </div>
                   </div>
+
+                  {/* ── Corporate Documents ── */}
                   <div className="border-t border-[#F0F0F0] pt-3 space-y-2">
-                    <p className="text-xs font-medium text-[#1A1A1A] mb-2">Documents de la société</p>
-                    <DocUpload label="Copie du registre de commerce" onUploaded={url => setField(i, 'registre_url', url)} />
-                    <DocUpload label="Copie certifiée des statuts (avec traduction)" onUploaded={url => setField(i, 'statuts_url', url)} />
-                    <DocUpload label="Décision de créer une succursale à Djibouti" onUploaded={url => setField(i, 'decision_url', url)} />
+                    <p className="text-xs font-bold text-[#6B6B6B] uppercase tracking-wide mb-2">Documents de la société actionnaire</p>
+                    <DocUpload label="Registre de commerce (extrait Kbis ou équivalent) *" onUploaded={url => setField(i, 'registre_url', url)} />
+                    <DocUpload label="Statuts certifiés conformes (avec traduction officielle si étranger) *" onUploaded={url => setField(i, 'statuts_url', url)} />
+                    <DocUpload label="Décision d'investir / autorisation de prise de participation" onUploaded={url => setField(i, 'decision_url', url)} />
+                    <DocUpload label="Liste des dirigeants / Organigramme de direction" onUploaded={url => setField(i, 'liste_dirigeants_url', url)} />
+                    <DocUpload label="Organigramme actionnarial (structure du capital)" onUploaded={url => setField(i, 'organigramme_url', url)} />
                   </div>
+
+                  {/* ── Legal Representative (Mandated to sign) ── */}
                   <div className="border-t border-[#F0F0F0] pt-3">
-                    <p className="text-sm font-medium text-[#1A1A1A] mb-3">Représentant de la société actionnaire</p>
+                    <div className="mb-3">
+                      <p className="text-sm font-bold text-[#1A1A1A]">Représentant légal mandaté pour la signature</p>
+                      <p className="text-xs text-[#6B6B6B] mt-0.5">Personne physique habilitée à engager la société (PDG, Gérant, Mandataire...)</p>
+                    </div>
                     {renderPersonFields(p, i, 'rep_')}
                   </div>
-                  <UBOSection partner={p} index={i} setField={setField} />
+
+                  {/* ── FATF UBO Look-through ── */}
+                  <div className="border-t border-[#F0F0F0] pt-3">
+                    <MoraleUBOSection partner={p} index={i} setField={setField} />
+                  </div>
                 </div>
               )}
             </div>

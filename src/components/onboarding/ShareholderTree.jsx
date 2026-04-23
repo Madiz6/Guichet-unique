@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, User, Shield, AlertTriangle, ChevronDown } from 'lucide-react';
+import { Building2, User, Shield, AlertTriangle } from 'lucide-react';
 
 function getUBOBadge(partner) {
   const percent = parseFloat(partner.part_percent) || 0;
@@ -64,6 +64,21 @@ function PartnerNode({ partner, companyName }) {
           )}
         </div>
 
+        {/* Look-through UBO count for moral entities */}
+        {!isPhysique && (
+          <div className="mt-1.5">
+            {(partner.ubos_personnes_physiques?.length || 0) > 0 ? (
+              <span className="text-[9px] bg-green-100 text-green-700 rounded-full px-1.5 py-0.5 font-medium">
+                {partner.ubos_personnes_physiques.length} UBO{partner.ubos_personnes_physiques.length > 1 ? 's' : ''} déclaré{partner.ubos_personnes_physiques.length > 1 ? 's' : ''}
+              </span>
+            ) : (
+              <span className="text-[9px] bg-red-100 text-red-600 rounded-full px-1.5 py-0.5 font-medium flex items-center gap-0.5 justify-center">
+                <AlertTriangle className="w-2.5 h-2.5" /> UBOs requis
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Indirect entity */}
         {partner.indirect_control === 'oui' && partner.controlling_entity_name && (
           <p className="text-[9px] text-[#9B9B9B] mt-1 truncate">via {partner.controlling_entity_name}</p>
@@ -79,7 +94,14 @@ export default function ShareholderTree({ partners = [], companyName = 'Sociét�
 
   const total = validPartners.reduce((s, p) => s + (parseFloat(p.part_percent) || 0), 0);
   const ubos = validPartners.filter(p => parseFloat(p.part_percent) >= 25 || p.ubo_manual === true);
-  const peps = validPartners.filter(p => p.pep_status === true);
+  // Count PEPs: direct physical partners + look-through UBOs of moral partners
+  const directPeps = validPartners.filter(p => p.type === 'physique' && p.pep_status === true);
+  const lookThroughPeps = validPartners.filter(p => p.type === 'morale')
+    .flatMap(p => (p.ubos_personnes_physiques || []).filter(u => u?.pep_status === true));
+  const peps = [...directPeps, ...lookThroughPeps];
+  // Total UBO count including look-through
+  const lookThroughUBOCount = validPartners.filter(p => p.type === 'morale')
+    .reduce((s, p) => s + (p.ubos_personnes_physiques?.length || 0), 0);
 
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
@@ -89,9 +111,9 @@ export default function ShareholderTree({ partners = [], companyName = 'Sociét�
           Structure Actionnariale
         </h3>
         <div className="flex gap-2 text-[10px]">
-          {ubos.length > 0 && (
+          {(ubos.length + lookThroughUBOCount) > 0 && (
             <span className="bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-              <Shield className="w-2.5 h-2.5" /> {ubos.length} UBO{ubos.length > 1 ? 's' : ''}
+              <Shield className="w-2.5 h-2.5" /> {ubos.length + lookThroughUBOCount} UBO{(ubos.length + lookThroughUBOCount) > 1 ? 's' : ''}
             </span>
           )}
           {peps.length > 0 && (
@@ -160,40 +182,63 @@ export default function ShareholderTree({ partners = [], companyName = 'Sociét�
         </div>
       </div>
 
-      {/* UBO Register summary */}
-      {ubos.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-[#F0F0F0]">
-          <p className="text-xs font-semibold text-[#1A1A1A] mb-2 flex items-center gap-1.5">
-            <Shield className="w-3.5 h-3.5 text-amber-500" /> Registre des Bénéficiaires Effectifs
-          </p>
-          <div className="space-y-2">
-            {ubos.map((p, i) => {
-              if (!p) return null;
-              const name = p.type === 'physique'
-                ? `${p.prenom || ''} ${p.nom || ''}`.trim()
-                : p.raison_sociale || '';
-              return (
+      {/* UBO Register summary — all natural persons (direct + look-through) */}
+      {(() => {
+        // Collect all UBOs: direct physical partners + look-through UBOs of moral partners
+        const allUBORows = [];
+        validPartners.forEach(p => {
+          if (p.type === 'physique' && (parseFloat(p.part_percent) >= 25 || p.ubo_manual)) {
+            allUBORows.push({
+              name: `${p.prenom || ''} ${p.nom || ''}`.trim(),
+              percent: parseFloat(p.part_percent) || 0,
+              via: null,
+              pep: p.pep_status === true,
+              signed: p.ubo_declaration_signed,
+              sanctions: p.sanctions_clear,
+            });
+          }
+          if (p.type === 'morale' && Array.isArray(p.ubos_personnes_physiques)) {
+            p.ubos_personnes_physiques.forEach(u => {
+              if (!u) return;
+              allUBORows.push({
+                name: `${u.prenom || ''} ${u.nom || ''}`.trim(),
+                percent: parseFloat(u.part_percent) || 0,
+                via: p.raison_sociale || 'société',
+                pep: u.pep_status === true,
+                signed: u.declaration_signed,
+                sanctions: u.sanctions_clear,
+              });
+            });
+          }
+        });
+        if (allUBORows.length === 0) return null;
+        return (
+          <div className="mt-4 pt-4 border-t border-[#F0F0F0]">
+            <p className="text-xs font-semibold text-[#1A1A1A] mb-2 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-amber-500" /> Registre des Bénéficiaires Effectifs (personnes physiques)
+            </p>
+            <div className="space-y-2">
+              {allUBORows.map((row, i) => (
                 <div key={i} className="flex items-center justify-between text-xs bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-3 h-3 text-amber-500" />
-                    <span className="font-medium text-[#1A1A1A]">{name}</span>
-                    {p.pep_status && <span className="text-[9px] bg-red-200 text-red-700 rounded-full px-1.5 py-0.5">PEP</span>}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <User className="w-3 h-3 text-amber-500 shrink-0" />
+                    <div className="min-w-0">
+                      <span className="font-medium text-[#1A1A1A]">{row.name || '—'}</span>
+                      {row.via && <span className="text-[#9B9B9B] ml-1 truncate">via {row.via}</span>}
+                    </div>
+                    {row.pep && <span className="text-[9px] bg-red-200 text-red-700 rounded-full px-1.5 py-0.5 shrink-0">PEP</span>}
                   </div>
-                  <div className="flex items-center gap-3 text-[#6B6B6B]">
-                    <span>{parseFloat(p.part_percent) || 0}%</span>
-                    {p.ubo_declaration_signed
-                      ? <span className="text-green-600 font-medium">✓ Signé</span>
-                      : <span className="text-red-500">⚠ Non signé</span>}
-                    {p.sanctions_clear
-                      ? <span className="text-green-600">✓ Sanctions OK</span>
-                      : <span className="text-[#9B9B9B]">— Sanctions</span>}
+                  <div className="flex items-center gap-2 text-[#6B6B6B] shrink-0">
+                    <span>{row.percent}%</span>
+                    {row.signed ? <span className="text-green-600">✓ Déclaré</span> : <span className="text-red-500">⚠ Non signé</span>}
+                    {row.sanctions ? <span className="text-green-600">✓ Sanctions OK</span> : <span className="text-[#9B9B9B]">— Sanctions</span>}
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
