@@ -7,6 +7,7 @@ import PhoneInput from './PhoneInput.jsx';
 import CountrySelect, { COUNTRIES } from './CountrySelect.jsx';
 import CompanyLookup from './CompanyLookup.jsx';
 import { Plus, Trash2, Users, Upload, CheckCircle2, Loader2, ScanLine, RefreshCw, PencilLine, ChevronDown, ChevronUp } from 'lucide-react';
+import ExtractionLoader from './ExtractionLoader.jsx';
 import UBOSection from './UBOSection.jsx';
 import MoraleUBOSection from './MoraleUBOSection.jsx';
 import ShareholderTree from './ShareholderTree.jsx';
@@ -169,7 +170,6 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
         <div className="flex items-center gap-1.5">
           <ScanLine className="w-3.5 h-3.5 text-blue-600" />
           <span className="text-xs font-medium text-[#1A1A1A]">Pièce d'identité</span>
-          {extracting && <span className="text-xs text-purple-600 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Extraction IA...</span>}
         </div>
         <div className="flex items-center gap-2">
           {extracted && backUrl && (
@@ -215,6 +215,7 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
           </div>
         ))}
       </div>
+      {extracting && <ExtractionLoader subtitle={`Extraction depuis recto${backUrl ? ' + verso' : ''}`} />}
     </div>
   );
 }

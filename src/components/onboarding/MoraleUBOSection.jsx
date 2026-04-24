@@ -9,6 +9,7 @@ import {
   Shield, AlertTriangle, CheckCircle2, Info, Plus, Trash2,
   User, Upload, Loader2, ScanLine, Building2, Eye, ChevronDown, ChevronUp
 } from 'lucide-react';
+import ExtractionLoader from './ExtractionLoader.jsx';
 import { toast } from 'sonner';
 
 // ─── FATF-compliant UBO look-through for Personne Morale ───────────────────
@@ -149,11 +150,10 @@ function UBOPhysiqueForm({ ubo, onChange, onRemove, index }) {
       {/* ID Document */}
       <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <ScanLine className="w-3.5 h-3.5 text-blue-600" />
-            <span className="text-xs font-semibold">Pièce d'identité (obligatoire)</span>
-            {extracting && <span className="text-xs text-purple-600 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Extraction...</span>}
-          </div>
+        <div className="flex items-center gap-1.5">
+          <ScanLine className="w-3.5 h-3.5 text-blue-600" />
+          <span className="text-xs font-semibold">Pièce d'identité (obligatoire)</span>
+        </div>
           <div className="flex gap-1">
             {[{ val: 'cni', label: 'CNI' }, { val: 'passeport', label: 'Passeport' }].map(({ val, label }) => (
               <button key={val} type="button" onClick={() => setDocType(val)}
@@ -191,6 +191,7 @@ function UBOPhysiqueForm({ ubo, onChange, onRemove, index }) {
             </div>
           ))}
         </div>
+        {extracting && <ExtractionLoader subtitle={`Extraction depuis recto${ubo.doc_back ? ' + verso' : ''}`} />}
       </div>
 
       {/* Identity fields */}
