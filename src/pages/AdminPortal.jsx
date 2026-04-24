@@ -167,6 +167,7 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
     setLocalDossier(merged);
     await base44.entities.RegistrationDossier.update(localDossier.id, updates);
     onUpdateDossier(merged);
+    toast.success('Progression sauvegardée');
   };
 
   const handleWorkflowComplete = (workflowState) => {
@@ -761,6 +762,12 @@ export default function AdminPortal() {
     queryKey: ['registration-dossiers'],
     queryFn: () => base44.entities.RegistrationDossier.list('-created_date'),
   });
+  const { data: freshDossier, isLoading: isLoadingDossier } = useQuery({
+    queryKey: ['registration-dossier', selectedDossier?.id],
+    queryFn: () => base44.entities.RegistrationDossier.filter({ id: selectedDossier?.id }).then(r => r[0]),
+    enabled: !!selectedDossier?.id,
+    staleTime: 0,
+  });
 
   if (user && user.role !== 'admin') {
     return (
@@ -775,14 +782,24 @@ export default function AdminPortal() {
   }
 
   if (selectedDossier) {
+    if (isLoadingDossier || !freshDossier) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+          <div className="flex flex-col items-center gap-3">
+            <RefreshCw className="w-6 h-6 animate-spin text-[#1A2B6B]" />
+            <p className="text-sm text-[#6B6B6B]">Chargement du dossier...</p>
+          </div>
+        </div>
+      );
+    }
     return (
       <DossierDetail
-        dossier={selectedDossier}
+        dossier={freshDossier}
         user={user}
         onBack={() => setSelectedDossier(null)}
         onUpdateDossier={(updated) => {
           queryClient.invalidateQueries(['registration-dossiers']);
-          setSelectedDossier(prev => ({ ...prev, ...updated }));
+          queryClient.invalidateQueries(['registration-dossier', selectedDossier.id]);
         }}
       />
     );
