@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { meras } from '@/components/core/MerasClient';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Shield, FileText, Briefcase, Users, UserSquare2, FolderOpen, CreditCard,
-  ChevronRight, ChevronLeft, CheckCircle2, Loader2
+  ChevronRight, ChevronLeft, CheckCircle2, Loader2, Save, RotateCcw
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+const DRAFT_KEY = 'guichet_un_onboarding_draft';
 import IdentificationStep from './IdentificationStep.jsx';
 import AttestationPouvoirStep from './AttestationPouvoirStep.jsx';
 import DispositionsGeneralesStep from './DispositionsGeneralesStep.jsx';
@@ -35,6 +37,72 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
   const [stepData, setStepData] = useState({});
   const [saving, setSaving] = useState(false);
   const [completedSteps, setCompletedSteps] = useState(new Set());
+  const [draftSavedAt, setDraftSavedAt] = useState(null);
+  const [hasDraft, setHasDraft] = useState(false);
+
+  // ── Draft persistence ──────────────────────────────────────────────────────
+  const saveDraft = useCallback((data, step, completed) => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        stepData: data,
+        currentStep: step,
+        completedSteps: [...completed],
+        savedAt: new Date().toISOString(),
+      }));
+      setDraftSavedAt(new Date());
+    } catch {
+      // localStorage full or blocked — silently ignore
+    }
+  }, []);
+
+  const clearDraft = () => {
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+  };
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (!draft?.stepData || !draft?.savedAt) return;
+      const savedDate = new Date(draft.savedAt);
+      const ageHours = (Date.now() - savedDate.getTime()) / 3600000;
+      if (ageHours > 72) { clearDraft(); return; } // Expire drafts older than 72h
+      setHasDraft(true);
+      toast(
+        `Brouillon trouvé — étape ${draft.currentStep + 1}/${STEPS.length} (${savedDate.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })})`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Reprendre',
+            onClick: () => {
+              setStepData(draft.stepData || {});
+              setCurrentStep(draft.currentStep || 0);
+              setCompletedSteps(new Set(draft.completedSteps || []));
+              setHasDraft(false);
+              toast.success('Brouillon restauré !');
+            },
+          },
+          cancel: {
+            label: 'Ignorer',
+            onClick: () => { clearDraft(); setHasDraft(false); },
+          },
+        }
+      );
+    } catch {
+      clearDraft();
+    }
+  }, []);
+
+  // Auto-save draft whenever stepData or currentStep changes
+  useEffect(() => {
+    if (Object.keys(stepData).length === 0) return;
+    const timer = setTimeout(() => saveDraft(stepData, currentStep, completedSteps), 800);
+    return () => clearTimeout(timer);
+  }, [stepData, currentStep, completedSteps, saveDraft]);
+
+  // ──────────────────────────────────────────────────────────────────────────
 
   const step = STEPS[currentStep];
 
@@ -64,17 +132,30 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
   };
 
   const handleNext = () => {
-    if (!validateCurrentStep()) {
-      toast.error('Veuillez compléter toutes les informations requises avant de continuer.');
-      return;
+    try {
+      if (!validateCurrentStep()) {
+        toast.error('Veuillez compléter toutes les informations requises avant de continuer.');
+        return;
+      }
+      const next = new Set([...completedSteps, currentStep]);
+      setCompletedSteps(next);
+      if (currentStep < STEPS.length - 1) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        saveDraft(stepData, nextStep, next);
+      }
+    } catch (e) {
+      toast.error('Erreur de navigation — vos données sont sauvegardées en brouillon.');
     }
-    setCompletedSteps(prev => new Set([...prev, currentStep]));
-    if (currentStep < STEPS.length - 1) setCurrentStep(prev => prev + 1);
   };
 
   const handleBack = () => {
-    if (currentStep > 0) setCurrentStep(prev => prev - 1);
-    else onBack?.();
+    try {
+      if (currentStep > 0) setCurrentStep(prev => prev - 1);
+      else onBack?.();
+    } catch {
+      onBack?.();
+    }
   };
 
   const handleSubmit = async () => {
@@ -137,10 +218,14 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
         onboarding_completed: true,
       });
 
+      clearDraft();
       toast.success('Entreprise créée avec succès !');
       onSuccess?.();
     } catch (e) {
-      toast.error("Erreur lors de la création : " + e.message);
+      // Save current state to draft so user can retry without losing data
+      saveDraft(stepData, currentStep, completedSteps);
+      toast.error("Erreur lors de la création — vos données ont été sauvegardées. Réessayez dans quelques instants.");
+      console.error('Onboarding submit error:', e);
     } finally {
       setSaving(false);
     }
@@ -169,6 +254,12 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
             <span className="text-xs font-medium text-[#6B6B6B] bg-[#F5F5F5] px-2.5 py-1 rounded-full">
               {currentStep + 1}/{STEPS.length}
             </span>
+            {draftSavedAt && (
+              <span className="hidden sm:flex items-center gap-1 text-[10px] text-green-600 bg-green-50 border border-green-200 px-2 py-1 rounded-full">
+                <Save className="w-2.5 h-2.5" />
+                Brouillon sauvegardé
+              </span>
+            )}
             <button onClick={onBack} className="text-xs text-[#9B9B9B] hover:text-[#1A1A1A] px-2 py-1 touch-target">Annuler</button>
           </div>
         </div>
