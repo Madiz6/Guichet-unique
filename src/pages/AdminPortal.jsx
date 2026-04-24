@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import {
   Search, CheckCircle2, XCircle, Eye, FileText, Users, UserSquare2,
   Building2, ArrowLeft, AlertTriangle, Clock, Download, Shield,
-  PenLine, Image, ChevronRight, RefreshCw, Award, Briefcase
+  PenLine, Image, ChevronRight, RefreshCw, Award, Briefcase, CreditCard, Loader2
 } from 'lucide-react';
+import { generatePaymentReceiptPDF } from '@/components/onboarding/PaymentReceiptPDF.jsx';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -129,6 +130,7 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
   const [generatingLicense, setGeneratingLicense] = useState(false);
   const [licenseData, setLicenseData] = useState(null);
   const [localDossier, setLocalDossier] = useState(dossier);
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
 
   const workflowComplete = ['odpic', 'dgi', 'cnss'].every(
     k => localDossier.approval_workflow?.[k]?.approved
@@ -197,6 +199,31 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
   };
 
   const currentLicense = licenseData || (localDossier.license_number ? localDossier : null);
+
+  const handleDownloadReceipt = async () => {
+    setDownloadingReceipt(true);
+    try {
+      const paiementData = stepData.paiement || {};
+      await generatePaymentReceiptPDF({
+        amount: localDossier.payment_amount || paiementData.totalAmount || 0,
+        transactionId: paiementData.transactionId || null,
+        envelopeId: localDossier.envelope_id,
+        companyName: localDossier.company_name,
+        formeJuridique: localDossier.forme_juridique || activite.forme_juridique || '—',
+        secteur: activite.secteur_principal || '—',
+        tierLabel: paiementData.tierLabel || 'Standard',
+        tierDelay: paiementData.tierDelay || '—',
+        applicantName: localDossier.applicant_name || '—',
+        applicantEmail: localDossier.applicant_email || '—',
+        patenteAmount: paiementData.patenteAmount || 0,
+        odpicAmount: paiementData.odpicAmount || 0,
+        statusFeesAmount: paiementData.statusFeesAmount || 0,
+        tierSurcharge: paiementData.tierSurcharge || 0,
+      });
+    } finally {
+      setDownloadingReceipt(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -591,6 +618,57 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
               {localDossier.payment_amount && <div className="flex justify-between"><span className="text-[#9B9B9B]">Montant payé</span><span className="font-medium text-green-600">{Number(localDossier.payment_amount).toLocaleString()} DJF</span></div>}
               {localDossier.admin_email && <div className="flex justify-between"><span className="text-[#9B9B9B]">Agent traitant</span><span className="font-medium">{localDossier.admin_email}</span></div>}
             </div>
+          </div>
+
+          {/* Payment panel */}
+          <div className={`rounded-xl border p-4 space-y-3 ${localDossier.payment_confirmed ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+            <div className="flex items-center gap-2">
+              <CreditCard className={`w-4 h-4 ${localDossier.payment_confirmed ? 'text-green-600' : 'text-amber-600'}`} />
+              <h3 className="font-semibold text-sm text-[#1A1A1A]">Paiement</h3>
+              <Badge className={`ml-auto text-xs ${localDossier.payment_confirmed ? 'bg-green-500 text-white' : 'bg-amber-100 text-amber-700 border border-amber-300'}`}>
+                {localDossier.payment_confirmed ? '✓ Confirmé' : 'Non payé'}
+              </Badge>
+            </div>
+            {localDossier.payment_confirmed ? (
+              <>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-[#6B6B6B]">Montant total</span>
+                    <span className="font-bold text-green-700 text-sm">{Number(localDossier.payment_amount || 0).toLocaleString()} DJF</span>
+                  </div>
+                  {stepData.paiement?.tierLabel && (
+                    <div className="flex justify-between">
+                      <span className="text-[#6B6B6B]">Formule</span>
+                      <span className="font-medium">{stepData.paiement.tierLabel}</span>
+                    </div>
+                  )}
+                  {stepData.paiement?.transactionId && (
+                    <div className="flex justify-between">
+                      <span className="text-[#6B6B6B]">Réf. transaction</span>
+                      <span className="font-mono text-[10px] text-[#1A1A1A]">{stepData.paiement.transactionId}</span>
+                    </div>
+                  )}
+                  {stepData.paiement?.patenteAmount > 0 && (
+                    <div className="pt-1 border-t border-green-200 space-y-1">
+                      <p className="text-[10px] text-green-700 font-semibold mb-1">Détail des frais</p>
+                      {stepData.paiement.patenteAmount > 0 && <div className="flex justify-between text-[10px]"><span className="text-[#6B6B6B]">Patente</span><span>{Number(stepData.paiement.patenteAmount).toLocaleString()} DJF</span></div>}
+                      {stepData.paiement.odpicAmount > 0 && <div className="flex justify-between text-[10px]"><span className="text-[#6B6B6B]">ODPIC</span><span>{Number(stepData.paiement.odpicAmount).toLocaleString()} DJF</span></div>}
+                      {stepData.paiement.statusFeesAmount > 0 && <div className="flex justify-between text-[10px]"><span className="text-[#6B6B6B]">Statuts</span><span>{Number(stepData.paiement.statusFeesAmount).toLocaleString()} DJF</span></div>}
+                      {stepData.paiement.tierSurcharge > 0 && <div className="flex justify-between text-[10px]"><span className="text-[#6B6B6B]">Frais traitement</span><span>{Number(stepData.paiement.tierSurcharge).toLocaleString()} DJF</span></div>}
+                    </div>
+                  )}
+                </div>
+                <Button onClick={handleDownloadReceipt} disabled={downloadingReceipt} size="sm"
+                  className="w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white text-xs">
+                  {downloadingReceipt
+                    ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Génération...</>
+                    : <><Download className="w-3.5 h-3.5 mr-1.5" /> Télécharger le reçu PDF</>
+                  }
+                </Button>
+              </>
+            ) : (
+              <p className="text-xs text-amber-700">Aucun paiement enregistré pour ce dossier.</p>
+            )}
           </div>
 
           {/* Admin comment */}

@@ -68,9 +68,40 @@ export default function PaymentStep({ stepData, onSuccess }) {
     const txId = paymentResult?.transaction_id || null;
     setTransactionId(txId);
     setPaid(true);
+
+    // Build payment metadata to persist on the dossier
+    const paymentMeta = {
+      transactionId: txId,
+      tierLabel: tier.label,
+      tierDelay: tier.delay,
+      totalAmount,
+      patenteAmount: tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount,
+      odpicAmount: tier.fixedAmount !== undefined ? 0 : ODPIC,
+      statusFeesAmount: tier.fixedAmount !== undefined ? 0 : STATUS_FEES,
+      tierSurcharge: tier.fixedAmount !== undefined ? 0 : tier.surcharge,
+      paidAt: new Date().toISOString(),
+    };
+
+    // Persist payment details to the dossier record so admin can see them
+    try {
+      const { base44 } = await import('@/api/base44Client');
+      const user = await base44.auth.me().catch(() => null);
+      if (user) {
+        const dossiers = await base44.entities.RegistrationDossier.filter({ applicant_email: user.email }, '-created_date', 1);
+        if (dossiers?.[0]?.id) {
+          await base44.entities.RegistrationDossier.update(dossiers[0].id, {
+            payment_confirmed: true,
+            payment_amount: totalAmount,
+            step_data: { ...stepData, paiement: paymentMeta },
+          });
+        }
+      }
+    } catch { /* non-blocking */ }
+
     // Auto-generate receipt PDF
     try {
-      const user = await import('@/api/base44Client').then(m => m.base44.auth.me()).catch(() => null);
+      const { base44 } = await import('@/api/base44Client');
+      const user = await base44.auth.me().catch(() => null);
       await generatePaymentReceiptPDF({
         amount: totalAmount,
         transactionId: txId,
@@ -82,10 +113,10 @@ export default function PaymentStep({ stepData, onSuccess }) {
         tierDelay: tier.delay,
         applicantName: user?.full_name || '—',
         applicantEmail: user?.email || '—',
-        patenteAmount: tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount,
-        odpicAmount: tier.fixedAmount !== undefined ? 0 : ODPIC,
-        statusFeesAmount: tier.fixedAmount !== undefined ? 0 : STATUS_FEES,
-        tierSurcharge: tier.fixedAmount !== undefined ? 0 : tier.surcharge,
+        patenteAmount: paymentMeta.patenteAmount,
+        odpicAmount: paymentMeta.odpicAmount,
+        statusFeesAmount: paymentMeta.statusFeesAmount,
+        tierSurcharge: paymentMeta.tierSurcharge,
       });
     } catch { /* receipt download failure is non-blocking */ }
   };
