@@ -5,6 +5,17 @@ import { toast } from 'sonner';
 import StatutsGenerator from './StatutsGenerator.jsx';
 import FormulaireGenerator from './FormulaireGenerator.jsx';
 
+// Pièces à joindre for Personne Physique (from official ODPIC form)
+const PIECES_PHYSIQUE = [
+  { key: 'pp_piece_cin_url', label: 'Copie CIN / carte de séjour / passeport (gérant)', required: true },
+  { key: 'pp_declaration_honneur_url', label: 'Déclaration sur l\'honneur', required: true },
+  { key: 'pp_cin_salaries_url', label: 'Copie CIN / carte de séjour / passeport des salarié(s)', required: false },
+  { key: 'pp_photos_url', label: '3 photos d\'identité', required: true },
+  { key: 'pp_pouvoir_mandataire_url', label: 'Pouvoir du mandataire (si nécessaire)', required: false },
+  { key: 'pp_agrement_url', label: 'Agrément à l\'activité (si nécessaire)', required: false },
+  { key: 'pp_contrat_bail_url', label: 'Contrat de bail / lettre d\'engagement pour enregistrement', required: false },
+];
+
 // Pièces à joindre for Personne Morale (from official ODPIC form)
 const PIECES_MORALE = [
   { key: 'piece_cin_associes_url', label: 'Copie CIN / carte de séjour / passeport (associés & gérant)', required: true },
@@ -130,52 +141,26 @@ export default function DocumentsStep({ value, onChange, stepData }) {
         )}
       </DocSection>
 
+      {/* PIÈCES À JOINDRE — Personne Physique */}
+      {!isPersonneMorale && (
+        <PiecesSection
+          title="Pièces à joindre — Personne Physique"
+          pieces={PIECES_PHYSIQUE}
+          docs={docs}
+          uploading={uploading}
+          onUpload={handleUpload}
+        />
+      )}
+
       {/* PIÈCES À JOINDRE — Personne Morale */}
       {isPersonneMorale && (
-        <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-[#F0F0F0] bg-amber-50">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-sm text-[#1A1A1A]">Pièces à joindre — Personne Morale</p>
-                <p className="text-xs text-[#6B6B6B] mt-0.5">Documents requis par l'ODPIC pour le dossier d'enregistrement</p>
-              </div>
-            </div>
-          </div>
-          <div className="p-4 space-y-3">
-            {PIECES_MORALE.map(({ key, label, required }) => {
-              const url = docs[key];
-              return (
-                <div key={key} className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-[#1A1A1A]">
-                      {label}
-                      {required && <span className="text-red-500 ml-1">*</span>}
-                    </p>
-                  </div>
-                  {url ? (
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> OK</span>
-                      <label className="text-xs text-blue-600 hover:underline cursor-pointer">
-                        Changer<input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => e.target.files[0] && handleUpload(key, e.target.files[0])} />
-                      </label>
-                    </div>
-                  ) : (
-                    <label className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs cursor-pointer transition-all
-                      ${required ? 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-[#E5E7EB] text-[#6B6B6B] hover:bg-[#F5F5F5]'}`}>
-                      {uploading[key]
-                        ? <Loader2 className="w-3 h-3 animate-spin" />
-                        : <Upload className="w-3 h-3" />
-                      }
-                      {uploading[key] ? 'Envoi...' : 'Télécharger'}
-                      <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => e.target.files[0] && handleUpload(key, e.target.files[0])} />
-                    </label>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <PiecesSection
+          title="Pièces à joindre — Personne Morale"
+          pieces={PIECES_MORALE}
+          docs={docs}
+          uploading={uploading}
+          onUpload={handleUpload}
+        />
       )}
 
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
@@ -253,6 +238,55 @@ function DocSection({ title, desc, done, mode, onChooseMode, children }) {
             {children}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function PiecesSection({ title, pieces, docs, uploading, onUpload }) {
+  return (
+    <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-[#F0F0F0] bg-amber-50">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-sm text-[#1A1A1A]">{title}</p>
+            <p className="text-xs text-[#6B6B6B] mt-0.5">Documents requis par l'ODPIC pour le dossier d'enregistrement</p>
+          </div>
+        </div>
+      </div>
+      <div className="p-4 space-y-3">
+        {pieces.map(({ key, label, required }) => {
+          const url = docs[key];
+          return (
+            <div key={key} className="flex items-center gap-3">
+              <div className="flex-1">
+                <p className="text-xs font-medium text-[#1A1A1A]">
+                  {label}
+                  {required && <span className="text-red-500 ml-1">*</span>}
+                </p>
+              </div>
+              {url ? (
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> OK</span>
+                  <label className="text-xs text-blue-600 hover:underline cursor-pointer">
+                    Changer<input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => e.target.files[0] && onUpload(key, e.target.files[0])} />
+                  </label>
+                </div>
+              ) : (
+                <label className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs cursor-pointer transition-all
+                  ${required ? 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-[#E5E7EB] text-[#6B6B6B] hover:bg-[#F5F5F5]'}`}>
+                  {uploading[key]
+                    ? <Loader2 className="w-3 h-3 animate-spin" />
+                    : <Upload className="w-3 h-3" />
+                  }
+                  {uploading[key] ? 'Envoi...' : 'Télécharger'}
+                  <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => e.target.files[0] && onUpload(key, e.target.files[0])} />
+                </label>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

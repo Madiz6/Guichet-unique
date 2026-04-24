@@ -105,55 +105,48 @@ function generateFormulairePDF(model, stepData, signatureData) {
     field('Email', d.idData.email || '', margin + 55, 80, y);
     y += 14;
   } else {
-    field('Nom', d.idData.nom || '', margin, 55, y);
-    field('Prénom', d.idData.prenom || '', margin + 60, 55, y);
-    field('Sexe', d.idData.sexe || '', margin + 120, 35, y);
+    // Personne Physique — Section I
+    field('Nom & prénom', `${d.idData.prenom || ''} ${d.idData.nom || ''}`.trim(), margin, 80, y);
+    field('Sexe', d.idData.sexe || '', margin + 85, 30, y);
+    field('Nombre de salariés', String(d.employes.length), margin + 120, 35, y);
     y += 12;
-    field('Date de naissance', d.idData.date_naissance || '', margin, 50, y);
-    field('Lieu de naissance', d.idData.lieu_naissance || '', margin + 55, 50, y);
-    field('Nationalité', d.idData.nationalite || '', margin + 110, 45, y);
+    field('N° CIN ou carte de séjour', d.idData.numero_identite || '', margin, 60, y);
+    field('Nationalité', d.idData.nationalite || '', margin + 65, 60, y);
     y += 12;
-    field('N° NNI', d.idData.nni || '', margin, 50, y);
-    field('N° Carte d\'identité', d.idData.numero_identite || '', margin + 55, 50, y);
+    field('Date de naissance', d.idData.date_naissance || '', margin, 60, y);
+    field('Lieu de naissance', d.idData.lieu_naissance || '', margin + 65, 90, y);
     y += 12;
-    field('Adresse complète', d.idData.adresse || '', margin, 130, y);
+    field('Nom Commercial / enseigne', d.activite.commercial_names?.[0] || d.companyName, margin, 80, y);
+    field('Domicile personnel', d.idData.adresse || '', margin + 85, 70, y);
     y += 12;
-    field('Nom de la mère', d.idData.mere_nom || '', margin, 60, y);
-    field('Nom du père', d.idData.pere_nom || '', margin + 65, 60, y);
+    field('Adresse de l\'ETS / Siège social', d.idData.adresse || '', margin, 130, y);
     y += 12;
-    field('Profession', d.idData.profession || '', margin, 60, y);
-    field('Téléphone', d.idData.telephone || '', margin + 65, 50, y);
-    field('Email', d.idData.email || '', margin + 120, 45, y);
+    field('Tél. fixe', d.idData.telephone || '', margin, 45, y);
+    field('Tél. mobile', d.idData.telephone || '', margin + 50, 45, y);
+    field('Mail', d.idData.email || '', margin + 100, 55, y);
     y += 14;
   }
 
-  // SECTION II
-  sectionHeader('II. IDENTIFICATION DU REPRÉSENTANT LÉGAL');
+  // SECTION II — MANDATAIRE (for physique) or REPRÉSENTANT LÉGAL (for morale)
+  sectionHeader(model === 'physique' ? 'II. IDENTIFICATION DU MANDATAIRE' : 'II. IDENTIFICATION DU REPRÉSENTANT LÉGAL');
   if (d.repType === 'notaire') {
-    field('Nom du notaire/mandataire', d.notaire.nom, margin, 80, y);
-    field('N° RCS / Immatriculation', d.notaire.rcs, margin + 85, 55, y);
+    field('Nom et Prénom / Dénomination sociale', d.notaire.nom, margin, 80, y);
+    field('Mail', d.notaire.email || '', margin + 85, 60, y);
     y += 12;
-    field('Cabinet / Étude', d.notaire.nom_commercial || '', margin, 80, y);
-    field('NIF entreprise', d.notaire.nif || '', margin + 85, 55, y);
+    field('N° CIN / RCS', d.notaire.rcs || '', margin, 60, y);
+    field('Fax', '', margin + 65, 40, y);
     y += 12;
-    field('Adresse', d.notaire.adresse || '', margin, 130, y);
-    y += 12;
-    field('Email', d.notaire.email || '', margin, 60, y);
-    field('Téléphone', d.notaire.telephone || '', margin + 65, 55, y);
+    field('Adresse / Siège social', d.notaire.adresse || '', margin, 80, y);
+    field('Tél.', d.notaire.telephone || '', margin + 85, 60, y);
   } else {
-    field('Nom', d.idData.nom || '', margin, 60, y);
-    field('Prénom', d.idData.prenom || '', margin + 65, 60, y);
-    field('N° NNI', d.idData.nni || '', margin + 130, 35, y);
+    field('Nom et Prénom / Dénomination sociale', `${d.idData.prenom || ''} ${d.idData.nom || ''}`.trim(), margin, 80, y);
+    field('Mail', d.idData.email || '', margin + 85, 60, y);
     y += 12;
-    field('Date de naissance', d.idData.date_naissance || '', margin, 50, y);
-    field('Lieu de naissance', d.idData.lieu_naissance || '', margin + 55, 50, y);
-    field('Nationalité', d.idData.nationalite || '', margin + 110, 45, y);
+    field('N° CIN / RCS', d.idData.numero_identite || '', margin, 60, y);
+    field('Fax', '', margin + 65, 40, y);
     y += 12;
-    field('N° Carte d\'identité', d.idData.numero_identite || '', margin, 60, y);
-    field('Date d\'émission', d.idData.date_emission || '', margin + 65, 50, y);
-    field('Date d\'expiration', d.idData.date_expiration || '', margin + 120, 45, y);
-    y += 12;
-    field('Adresse', d.idData.adresse || '', margin, 130, y);
+    field('Adresse / Siège social', d.idData.adresse || '', margin, 80, y);
+    field('Tél.', d.idData.telephone || '', margin + 85, 60, y);
   }
   y += 14;
 
