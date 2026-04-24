@@ -475,29 +475,114 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
                         </>
                       ) : (
                         <>
-                          <div className="grid grid-cols-2 gap-2">
+                          {/* Corporate identity */}
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <Field label="Raison sociale" value={p.raison_sociale} />
                             <Field label="Siège social" value={p.siege_social} />
-                            <Field label="RCS" value={p.rcs} />
+                            <Field label="Pays d'immatriculation" value={p.pays_immatriculation} />
+                            <Field label="RCS / RCCM" value={p.rcs} />
+                            <Field label="NIF" value={p.nif} />
                             <Field label="Email" value={p.email} />
                             <Field label="Apport" value={p.apport ? `${Number(p.apport).toLocaleString()} DJF` : '—'} />
+                            <Field label="Part (%)" value={p.part_percent ? `${p.part_percent}%` : '—'} />
                           </div>
-                          <DocLink url={p.registre_url} label="Registre de commerce" />
-                          <DocLink url={p.statuts_url} label="Statuts certifiés" />
-                          <DocLink url={p.decision_url} label="Décision de création succursale" />
+
+                          {/* Corporate documents */}
+                          <div className="space-y-1.5">
+                            <DocLink url={p.registre_url} label="Registre de commerce (Kbis / extrait)" />
+                            <DocLink url={p.statuts_url} label="Statuts certifiés conformes" />
+                            <DocLink url={p.decision_url} label="Décision d'investir / prise de participation" />
+                            <DocLink url={p.liste_dirigeants_url} label="Liste des dirigeants / organigramme de direction" />
+                            <DocLink url={p.organigramme_url} label="Organigramme actionnarial" />
+                          </div>
+
                           <UBOAdminPanel partner={p} />
+
+                          {/* Legal representative */}
                           {(p.rep_nom || p.rep_prenom) && (
-                            <div className="border-t border-[#E5E7EB] pt-3">
-                              <p className="text-xs font-semibold text-[#6B6B6B] mb-2">Représentant de la société</p>
-                              <div className="grid grid-cols-2 gap-2">
-                                <Field label="Nom" value={`${p.rep_prenom || ''} ${p.rep_nom || ''}`.trim()} />
-                                <Field label="NNI" value={p.rep_nni} />
+                            <div className="border border-blue-100 bg-blue-50 rounded-xl p-4 space-y-3">
+                              <p className="text-xs font-bold text-blue-700 uppercase tracking-wide">Représentant légal mandaté</p>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <Field label="Nom & prénom" value={`${p.rep_prenom || ''} ${p.rep_nom || ''}`.trim()} />
+                                <Field label="N° identité" value={p.rep_numero_identite || p.rep_nni} />
+                                <Field label="Nationalité" value={p.rep_nationalite} />
+                                <Field label="Date naissance" value={p.rep_date_naissance} />
+                                <Field label="Lieu naissance" value={p.rep_lieu_naissance} />
+                                <Field label="Profession" value={p.rep_profession} />
                                 <Field label="Email" value={p.rep_email} />
                                 <Field label="Téléphone" value={p.rep_telephone} />
+                                <Field label="Adresse" value={p.rep_adresse} className="col-span-2" />
+                                <Field label="Nom du père" value={p.rep_pere_nom} />
+                                <Field label="Nom de la mère" value={p.rep_mere_nom} />
                               </div>
-                              <div className="grid grid-cols-2 gap-3 mt-3">
-                                <DocImage url={p.rep_doc_front} label="Pièce d'identité représentant — Recto" />
-                                <DocImage url={p.rep_doc_back} label="Pièce d'identité représentant — Verso" />
+                              <div className="grid grid-cols-2 gap-3">
+                                <DocImage url={p.rep_doc_front} label="CIN Représentant — Recto" />
+                                <DocImage url={p.rep_doc_back} label="CIN Représentant — Verso" />
                               </div>
+                            </div>
+                          )}
+
+                          {/* UBO Look-through — physical owners of this corporate entity */}
+                          {p.ubos_personnes_physiques?.length > 0 && (
+                            <div className="border border-amber-200 bg-amber-50 rounded-xl p-4 space-y-4">
+                              <div className="flex items-center gap-2">
+                                <Shield className="w-4 h-4 text-amber-600" />
+                                <p className="text-xs font-bold text-amber-700 uppercase tracking-wide">
+                                  Bénéficiaires effectifs (UBO) — Propriétaires de {p.raison_sociale || 'la société'}
+                                </p>
+                                <span className="text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full ml-auto">
+                                  {p.ubos_personnes_physiques.length} UBO{p.ubos_personnes_physiques.length > 1 ? 's' : ''}
+                                </span>
+                              </div>
+                              {p.ubos_personnes_physiques.map((ubo, ui) => (
+                                <div key={ui} className="bg-white border border-amber-200 rounded-xl p-4 space-y-3">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-xs font-semibold text-[#1A1A1A]">
+                                      {`${ubo.prenom || ''} ${ubo.nom || ''}`.trim() || `UBO #${ui + 1}`}
+                                    </span>
+                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                      {ubo.part_percent || '?'}%
+                                    </span>
+                                    {ubo.pep_status && (
+                                      <span className="text-[10px] bg-red-200 text-red-700 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                                        <AlertTriangle className="w-2.5 h-2.5" /> PEP
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    <Field label="Nom & prénom" value={`${ubo.prenom || ''} ${ubo.nom || ''}`.trim()} />
+                                    <Field label="N° identité / NNI" value={ubo.numero_identite || ubo.nni} />
+                                    <Field label="Nationalité" value={ubo.nationalite} />
+                                    <Field label="Date naissance" value={ubo.date_naissance} />
+                                    <Field label="Lieu naissance" value={ubo.lieu_naissance} />
+                                    <Field label="Profession" value={ubo.profession} />
+                                    <Field label="Email" value={ubo.email} />
+                                    <Field label="Téléphone" value={ubo.telephone} />
+                                    <Field label="Adresse" value={ubo.adresse} className="col-span-2" />
+                                    <Field label="Nom du père" value={ubo.pere_nom} />
+                                    <Field label="Nom de la mère" value={ubo.mere_nom} />
+                                    <Field label="Droits de vote" value={ubo.voting_rights_percent ? `${ubo.voting_rights_percent}%` : '—'} />
+                                    <Field label="Contrôle indirect" value={ubo.indirect_control === 'oui' ? `Oui — ${ubo.controlling_entity_name || '?'}` : 'Non'} />
+                                  </div>
+                                  <div className="flex flex-wrap gap-2 text-[10px]">
+                                    <span className={`px-2 py-1 rounded-full font-medium ${ubo.sanctions_clear ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                      {ubo.sanctions_clear ? '✓ Pas de sanctions déclarées' : '⚠ Sanctions non déclarées'}
+                                    </span>
+                                    <span className={`px-2 py-1 rounded-full font-medium ${ubo.ubo_declaration_signed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                      {ubo.ubo_declaration_signed ? '✓ Déclaration UBO signée' : '✗ Déclaration UBO non signée'}
+                                    </span>
+                                    {ubo.pep_status && (
+                                      <span className="px-2 py-1 rounded-full font-medium bg-red-100 text-red-700">⚠ PPE/PEP — Diligence renforcée requise</span>
+                                    )}
+                                  </div>
+                                  {(ubo.doc_front || ubo.doc_back) && (
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <DocImage url={ubo.doc_front} label={`UBO ${ui + 1} — CIN Recto`} />
+                                      <DocImage url={ubo.doc_back} label={`UBO ${ui + 1} — CIN Verso`} />
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
                             </div>
                           )}
                         </>
