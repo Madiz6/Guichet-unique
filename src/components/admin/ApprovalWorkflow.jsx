@@ -14,9 +14,15 @@ const STEPS = [
     color: 'blue',
     description: 'Vérifier la disponibilité du nom commercial et délivrer le récépissé d\'immatriculation.',
     uploadDocs: [
-      { key: 'odpic_recepisse_url', label: 'Récépissé d\'immatriculation ODPIC' },
+      { key: 'odpic_recepisse_url', label: 'Récépissé d\'immatriculation' },
       { key: 'odpic_certificat_negatif_url', label: 'Certificat négatif (CN1 — Nom Commercial)' },
-      { key: 'odpic_certificat_url', label: 'Certificat de disponibilité du nom' },
+      { key: 'odpic_extrait_url', label: 'Extrait RCS (attestation existence légale — 3 mois)' },
+      { key: 'odpic_duplicata_recepisse_url', label: 'Duplicata du récépissé d\'immatriculation' },
+      { key: 'odpic_duplicata_certificat_negatif_url', label: 'Duplicata du certificat négatif' },
+      { key: 'odpic_attestation_generale_url', label: 'Attestation générale (existence légale)' },
+      { key: 'odpic_attestation_non_faillite_url', label: 'Attestation de non-faillite' },
+      { key: 'odpic_attestation_non_enregistrement_url', label: 'Attestation de non-enregistrement RCS' },
+      { key: 'odpic_attestation_enregistrement_url', label: 'Attestation d\'enregistrement RCS' },
     ],
   },
   {
