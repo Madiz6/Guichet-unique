@@ -8,9 +8,48 @@ function getUBOBadge(partner) {
   return { isUBO, isPEP, percent };
 }
 
-function PartnerNode({ partner, companyName }) {
+function UBOChildNode({ ubo, index }) {
+  const isPEP = ubo.pep_status === true;
+  const name = `${ubo.prenom || ''} ${ubo.nom || ''}`.trim() || `UBO #${index + 1}`;
+  const percent = parseFloat(ubo.part_percent) || 0;
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="w-px h-6 bg-amber-300" />
+      <div className={`relative rounded-xl border-2 p-3 w-40 text-center shadow-sm ${
+        isPEP ? 'border-red-400 bg-red-50' : 'border-amber-300 bg-amber-50'
+      }`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1.5 ${isPEP ? 'bg-red-100' : 'bg-amber-100'}`}>
+          <User className={`w-4 h-4 ${isPEP ? 'text-red-500' : 'text-amber-600'}`} />
+        </div>
+        <p className="text-xs font-semibold text-[#1A1A1A] leading-tight truncate px-1" title={name}>{name}</p>
+        <p className="text-[10px] text-[#6B6B6B] mt-0.5">Pers. physique</p>
+        {ubo.nationalite && <p className="text-[9px] text-[#9B9B9B] mt-0.5">{ubo.nationalite}</p>}
+        <div className="mt-1.5 inline-flex items-center gap-1 bg-white border border-amber-200 rounded-full px-2 py-0.5">
+          <span className="text-xs font-bold text-[#1A1A1A]">{percent > 0 ? `${percent}%` : '—'}</span>
+        </div>
+        <div className="flex justify-center gap-1 mt-1.5 flex-wrap">
+          <span className="text-[9px] bg-amber-200 text-amber-800 rounded-full px-1.5 py-0.5 font-medium flex items-center gap-0.5">
+            <Shield className="w-2.5 h-2.5" /> UBO
+          </span>
+          {isPEP && (
+            <span className="text-[9px] bg-red-200 text-red-800 rounded-full px-1.5 py-0.5 font-medium flex items-center gap-0.5">
+              <AlertTriangle className="w-2.5 h-2.5" /> PEP
+            </span>
+          )}
+          {ubo.sanctions_clear && (
+            <span className="text-[9px] bg-green-100 text-green-700 rounded-full px-1.5 py-0.5 font-medium">✓ KYC</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PartnerNode({ partner }) {
   const { isUBO, isPEP, percent } = getUBOBadge(partner);
   const isPhysique = partner.type === 'physique';
+  const ubos = (!isPhysique && partner.ubos_personnes_physiques) || [];
 
   const name = isPhysique
     ? `${partner.prenom || ''} ${partner.nom || ''}`.trim() || 'Partenaire physique'
@@ -38,6 +77,9 @@ function PartnerNode({ partner, companyName }) {
 
         <p className="text-xs font-semibold text-[#1A1A1A] leading-tight truncate px-1" title={name}>{name}</p>
         <p className="text-[10px] text-[#6B6B6B] mt-0.5">{isPhysique ? 'Pers. physique' : 'Pers. morale'}</p>
+        {!isPhysique && partner.pays_immatriculation && (
+          <p className="text-[9px] text-[#9B9B9B] mt-0.5">{partner.pays_immatriculation}</p>
+        )}
 
         {/* Percentage badge */}
         <div className="mt-2 inline-flex items-center gap-1 bg-white border border-[#E5E7EB] rounded-full px-2 py-0.5">
@@ -65,17 +107,11 @@ function PartnerNode({ partner, companyName }) {
         </div>
 
         {/* Look-through UBO count for moral entities */}
-        {!isPhysique && (
+        {!isPhysique && ubos.length === 0 && (
           <div className="mt-1.5">
-            {(partner.ubos_personnes_physiques?.length || 0) > 0 ? (
-              <span className="text-[9px] bg-green-100 text-green-700 rounded-full px-1.5 py-0.5 font-medium">
-                {partner.ubos_personnes_physiques.length} UBO{partner.ubos_personnes_physiques.length > 1 ? 's' : ''} déclaré{partner.ubos_personnes_physiques.length > 1 ? 's' : ''}
-              </span>
-            ) : (
-              <span className="text-[9px] bg-red-100 text-red-600 rounded-full px-1.5 py-0.5 font-medium flex items-center gap-0.5 justify-center">
-                <AlertTriangle className="w-2.5 h-2.5" /> UBOs requis
-              </span>
-            )}
+            <span className="text-[9px] bg-red-100 text-red-600 rounded-full px-1.5 py-0.5 font-medium flex items-center gap-0.5 justify-center">
+              <AlertTriangle className="w-2.5 h-2.5" /> UBOs requis
+            </span>
           </div>
         )}
 
@@ -84,6 +120,30 @@ function PartnerNode({ partner, companyName }) {
           <p className="text-[9px] text-[#9B9B9B] mt-1 truncate">via {partner.controlling_entity_name}</p>
         )}
       </div>
+
+      {/* UBO look-through children for moral partners */}
+      {ubos.length > 0 && (
+        <div className="flex flex-col items-center mt-0">
+          {/* Dashed vertical line to UBO section */}
+          <div className="w-px h-4 border-l-2 border-dashed border-amber-300" />
+          {/* UBO label */}
+          <span className="text-[9px] bg-amber-100 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5 font-medium mb-0">
+            Propriétaires de {name}
+          </span>
+          {/* Horizontal connector bar if multiple UBOs */}
+          {ubos.length > 1 && (
+            <div className="relative flex items-start justify-center" style={{ minWidth: ubos.length * 176 }}>
+              <div className="absolute top-0 left-8 right-8 h-px bg-amber-300" />
+              {ubos.map((ubo, ui) => (
+                <UBOChildNode key={ui} ubo={ubo} index={ui} />
+              ))}
+            </div>
+          )}
+          {ubos.length === 1 && (
+            <UBOChildNode ubo={ubos[0]} index={0} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
