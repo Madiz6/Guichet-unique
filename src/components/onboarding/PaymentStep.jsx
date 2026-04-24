@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, CreditCard, Shield, Clock, Building2, FileText, Download, Loader2 } from 'lucide-react';
 import { generateFormulairePDF } from './PDFGenerator.jsx';
+import { generatePaymentReceiptPDF } from './PaymentReceiptPDF.jsx';
 import MerasPaymentGateway from '@/components/payments/MerasPaymentGateway.jsx';
 
 // Service tier surcharges only (added on top of base fees)
@@ -51,6 +52,8 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const [paid, setPaid] = useState(false);
   const [selectedTier, setSelectedTier] = useState('standard');
   const [downloading, setDownloading] = useState(false);
+  const [transactionId, setTransactionId] = useState(null);
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
 
   const activite = stepData?.activite || {};
   const companyName = activite.commercial_names?.[0] || activite.raison_sociale || 'Votre entreprise';
@@ -60,9 +63,56 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const patenteAmount = getPatenteAmount(activite.secteur_principal, activite.activite_description);
   const totalAmount = tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount + ODPIC + STATUS_FEES + tier.surcharge;
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async (paymentResult) => {
     setShowGateway(false);
+    const txId = paymentResult?.transaction_id || null;
+    setTransactionId(txId);
     setPaid(true);
+    // Auto-generate receipt PDF
+    try {
+      const user = await import('@/api/base44Client').then(m => m.base44.auth.me()).catch(() => null);
+      await generatePaymentReceiptPDF({
+        amount: totalAmount,
+        transactionId: txId,
+        envelopeId,
+        companyName,
+        formeJuridique: activite.forme_juridique || '—',
+        secteur: activite.secteur_principal || '—',
+        tierLabel: tier.label,
+        tierDelay: tier.delay,
+        applicantName: user?.full_name || '—',
+        applicantEmail: user?.email || '—',
+        patenteAmount: tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount,
+        odpicAmount: tier.fixedAmount !== undefined ? 0 : ODPIC,
+        statusFeesAmount: tier.fixedAmount !== undefined ? 0 : STATUS_FEES,
+        tierSurcharge: tier.fixedAmount !== undefined ? 0 : tier.surcharge,
+      });
+    } catch { /* receipt download failure is non-blocking */ }
+  };
+
+  const handleDownloadReceipt = async () => {
+    setDownloadingReceipt(true);
+    try {
+      const user = await import('@/api/base44Client').then(m => m.base44.auth.me()).catch(() => null);
+      await generatePaymentReceiptPDF({
+        amount: totalAmount,
+        transactionId,
+        envelopeId,
+        companyName,
+        formeJuridique: activite.forme_juridique || '—',
+        secteur: activite.secteur_principal || '—',
+        tierLabel: tier.label,
+        tierDelay: tier.delay,
+        applicantName: user?.full_name || '—',
+        applicantEmail: user?.email || '—',
+        patenteAmount: tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount,
+        odpicAmount: tier.fixedAmount !== undefined ? 0 : ODPIC,
+        statusFeesAmount: tier.fixedAmount !== undefined ? 0 : STATUS_FEES,
+        tierSurcharge: tier.fixedAmount !== undefined ? 0 : tier.surcharge,
+      });
+    } finally {
+      setDownloadingReceipt(false);
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -107,6 +157,11 @@ export default function PaymentStep({ stepData, onSuccess }) {
 
           {/* Download buttons */}
           <div className="grid grid-cols-1 gap-3">
+            <Button onClick={handleDownloadReceipt} disabled={downloadingReceipt}
+              className="flex items-center gap-2 w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white">
+              {downloadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              Télécharger le Reçu de Paiement (PDF)
+            </Button>
             <Button onClick={handleDownloadPDF} disabled={downloading}
               variant="outline" className="flex items-center gap-2 w-full">
               {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
