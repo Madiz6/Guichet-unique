@@ -15,6 +15,7 @@ const STEPS = [
     description: 'Vérifier la disponibilité du nom commercial et délivrer le récépissé d\'immatriculation.',
     uploadDocs: [
       { key: 'odpic_recepisse_url', label: 'Récépissé d\'immatriculation ODPIC' },
+      { key: 'odpic_certificat_negatif_url', label: 'Certificat négatif (CN1 — Nom Commercial)' },
       { key: 'odpic_certificat_url', label: 'Certificat de disponibilité du nom' },
     ],
   },
