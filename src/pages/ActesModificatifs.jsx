@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import RCSWizard from '@/components/admin/RCSWizard';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -791,18 +792,16 @@ function CompanyActes({ dossier, user, onBack, onDossierUpdated }) {
         ))}
       </div>
 
-      {/* Tab: Actes officiels */}
+      {/* Tab: Actes officiels RCS — Wizard */}
       {activeTab === 'actes' && (
         <div className="space-y-4">
           {showActeForm ? (
-            <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-              <h3 className="font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
-                <FilePen className="w-4 h-4 text-[#1A2B6B]" /> Nouvel acte modificatif
-              </h3>
-              <ActeForm dossier={dossier} user={user}
-                onCreated={() => { setShowActeForm(false); refetch(); onDossierUpdated(); }}
-                onCancel={() => setShowActeForm(false)} />
-            </div>
+            <RCSWizard
+              dossier={dossier}
+              user={user}
+              onFinished={() => { setShowActeForm(false); refetch(); onDossierUpdated(); }}
+              onCancel={() => setShowActeForm(false)}
+            />
           ) : (
             <Button onClick={() => setShowActeForm(true)} className="w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white h-11">
               <Plus className="w-4 h-4 mr-2" /> Inscrire un nouvel acte modificatif
