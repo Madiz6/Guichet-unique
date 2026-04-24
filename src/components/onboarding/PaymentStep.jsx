@@ -93,10 +93,11 @@ export default function PaymentStep({ stepData, onSuccess }) {
             payment_confirmed: true,
             payment_amount: totalAmount,
             step_data: { ...stepData, paiement: paymentMeta },
+            statut: 'En attente',
           });
         }
       }
-    } catch { /* non-blocking */ }
+    } catch (e) { console.error('Payment persist error:', e); }
 
     // Auto-generate receipt PDF
     try {

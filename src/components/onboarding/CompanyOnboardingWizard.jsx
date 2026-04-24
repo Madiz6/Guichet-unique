@@ -131,7 +131,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
     return true;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     try {
       if (!validateCurrentStep()) {
         toast.error('Veuillez compléter toutes les informations requises avant de continuer.');
@@ -141,6 +141,10 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       setCompletedSteps(next);
       if (currentStep < STEPS.length - 1) {
         const nextStep = currentStep + 1;
+        // If we're about to enter the payment step, create the dossier first
+        if (STEPS[nextStep].id === 'paiement') {
+          await handleSubmit();
+        }
         setCurrentStep(nextStep);
         saveDraft(stepData, nextStep, next);
       }
@@ -159,17 +163,19 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
   };
 
   const handleSubmit = async () => {
-    if (!validateCurrentStep()) {
-      toast.error('Veuillez compléter toutes les informations requises.');
-      return;
-    }
     setSaving(true);
     try {
       const idData = stepData.identification?.data || {};
       const activiteData = stepData.activite || {};
       const docsData = stepData.documents?.docs || {};
-      const envelopeId = stepData.esignature?.envelope_id || '';
-      const companyName = activiteData.commercial_names?.[0] || activiteData.raison_sociale || `Entreprise`;
+      const envelopeId = stepData.esignature?.envelope_id || `ENV-${Date.now()}`;
+      const companyName = activiteData.commercial_names?.[0] || activiteData.raison_sociale || 'Entreprise';
+
+      const user = await base44.auth.me();
+
+      // Avoid duplicate creation if already submitted
+      const existing = await meras.entities.RegistrationDossier.filter({ applicant_email: user?.email || '', envelope_id: envelopeId });
+      if (existing?.length > 0) return;
 
       const company = await meras.entities.Company.create({
         nom_entreprise: companyName,
@@ -184,19 +190,8 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
         email: idData.email || '',
         telephone: idData.telephone || '',
         statut_societe_url: docsData.statuts_signes_url || '',
-        structure_organisationnelle: JSON.stringify({
-          representant: idData,
-          notaire: stepData.identification?.notaire,
-          rep_type: stepData.identification?.rep_type,
-          dispositions: stepData.dispositions,
-          partenaires: stepData.partenaires?.partners || [],
-          employes: stepData.employes?.employees || [],
-          commercial_names: activiteData.commercial_names || [],
-        }),
       });
 
-      // Create registration dossier for tracking
-      const user = await base44.auth.me();
       await meras.entities.RegistrationDossier.create({
         company_id: company.id,
         envelope_id: envelopeId,
@@ -207,24 +202,22 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
         statut: 'En attente',
         step_data: stepData,
         signature_data: stepData.esignature?.signature_data ? '[SIGNED]' : null,
-        payment_confirmed: true,
-        payment_amount: 5000,
+        payment_confirmed: false,
         date_soumission: new Date().toISOString().split('T')[0],
       });
 
       await base44.auth.updateMe({
         company_id: company.id,
-        company_name: company.nom_entreprise,
+        company_name: companyName,
         onboarding_completed: true,
       });
 
-      toast.success('Entreprise créée avec succès !');
-      // Draft is cleared only after successful payment (see PaymentStep)
+      toast.success('Dossier soumis — procédez au paiement pour valider.');
     } catch (e) {
-      // Save current state to draft so user can retry without losing data
       saveDraft(stepData, currentStep, completedSteps);
-      toast.error("Erreur lors de la création — vos données ont été sauvegardées. Réessayez dans quelques instants.");
       console.error('Onboarding submit error:', e);
+      toast.error('Erreur lors de la soumission — vos données sont sauvegardées.');
+      throw e; // re-throw so handleNext can catch it and not proceed
     } finally {
       setSaving(false);
     }
@@ -318,7 +311,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
           {step.id === 'attestation' && <AttestationPouvoirStep value={stepData.attestation} onChange={updateStep} stepData={stepData} />}
           {step.id === 'documents' && <DocumentsStep value={stepData.documents} onChange={updateStep} stepData={stepData} />}
           {step.id === 'esignature' && <ESignatureStep value={stepData.esignature} onChange={updateStep} stepData={stepData} />}
-          {step.id === 'paiement' && <PaymentStep stepData={stepData} onSuccess={() => { clearDraft(); onSuccess?.(); }} />}
+          {step.id === 'paiement' && <PaymentStep stepData={stepData} onSuccess={() => { clearDraft(); onSuccess?.(); }} onStepDataChange={setStepData} />}
         </div>
       </div>
 
