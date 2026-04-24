@@ -9,6 +9,7 @@ const TIERS = [
   { id: 'express', label: 'Express', delay: '45 minutes', surcharge: 25000, color: 'border-purple-400 bg-purple-50', desc: 'Traitement prioritaire immédiat', icon: '⚡' },
   { id: 'standard', label: 'Standard', delay: '24 heures', surcharge: 15000, color: 'border-blue-400 bg-blue-50', desc: 'Traitement le jour même', icon: '🕐', popular: true },
   { id: 'economique', label: 'Économique', delay: '72 heures', surcharge: 0, color: 'border-gray-300 bg-gray-50', desc: 'Traitement dans les 3 jours ouvrables', icon: '📋' },
+  { id: 'test', label: 'Test', delay: '—', surcharge: 0, fixedAmount: 15, color: 'border-amber-400 bg-amber-50', desc: 'Environnement de test uniquement', icon: '🧪' },
 ];
 
 // Patente fee table by activity sector (DJF)
@@ -57,7 +58,7 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const tier = TIERS.find(t => t.id === selectedTier) || TIERS[1];
 
   const patenteAmount = getPatenteAmount(activite.secteur_principal, activite.activite_description);
-  const totalAmount = patenteAmount + ODPIC + STATUS_FEES + tier.surcharge;
+  const totalAmount = tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount + ODPIC + STATUS_FEES + tier.surcharge;
 
   const handlePaymentSuccess = () => {
     setShowGateway(false);
@@ -142,7 +143,7 @@ export default function PaymentStep({ stepData, onSuccess }) {
       {/* Tier selector */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {TIERS.map(t => {
-          const tierTotal = patenteAmount + ODPIC + STATUS_FEES + t.surcharge;
+          const tierTotal = t.fixedAmount !== undefined ? t.fixedAmount : patenteAmount + ODPIC + STATUS_FEES + t.surcharge;
           return (
             <button key={t.id} type="button" onClick={() => setSelectedTier(t.id)}
               className={`relative flex flex-col items-start text-left p-4 rounded-xl border-2 transition-all ${selectedTier === t.id ? t.color + ' shadow-md' : 'border-[#E5E7EB] bg-white hover:border-[#C4C4C4]'}`}>
@@ -152,16 +153,22 @@ export default function PaymentStep({ stepData, onSuccess }) {
                 <p className="font-bold text-sm text-[#1A1A1A]">{t.label}</p>
                 {selectedTier === t.id && <div className="ml-auto w-5 h-5 rounded-full bg-[#1A1A1A] flex items-center justify-center"><CheckCircle2 className="w-3 h-3 text-white" /></div>}
               </div>
-              <div className="w-full space-y-1 text-xs text-[#6B6B6B] mb-3">
-                <div className="flex justify-between"><span>1. Patente</span><span className="font-medium text-[#1A1A1A]">{patenteAmount.toLocaleString()} DJF</span></div>
-                <div className="flex justify-between"><span>2. ODPIC</span><span className="font-medium text-[#1A1A1A]">{ODPIC.toLocaleString()} DJF</span></div>
-                <div className="flex justify-between"><span>3. Statuts</span><span className="font-medium text-[#1A1A1A]">{STATUS_FEES.toLocaleString()} DJF</span></div>
-                <div className="flex justify-between border-t border-dashed border-[#E5E7EB] pt-1">
-                  <span>{t.label} {t.surcharge > 0 ? `(+${t.surcharge.toLocaleString()})` : '(inclus)'}</span>
-                  <span className="font-medium text-[#1A1A1A]">{t.surcharge > 0 ? `${t.surcharge.toLocaleString()} DJF` : '0 DJF'}</span>
+              {t.fixedAmount !== undefined ? (
+                <div className="w-full mb-3">
+                  <p className="text-xs text-amber-700 bg-amber-100 rounded-lg px-2 py-1">{t.desc}</p>
                 </div>
-              </div>
-              <p className="text-xs text-[#6B6B6B] mb-1">⏱ {t.delay} — {t.desc}</p>
+              ) : (
+                <div className="w-full space-y-1 text-xs text-[#6B6B6B] mb-3">
+                  <div className="flex justify-between"><span>1. Patente</span><span className="font-medium text-[#1A1A1A]">{patenteAmount.toLocaleString()} DJF</span></div>
+                  <div className="flex justify-between"><span>2. ODPIC</span><span className="font-medium text-[#1A1A1A]">{ODPIC.toLocaleString()} DJF</span></div>
+                  <div className="flex justify-between"><span>3. Statuts</span><span className="font-medium text-[#1A1A1A]">{STATUS_FEES.toLocaleString()} DJF</span></div>
+                  <div className="flex justify-between border-t border-dashed border-[#E5E7EB] pt-1">
+                    <span>{t.label} {t.surcharge > 0 ? `(+${t.surcharge.toLocaleString()})` : '(inclus)'}</span>
+                    <span className="font-medium text-[#1A1A1A]">{t.surcharge > 0 ? `${t.surcharge.toLocaleString()} DJF` : '0 DJF'}</span>
+                  </div>
+                </div>
+              )}
+              <p className="text-xs text-[#6B6B6B] mb-1">{t.delay !== '—' ? `⏱ ${t.delay}` : t.desc}</p>
               <div className="w-full flex justify-between items-center pt-2 border-t border-[#E5E7EB]">
                 <span className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Total à payer</span>
                 <span className="text-lg font-bold text-[#1A1A1A]">{tierTotal.toLocaleString()} <span className="text-xs font-normal">DJF</span></span>
