@@ -77,21 +77,39 @@ export default function PaymentSuccess() {
       const urlParams = new URLSearchParams(window.location.search);
       const txnId = urlParams.get('id');
 
+      const totalAmount = dossier?.payment_amount || paiement.totalAmount || 0;
+
+      // Reconstruct fee breakdown if not stored in paiement metadata
+      let patenteAmount = paiement.patenteAmount;
+      let odpicAmount = paiement.odpicAmount;
+      let statusFeesAmount = paiement.statusFeesAmount;
+      let tierSurcharge = paiement.tierSurcharge;
+
+      const hasBreakdown = patenteAmount || odpicAmount || statusFeesAmount;
+      if (!hasBreakdown && totalAmount > 0) {
+        // Standard fixed fees: ODPIC=24000, Statuts=18000, rest=patente (+possible surcharge)
+        odpicAmount = 24000;
+        statusFeesAmount = 18000;
+        tierSurcharge = paiement.tierSurcharge || 0;
+        patenteAmount = totalAmount - odpicAmount - statusFeesAmount - (tierSurcharge || 0);
+        if (patenteAmount < 0) patenteAmount = 0;
+      }
+
       await generatePaymentReceiptPDF({
-        amount: dossier?.payment_amount || paiement.totalAmount || 0,
+        amount: totalAmount,
         transactionId: paiement.transactionId || txnId || null,
         envelopeId: dossier?.envelope_id || '—',
         companyName: dossier?.company_name || '—',
         formeJuridique: dossier?.forme_juridique || activite.forme_juridique || '—',
         secteur: activite.secteur_principal || '—',
         tierLabel: paiement.tierLabel || 'Standard',
-        tierDelay: paiement.tierDelay || '—',
+        tierDelay: paiement.tierDelay || '24 heures',
         applicantName: user?.full_name || dossier?.applicant_name || '—',
         applicantEmail: user?.email || dossier?.applicant_email || '—',
-        patenteAmount: paiement.patenteAmount || 0,
-        odpicAmount: paiement.odpicAmount || 0,
-        statusFeesAmount: paiement.statusFeesAmount || 0,
-        tierSurcharge: paiement.tierSurcharge || 0,
+        patenteAmount: patenteAmount || 0,
+        odpicAmount: odpicAmount || 0,
+        statusFeesAmount: statusFeesAmount || 0,
+        tierSurcharge: tierSurcharge || 0,
       });
     } finally {
       setDownloadingReceipt(false);
