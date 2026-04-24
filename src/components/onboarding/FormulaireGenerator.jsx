@@ -159,25 +159,48 @@ function generateFormulairePDF(model, stepData, signatureData) {
 
   // SECTION III – ACTIVITÉ
   sectionHeader('III. DÉCLARATION RELATIVE À L\'ACTIVITÉ');
-  field('Secteur d\'activité principal', d.activite.secteur_principal || '', margin, 80, y);
-  field('Régime fiscal', d.activite.regime_fiscal || '', margin + 85, 55, y);
-  y += 12;
-  field('Activités secondaires', (d.activite.activites_secondaires || []).join(', '), margin, 130, y);
-  y += 12;
+  field('Activité principale (Raison sociale)', d.activite.secteur_principal || '', margin, 85, y);
+  field('Activité secondaire', (d.activite.activites_secondaires || []).join(', '), margin + 90, 65, y);
+  y += 14;
 
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Description de l\'activité :', margin, y);
-  y += 4;
-  doc.setFont('helvetica', 'normal');
-  const descLines = doc.splitTextToSize(d.activite.activite_description || '[DESCRIPTION]', pageW - margin * 2 - 2);
-  descLines.slice(0, 3).forEach(l => { doc.text(l, margin, y); y += 4; });
-  y += 6;
+  // SECTION IV – MANDATAIRE ET COMMISSAIRE AUX COMPTES
+  if (model === 'morale') {
+    if (y > 230) { doc.addPage(); y = 15; }
+    sectionHeader('IV. IDENTIFICATION DU MANDATAIRE ET/OU COMMISSAIRE AUX COMPTES');
+    // Table header
+    doc.setFillColor(220, 230, 255);
+    doc.rect(margin, y, pageW - margin * 2, 6, 'F');
+    doc.setFontSize(6);
+    doc.setFont('helvetica', 'bold');
+    const mcols = [margin + 1, margin + 42, margin + 68, margin + 100, margin + 120, margin + 137];
+    ['Nom & Prénom / Dénomination', 'N° CIN / RCS', 'Adresse / Siège social', 'Tél.', 'Fax', 'Email'].forEach((h, ci) => doc.text(h, mcols[ci], y + 4));
+    y += 8;
+    // Mandataire row
+    const mandat = d.repType === 'notaire' ? d.notaire : null;
+    const mandatVals = [
+      mandat ? (mandat.nom || '') : (d.signerName || ''),
+      mandat ? (mandat.rcs || '') : (d.idData.numero_identite || ''),
+      mandat ? (mandat.adresse || '') : (d.idData.adresse || ''),
+      mandat ? (mandat.telephone || '') : (d.idData.telephone || ''),
+      '',
+      mandat ? (mandat.email || '') : (d.idData.email || ''),
+    ];
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6);
+    doc.text('Mandataire', margin + 1, y + 2);
+    mandatVals.forEach((v, ci) => doc.text((v || '').substring(0, ci === 0 ? 20 : 14), mcols[ci], y + 6));
+    doc.line(margin, y + 8, pageW - margin, y + 8);
+    y += 10;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6);
+    doc.text('Commissaire aux comptes', margin + 1, y + 2);
+    [margin + 42, margin + 68, margin + 100, margin + 120, margin + 137].forEach(x => doc.text('___________', x, y + 6));
+    doc.line(margin, y + 8, pageW - margin, y + 8);
+    y += 14;
+  }
 
-  // SECTION IV – SALARIÉS (if any)
+  // SECTION V – SALARIÉS
   if (d.employes.length > 0) {
     if (y > 220) { doc.addPage(); y = 15; }
-    sectionHeader('IV. DÉCLARATION DES SALARIÉS');
+    sectionHeader(`${model === 'morale' ? 'V' : 'IV'}. DÉCLARATION DES SALARIÉS`);
     doc.setFillColor(220, 230, 255);
     doc.rect(margin, y, pageW - margin * 2, 6, 'F');
     doc.setFontSize(6);
@@ -200,32 +223,6 @@ function generateFormulairePDF(model, stepData, signatureData) {
         emp.date_embauche || '',
       ];
       vals.forEach((v, ci) => doc.text(v, cols[ci] + 1, y + 4));
-      doc.line(margin, y + 6, pageW - margin, y + 6);
-      y += 8;
-    });
-    y += 4;
-  }
-
-  // SECTION V – ASSOCIÉS/PARTENAIRES
-  if (model === 'morale' && d.partenaires.length > 0) {
-    if (y > 210) { doc.addPage(); y = 15; }
-    sectionHeader('V. DÉCLARATION DES ASSOCIÉS / ACTIONNAIRES');
-    doc.setFillColor(220, 230, 255);
-    doc.rect(margin, y, pageW - margin * 2, 6, 'F');
-    doc.setFontSize(6);
-    doc.setFont('helvetica', 'bold');
-    const pcols = [margin, margin + 50, margin + 85, margin + 115, margin + 140];
-    ['Nom & Prénom / Raison sociale', 'NNI / N° RCS', 'Nationalité', 'Part (%)', 'Apport (FD)'].forEach((h, ci) => {
-      doc.text(h, pcols[ci] + 1, y + 4);
-    });
-    y += 8;
-    d.partenaires.forEach(p => {
-      if (y > 265) { doc.addPage(); y = 15; }
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(6);
-      const name = p.type === 'physique' ? `${p.prenom || ''} ${p.nom || ''}`.trim() : (p.raison_sociale || '');
-      const nni = p.nni || p.rcs || p.numero_identite || '';
-      const vals = [name.substring(0, 22), nni.substring(0, 14), (p.nationalite || '').substring(0, 12), String(p.part_percent || ''), p.apport ? Number(p.apport).toLocaleString() : ''];
-      vals.forEach((v, ci) => doc.text(v, pcols[ci] + 1, y + 4));
       doc.line(margin, y + 6, pageW - margin, y + 6);
       y += 8;
     });
