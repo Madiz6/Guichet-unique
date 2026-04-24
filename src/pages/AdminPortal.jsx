@@ -19,6 +19,7 @@ import { generateFormulairePDF, generateStatutsPDF } from '@/components/onboardi
 import ApprovalWorkflow from '@/components/admin/ApprovalWorkflow.jsx';
 import ShareholderTree from '@/components/onboarding/ShareholderTree.jsx';
 import AMLScreeningPanel from '@/components/admin/AMLScreeningPanel.jsx';
+import ActesAdministratifsRCS from '@/components/admin/ActesAdministratifsRCS.jsx';
 
 const STATUS_COLORS = {
   'En attente': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -674,6 +675,12 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
               )}
             </div>
           </div>
+
+          {/* Actes Administratifs RCS */}
+          <ActesAdministratifsRCS
+            dossier={localDossier}
+            onDossierUpdated={() => onUpdateDossier(localDossier)}
+          />
         </div>
 
         {/* Sidebar — actions */}
