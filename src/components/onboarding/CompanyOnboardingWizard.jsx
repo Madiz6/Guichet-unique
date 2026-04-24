@@ -218,9 +218,8 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
         onboarding_completed: true,
       });
 
-      clearDraft();
       toast.success('Entreprise créée avec succès !');
-      onSuccess?.();
+      // Draft is cleared only after successful payment (see PaymentStep)
     } catch (e) {
       // Save current state to draft so user can retry without losing data
       saveDraft(stepData, currentStep, completedSteps);
@@ -319,7 +318,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
           {step.id === 'attestation' && <AttestationPouvoirStep value={stepData.attestation} onChange={updateStep} stepData={stepData} />}
           {step.id === 'documents' && <DocumentsStep value={stepData.documents} onChange={updateStep} stepData={stepData} />}
           {step.id === 'esignature' && <ESignatureStep value={stepData.esignature} onChange={updateStep} stepData={stepData} />}
-          {step.id === 'paiement' && <PaymentStep stepData={stepData} onSuccess={onSuccess} />}
+          {step.id === 'paiement' && <PaymentStep stepData={stepData} onSuccess={() => { clearDraft(); onSuccess?.(); }} />}
         </div>
       </div>
 
