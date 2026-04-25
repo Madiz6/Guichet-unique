@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import {
   Search, CheckCircle2, XCircle, Eye, FileText, Users, UserSquare2,
   Building2, ArrowLeft, AlertTriangle, Clock, Download, Shield,
-  PenLine, Image, ChevronRight, RefreshCw, Award, Briefcase, CreditCard, Loader2
+  PenLine, Image, ChevronRight, RefreshCw, Award, Briefcase, CreditCard, Loader2, Plus
 } from 'lucide-react';
 import { generatePaymentReceiptPDF } from '@/components/onboarding/PaymentReceiptPDF.jsx';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ import ApprovalWorkflow from '@/components/admin/ApprovalWorkflow.jsx';
 import ShareholderTree from '@/components/onboarding/ShareholderTree.jsx';
 import AMLScreeningPanel from '@/components/admin/AMLScreeningPanel.jsx';
 import ActesAdministratifsRCS from '@/components/admin/ActesAdministratifsRCS.jsx';
+import AdminCreateDossier from '@/components/admin/AdminCreateDossier.jsx';
 
 const STATUS_COLORS = {
   'En attente': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -833,6 +834,7 @@ export default function AdminPortal() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [selectedDossier, setSelectedDossier] = useState(null);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
@@ -856,6 +858,20 @@ export default function AdminPortal() {
           <p className="text-[#6B6B6B] mt-2">Cette page est réservée aux agents du Guichet Unique.</p>
         </div>
       </div>
+    );
+  }
+
+  if (showCreateWizard) {
+    return (
+      <AdminCreateDossier
+        user={user}
+        onBack={() => setShowCreateWizard(false)}
+        onSuccess={() => {
+          setShowCreateWizard(false);
+          queryClient.invalidateQueries(['registration-dossiers']);
+          toast.success('Dossier créé avec succès');
+        }}
+      />
     );
   }
 
@@ -913,6 +929,13 @@ export default function AdminPortal() {
             <button onClick={() => refetch()} className="p-2 rounded-lg hover:bg-white/10 transition-colors" title="Rafraîchir">
               <RefreshCw className="w-4 h-4 text-blue-200" />
             </button>
+            <Button
+              onClick={() => setShowCreateWizard(true)}
+              size="sm"
+              className="bg-white text-[#1A2B6B] hover:bg-blue-50 font-semibold"
+            >
+              <Plus className="w-4 h-4 mr-1" /> Créer un dossier
+            </Button>
             <Link to="/Dashboard">
               <Button variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/10">
                 <ArrowLeft className="w-4 h-4 mr-1" /> Tableau de bord
