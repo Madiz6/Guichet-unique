@@ -1,27 +1,51 @@
 import React from 'react';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, LogOut, Mail } from 'lucide-react';
 
 const UserNotRegisteredError = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white to-slate-50">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg border border-slate-100">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-orange-100">
-            <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">Access Restricted</h1>
-          <p className="text-slate-600 mb-8">
-            You are not registered to use this application. Please contact the app administrator to request access.
-          </p>
-          <div className="p-4 bg-slate-50 rounded-md text-sm text-slate-600">
-            <p>If you believe this is an error, you can:</p>
-            <ul className="list-disc list-inside mt-2 space-y-1">
-              <li>Verify you are logged in with the correct account</li>
-              <li>Contact the app administrator for access</li>
-              <li>Try logging out and back in again</li>
-            </ul>
-          </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#FAFAFA]">
+      <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-lg border border-[#E5E7EB] p-8 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 mb-5 rounded-full bg-orange-100">
+          <AlertTriangle className="w-8 h-8 text-orange-600" />
+        </div>
+
+        <img
+          src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+          alt="Guichet UN"
+          className="w-10 h-10 object-contain mx-auto mb-4"
+        />
+
+        <h1 className="text-2xl font-bold text-[#1A1A1A] mb-3">Accès non autorisé</h1>
+        <p className="text-[#6B6B6B] text-sm mb-6 leading-relaxed">
+          Votre compte n'est pas encore enregistré sur cette application. Veuillez contacter un administrateur du Guichet Unique ANPI pour obtenir l'accès.
+        </p>
+
+        <div className="bg-[#F9F9F9] rounded-xl p-4 text-left text-sm text-[#6B6B6B] mb-6 border border-[#E5E7EB]">
+          <p className="font-semibold text-[#1A1A1A] mb-2">Que faire ?</p>
+          <ul className="space-y-1.5 list-disc list-inside">
+            <li>Vérifiez que vous êtes connecté avec le bon compte</li>
+            <li>Contactez l'administrateur ANPI pour demander l'accès</li>
+            <li>Déconnectez-vous et reconnectez-vous si nécessaire</li>
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Button
+            onClick={() => base44.auth.logout('/')}
+            className="w-full bg-[#1A1A1A] hover:bg-[#333] text-white"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Se déconnecter
+          </Button>
+          <a
+            href="mailto:support@anpi.dj"
+            className="flex items-center justify-center gap-2 text-sm text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors py-2"
+          >
+            <Mail className="w-4 h-4" />
+            Contacter le support
+          </a>
         </div>
       </div>
     </div>
