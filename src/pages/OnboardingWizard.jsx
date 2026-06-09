@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { meras } from '@/components/core/MerasClient';
 import { base44 } from '@/api/base44Client';
 import {
@@ -31,33 +30,16 @@ export default function OnboardingWizard() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
 
-  const { data: companies = [], isLoading } = useQuery({
-    queryKey: ['companies-onboarding'],
-    queryFn: () => meras.entities.Company.list(),
-    enabled: isAuthenticated === true,
-  });
-
   // Check auth on mount
   useEffect(() => {
     meras.auth.isAuthenticated().then((authed) => {
       setIsAuthenticated(authed);
+      // Auto-start wizard immediately if authenticated
+      if (authed) setChoice('create');
     });
   }, []);
 
-  useEffect(() => {
-    if (!isLoading && companies.length > 0) {
-      navigate('/Dashboard');
-    }
-  }, [isLoading, companies.length, navigate]);
-
-  // Auto-start wizard if authenticated
-  useEffect(() => {
-    if (isAuthenticated === true) {
-      setChoice('create');
-    }
-  }, [isAuthenticated]);
-
-  if (isAuthenticated === null || isLoading) return (
+  if (isAuthenticated === null) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-800 rounded-full animate-spin" />
     </div>
