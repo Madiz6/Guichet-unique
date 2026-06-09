@@ -37,7 +37,9 @@ const AuthenticatedApp = () => {
     );
   }
 
-  if (authError) {
+  const isPublicPage = location.pathname === '/' || location.pathname === '/onboarding';
+
+  if (authError && !isPublicPage) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
