@@ -56,9 +56,17 @@ export default function MesDossiers() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-4 md:p-8">
       <div className="max-w-3xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[#1A1A1A]">Mes Dossiers</h1>
-          <p className="text-sm text-[#6B6B6B] mt-1">Suivez l'état d'avancement de vos enregistrements d'entreprise</p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1A1A1A]">Mes Dossiers</h1>
+            <p className="text-sm text-[#6B6B6B] mt-1">Suivez l'état d'avancement de vos enregistrements d'entreprise</p>
+          </div>
+          <Button
+            className="bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white shrink-0"
+            onClick={() => window.location.href = '/onboarding'}
+          >
+            <Plus className="w-4 h-4 mr-2" /> Créer une entreprise
+          </Button>
         </div>
 
         {dossiers.length === 0 ? (
