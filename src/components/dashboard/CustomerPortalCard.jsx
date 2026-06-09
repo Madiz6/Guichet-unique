@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link2, Copy, Check, QrCode, ExternalLink, Users } from 'lucide-react';
 
-const PORTAL_URL = `${window.location.origin}/onboarding`;
+const PORTAL_URL = `https://securetest998376466473835464724353533454u7567nj44.online/onboarding`;
 
 export default function CustomerPortalCard() {
   const [copied, setCopied] = useState(false);
