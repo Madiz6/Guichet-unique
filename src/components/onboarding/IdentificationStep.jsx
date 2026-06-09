@@ -65,32 +65,61 @@ function IdDocUploader({ data, onChange, showBiometric }) {
     const backUrl = newUrls.document_back_url;
     onChange({ ...data, ...newUrls, document_url: frontUrl || backUrl });
 
-    if (!frontUrl) return;
+    // Always run extraction whenever any side is uploaded (using all available URLs)
+    const extractUrls = [frontUrl, backUrl].filter(Boolean);
+    if (extractUrls.length === 0) return;
 
     setExtracting(true);
     try {
-      const fileUrls = [frontUrl, ...(backUrl ? [backUrl] : [])];
-      const extracted = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are given ${fileUrls.length === 2 ? 'the front AND back sides' : 'the front'} of an identity document. Extract ALL visible information. The back typically contains NNI, MRZ, address. Return JSON with: nom, prenom, date_naissance (YYYY-MM-DD), lieu_naissance, nationalite, numero_identite, nni, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, sexe, email, telephone, profession, pere_nom, mere_nom, mrz_line1, mrz_line2. Use empty string for missing fields.`,
-        file_urls: fileUrls,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            nom: { type: 'string' }, prenom: { type: 'string' },
-            date_naissance: { type: 'string' }, lieu_naissance: { type: 'string' },
-            nationalite: { type: 'string' }, numero_identite: { type: 'string' },
-            nni: { type: 'string' }, date_emission: { type: 'string' }, date_expiration: { type: 'string' },
-            adresse: { type: 'string' }, sexe: { type: 'string' }, email: { type: 'string' },
-            telephone: { type: 'string' }, profession: { type: 'string' },
-            pere_nom: { type: 'string' }, mere_nom: { type: 'string' },
-            mrz_line1: { type: 'string' }, mrz_line2: { type: 'string' },
-          },
+      const JSON_SCHEMA = {
+        type: 'object',
+        properties: {
+          nom: { type: 'string' }, prenom: { type: 'string' },
+          date_naissance: { type: 'string' }, lieu_naissance: { type: 'string' },
+          nationalite: { type: 'string' }, numero_identite: { type: 'string' },
+          nni: { type: 'string' }, date_emission: { type: 'string' }, date_expiration: { type: 'string' },
+          adresse: { type: 'string' }, sexe: { type: 'string' }, email: { type: 'string' },
+          telephone: { type: 'string' }, profession: { type: 'string' },
+          pere_nom: { type: 'string' }, mere_nom: { type: 'string' },
+          mrz_line1: { type: 'string' }, mrz_line2: { type: 'string' },
         },
-      });
-      onChange({ ...data, ...newUrls, document_url: frontUrl, data: extracted });
-      toast.success(`Données extraites depuis ${fileUrls.length === 2 ? 'recto + verso' : 'le recto'}`);
+      };
+
+      // Try ExtractDataFromUploadedFile first on the primary image (most reliable for structured docs)
+      let extracted = null;
+      try {
+        const extractResult = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url: frontUrl || backUrl,
+          json_schema: JSON_SCHEMA,
+        });
+        if (extractResult?.status === 'success' && extractResult?.output) {
+          extracted = Array.isArray(extractResult.output) ? extractResult.output[0] : extractResult.output;
+        }
+      } catch {
+        // fall through to InvokeLLM
+      }
+
+      // If ExtractDataFromUploadedFile didn't get good results, fall back to InvokeLLM vision with all images
+      if (!extracted || !extracted.nom) {
+        extracted = await base44.integrations.Core.InvokeLLM({
+          model: 'claude_sonnet_4_6',
+          prompt: `You are an expert OCR system. You are given ${extractUrls.length === 2 ? 'the front AND back sides' : 'a side'} of a Djiboutian identity document (CNI or passport). Extract ALL readable text and fill the JSON fields. For Djiboutian CNI: the front has photo, name, date of birth, place of birth, NNI, nationality; the back has address, parents names, profession, MRZ lines. For passport: biodata page has all fields. Return dates in YYYY-MM-DD format. Use empty string "" for any field not visible. Do NOT invent data.`,
+          file_urls: extractUrls,
+          response_json_schema: JSON_SCHEMA,
+        });
+      }
+
+      // Merge with existing data (don't overwrite fields already filled if new value is empty)
+      const existing = data.data || {};
+      const merged = {};
+      for (const key of Object.keys(JSON_SCHEMA.properties)) {
+        merged[key] = (extracted[key] && extracted[key] !== '') ? extracted[key] : (existing[key] || '');
+      }
+
+      onChange({ ...data, ...newUrls, document_url: frontUrl || backUrl, data: merged });
+      toast.success(`Données extraites depuis ${extractUrls.length === 2 ? 'recto + verso' : 'le document'}`);
     } catch {
-      onChange({ ...data, ...newUrls, document_url: frontUrl });
+      onChange({ ...data, ...newUrls, document_url: frontUrl || backUrl });
       toast.info('Document téléchargé — veuillez remplir les données manuellement');
     }
     setExtracting(false);
@@ -132,7 +161,7 @@ function IdDocUploader({ data, onChange, showBiometric }) {
                 <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E5E7EB] rounded-lg p-6 cursor-pointer hover:border-blue-400 active:border-blue-500 transition-all h-36 sm:h-32">
                   {uploading[side] ? (
                     <div className="flex flex-col items-center gap-2"><Loader2 className="w-5 h-5 animate-spin text-blue-600" /><span className="text-xs text-[#6B6B6B]">Téléchargement...</span></div>
-                  ) : (extracting && side === 'front') ? (
+                  ) : (extracting) ? (
                     <div className="flex flex-col items-center gap-2"><Loader2 className="w-5 h-5 animate-spin text-purple-600" /><span className="text-xs text-[#6B6B6B]">Extraction IA...</span></div>
                   ) : (
                     <div className="flex flex-col items-center gap-1">
