@@ -32,6 +32,10 @@ export default function Home() {
     meras.auth.redirectToLogin('/onboarding');
   };
 
+  const handleCreateCompany = () => {
+    meras.auth.redirectToLogin('/onboarding');
+  };
+
   const handleLogin = () => {
     meras.auth.redirectToLogin('/Dashboard');
   };
