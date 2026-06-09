@@ -28,10 +28,20 @@ export default function OnboardingWizard() {
   const [choice, setChoice] = useState(null);
   const [showSplash, setShowSplash] = useState(false);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
+
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ['companies-onboarding'],
     queryFn: () => meras.entities.Company.list(),
+    enabled: isAuthenticated === true,
   });
+
+  // Check auth on mount
+  useEffect(() => {
+    meras.auth.isAuthenticated().then((authed) => {
+      setIsAuthenticated(authed);
+    });
+  }, []);
 
   useEffect(() => {
     if (!isLoading && companies.length > 0) {
@@ -39,7 +49,14 @@ export default function OnboardingWizard() {
     }
   }, [isLoading, companies.length, navigate]);
 
-  if (isLoading) return (
+  // Auto-start wizard if authenticated
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      setChoice('create');
+    }
+  }, [isAuthenticated]);
+
+  if (isAuthenticated === null || isLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-800 rounded-full animate-spin" />
     </div>
