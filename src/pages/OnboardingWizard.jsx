@@ -64,28 +64,12 @@ export default function OnboardingWizard() {
   );
 
   if (showSplash) {
-    if (!isAuthenticated) {
-      base44.auth.redirectToLogin('/onboarding');
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-800 rounded-full animate-spin" />
-        </div>
-      );
-    }
     return (
       <OnboardingSplash onComplete={() => { setShowSplash(false); setChoice('create'); }} />
     );
   }
 
   if (choice === 'create') {
-    if (!isAuthenticated) {
-      base44.auth.redirectToLogin('/onboarding');
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-800 rounded-full animate-spin" />
-        </div>
-      );
-    }
     return (
       <CompanyOnboardingWizard onBack={() => setChoice(null)} onSuccess={() => navigate('/Dashboard')} />
     );
