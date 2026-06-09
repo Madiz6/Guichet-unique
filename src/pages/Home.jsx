@@ -37,7 +37,7 @@ export default function Home() {
   };
 
   const handleLogin = () => {
-    meras.auth.redirectToLogin('/Dashboard');
+    meras.auth.redirectToLogin('/onboarding');
   };
 
   const partners = [
