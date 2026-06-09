@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { meras } from "@/components/core/MerasClient";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Home, FileText, Globe, Building2, Shield, FilePen } from "lucide-react";
+import { Home, FileText, Globe, Building2, Shield, FilePen, UserPlus } from "lucide-react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import AdminCompanyBanner from "@/components/layout/AdminCompanyBanner";
 import MobileBackButton from "@/components/layout/MobileBackButton";
@@ -59,6 +59,7 @@ export default function Layout({ children, currentPageName }) {
       items: [
         { title: "Accueil", url: createPageUrl("Home"), icon: Home },
         { title: "Mes Dossiers", url: "/MesDossiers", icon: FileText },
+        { title: "Portail Client", url: "/onboarding", icon: UserPlus },
       ]
     },
     ...(isAdmin ? [{
