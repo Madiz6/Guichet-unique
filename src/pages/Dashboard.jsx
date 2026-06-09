@@ -27,11 +27,6 @@ export default function Dashboard() {
     queryFn: () => meras.entities.Employee.list(),
   });
   
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => meras.auth.me(),
-  });
-
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
     queryKey: ['companies'],
     queryFn: () => meras.entities.Company.list(),
@@ -39,12 +34,17 @@ export default function Dashboard() {
   
   const company = companies[0] || {};
 
+  const { data: user, isLoading: loadingUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => meras.auth.me(),
+  });
+
   // Redirect non-admin users with no company to onboarding
   React.useEffect(() => {
-    if (!loadingCompanies && companies.length === 0 && user && user.role !== 'admin') {
+    if (!loadingCompanies && !loadingUser && companies.length === 0 && user && user.role !== 'admin') {
       navigate('/onboarding');
     }
-  }, [loadingCompanies, companies.length, user, navigate]);
+  }, [loadingCompanies, loadingUser, companies.length, user, navigate]);
   
   const { data: cycles = [] } = useQuery({
     queryKey: ['payroll-cycles'],
