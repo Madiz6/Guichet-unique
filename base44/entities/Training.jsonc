@@ -1,0 +1,104 @@
+{
+  "name": "Training",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "description": "ID de l'employ\u00e9"
+    },
+    "training_name": {
+      "type": "string",
+      "description": "Nom de la formation"
+    },
+    "training_type": {
+      "type": "string",
+      "enum": [
+        "Certification",
+        "Formation interne",
+        "Formation externe",
+        "Atelier",
+        "S\u00e9minaire",
+        "E-learning",
+        "Conf\u00e9rence"
+      ],
+      "description": "Type de formation"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Organisme de formation"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de d\u00e9but"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de fin"
+    },
+    "duration_hours": {
+      "type": "number",
+      "description": "Dur\u00e9e (heures)"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Co\u00fbt (DJF)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Planifi\u00e9e",
+        "En cours",
+        "Compl\u00e9t\u00e9e",
+        "Annul\u00e9e"
+      ],
+      "default": "Planifi\u00e9e",
+      "description": "Statut"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de compl\u00e9tion"
+    },
+    "certificate_obtained": {
+      "type": "boolean",
+      "default": false,
+      "description": "Certificat obtenu"
+    },
+    "certificate_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de certificat"
+    },
+    "certificate_url": {
+      "type": "string",
+      "description": "Document du certificat"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'expiration (si applicable)"
+    },
+    "score": {
+      "type": "number",
+      "description": "Score/Note obtenue"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    },
+    "skills_acquired": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Comp\u00e9tences acquises"
+    }
+  },
+  "required": [
+    "employee_id",
+    "training_name",
+    "training_type",
+    "start_date"
+  ]
+}

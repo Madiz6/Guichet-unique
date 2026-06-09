@@ -1,0 +1,224 @@
+{
+  "name": "VisaApplication",
+  "type": "object",
+  "properties": {
+    "application_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de demande unique"
+    },
+    "visa_type": {
+      "type": "string",
+      "enum": [
+        "30 jours",
+        "90 jours"
+      ],
+      "description": "Type de visa"
+    },
+    "entry_type": {
+      "type": "string",
+      "enum": [
+        "Entr\u00e9e simple",
+        "Entr\u00e9e multiple"
+      ],
+      "description": "Type d'entr\u00e9e"
+    },
+    "first_name": {
+      "type": "string",
+      "description": "Pr\u00e9nom"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Nom de famille"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "Homme",
+        "Femme"
+      ],
+      "description": "Sexe"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de naissance"
+    },
+    "place_of_birth": {
+      "type": "string",
+      "description": "Lieu de naissance"
+    },
+    "nationality": {
+      "type": "string",
+      "description": "Nationalit\u00e9"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Adresse email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Num\u00e9ro de t\u00e9l\u00e9phone"
+    },
+    "passport_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de passeport"
+    },
+    "passport_issue_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'\u00e9mission du passeport"
+    },
+    "passport_expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'expiration du passeport"
+    },
+    "passport_issue_place": {
+      "type": "string",
+      "description": "Lieu d'\u00e9mission du passeport"
+    },
+    "passport_photo_url": {
+      "type": "string",
+      "description": "Photo d'identit\u00e9"
+    },
+    "passport_scan_url": {
+      "type": "string",
+      "description": "Scan du passeport"
+    },
+    "arrival_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'arriv\u00e9e pr\u00e9vue"
+    },
+    "departure_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de d\u00e9part pr\u00e9vue"
+    },
+    "flight_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de vol / R\u00e9servation"
+    },
+    "accommodation_type": {
+      "type": "string",
+      "enum": [
+        "H\u00f4tel",
+        "Chez un h\u00f4te",
+        "Autre"
+      ],
+      "description": "Type d'h\u00e9bergement"
+    },
+    "accommodation_name": {
+      "type": "string",
+      "description": "Nom de l'h\u00f4tel ou de l'h\u00f4te"
+    },
+    "accommodation_address": {
+      "type": "string",
+      "description": "Adresse d'h\u00e9bergement"
+    },
+    "host_contact": {
+      "type": "string",
+      "description": "Contact de l'h\u00f4te (si applicable)"
+    },
+    "invitation_letter_url": {
+      "type": "string",
+      "description": "Lettre d'invitation (si applicable)"
+    },
+    "purpose_of_visit": {
+      "type": "string",
+      "enum": [
+        "Tourisme",
+        "Affaires",
+        "Visite familiale",
+        "Transit",
+        "Autre"
+      ],
+      "description": "Motif du voyage"
+    },
+    "purpose_details": {
+      "type": "string",
+      "description": "D\u00e9tails du motif"
+    },
+    "profession": {
+      "type": "string",
+      "description": "Profession"
+    },
+    "employer_name": {
+      "type": "string",
+      "description": "Nom de l'employeur"
+    },
+    "employer_address": {
+      "type": "string",
+      "description": "Adresse de l'employeur"
+    },
+    "visa_fee": {
+      "type": "number",
+      "description": "Frais de visa (USD)"
+    },
+    "service_fee": {
+      "type": "number",
+      "description": "Frais de service (DJF)"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Montant total"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "En attente",
+        "Pay\u00e9",
+        "Rembours\u00e9"
+      ],
+      "default": "En attente",
+      "description": "Statut du paiement"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de paiement"
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "ID de transaction"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Brouillon",
+        "Soumis",
+        "En traitement",
+        "Approuv\u00e9",
+        "Refus\u00e9",
+        "Annul\u00e9"
+      ],
+      "default": "Brouillon",
+      "description": "Statut de la demande"
+    },
+    "evisa_number": {
+      "type": "string",
+      "description": "Num\u00e9ro e-Visa (si approuv\u00e9)"
+    },
+    "evisa_url": {
+      "type": "string",
+      "description": "Document e-Visa PDF"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes additionnelles"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Motif de refus (si applicable)"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "nationality",
+    "email",
+    "passport_number",
+    "visa_type"
+  ]
+}

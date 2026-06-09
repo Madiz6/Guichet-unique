@@ -1,0 +1,166 @@
+{
+  "name": "Company",
+  "type": "object",
+  "properties": {
+    "nom_entreprise": {
+      "type": "string",
+      "description": "Nom de l'entreprise"
+    },
+    "type_entreprise": {
+      "type": "string",
+      "enum": [
+        "Company",
+        "SARL",
+        "SA",
+        "SAS",
+        "EURL",
+        "Association"
+      ],
+      "description": "Type d'entreprise"
+    },
+    "capital_social": {
+      "type": "number",
+      "description": "Capital social (DJF)"
+    },
+    "reserve_legale": {
+      "type": "number",
+      "default": 0,
+      "description": "R\u00e9serve l\u00e9gale (DJF)"
+    },
+    "report_nouveau": {
+      "type": "number",
+      "default": 0,
+      "description": "Report \u00e0 nouveau (DJF)"
+    },
+    "numero_affiliation": {
+      "type": "string",
+      "description": "N\u00b0 d'affiliation CNSS"
+    },
+    "nif": {
+      "type": "string",
+      "description": "NIF (Num\u00e9ro d'Identification Fiscale)"
+    },
+    "raison_sociale": {
+      "type": "string",
+      "description": "Nom/Raison sociale"
+    },
+    "adresse": {
+      "type": "string",
+      "description": "Adresse compl\u00e8te"
+    },
+    "activite": {
+      "type": "string",
+      "description": "Activit\u00e9 principale"
+    },
+    "sous_activite": {
+      "type": "string",
+      "description": "Sous-activit\u00e9"
+    },
+    "nombre_assures": {
+      "type": "number",
+      "description": "Nombre d'assur\u00e9s"
+    },
+    "date_affiliation": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'affiliation"
+    },
+    "date_creation": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de cr\u00e9ation"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Logo de l'entreprise"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email"
+    },
+    "telephone": {
+      "type": "string",
+      "description": "T\u00e9l\u00e9phone"
+    },
+    "licence_entreprise_url": {
+      "type": "string",
+      "description": "Licence d'entreprise"
+    },
+    "date_expiration_licence": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'expiration licence"
+    },
+    "registre_commerce_url": {
+      "type": "string",
+      "description": "Registre de commerce"
+    },
+    "certificat_cnss_url": {
+      "type": "string",
+      "description": "Certificat d'affiliation CNSS"
+    },
+    "recepisse_registre_commerce_url": {
+      "type": "string",
+      "description": "R\u00e9c\u00e9piss\u00e9 de registre de commerce (ODPIC)"
+    },
+    "patente_url": {
+      "type": "string",
+      "description": "Patente (DGI)"
+    },
+    "date_expiration_patente": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'expiration de la patente"
+    },
+    "contrat_bail_url": {
+      "type": "string",
+      "description": "Contrat de bail (DGI)"
+    },
+    "statut_societe_url": {
+      "type": "string",
+      "description": "Statut de la soci\u00e9t\u00e9 (DGI)"
+    },
+    "autres_documents_dgi_url": {
+      "type": "string",
+      "description": "Autres documents DGI"
+    },
+    "immatriculation_cnss_url": {
+      "type": "string",
+      "description": "Immatriculation CNSS"
+    },
+    "structure_organisationnelle": {
+      "type": "string",
+      "description": "Structure organisationnelle (texte ou JSON)"
+    },
+    "signatory_payslip_name": {
+      "type": "string",
+      "description": "Nom du signataire - Bulletin de paie"
+    },
+    "signatory_payslip_position": {
+      "type": "string",
+      "description": "Poste du signataire - Bulletin de paie"
+    },
+    "signatory_work_attestation_name": {
+      "type": "string",
+      "description": "Nom du signataire - Attestation de travail"
+    },
+    "signatory_work_attestation_position": {
+      "type": "string",
+      "description": "Poste du signataire - Attestation de travail"
+    },
+    "signatory_holiday_attestation_name": {
+      "type": "string",
+      "description": "Nom du signataire - Attestation de cong\u00e9"
+    },
+    "signatory_holiday_attestation_position": {
+      "type": "string",
+      "description": "Poste du signataire - Attestation de cong\u00e9"
+    }
+  },
+  "required": [
+    "nom_entreprise",
+    "nif",
+    "numero_affiliation"
+  ]
+}

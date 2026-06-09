@@ -1,0 +1,112 @@
+{
+  "name": "VirtualReceptionistContract",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string",
+      "description": "Nom de l'entreprise"
+    },
+    "company_address": {
+      "type": "string",
+      "description": "Adresse de l'entreprise"
+    },
+    "company_nif": {
+      "type": "string",
+      "description": "NIF de l'entreprise"
+    },
+    "company_phone": {
+      "type": "string",
+      "description": "T\u00e9l\u00e9phone de l'entreprise"
+    },
+    "company_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email de l'entreprise"
+    },
+    "responsible_name": {
+      "type": "string",
+      "description": "Nom du responsable"
+    },
+    "responsible_phone": {
+      "type": "string",
+      "description": "T\u00e9l\u00e9phone du responsable"
+    },
+    "responsible_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email du responsable"
+    },
+    "welcome_message": {
+      "type": "string",
+      "description": "Message d'accueil personnalis\u00e9"
+    },
+    "forward_phone": {
+      "type": "string",
+      "description": "Num\u00e9ro pour transfert d'appels"
+    },
+    "assigned_phone_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de t\u00e9l\u00e9phone attribu\u00e9 (04)"
+    },
+    "contract_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de d\u00e9but du contrat"
+    },
+    "contract_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de fin du contrat"
+    },
+    "amount": {
+      "type": "number",
+      "default": 60000,
+      "description": "Montant du contrat (DJF)"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "En attente",
+        "Pay\u00e9",
+        "Annul\u00e9"
+      ],
+      "default": "En attente",
+      "description": "Statut du paiement"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de paiement"
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "ID de transaction"
+    },
+    "contract_number": {
+      "type": "string",
+      "description": "Num\u00e9ro du contrat"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Brouillon",
+        "En attente de paiement",
+        "Actif",
+        "Expir\u00e9",
+        "Annul\u00e9"
+      ],
+      "default": "Brouillon",
+      "description": "Statut du contrat"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes additionnelles"
+    }
+  },
+  "required": [
+    "company_name",
+    "responsible_name",
+    "responsible_email",
+    "welcome_message"
+  ]
+}

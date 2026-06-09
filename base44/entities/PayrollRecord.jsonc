@@ -1,0 +1,58 @@
+{
+  "name": "PayrollRecord",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "description": "Reference to employee"
+    },
+    "month": {
+      "type": "string",
+      "description": "Payroll month (YYYY-MM)"
+    },
+    "gross_salary": {
+      "type": "number",
+      "description": "Base salary + bonuses + overtime"
+    },
+    "cnss_employee": {
+      "type": "number",
+      "description": "CNSS contribution (employee portion)"
+    },
+    "cnss_employer": {
+      "type": "number",
+      "description": "CNSS contribution (employer portion)"
+    },
+    "its_amount": {
+      "type": "number",
+      "description": "Income tax (ITS) deducted"
+    },
+    "net_salary": {
+      "type": "number",
+      "description": "Net salary to pay"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processed",
+        "paid"
+      ],
+      "default": "pending",
+      "description": "Payment status"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date salary was paid"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "employee_id",
+    "month",
+    "gross_salary"
+  ]
+}

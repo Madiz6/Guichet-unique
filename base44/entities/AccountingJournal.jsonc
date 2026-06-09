@@ -1,0 +1,49 @@
+{
+  "name": "AccountingJournal",
+  "type": "object",
+  "properties": {
+    "journal_code": {
+      "type": "string",
+      "description": "Code du journal (ex: ACH, VTE)"
+    },
+    "journal_name": {
+      "type": "string",
+      "description": "Nom complet du journal"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description du journal"
+    },
+    "default_debit": {
+      "type": "string",
+      "description": "Compte d\u00e9bit par d\u00e9faut"
+    },
+    "default_credit": {
+      "type": "string",
+      "description": "Compte cr\u00e9dit par d\u00e9faut"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "entries_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre d'\u00e9critures (calcul\u00e9)"
+    },
+    "total_debit": {
+      "type": "number",
+      "default": 0,
+      "description": "Total d\u00e9bit cumul\u00e9"
+    },
+    "total_credit": {
+      "type": "number",
+      "default": 0,
+      "description": "Total cr\u00e9dit cumul\u00e9"
+    }
+  },
+  "required": [
+    "journal_code",
+    "journal_name"
+  ]
+}

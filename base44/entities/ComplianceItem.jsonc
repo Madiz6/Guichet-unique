@@ -1,0 +1,88 @@
+{
+  "name": "ComplianceItem",
+  "type": "object",
+  "properties": {
+    "nom": {
+      "type": "string",
+      "description": "Nom du document/licence"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Patente",
+        "Bail commercial",
+        "Licence professionnelle",
+        "Assurance",
+        "Contrat service",
+        "Certification",
+        "Autre"
+      ],
+      "description": "Type de conformit\u00e9"
+    },
+    "numero_reference": {
+      "type": "string",
+      "description": "Num\u00e9ro de r\u00e9f\u00e9rence"
+    },
+    "date_emission": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'\u00e9mission"
+    },
+    "date_expiration": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'expiration"
+    },
+    "cout_renouvellement": {
+      "type": "number",
+      "description": "Co\u00fbt de renouvellement (DJF)"
+    },
+    "fournisseur": {
+      "type": "string",
+      "description": "Fournisseur/Autorit\u00e9 \u00e9mettrice"
+    },
+    "contact_fournisseur": {
+      "type": "string",
+      "description": "Contact du fournisseur"
+    },
+    "document_url": {
+      "type": "string",
+      "description": "Document scann\u00e9"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "Actif",
+        "Expir\u00e9",
+        "En cours de renouvellement",
+        "Annul\u00e9"
+      ],
+      "default": "Actif",
+      "description": "Statut"
+    },
+    "rappel_jours": {
+      "type": "number",
+      "default": 30,
+      "description": "Rappel X jours avant expiration"
+    },
+    "auto_renew": {
+      "type": "boolean",
+      "default": false,
+      "description": "Renouvellement automatique"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes additionnelles"
+    },
+    "derniere_notification": {
+      "type": "string",
+      "format": "date",
+      "description": "Date derni\u00e8re notification"
+    }
+  },
+  "required": [
+    "nom",
+    "type",
+    "date_expiration"
+  ]
+}

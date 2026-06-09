@@ -1,0 +1,44 @@
+{
+  "name": "ExpenseCategory",
+  "type": "object",
+  "properties": {
+    "nom": {
+      "type": "string",
+      "description": "Nom de la cat\u00e9gorie"
+    },
+    "code": {
+      "type": "string",
+      "description": "Code cat\u00e9gorie (ex: SAL, ADM)"
+    },
+    "budget_annuel": {
+      "type": "number",
+      "description": "Budget annuel allou\u00e9 (DJF)"
+    },
+    "budget_mensuel": {
+      "type": "number",
+      "description": "Budget mensuel (DJF)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description"
+    },
+    "couleur": {
+      "type": "string",
+      "default": "#6366F1",
+      "description": "Couleur pour les graphiques"
+    },
+    "icone": {
+      "type": "string",
+      "description": "Ic\u00f4ne emoji"
+    },
+    "actif": {
+      "type": "boolean",
+      "default": true,
+      "description": "Cat\u00e9gorie active"
+    }
+  },
+  "required": [
+    "nom",
+    "code"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "name": "Holiday",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "description": "ID de l'employ\u00e9"
+    },
+    "type_conge": {
+      "type": "string",
+      "enum": [
+        "Cong\u00e9 pay\u00e9",
+        "Cong\u00e9 maladie",
+        "Cong\u00e9 maternit\u00e9",
+        "Cong\u00e9 paternit\u00e9",
+        "Cong\u00e9 sans solde",
+        "Cong\u00e9 pour raison de formation"
+      ],
+      "description": "Type de cong\u00e9"
+    },
+    "date_debut": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de d\u00e9but"
+    },
+    "date_fin": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de fin"
+    },
+    "nombre_jours": {
+      "type": "number",
+      "description": "Nombre de jours"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "En attente",
+        "Approuv\u00e9",
+        "Refus\u00e9",
+        "Annul\u00e9",
+        "En cours",
+        "Termin\u00e9"
+      ],
+      "default": "En attente",
+      "description": "Statut de la demande"
+    },
+    "motif": {
+      "type": "string",
+      "description": "Motif du cong\u00e9"
+    },
+    "document_justificatif_url": {
+      "type": "string",
+      "description": "Document justificatif"
+    },
+    "commentaire_admin": {
+      "type": "string",
+      "description": "Commentaire de l'administrateur"
+    },
+    "date_demande": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de la demande"
+    },
+    "approuve_par": {
+      "type": "string",
+      "description": "Approuv\u00e9 par (user email)"
+    },
+    "maternity_month_number": {
+      "type": "number",
+      "description": "Num\u00e9ro du mois pour cong\u00e9 maternit\u00e9 (1-6)"
+    },
+    "maternity_payment_status": {
+      "type": "string",
+      "enum": [
+        "Entreprise (50%)",
+        "CNSS (100%)",
+        "N/A"
+      ],
+      "description": "Qui paie pendant le cong\u00e9 maternit\u00e9"
+    }
+  },
+  "required": [
+    "employee_id",
+    "type_conge",
+    "date_debut",
+    "date_fin",
+    "nombre_jours"
+  ]
+}

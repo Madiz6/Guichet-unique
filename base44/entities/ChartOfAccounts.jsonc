@@ -1,0 +1,60 @@
+{
+  "name": "ChartOfAccounts",
+  "type": "object",
+  "properties": {
+    "account_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de compte (ex: 101, 401, 512)"
+    },
+    "account_name": {
+      "type": "string",
+      "description": "Intitul\u00e9 du compte"
+    },
+    "class": {
+      "type": "number",
+      "description": "Classe NPCG (1 \u00e0 7)"
+    },
+    "class_label": {
+      "type": "string",
+      "description": "Libell\u00e9 de la classe"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Actif",
+        "Passif",
+        "Charge",
+        "Produit",
+        "Tr\u00e9sorerie",
+        "Tiers"
+      ],
+      "description": "Type de compte"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description d\u00e9taill\u00e9e"
+    },
+    "normal_balance": {
+      "type": "string",
+      "enum": [
+        "D\u00e9bit",
+        "Cr\u00e9dit"
+      ],
+      "description": "Sens normal du solde"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Compte actif"
+    },
+    "parent_account": {
+      "type": "string",
+      "description": "Compte parent"
+    }
+  },
+  "required": [
+    "account_number",
+    "account_name",
+    "class"
+  ]
+}

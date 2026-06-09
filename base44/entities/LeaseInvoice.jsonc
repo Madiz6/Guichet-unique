@@ -1,0 +1,67 @@
+{
+  "name": "LeaseInvoice",
+  "type": "object",
+  "properties": {
+    "numero_facture": {
+      "type": "string",
+      "description": "Num\u00e9ro de facture unique"
+    },
+    "lease_id": {
+      "type": "string",
+      "description": "ID du contrat"
+    },
+    "payment_id": {
+      "type": "string",
+      "description": "ID du paiement li\u00e9"
+    },
+    "date_emission": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'\u00e9mission"
+    },
+    "date_echeance": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'\u00e9ch\u00e9ance"
+    },
+    "montant": {
+      "type": "number",
+      "description": "Montant (DJF)"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "Brouillon",
+        "Envoy\u00e9e",
+        "Pay\u00e9e",
+        "En retard",
+        "Annul\u00e9e"
+      ],
+      "default": "Brouillon",
+      "description": "Statut"
+    },
+    "date_envoi": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'envoi"
+    },
+    "date_paiement": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de paiement"
+    },
+    "facture_pdf_url": {
+      "type": "string",
+      "description": "PDF de la facture"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "lease_id",
+    "date_emission",
+    "montant"
+  ]
+}

@@ -26,5 +26,9 @@
       "default": false,
       "description": "Onboarding termin\u00e9"
     }
-  }
+  },
+  "required": [
+    "company_id",
+    "company_name"
+  ]
 }

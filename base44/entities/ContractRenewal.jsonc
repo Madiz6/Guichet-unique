@@ -1,0 +1,92 @@
+{
+  "name": "ContractRenewal",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "description": "ID de l'employ\u00e9"
+    },
+    "current_contract_type": {
+      "type": "string",
+      "description": "Type de contrat actuel"
+    },
+    "current_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de fin du contrat actuel"
+    },
+    "renewal_status": {
+      "type": "string",
+      "enum": [
+        "\u00c0 traiter",
+        "En cours",
+        "Approuv\u00e9",
+        "Rejet\u00e9",
+        "Renouvel\u00e9"
+      ],
+      "default": "\u00c0 traiter",
+      "description": "Statut du renouvellement"
+    },
+    "new_contract_type": {
+      "type": "string",
+      "description": "Type de nouveau contrat"
+    },
+    "new_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de d\u00e9but du nouveau contrat"
+    },
+    "new_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de fin du nouveau contrat"
+    },
+    "salary_change": {
+      "type": "number",
+      "description": "Changement de salaire (DJF)"
+    },
+    "salary_change_percentage": {
+      "type": "number",
+      "description": "Changement de salaire (%)"
+    },
+    "position_change": {
+      "type": "string",
+      "description": "Nouveau poste (si changement)"
+    },
+    "alert_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Alerte envoy\u00e9e"
+    },
+    "alert_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'envoi de l'alerte"
+    },
+    "days_before_expiry": {
+      "type": "number",
+      "default": 30,
+      "description": "Jours avant expiration pour alerte"
+    },
+    "manager_approval": {
+      "type": "boolean",
+      "description": "Approbation du manager"
+    },
+    "hr_approval": {
+      "type": "boolean",
+      "description": "Approbation RH"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    },
+    "new_contract_url": {
+      "type": "string",
+      "description": "Nouveau contrat sign\u00e9"
+    }
+  },
+  "required": [
+    "employee_id",
+    "current_end_date"
+  ]
+}

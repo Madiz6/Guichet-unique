@@ -1,0 +1,136 @@
+{
+  "name": "ExpenseRequest",
+  "type": "object",
+  "properties": {
+    "request_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de demande unique"
+    },
+    "department_id": {
+      "type": "string",
+      "description": "ID du d\u00e9partement"
+    },
+    "department_name": {
+      "type": "string",
+      "description": "Nom du d\u00e9partement"
+    },
+    "budget_id": {
+      "type": "string",
+      "description": "ID du budget li\u00e9"
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "Email du demandeur"
+    },
+    "requester_name": {
+      "type": "string",
+      "description": "Nom du demandeur"
+    },
+    "amount_requested": {
+      "type": "number",
+      "description": "Montant demand\u00e9 (DJF)"
+    },
+    "amount_executed": {
+      "type": "number",
+      "default": 0,
+      "description": "Montant r\u00e9el ex\u00e9cut\u00e9 (DJF)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description de la d\u00e9pense"
+    },
+    "category": {
+      "type": "string",
+      "description": "Cat\u00e9gorie de d\u00e9pense"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Fournisseur/B\u00e9n\u00e9ficiaire"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "Planifi\u00e9e",
+        "Urgente",
+        "R\u00e9currente"
+      ],
+      "default": "Planifi\u00e9e",
+      "description": "Type de demande"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "En attente",
+        "Approuv\u00e9e",
+        "Engag\u00e9e",
+        "Ex\u00e9cut\u00e9e",
+        "Rejet\u00e9e",
+        "Annul\u00e9e"
+      ],
+      "default": "En attente",
+      "description": "Statut de la demande"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email de l'approbateur"
+    },
+    "approver_name": {
+      "type": "string",
+      "description": "Nom de l'approbateur"
+    },
+    "date_requested": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de demande"
+    },
+    "date_approved": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'approbation"
+    },
+    "date_executed": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'ex\u00e9cution"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "URL du re\u00e7u/facture"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "Esp\u00e8ces",
+        "Ch\u00e8que",
+        "Virement",
+        "Carte bancaire",
+        "Mobile Money"
+      ],
+      "description": "M\u00e9thode de paiement"
+    },
+    "policy_violation": {
+      "type": "boolean",
+      "default": false,
+      "description": "Violation de politique d\u00e9tect\u00e9e"
+    },
+    "policy_violation_reason": {
+      "type": "string",
+      "description": "Raison de la violation"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Raison du rejet"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes additionnelles"
+    }
+  },
+  "required": [
+    "department_id",
+    "requested_by",
+    "amount_requested",
+    "description",
+    "category"
+  ]
+}

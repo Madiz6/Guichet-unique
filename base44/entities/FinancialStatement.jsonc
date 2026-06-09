@@ -1,0 +1,292 @@
+{
+  "name": "FinancialStatement",
+  "type": "object",
+  "properties": {
+    "fiscal_year": {
+      "type": "string",
+      "description": "Ann\u00e9e fiscale (ex: 2023)"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de d\u00e9but de l'exercice"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de fin de l'exercice"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Brouillon",
+        "Valid\u00e9",
+        "Cl\u00f4tur\u00e9"
+      ],
+      "default": "Brouillon",
+      "description": "Statut du rapport"
+    },
+    "actif": {
+      "type": "object",
+      "properties": {
+        "immobilisations_incorporelles": {
+          "type": "object"
+        },
+        "immobilisations_corporelles": {
+          "type": "object"
+        },
+        "immobilisations_financieres": {
+          "type": "object"
+        },
+        "stocks": {
+          "type": "number",
+          "default": 0
+        },
+        "creances": {
+          "type": "object"
+        },
+        "disponibilites": {
+          "type": "number",
+          "default": 0
+        },
+        "total_actif": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "passif": {
+      "type": "object",
+      "properties": {
+        "capitaux_propres": {
+          "type": "object"
+        },
+        "provisions_risques": {
+          "type": "number",
+          "default": 0
+        },
+        "dettes": {
+          "type": "object"
+        },
+        "total_passif": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "compte_resultat": {
+      "type": "object",
+      "properties": {
+        "produits_exploitation": {
+          "type": "object"
+        },
+        "charges_exploitation": {
+          "type": "object"
+        },
+        "resultat_exploitation": {
+          "type": "number",
+          "default": 0
+        },
+        "produits_financiers": {
+          "type": "number",
+          "default": 0
+        },
+        "charges_financieres": {
+          "type": "number",
+          "default": 0
+        },
+        "resultat_financier": {
+          "type": "number",
+          "default": 0
+        },
+        "resultat_courant_avant_impots": {
+          "type": "number",
+          "default": 0
+        },
+        "produits_exceptionnels": {
+          "type": "number",
+          "default": 0
+        },
+        "charges_exceptionnelles": {
+          "type": "number",
+          "default": 0
+        },
+        "resultat_exceptionnel": {
+          "type": "number",
+          "default": 0
+        },
+        "impot_societes": {
+          "type": "number",
+          "default": 0
+        },
+        "resultat_net": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "details_par_compte_npcg": {
+      "type": "object",
+      "description": "D\u00e9tails de chaque compte NPCG avec liste de transactions"
+    },
+    "details_immobilisations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "date_acquisition": {
+            "type": "string"
+          },
+          "valeur_brute": {
+            "type": "number"
+          },
+          "taux_amort": {
+            "type": "number"
+          },
+          "amort_annee": {
+            "type": "number"
+          },
+          "amort_cumule": {
+            "type": "number"
+          },
+          "valeur_nette": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Tableau d\u00e9taill\u00e9 des immobilisations"
+    },
+    "details_creances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "contact_name": {
+            "type": "string"
+          },
+          "numero_facture": {
+            "type": "string"
+          },
+          "montant": {
+            "type": "number"
+          },
+          "date_facture": {
+            "type": "string"
+          },
+          "jours_retard": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "D\u00e9tail des cr\u00e9ances clients"
+    },
+    "details_dettes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "contact_name": {
+            "type": "string"
+          },
+          "numero_facture": {
+            "type": "string"
+          },
+          "montant": {
+            "type": "number"
+          },
+          "date_facture": {
+            "type": "string"
+          },
+          "date_echeance": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "D\u00e9tail des dettes fournisseurs"
+    },
+    "details_emprunts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "banque": {
+            "type": "string"
+          },
+          "numero_pret": {
+            "type": "string"
+          },
+          "montant_initial": {
+            "type": "number"
+          },
+          "montant_restant": {
+            "type": "number"
+          },
+          "taux_interet": {
+            "type": "number"
+          },
+          "echeance": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "D\u00e9tail des emprunts"
+    },
+    "provisions": {
+      "type": "object",
+      "properties": {
+        "provisions_creances_douteuses": {
+          "type": "number",
+          "default": 0
+        },
+        "provisions_charges_a_payer": {
+          "type": "number",
+          "default": 0
+        },
+        "provisions_impots": {
+          "type": "number",
+          "default": 0
+        },
+        "total_provisions": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "ratios_financiers": {
+      "type": "object",
+      "properties": {
+        "liquidite_generale": {
+          "type": "number"
+        },
+        "autonomie_financiere": {
+          "type": "number"
+        },
+        "endettement": {
+          "type": "number"
+        },
+        "rentabilite_nette": {
+          "type": "number"
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes aux \u00e9tats financiers"
+    },
+    "pdf_url": {
+      "type": "string",
+      "description": "URL du PDF g\u00e9n\u00e9r\u00e9"
+    }
+  },
+  "required": [
+    "fiscal_year",
+    "period_start",
+    "period_end"
+  ]
+}

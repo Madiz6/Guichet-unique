@@ -1,0 +1,297 @@
+{
+  "name": "Employee",
+  "type": "object",
+  "properties": {
+    "prenom": {
+      "type": "string",
+      "description": "Pr\u00e9nom"
+    },
+    "nom": {
+      "type": "string",
+      "description": "Nom"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email"
+    },
+    "telephone": {
+      "type": "string",
+      "description": "Num\u00e9ro de t\u00e9l\u00e9phone"
+    },
+    "ville": {
+      "type": "string",
+      "description": "Ville"
+    },
+    "date_naissance": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de naissance"
+    },
+    "sexe": {
+      "type": "string",
+      "enum": [
+        "Homme",
+        "Femme"
+      ],
+      "description": "Sexe"
+    },
+    "nationalite": {
+      "type": "string",
+      "description": "Nationalit\u00e9"
+    },
+    "nom_mere": {
+      "type": "string",
+      "description": "Nom de la m\u00e8re"
+    },
+    "situation_familiale": {
+      "type": "string",
+      "enum": [
+        "C\u00e9libataire",
+        "Mari\u00e9(e)",
+        "Divorc\u00e9(e)",
+        "Veuf(ve)"
+      ],
+      "description": "Situation familiale"
+    },
+    "nombre_enfants": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre d'enfants"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo de profil"
+    },
+    "type_identite": {
+      "type": "string",
+      "enum": [
+        "Carte d'identit\u00e9",
+        "Passeport",
+        "Permis de s\u00e9jour"
+      ],
+      "description": "Type d'identit\u00e9"
+    },
+    "numero_identite": {
+      "type": "string",
+      "description": "Num\u00e9ro d'identit\u00e9"
+    },
+    "document_identite_url": {
+      "type": "string",
+      "description": "Document d'identit\u00e9 (scan)"
+    },
+    "contrat_url": {
+      "type": "string",
+      "description": "Contrat de travail"
+    },
+    "type_contrat": {
+      "type": "string",
+      "enum": [
+        "Temps Plein",
+        "Temps Partiel",
+        "CDD",
+        "CDI"
+      ],
+      "description": "Type de contrat"
+    },
+    "fonction": {
+      "type": "string",
+      "description": "Fonction/Poste"
+    },
+    "departement": {
+      "type": "string",
+      "description": "D\u00e9partement"
+    },
+    "date_embauche": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'embauche"
+    },
+    "anciennete_annees": {
+      "type": "number",
+      "default": 0,
+      "description": "Anciennet\u00e9 (ann\u00e9es)"
+    },
+    "anciennete_mois": {
+      "type": "number",
+      "default": 0,
+      "description": "Anciennet\u00e9 (mois)"
+    },
+    "frequence_paiement": {
+      "type": "string",
+      "enum": [
+        "Mensuel",
+        "Bimensuel",
+        "Hebdomadaire"
+      ],
+      "default": "Mensuel",
+      "description": "Fr\u00e9quence de paiement"
+    },
+    "regime_cnss": {
+      "type": "string",
+      "enum": [
+        "G\u00e9n\u00e9ral",
+        "Zone Franche",
+        "Fonctionnaire",
+        "FNP",
+        "Gouvernement",
+        "Ind\u00e9pendant"
+      ],
+      "description": "R\u00e9gime CNSS"
+    },
+    "matricule_cnss": {
+      "type": "string",
+      "description": "Matricule CNSS"
+    },
+    "banque": {
+      "type": "string",
+      "description": "Banque"
+    },
+    "numero_compte": {
+      "type": "string",
+      "description": "Num\u00e9ro de compte"
+    },
+    "salaire_base": {
+      "type": "number",
+      "description": "Salaire de Base (DJF)"
+    },
+    "prime_anciennete": {
+      "type": "number",
+      "default": 0,
+      "description": "Prime d'anciennet\u00e9 (DJF)"
+    },
+    "prime_anciennete_auto": {
+      "type": "boolean",
+      "default": true,
+      "description": "Calculer automatiquement la prime d'anciennet\u00e9"
+    },
+    "prime_fonction": {
+      "type": "number",
+      "default": 0,
+      "description": "Prime de fonction"
+    },
+    "prime_logement": {
+      "type": "number",
+      "default": 0,
+      "description": "Prime de logement"
+    },
+    "prime_transport": {
+      "type": "number",
+      "default": 0,
+      "description": "Prime de transport"
+    },
+    "prime_sujetion": {
+      "type": "number",
+      "default": 0,
+      "description": "Prime de suj\u00e9tion"
+    },
+    "prime_rendement": {
+      "type": "number",
+      "default": 0,
+      "description": "Prime de rendement"
+    },
+    "autres_primes": {
+      "type": "number",
+      "default": 0,
+      "description": "Autres primes"
+    },
+    "primes_personnalisees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "montant": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Primes personnalis\u00e9es"
+    },
+    "aide": {
+      "type": "number",
+      "default": 0,
+      "description": "AIDE deduction"
+    },
+    "absences_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Montant des absences"
+    },
+    "absence_days": {
+      "type": "number",
+      "default": 0,
+      "description": "Jours d'absence"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "Actif",
+        "Inactif",
+        "En cong\u00e9",
+        "Suspendu"
+      ],
+      "default": "Actif",
+      "description": "Statut"
+    },
+    "raison_suspension": {
+      "type": "string",
+      "description": "Raison de suspension"
+    },
+    "date_suspension": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de suspension"
+    },
+    "date_reactivation": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de r\u00e9activation"
+    },
+    "document_suspension_url": {
+      "type": "string",
+      "description": "Document de suspension"
+    },
+    "est_etranger": {
+      "type": "boolean",
+      "default": false,
+      "description": "Employ\u00e9 \u00e9tranger"
+    },
+    "numero_visa": {
+      "type": "string",
+      "description": "Num\u00e9ro de visa"
+    },
+    "date_expiration_visa": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'expiration visa"
+    },
+    "numero_permis_travail": {
+      "type": "string",
+      "description": "Num\u00e9ro permis de travail"
+    },
+    "date_expiration_permis": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'expiration permis"
+    },
+    "document_visa_url": {
+      "type": "string",
+      "description": "Document visa"
+    },
+    "document_permis_url": {
+      "type": "string",
+      "description": "Document permis"
+    }
+  },
+  "required": [
+    "prenom",
+    "nom",
+    "regime_cnss",
+    "salaire_base",
+    "date_embauche",
+    "type_contrat"
+  ]
+}

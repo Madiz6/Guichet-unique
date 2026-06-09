@@ -1,0 +1,90 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "numero": {
+      "type": "string",
+      "description": "Num\u00e9ro unique"
+    },
+    "category_id": {
+      "type": "string",
+      "description": "ID de la cat\u00e9gorie"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description"
+    },
+    "montant": {
+      "type": "number",
+      "description": "Montant (DJF)"
+    },
+    "date_transaction": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de transaction"
+    },
+    "fournisseur": {
+      "type": "string",
+      "description": "Fournisseur/B\u00e9n\u00e9ficiaire"
+    },
+    "methode_paiement": {
+      "type": "string",
+      "enum": [
+        "Esp\u00e8ces",
+        "Ch\u00e8que",
+        "Virement",
+        "Carte bancaire",
+        "Mobile Money"
+      ],
+      "description": "M\u00e9thode de paiement"
+    },
+    "facture_url": {
+      "type": "string",
+      "description": "Facture/Re\u00e7u"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "En attente",
+        "Approuv\u00e9",
+        "Pay\u00e9",
+        "Rejet\u00e9"
+      ],
+      "default": "En attente",
+      "description": "Statut"
+    },
+    "approuve_par": {
+      "type": "string",
+      "description": "Email de l'approbateur"
+    },
+    "date_approbation": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'approbation"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    },
+    "recurrent": {
+      "type": "boolean",
+      "default": false,
+      "description": "D\u00e9pense r\u00e9currente"
+    },
+    "frequence": {
+      "type": "string",
+      "enum": [
+        "Mensuel",
+        "Trimestriel",
+        "Annuel"
+      ],
+      "description": "Fr\u00e9quence si r\u00e9current"
+    }
+  },
+  "required": [
+    "description",
+    "montant",
+    "date_transaction",
+    "category_id"
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "name": "PerformanceReview",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "description": "ID de l'employ\u00e9"
+    },
+    "review_period": {
+      "type": "string",
+      "description": "P\u00e9riode d'\u00e9valuation (ex: 2025 Q1)"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de l'\u00e9valuation"
+    },
+    "reviewer_email": {
+      "type": "string",
+      "description": "Email de l'\u00e9valuateur"
+    },
+    "reviewer_name": {
+      "type": "string",
+      "description": "Nom de l'\u00e9valuateur"
+    },
+    "overall_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Note globale (1-5)"
+    },
+    "technical_skills": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Comp\u00e9tences techniques"
+    },
+    "communication": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Communication"
+    },
+    "teamwork": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Travail d'\u00e9quipe"
+    },
+    "leadership": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Leadership"
+    },
+    "punctuality": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Ponctualit\u00e9"
+    },
+    "strengths": {
+      "type": "string",
+      "description": "Points forts"
+    },
+    "weaknesses": {
+      "type": "string",
+      "description": "Points \u00e0 am\u00e9liorer"
+    },
+    "achievements": {
+      "type": "string",
+      "description": "R\u00e9alisations"
+    },
+    "goals": {
+      "type": "string",
+      "description": "Objectifs pour la prochaine p\u00e9riode"
+    },
+    "comments": {
+      "type": "string",
+      "description": "Commentaires g\u00e9n\u00e9raux"
+    },
+    "employee_comments": {
+      "type": "string",
+      "description": "Commentaires de l'employ\u00e9"
+    },
+    "salary_increase_recommended": {
+      "type": "boolean",
+      "default": false,
+      "description": "Augmentation recommand\u00e9e"
+    },
+    "salary_increase_percentage": {
+      "type": "number",
+      "description": "Pourcentage d'augmentation recommand\u00e9"
+    },
+    "promotion_recommended": {
+      "type": "boolean",
+      "default": false,
+      "description": "Promotion recommand\u00e9e"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Brouillon",
+        "En attente signature",
+        "Compl\u00e9t\u00e9",
+        "Archiv\u00e9"
+      ],
+      "default": "Brouillon",
+      "description": "Statut"
+    },
+    "next_review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de la prochaine \u00e9valuation"
+    }
+  },
+  "required": [
+    "employee_id",
+    "review_period",
+    "review_date",
+    "overall_rating"
+  ]
+}

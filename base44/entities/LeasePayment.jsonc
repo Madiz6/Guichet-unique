@@ -1,0 +1,94 @@
+{
+  "name": "LeasePayment",
+  "type": "object",
+  "properties": {
+    "lease_id": {
+      "type": "string",
+      "description": "ID du contrat de location"
+    },
+    "periode": {
+      "type": "string",
+      "description": "P\u00e9riode (ex: Janvier 2025)"
+    },
+    "mois_annee": {
+      "type": "string",
+      "description": "Format YYYYMM"
+    },
+    "montant": {
+      "type": "number",
+      "description": "Montant (DJF)"
+    },
+    "date_echeance": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'\u00e9ch\u00e9ance"
+    },
+    "date_paiement": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de paiement effectif"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "En attente",
+        "Pay\u00e9",
+        "En retard",
+        "Annul\u00e9"
+      ],
+      "default": "En attente",
+      "description": "Statut"
+    },
+    "methode_paiement": {
+      "type": "string",
+      "enum": [
+        "Virement",
+        "Ch\u00e8que",
+        "Esp\u00e8ces",
+        "Mobile Money",
+        "Carte bancaire"
+      ],
+      "description": "M\u00e9thode de paiement"
+    },
+    "recu_url": {
+      "type": "string",
+      "description": "Re\u00e7u de paiement"
+    },
+    "lien_paiement": {
+      "type": "string",
+      "description": "Lien de paiement g\u00e9n\u00e9r\u00e9"
+    },
+    "date_envoi_lien": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'envoi du lien"
+    },
+    "rappel_envoye": {
+      "type": "boolean",
+      "default": false,
+      "description": "Rappel envoy\u00e9"
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "ID de transaction"
+    },
+    "numero_recu": {
+      "type": "string",
+      "description": "Num\u00e9ro de re\u00e7u"
+    },
+    "recu_html": {
+      "type": "string",
+      "description": "HTML du re\u00e7u"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "lease_id",
+    "periode",
+    "montant",
+    "date_echeance"
+  ]
+}

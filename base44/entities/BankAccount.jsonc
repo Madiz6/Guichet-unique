@@ -1,0 +1,67 @@
+{
+  "name": "BankAccount",
+  "type": "object",
+  "properties": {
+    "nom_compte": {
+      "type": "string",
+      "description": "Nom du compte (ex: EXIM - DJF)"
+    },
+    "banque": {
+      "type": "string",
+      "description": "Nom de la banque"
+    },
+    "type_compte": {
+      "type": "string",
+      "enum": [
+        "Courant",
+        "\u00c9pargne",
+        "Devise"
+      ],
+      "description": "Type de compte"
+    },
+    "devise": {
+      "type": "string",
+      "enum": [
+        "DJF",
+        "USD",
+        "EUR",
+        "GBP"
+      ],
+      "default": "DJF",
+      "description": "Devise"
+    },
+    "numero_compte": {
+      "type": "string",
+      "description": "Num\u00e9ro de compte"
+    },
+    "solde_actuel": {
+      "type": "number",
+      "default": 0,
+      "description": "Solde actuel"
+    },
+    "date_ouverture": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'ouverture"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "Actif",
+        "Ferm\u00e9",
+        "Suspendu"
+      ],
+      "default": "Actif",
+      "description": "Statut"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "nom_compte",
+    "banque",
+    "devise"
+  ]
+}

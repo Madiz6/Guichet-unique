@@ -124,6 +124,10 @@
     "numero_registre": {
       "type": "string",
       "description": "Num\u00e9ro au registre de commerce"
+    },
+    "approval_workflow": {
+      "type": "object",
+      "description": "\u00c9tat du workflow d'approbation (ODPIC, DGI, CNSS) avec documents \u00e9mis"
     }
   },
   "required": [

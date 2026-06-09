@@ -1,0 +1,85 @@
+{
+  "name": "LeaseAsset",
+  "type": "object",
+  "properties": {
+    "nom": {
+      "type": "string",
+      "description": "Nom de l'actif (ex: Bureau 101)"
+    },
+    "type_actif": {
+      "type": "string",
+      "enum": [
+        "Bureau priv\u00e9",
+        "Espace coworking",
+        "Salle de r\u00e9union",
+        "V\u00e9hicule",
+        "\u00c9quipement",
+        "Autre"
+      ],
+      "description": "Type d'actif"
+    },
+    "reference": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence unique"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description d\u00e9taill\u00e9e"
+    },
+    "localisation": {
+      "type": "string",
+      "description": "Localisation/Adresse"
+    },
+    "surface_m2": {
+      "type": "number",
+      "description": "Surface (m\u00b2)"
+    },
+    "capacite": {
+      "type": "number",
+      "description": "Capacit\u00e9 (personnes)"
+    },
+    "tarif_mensuel": {
+      "type": "number",
+      "description": "Tarif mensuel (DJF)"
+    },
+    "tarif_journalier": {
+      "type": "number",
+      "description": "Tarif journalier (DJF)"
+    },
+    "tarif_horaire": {
+      "type": "number",
+      "description": "Tarif horaire (DJF)"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "Disponible",
+        "Occup\u00e9",
+        "En maintenance",
+        "Indisponible"
+      ],
+      "default": "Disponible",
+      "description": "Statut"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo de l'actif"
+    },
+    "equipements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Liste des \u00e9quipements"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "nom",
+    "type_actif",
+    "tarif_mensuel"
+  ]
+}

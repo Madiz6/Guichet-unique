@@ -1,0 +1,76 @@
+{
+  "name": "StockInventory",
+  "type": "object",
+  "properties": {
+    "date_inventaire": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de l'inventaire physique"
+    },
+    "fiscal_year": {
+      "type": "string",
+      "description": "Ann\u00e9e fiscale"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "quantite": {
+            "type": "number"
+          },
+          "prix_unitaire": {
+            "type": "number"
+          },
+          "valeur_totale": {
+            "type": "number"
+          },
+          "emplacement": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Liste des articles en stock"
+    },
+    "valeur_totale_stock": {
+      "type": "number",
+      "description": "Valeur totale du stock (DJF)"
+    },
+    "compteur_nom": {
+      "type": "string",
+      "description": "Nom du responsable de comptage"
+    },
+    "validateur_nom": {
+      "type": "string",
+      "description": "Nom du validateur"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "En cours",
+        "Valid\u00e9",
+        "Cl\u00f4tur\u00e9"
+      ],
+      "default": "En cours",
+      "description": "Statut"
+    },
+    "document_url": {
+      "type": "string",
+      "description": "Fiche d'inventaire physique"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes et observations"
+    }
+  },
+  "required": [
+    "date_inventaire",
+    "fiscal_year"
+  ]
+}

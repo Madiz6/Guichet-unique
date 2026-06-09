@@ -1,0 +1,98 @@
+{
+  "name": "DebtCentralized",
+  "type": "object",
+  "properties": {
+    "transaction_id": {
+      "type": "string",
+      "description": "ID de la transaction source"
+    },
+    "debt_type": {
+      "type": "string",
+      "enum": [
+        "Fournisseur",
+        "Employ\u00e9",
+        "Partenaire",
+        "Banque",
+        "Investisseur",
+        "Fiscal",
+        "Autre"
+      ],
+      "description": "Type de dette"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Nom du cr\u00e9ancier / tiers"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description de la dette"
+    },
+    "amount_due": {
+      "type": "number",
+      "description": "Montant total d\u00fb (DJF)"
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0,
+      "description": "Montant d\u00e9j\u00e0 r\u00e9gl\u00e9 (DJF)"
+    },
+    "amount_remaining": {
+      "type": "number",
+      "description": "Montant restant d\u00fb (DJF)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Partiellement r\u00e9gl\u00e9e",
+        "R\u00e9gl\u00e9e",
+        "Contest\u00e9e"
+      ],
+      "default": "Active",
+      "description": "Statut de la dette"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'\u00e9ch\u00e9ance"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de r\u00e8glement effectif"
+    },
+    "debit_account": {
+      "type": "string",
+      "description": "Compte d\u00e9bit de la dette (ex: 606)"
+    },
+    "credit_account": {
+      "type": "string",
+      "description": "Compte cr\u00e9dit de la dette (ex: 401)"
+    },
+    "journal": {
+      "type": "string",
+      "description": "Journal associ\u00e9 (ACH, BNQ, OD...)"
+    },
+    "ledger_entry_id": {
+      "type": "string",
+      "description": "ID de l'\u00e9criture initiale"
+    },
+    "settlement_entry_id": {
+      "type": "string",
+      "description": "ID de l'\u00e9criture de r\u00e8glement"
+    },
+    "department": {
+      "type": "string",
+      "description": "D\u00e9partement"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "transaction_id",
+    "amount_due",
+    "debt_type"
+  ]
+}

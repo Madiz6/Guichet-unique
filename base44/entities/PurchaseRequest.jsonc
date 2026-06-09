@@ -1,0 +1,226 @@
+{
+  "name": "PurchaseRequest",
+  "type": "object",
+  "properties": {
+    "numero_demande": {
+      "type": "string",
+      "description": "Num\u00e9ro unique de demande (ex: PR-2025-001)"
+    },
+    "employe_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email de l'employ\u00e9 demandeur"
+    },
+    "employe_nom": {
+      "type": "string",
+      "description": "Nom de l'employ\u00e9 demandeur"
+    },
+    "departement": {
+      "type": "string",
+      "description": "D\u00e9partement demandeur"
+    },
+    "titre": {
+      "type": "string",
+      "description": "Titre de la demande (ex: Achat ordinateur portable)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description d\u00e9taill\u00e9e de la demande"
+    },
+    "type_achat": {
+      "type": "string",
+      "enum": [
+        "Biens",
+        "Services",
+        "\u00c9quipement",
+        "Consommables",
+        "Infrastructure"
+      ],
+      "description": "Type d'achat"
+    },
+    "categorie": {
+      "type": "string",
+      "description": "Cat\u00e9gorie d'achat (li\u00e9e \u00e0 ExpenseCategory)"
+    },
+    "montant_total": {
+      "type": "number",
+      "description": "Montant total estim\u00e9 (DJF)"
+    },
+    "devise": {
+      "type": "string",
+      "default": "DJF",
+      "description": "Devise"
+    },
+    "justification": {
+      "type": "string",
+      "description": "Justification m\u00e9tier de la demande"
+    },
+    "date_besoin": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de besoin"
+    },
+    "urgence": {
+      "type": "string",
+      "enum": [
+        "Normal",
+        "Urgent",
+        "Critique"
+      ],
+      "default": "Normal",
+      "description": "Niveau d'urgence"
+    },
+    "budget_id": {
+      "type": "string",
+      "description": "ID du budget associ\u00e9"
+    },
+    "budget_code": {
+      "type": "string",
+      "description": "Code budg\u00e9taire (ex: MARKETING-2025)"
+    },
+    "montant_budget_disponible": {
+      "type": "number",
+      "description": "Montant disponible dans le budget (au moment de la demande)"
+    },
+    "statut": {
+      "type": "string",
+      "enum": [
+        "Brouillon",
+        "Soumise",
+        "En approbation",
+        "Approuv\u00e9e",
+        "Rejet\u00e9e",
+        "Annul\u00e9e",
+        "En commande",
+        "Livr\u00e9e"
+      ],
+      "default": "Brouillon",
+      "description": "Statut de la demande"
+    },
+    "fournisseurs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "montant_devis": {
+            "type": "number"
+          },
+          "lien_devis": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Fournisseurs et devis"
+    },
+    "fournisseur_selectionne_id": {
+      "type": "string",
+      "description": "ID du fournisseur s\u00e9lectionn\u00e9"
+    },
+    "fournisseur_selectionne_nom": {
+      "type": "string",
+      "description": "Nom du fournisseur s\u00e9lectionn\u00e9"
+    },
+    "approuveurs_requis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string",
+            "enum": [
+              "En attente",
+              "Approuv\u00e9",
+              "Rejet\u00e9"
+            ]
+          },
+          "date_approbation": {
+            "type": "string",
+            "format": "date"
+          },
+          "commentaire": {
+            "type": "string"
+          },
+          "niveau": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Cha\u00eene d'approbation"
+    },
+    "politique_declenchee": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "R\u00e8gles de politique qui ont \u00e9t\u00e9 d\u00e9clench\u00e9es"
+    },
+    "pieces_jointes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Pi\u00e8ces jointes (devis, sp\u00e9cifications, etc.)"
+    },
+    "notes_internes": {
+      "type": "string",
+      "description": "Notes internes pour procurement"
+    },
+    "date_submission": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de soumission"
+    },
+    "date_approbation_finale": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date d'approbation finale"
+    },
+    "date_livraison_prevue": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de livraison pr\u00e9vue"
+    },
+    "numero_commande": {
+      "type": "string",
+      "description": "Num\u00e9ro de commande g\u00e9n\u00e9r\u00e9"
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "ID de la transaction associ\u00e9e (une fois en comptabilit\u00e9)"
+    }
+  },
+  "required": [
+    "titre",
+    "montant_total",
+    "type_achat",
+    "categorie",
+    "date_besoin",
+    "departem ent"
+  ]
+}
