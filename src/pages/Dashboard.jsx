@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import CompanyCreationWizard from "../components/company/CompanyCreationWizard";
 import AIInsightsBanner from "../components/ai/AIInsightsBanner";
 import OperationalAlerts from "../components/dashboard/OperationalAlerts";
+import CustomerPortalCard from "../components/dashboard/CustomerPortalCard";
 
 export default function Dashboard() {
   const [timeRange, setTimeRange] = useState('12M');
@@ -666,6 +667,18 @@ export default function Dashboard() {
         >
           <OperationalAlerts />
         </motion.div>
+
+        {/* Customer Portal — Admin only */}
+        {user?.role === 'admin' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.42 }}
+            className="mb-8"
+          >
+            <CustomerPortalCard />
+          </motion.div>
+        )}
 
         {/* Declarations Table */}
         <motion.div
