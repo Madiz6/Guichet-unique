@@ -21,6 +21,7 @@ import ShareholderTree from '@/components/onboarding/ShareholderTree.jsx';
 import AMLScreeningPanel from '@/components/admin/AMLScreeningPanel.jsx';
 import ActesAdministratifsRCS from '@/components/admin/ActesAdministratifsRCS.jsx';
 import AdminCreateDossier from '@/components/admin/AdminCreateDossier.jsx';
+import CustomerPortalCard from '@/components/dashboard/CustomerPortalCard.jsx';
 
 const STATUS_COLORS = {
   'En attente': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -956,6 +957,9 @@ export default function AdminPortal() {
             </button>
           ))}
         </div>
+
+        {/* Customer Portal */}
+        <CustomerPortalCard />
 
         {/* Filters */}
         <div className="flex gap-3 flex-wrap">
