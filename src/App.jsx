@@ -1,11 +1,12 @@
 import './App.css'
+import { useEffect } from 'react'
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingWizard from './pages/OnboardingWizard';
 import AdminPortal from './pages/AdminPortal';
@@ -27,8 +28,16 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Redirect admin user to AdminPortal on login
+  useEffect(() => {
+    if (!isLoadingAuth && user?.email === 'remoz.giovanni@meras.io' && location.pathname === '/') {
+      navigate('/AdminPortal', { replace: true });
+    }
+  }, [isLoadingAuth, user, location.pathname, navigate]);
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
