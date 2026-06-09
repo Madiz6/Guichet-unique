@@ -55,7 +55,7 @@ export default function Layout({ children, currentPageName }) {
   
   const navigationGroups = [
     {
-      label: null,
+      label: "Espace Client",
       items: [
         { title: "Accueil", url: createPageUrl("Home"), icon: Home },
         { title: "Mes Dossiers", url: "/MesDossiers", icon: FileText },
@@ -68,7 +68,7 @@ export default function Layout({ children, currentPageName }) {
         { title: "Portail Admin ANPI", url: "/AdminPortal", icon: Globe },
         { title: "Vue Globale Admin", url: "/AdminOverview", icon: Building2 },
         { title: "Actes Modificatifs", url: "/ActesModificatifs", icon: FilePen },
-        { title: "Sécurité", url: createPageUrl("SecurityDocumentation"), icon: Shield },
+        { title: "Sécurité & Audit", url: createPageUrl("SecurityDocumentation"), icon: Shield },
       ]
     }] : []),
   ];
@@ -226,7 +226,7 @@ export default function Layout({ children, currentPageName }) {
             <AICopilot currentPage={currentPageName} />
         {/* Footer — hidden on mobile (replaced by bottom nav) */}
         <footer className="hidden md:block bg-white border-t border-[#F0F0F0] px-6 py-3 text-center">
-          <p className="text-xs text-[#6B6B6B] font-normal">© 2024 Paie360 • Powered by <span className="font-medium text-[#1A1A1A]">Meras PSP</span></p>
+          <p className="text-xs text-[#6B6B6B] font-normal">© 2026 Guichet Unique ANPI Djibouti • Powered by <span className="font-medium text-[#1A1A1A]">Meras PSP</span></p>
         </footer>
         </main>
         <BottomNavBar />
