@@ -39,7 +39,8 @@ export default function Layout({ children, currentPageName }) {
     try { await meras.auth.logout(); } finally { setIsDeletingAccount(false); }
   };
   
-  const isAdmin = user?.role === 'admin';
+  const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
+  const isAdmin = user?.role === 'admin' || ADMIN_EMAILS.includes(user?.email);
   
   // Show full app layout only if NOT on Home page
   const isHomePage = currentPageName === 'Home' || location.pathname === createPageUrl('Home') || location.pathname === '/';

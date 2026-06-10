@@ -34,15 +34,17 @@ const AuthenticatedApp = () => {
   const navigate = useNavigate();
 
   // Redirect on login based on role
+  const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
   const ADMIN_PATHS = ['/AdminPortal', '/AdminOverview', '/ActesModificatifs'];
   const USER_PATHS = ['/entrepreneur', '/MesDossiers'];
 
   useEffect(() => {
     if (isLoadingAuth || !user) return;
     const path = location.pathname;
+    const isAdmin = user.role === 'admin' || ADMIN_EMAILS.includes(user.email);
 
-    if (user.role === 'admin') {
-      // Admin landing on user-only pages → send to admin portal
+    if (isAdmin) {
+      // Admin landing on user-only pages or root → send to admin portal
       if (path === '/' || USER_PATHS.some(p => path.startsWith(p))) {
         navigate('/AdminPortal', { replace: true });
       }
