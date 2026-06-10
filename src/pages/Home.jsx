@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { meras } from "@/components/core/MerasClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -251,6 +252,7 @@ export default function Home() {
               <a href="#accueil" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Accueil</a>
               <a href="#services" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Nos Services</a>
               <a href="#procedures" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures</a>
+              <Link to="/procedures" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures</Link>
               <a href="#telechargements" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Téléchargements</a>
               <a href="#documentation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures & Tarifs</a>
               <a href="#mission" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Notre Mission</a>
@@ -342,7 +344,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: FileText, title: "Guide de Création", desc: "Consultez les étapes nécessaires à la création de votre société", link: "#procedures", color: "border-blue-200 hover:border-blue-400" },
+              { icon: FileText, title: "Guide de Création", desc: "Consultez les étapes nécessaires à la création de votre société", link: "#procedures", color: "border-blue-200 hover:border-blue-400", internal: false },
               { icon: Search, title: "Dénomination Sociale", desc: "Réservez votre nom commercial et vérifiez sa disponibilité", link: "#", color: "border-green-200 hover:border-green-400" },
               { icon: Globe, title: "Annonces Légales", desc: "Consultez en ligne la liste des entreprises créées au Guichet Unique", link: "https://odpic.dj/publication-registre/", color: "border-orange-200 hover:border-orange-400" },
             ].map((item, i) => (
@@ -841,6 +843,41 @@ export default function Home() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </a>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Procedures CTA Banner */}
+      <section className="py-16 px-6 bg-blue-900 text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <p className="text-orange-400 font-semibold text-sm tracking-widest uppercase mb-3">Guide complet</p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">Toutes les procédures administratives en détail</h2>
+              <p className="text-blue-200 leading-relaxed">Création d'entreprise, permis de travail, raccordement, permis de construire, paiement des impôts… Retrouvez le guide officiel de toutes les démarches pour investir à Djibouti.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Création d'entreprise", anchor: "creation" },
+                { label: "Permis de travail & séjour", anchor: "sejour" },
+                { label: "Paiement des impôts", anchor: "impots" },
+                { label: "Raccordement", anchor: "raccordement" },
+                { label: "Obtention d'un terrain", anchor: "terrain" },
+                { label: "Permis de construire", anchor: "permis" },
+              ].map((item, i) => (
+                <Link key={i} to={`/procedures#${item.anchor}`} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-sm font-medium px-4 py-3 rounded-xl transition-colors border border-white/10">
+                  <ChevronRight className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-white/10 text-center">
+            <Link to="/procedures">
+              <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-10 py-6 h-auto text-lg rounded-lg">
+                Consulter toutes les procédures <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -15,6 +15,7 @@ import AdminOverview from './pages/AdminOverview';
 import ActesModificatifs from './pages/ActesModificatifs';
 import Dashboard from './pages/Dashboard';
 import EntrepreneurPortal from './pages/EntrepreneurPortal';
+import Procedures from './pages/Procedures';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { AnimatePresence } from 'framer-motion';
@@ -100,6 +101,7 @@ const AuthenticatedApp = () => {
         <Route path="/ActesModificatifs" element={<LayoutWrapper currentPageName="ActesModificatifs"><ActesModificatifs /></LayoutWrapper>} />
         <Route path="/Dashboard" element={<LayoutWrapper currentPageName="Dashboard"><PageTransition><Dashboard /></PageTransition></LayoutWrapper>} />
         <Route path="/entrepreneur" element={<LayoutWrapper currentPageName="EntrepreneurPortal"><EntrepreneurPortal /></LayoutWrapper>} />
+        <Route path="/procedures" element={<Procedures />} />
         <Route
           path="/AdminOverview"
           element={
