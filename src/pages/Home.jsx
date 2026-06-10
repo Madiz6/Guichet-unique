@@ -104,37 +104,37 @@ const services = [
     icon: Building2,
     title: "Création d'entreprise",
     desc: "Constituez votre société en toute simplicité. Chaque étape est accompagnée par nos agents.",
-    img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1636783186055-69fc2fdbed53?w=600&q=80",
   },
   {
     icon: Search,
     title: "Dénomination Sociale",
     desc: "Réservez votre nom commercial et vérifiez sa disponibilité avant de lancer votre activité.",
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1669792976534-0633ce36a000?w=600&q=80",
   },
   {
     icon: FileText,
     title: "Annonces Légales",
     desc: "Consultez en ligne la liste des entreprises créées au Guichet Unique et publiez vos annonces.",
-    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1639202170325-6782215f596b?w=600&q=80",
   },
   {
     icon: Globe,
     title: "Immatriculation Fiscale",
     desc: "Obtenez votre NIF (Numéro d'Identification Fiscale) et effectuez toutes vos formalités fiscales.",
-    img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1544704325-8c4f82787278?w=600&q=80",
   },
   {
     icon: Users,
     title: "Affiliation CNSS",
     desc: "Procédez à l'affiliation sociale de votre entreprise et de vos employés auprès de la CNSS.",
-    img: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1552796220-db7b4c3824a2?w=600&q=80",
   },
   {
     icon: Shield,
     title: "Registre de Commerce",
     desc: "Obtenez votre récépissé d'immatriculation au Registre du Commerce via l'ODPIC.",
-    img: "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=600&q=80",
+    img: "https://images.unsplash.com/photo-1655153985330-f346ba3a316a?w=600&q=80",
   },
 ];
 
@@ -336,8 +336,8 @@ export default function Home() {
             style={{ aspectRatio: '4/5', marginBottom: '-40px' }}
           >
             <img
-              src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=80"
-              alt="Entrepreneurs djiboutiens" className="w-full h-full object-cover" fetchpriority="high"
+              src="https://images.unsplash.com/photo-1636783186055-69fc2fdbed53?w=600&q=80"
+              alt="Djibouti City vue aérienne" className="w-full h-full object-cover" fetchpriority="high"
             />
           </motion.div>
 
@@ -375,8 +375,8 @@ export default function Home() {
             style={{ aspectRatio: '4/5', marginBottom: '-40px' }}
           >
             <img
-              src="https://images.unsplash.com/photo-1556761175-4b46a572b786?w=600&q=80"
-              alt="Réunion ANPI Djibouti" className="w-full h-full object-cover" fetchpriority="high"
+              src="https://images.unsplash.com/photo-1639202170325-6782215f596b?w=600&q=80"
+              alt="Port de Djibouti" className="w-full h-full object-cover" fetchpriority="high"
             />
           </motion.div>
         </div>
