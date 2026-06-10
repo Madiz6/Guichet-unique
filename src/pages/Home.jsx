@@ -251,13 +251,11 @@ export default function Home() {
             <div className="hidden md:flex items-center gap-8">
               <a href="#accueil" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Accueil</a>
               <a href="#services" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Nos Services</a>
-              <a href="#procedures" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures</a>
-              <Link to="/procedures" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures</Link>
+              <a href="#documentation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Tarifs & Docs</a>
               <a href="#telechargements" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Téléchargements</a>
-              <a href="#documentation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures & Tarifs</a>
               <a href="#mission" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Notre Mission</a>
               <a href="#contact" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Contact</a>
-              <a href="https://anpi.dj" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-semibold transition-colors">ANPI</a>
+              <a href="https://anpi.dj" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-semibold transition-colors flex items-center gap-1">ANPI <Globe className="w-3.5 h-3.5" /></a>
             </div>
 
             <div className="hidden md:flex items-center gap-3">
@@ -276,9 +274,16 @@ export default function Home() {
 
           {mobileMenuOpen && (
             <div className="md:hidden pb-6 border-t border-gray-100">
-              <div className="flex flex-col space-y-3 pt-4">
-                {['Accueil', 'Nos Services', 'Procédures', 'Notre Mission', 'Contact'].map(item => (
-                  <a key={item} href={`#${item.toLowerCase().replace(/ /g, '')}`} onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-medium py-1">{item}</a>
+              <div className="flex flex-col space-y-1 pt-4">
+                {[
+                  { label: 'Accueil', href: '#accueil' },
+                  { label: 'Nos Services', href: '#services' },
+                  { label: 'Tarifs & Docs', href: '#documentation' },
+                  { label: 'Téléchargements', href: '#telechargements' },
+                  { label: 'Notre Mission', href: '#mission' },
+                  { label: 'Contact', href: '#contact' },
+                ].map(item => (
+                  <a key={item.label} href={item.href} onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-medium py-2.5 px-2 rounded-lg hover:bg-gray-50 transition-colors">{item.label}</a>
                 ))}
                 <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
                   <Button onClick={handleLogin} variant="outline" className="w-full">Se connecter</Button>
