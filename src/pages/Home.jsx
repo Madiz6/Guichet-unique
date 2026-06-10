@@ -251,6 +251,7 @@ export default function Home() {
               <a href="#accueil" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Accueil</a>
               <a href="#services" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Nos Services</a>
               <a href="#procedures" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures</a>
+              <a href="#telechargements" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Téléchargements</a>
               <a href="#documentation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures & Tarifs</a>
               <a href="#mission" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Notre Mission</a>
               <a href="#contact" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Contact</a>
@@ -427,6 +428,123 @@ export default function Home() {
                 </motion.div>
               ))}
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Téléchargements */}
+      <section id="telechargements" className="py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-orange-500 font-semibold text-sm tracking-widest uppercase mb-3">Ressources officielles</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Téléchargements</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">Trouvez ici tous les documents importants : modèles juridiques, formulaires administratifs et textes réglementaires.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {/* Modèles de statuts */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 bg-blue-800 text-white rounded-xl flex items-center justify-center"><FileText className="w-5 h-5" /></div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Modèles de Statuts</h3>
+                  <p className="text-xs text-gray-500">Statuts juridiques types</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: "Statut EURL", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/Statut_EURL.doc" },
+                  { label: "Statut SARL", url: "https://guichet-unique-djib.com/wp-content/uploads/2025/03/Statut_SARL.docx" },
+                  { label: "Statut SAS", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/statut_SAS.doc" },
+                  { label: "Statut SA", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/statut_SAS.doc" },
+                  { label: "Statut SASU", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/Statut_SASU.docx" },
+                ].map((item, i) => (
+                  <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-blue-100 transition-colors group border border-blue-100">
+                    <span className="text-sm font-medium text-gray-800 group-hover:text-blue-800">{item.label}</span>
+                    <ArrowRight className="w-4 h-4 text-blue-400 group-hover:text-blue-700 flex-shrink-0" />
+                  </a>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Formulaires GUI */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="bg-green-50 border border-green-100 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 bg-green-700 text-white rounded-xl flex items-center justify-center"><FileText className="w-5 h-5" /></div>
+                <div>
+                  <h3 className="font-bold text-gray-900">Formulaires GUI</h3>
+                  <p className="text-xs text-gray-500">Documents administratifs</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: "Formulaire Personne Physique", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/Formulaire-unique-personne-physique-24.pdf" },
+                  { label: "Formulaire Personne Morale", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/formulaire-unique-personne-morale2024.pdf" },
+                  { label: "Formulaire ANEFIP", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/formulaire-unique-pour-TRAVAILLEUR.pdf" },
+                  { label: "Formulaire Titre de séjour", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/formulaire-unique-pour-ETRANGER.pdf" },
+                  { label: "Formulaire DATUH", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/formulaire-unique-DATUH.pdf" },
+                  { label: "Formulaire Domaines", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/formulaire_unique_de-_domaines.pdf" },
+                  { label: "Formulaire Djibouti Telecom", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/Formulaire-Djibouti-Telecom-Internet.pdf" },
+                  { label: "Formulaire EDD", url: "https://guichet-unique-djib.com/wp-content/uploads/2024/08/FORMULAIRES-EDD.pdf" },
+                ].map((item, i) => (
+                  <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-green-100 transition-colors group border border-green-100">
+                    <span className="text-sm font-medium text-gray-800 group-hover:text-green-800">{item.label}</span>
+                    <ArrowRight className="w-4 h-4 text-green-400 group-hover:text-green-700 flex-shrink-0" />
+                  </a>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Textes Juridiques + Activités réglementées */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="flex flex-col gap-6">
+              {/* Textes juridiques */}
+              <div className="bg-purple-50 border border-purple-100 rounded-2xl p-6 flex-1">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 bg-purple-700 text-white rounded-xl flex items-center justify-center"><Shield className="w-5 h-5" /></div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Textes Juridiques</h3>
+                    <p className="text-xs text-gray-500">Lois et réglementations</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { label: "Loi N°179 — Création d'Entreprise", url: "https://www.djiboutinvest.com/attachments/article/349/LOI%20N%20179.pdf" },
+                    { label: "Loi N°191", url: "https://www.djiboutinvest.com/attachments/article/349/LOI%20N%20191.pdf" },
+                    { label: "Note de service ANPI.GU", url: "https://www.djiboutinvest.com/attachments/article/349/Note%20de%20service%20ANPI.GU.pdf" },
+                    { label: "Loi n°001/AN/18 — Code de Commerce", url: "https://guichet-unique-djib.com/wp-content/uploads/2018/04/Loi-N001-Modification-Code-de-Commerce.pdf" },
+                    { label: "Loi n°003/AN/18 — Code Civil", url: "https://guichet-unique-djib.com/wp-content/uploads/2018/04/Loi-N003-Code-Civil.pdf" },
+                    { label: "Loi n°005/AN/18 — Code Général des Impôts", url: "https://guichet-unique-djib.com/wp-content/uploads/2018/04/Loi-N005-Modifiant-le-Code-G%D0%92n%D0%92ral-des-Impots.pdf" },
+                  ].map((item, i) => (
+                    <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-purple-100 transition-colors group border border-purple-100">
+                      <span className="text-sm font-medium text-gray-800 group-hover:text-purple-800 leading-snug">{item.label}</span>
+                      <ArrowRight className="w-4 h-4 text-purple-400 group-hover:text-purple-700 flex-shrink-0 ml-2" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Activités réglementées */}
+              <div className="bg-orange-50 border border-orange-100 rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-orange-500 text-white rounded-xl flex items-center justify-center"><AlertCircle className="w-5 h-5" /></div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Activités Réglementées</h3>
+                    <p className="text-xs text-gray-500">Agréments requis selon l'activité</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">Certaines activités nécessitent un agrément préalable auprès des autorités compétentes. Consultez la liste complète sur le site officiel.</p>
+                <a href="https://guichet-unique-djib.com/telechargements/#section5" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors">
+                  Voir les activités réglementées <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <a href="https://guichet-unique-djib.com/telechargements/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-900 font-semibold text-sm transition-colors">
+              Voir tous les documents officiels sur le site du Guichet Unique <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </section>
