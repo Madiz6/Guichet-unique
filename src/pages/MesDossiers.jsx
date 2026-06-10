@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, CheckCircle2, Clock, AlertTriangle, XCircle, FileText, Loader2, Download, Plus } from 'lucide-react';
+import { Upload, CheckCircle2, Clock, AlertTriangle, XCircle, FileText, Loader2, Download, Plus, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { generateFormulairePDF, generateStatutsPDF } from '../components/onboarding/PDFGenerator.jsx';
@@ -135,7 +135,7 @@ export default function MesDossiers() {
                     <div className="p-2 bg-[#F9F9F9] rounded-lg"><p className="text-[#9B9B9B]">Paiement</p><p className="font-medium">{dossier.payment_confirmed ? '✓ Confirmé' : 'En attente'}</p></div>
                   </div>
 
-                  {/* Downloads */}
+                  {/* Downloads - Generated docs */}
                   <div className="flex flex-wrap gap-2">
                     <Button variant="outline" size="sm" onClick={() => generateFormulairePDF(stepData, dossier.envelope_id)} className="text-xs">
                       <Download className="w-3.5 h-3.5 mr-1" /> Formulaire GUI
@@ -144,6 +144,61 @@ export default function MesDossiers() {
                       <Download className="w-3.5 h-3.5 mr-1" /> Statuts
                     </Button>
                   </div>
+
+                  {/* Official documents from ODPIC, DGI, CNSS */}
+                  {(() => {
+                    const wf = dossier.approval_workflow || {};
+                    const officialDocs = [
+                      { agency: 'ODPIC', color: 'blue',   key: 'odpic_recepisse_url',          label: 'Récépissé d\'immatriculation',       url: wf.odpic?.uploaded_docs?.odpic_recepisse_url },
+                      { agency: 'ODPIC', color: 'blue',   key: 'odpic_certificat_negatif_url',  label: 'Certificat Négatif (CN1)',            url: wf.odpic?.uploaded_docs?.odpic_certificat_negatif_url },
+                      { agency: 'DGI',   color: 'purple', key: 'dgi_nif_url',                   label: 'Attestation NIF',                    url: wf.dgi?.uploaded_docs?.dgi_nif_url },
+                      { agency: 'DGI',   color: 'purple', key: 'dgi_patente_url',               label: 'Patente Fiscale',                    url: wf.dgi?.uploaded_docs?.dgi_patente_url },
+                      { agency: 'CNSS',  color: 'green',  key: 'cnss_affiliation_url',          label: 'Certificat d\'Affiliation CNSS',     url: wf.cnss?.uploaded_docs?.cnss_affiliation_url },
+                      { agency: 'CNSS',  color: 'green',  key: 'cnss_immatriculation_url',      label: 'Immatriculation CNSS',               url: wf.cnss?.uploaded_docs?.cnss_immatriculation_url },
+                    ];
+                    const available = officialDocs.filter(d => d.url);
+                    if (available.length === 0) return null;
+
+                    const agencyColors = {
+                      blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   badge: 'bg-blue-100 text-blue-700',     icon: 'text-blue-600' },
+                      purple: { bg: 'bg-purple-50', border: 'border-purple-200', badge: 'bg-purple-100 text-purple-700', icon: 'text-purple-600' },
+                      green:  { bg: 'bg-green-50',  border: 'border-green-200',  badge: 'bg-green-100 text-green-700',   icon: 'text-green-600' },
+                    };
+
+                    return (
+                      <div className="border-t border-[#E5E7EB] pt-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          <p className="text-sm font-semibold text-[#1A1A1A]">Documents officiels délivrés</p>
+                          <span className="text-xs text-[#9B9B9B]">({available.length}/6)</span>
+                        </div>
+                        {['ODPIC', 'DGI', 'CNSS'].map(agency => {
+                          const agencyDocs = available.filter(d => d.agency === agency);
+                          if (agencyDocs.length === 0) return null;
+                          const color = agencyDocs[0].color;
+                          const c = agencyColors[color];
+                          return (
+                            <div key={agency} className={`${c.bg} ${c.border} border rounded-xl p-3 mb-2`}>
+                              <p className={`text-xs font-bold mb-2 ${c.icon}`}>{agency}</p>
+                              <div className="space-y-1.5">
+                                {agencyDocs.map(doc => (
+                                  <a key={doc.key} href={doc.url} target="_blank" rel="noopener noreferrer"
+                                    className="flex items-center gap-2 p-2 bg-white border border-[#E5E7EB] rounded-lg hover:shadow-sm transition-all group">
+                                    <FileText className="w-3.5 h-3.5 text-[#6B6B6B] shrink-0" />
+                                    <span className="text-xs text-[#1A1A1A] flex-1">{doc.label}</span>
+                                    <div className="flex items-center gap-1">
+                                      <Download className="w-3 h-3 text-[#9B9B9B] group-hover:text-blue-500" />
+                                      <ExternalLink className="w-3 h-3 text-[#9B9B9B] group-hover:text-blue-500" />
+                                    </div>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
 
                   {/* Supplementary docs */}
                   {(dossier.statut === 'Modification requise' || dossier.statut === 'Rejeté') && (
