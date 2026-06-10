@@ -4,10 +4,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, CheckCircle2, Clock, AlertTriangle, XCircle, FileText, Loader2, Download, Plus, ExternalLink } from 'lucide-react';
+import { Upload, CheckCircle2, Clock, AlertTriangle, XCircle, FileText, Loader2, Download, Plus, ExternalLink, FilePen } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { generateFormulairePDF, generateStatutsPDF } from '../components/onboarding/PDFGenerator.jsx';
+import ClientActeModificatifWizard from '@/components/client/ClientActeModificatifWizard';
 
 const STATUS_MAP = {
   'En attente': { color: 'bg-amber-100 text-amber-700', icon: Clock, desc: 'Votre dossier a été soumis et est en attente d\'examen.' },
@@ -19,6 +20,7 @@ const STATUS_MAP = {
 
 export default function MesDossiers() {
   const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [modifyingDossier, setModifyingDossier] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
@@ -46,6 +48,18 @@ export default function MesDossiers() {
     const idx = steps.indexOf(statut);
     return idx >= 0 ? idx + 1 : (statut === 'Rejeté' || statut === 'Modification requise') ? -1 : 0;
   };
+
+  if (modifyingDossier) return (
+    <ClientActeModificatifWizard
+      dossier={modifyingDossier}
+      user={user}
+      onClose={() => setModifyingDossier(null)}
+      onSubmitted={() => {
+        setModifyingDossier(null);
+        toast.success('Demande de modification soumise — un agent ANPI va l\'examiner');
+      }}
+    />
+  );
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -93,7 +107,15 @@ export default function MesDossiers() {
                       <p className="font-bold text-base">{dossier.company_name}</p>
                       <p className="text-xs text-blue-200 mt-0.5 font-mono">Envelope ID: {dossier.envelope_id}</p>
                     </div>
-                    <Badge className={statusInfo.color}>{dossier.statut}</Badge>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge className={statusInfo.color}>{dossier.statut}</Badge>
+                      {dossier.statut === 'Validé' && (
+                        <Button size="sm" onClick={() => setModifyingDossier(dossier)}
+                          className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs h-7">
+                          <FilePen className="w-3 h-3 mr-1" /> Modifier
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
