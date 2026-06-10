@@ -149,6 +149,7 @@ const partners = [
   { name: 'FDED', logo: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/fded-1-150x150.png' },
   { name: 'IND', logo: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/ind-1.png' },
   { name: 'MCPT', logo: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/LOGO-MCPT-1.png' },
+  { name: 'Meras', logo: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/bdb98f172_Gemini_Generated_Image_yj3n6yj3n6yj3n6y.png' },
 ];
 
 /* ─── Arrow Button (Montix style) ─── */
@@ -191,12 +192,12 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#EFEFEF] text-[#1a1a1a]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#F5F5F2] text-[#1a1a1a]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* ══════════════════════════════════════
           NAVBAR  — white bar, full width
       ══════════════════════════════════════ */}
-      <header className="sticky top-0 z-50 bg-[#EFEFEF]">
+      <header className="sticky top-0 z-50 bg-[#F5F5F2] border-b border-[#e8e8e0]">
         <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 select-none">
@@ -222,7 +223,7 @@ export default function Home() {
           <div className="hidden md:block relative" ref={ctaRef}>
             <button
               onClick={() => setCtaDropOpen(v => !v)}
-              className="inline-flex items-center gap-2.5 bg-[#1a1a1a] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#333] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2.5 bg-[#F7941D] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#e07d0a] transition-colors cursor-pointer"
             >
               Espace Client
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
@@ -278,7 +279,7 @@ export default function Home() {
               })}
               <div className="pt-2 flex flex-col gap-2">
                 <button onClick={handleLogin} className="text-sm font-semibold py-3 px-5 border border-[#d4d4d4] rounded-full hover:bg-[#f5f5f5] cursor-pointer transition-colors">Se connecter</button>
-                <button onClick={handleGetStarted} className="text-sm font-semibold py-3 px-5 bg-[#1a1a1a] text-white rounded-full hover:bg-[#333] cursor-pointer transition-colors">Créer votre société</button>
+                <button onClick={handleGetStarted} className="text-sm font-semibold py-3 px-5 bg-[#F7941D] text-white rounded-full hover:bg-[#e07d0a] cursor-pointer transition-colors">Créer votre société</button>
               </div>
             </motion.div>
           )}
@@ -292,7 +293,7 @@ export default function Home() {
         <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white border border-[#e0e0e0] text-[#555] px-4 py-1.5 rounded-full text-xs font-medium mb-10 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F7941D] animate-pulse"></span>
             Guichet Unique ANPI — Djibouti
           </div>
 
@@ -311,9 +312,13 @@ export default function Home() {
 
           {/* CTA button — Montix-style outlined rounded pill */}
           <div className="flex items-center justify-center gap-3 mb-20">
-            <ArrowBtn onClick={handleGetStarted} dark>
-              Créer votre société
-            </ArrowBtn>
+            <button onClick={handleGetStarted}
+              onMouseEnter={e => e.currentTarget.style.background='#e07d0a'}
+              onMouseLeave={e => e.currentTarget.style.background='#F7941D'}
+              className="inline-flex items-center gap-3 px-7 py-4 rounded-full font-bold text-sm text-white cursor-pointer transition-colors"
+              style={{ background: '#F7941D' }}>
+              Créer votre société <ArrowRight className="w-4 h-4" />
+            </button>
             <a href="#procedures"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-[#d4d4d4] text-sm font-semibold text-[#555] hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-all duration-300 bg-white">
               Guide de création
@@ -379,8 +384,8 @@ export default function Home() {
         {/* Green organic wave (Montix style) */}
         <div className="w-full overflow-hidden" style={{ marginTop: '-2px', lineHeight: 0 }}>
           <svg viewBox="0 0 1440 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 90 C240 160 480 20 720 90 C960 160 1200 20 1440 90 L1440 180 L0 180 Z" fill="#d1fae5" opacity="0.5" />
-            <path d="M0 120 C360 60 720 180 1080 120 C1260 90 1380 110 1440 100 L1440 180 L0 180 Z" fill="#a7f3d0" opacity="0.4" />
+            <path d="M0 90 C240 160 480 20 720 90 C960 160 1200 20 1440 90 L1440 180 L0 180 Z" fill="#F7941D" opacity="0.12" />
+            <path d="M0 120 C360 60 720 180 1080 120 C1260 90 1380 110 1440 100 L1440 180 L0 180 Z" fill="#F7941D" opacity="0.08" />
           </svg>
         </div>
       </section>
@@ -388,14 +393,14 @@ export default function Home() {
       {/* ══════════════════════════════════════
           PARTNERS STRIP
       ══════════════════════════════════════ */}
-      <section className="py-14 px-6 bg-white border-b border-[#ebebeb]">
+      <section className="py-16 px-6 bg-white border-b border-[#e8e8e0]">
         <p className="text-center text-xs font-semibold tracking-[0.18em] text-[#aaa] uppercase mb-10">
           Partenaires institutionnels de confiance
         </p>
         <div className="flex flex-wrap items-center justify-center gap-12">
           {partners.map((p) => (
             <img key={p.name} src={p.logo} alt={p.name}
-              className="h-10 w-auto object-contain grayscale hover:grayscale-0 opacity-40 hover:opacity-80 transition-all duration-300" />
+              className="h-16 w-auto object-contain grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300" />
           ))}
         </div>
       </section>
@@ -413,9 +418,10 @@ export default function Home() {
                 style={{ fontSize: 'clamp(36px, 5vw, 64px)' }}>
                 Le Guichet Unique Accompagne Votre Réussite
               </h2>
-              <ArrowBtn onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}>
-                Voir nos services
-              </ArrowBtn>
+              <button onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full border-2 border-[#F7941D] text-[#F7941D] font-semibold text-sm hover:bg-[#F7941D] hover:text-white transition-all duration-300 cursor-pointer">
+              Voir nos services <ArrowRight className="w-4 h-4" />
+            </button>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
               <p className="text-[#666] text-base leading-relaxed mb-5">
@@ -428,7 +434,7 @@ export default function Home() {
           </div>
 
           {/* Stats — Montix style: large number, label, sub, divider */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#ddd] rounded-3xl overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#F7941D]/20 rounded-3xl overflow-hidden">
             {[
               { value: "5 000+", label: "Entreprises créées", sub: "Depuis l'ouverture du guichet" },
               { value: "72h", label: "Délai minimum", sub: "Procédure standard officielle" },
@@ -462,9 +468,10 @@ export default function Home() {
                 Services Conçus pour Simplifier Votre Parcours
               </h2>
             </div>
-            <ArrowBtn onClick={handleGetStarted}>
-              Voir tous les services
-            </ArrowBtn>
+            <button onClick={handleGetStarted}
+              className="flex-shrink-0 inline-flex items-center gap-2 border-2 border-[#F7941D] text-[#F7941D] hover:bg-[#F7941D] hover:text-white font-semibold px-5 py-3 rounded-full transition-all duration-300 cursor-pointer text-sm">
+              Voir tous les services <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Cards grid — Montix style portrait cards */}
@@ -519,7 +526,7 @@ export default function Home() {
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.6 }}
                 className="bg-white rounded-3xl p-7 border border-[#e8e8e8]">
-                <div className="w-11 h-11 bg-[#1a1a1a] text-white rounded-2xl flex items-center justify-center font-bold text-sm mb-6">{step.n}</div>
+                <div className="w-11 h-11 bg-[#F7941D] text-white rounded-2xl flex items-center justify-center font-bold text-sm mb-6">{step.n}</div>
                 <h3 className="font-bold text-[#1a1a1a] text-base mb-2">{step.title}</h3>
                 <p className="text-[#888] text-sm leading-relaxed">{step.desc}</p>
               </motion.div>
@@ -548,8 +555,8 @@ export default function Home() {
               <button key={key} onClick={() => { setSelectedEntity(key); setActiveTab('pieces'); }}
                 className={`flex items-center gap-2.5 px-6 py-3 rounded-full font-semibold text-sm transition-all border cursor-pointer ${
                   selectedEntity === key
-                    ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]'
-                    : 'bg-white text-[#555] border-[#d4d4d4] hover:border-[#1a1a1a] hover:text-[#1a1a1a]'
+                    ? 'bg-[#F7941D] text-white border-[#F7941D]'
+                    : 'bg-white text-[#555] border-[#d4d4d4] hover:border-[#F7941D] hover:text-[#F7941D]'
                 }`}>
                 <ent.icon className="w-4 h-4" />
                 {ent.label}
@@ -572,7 +579,7 @@ export default function Home() {
                   ].map(tab => (
                     <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                       className={`flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap transition-all border-b-2 cursor-pointer ${
-                        activeTab === tab.id ? 'border-[#1a1a1a] text-[#1a1a1a]' : 'border-transparent text-[#aaa] hover:text-[#555]'
+                        activeTab === tab.id ? 'border-[#F7941D] text-[#F7941D]' : 'border-transparent text-[#aaa] hover:text-[#555]'
                       }`}>
                       <tab.icon className="w-4 h-4" />{tab.label}
                     </button>
@@ -584,7 +591,7 @@ export default function Home() {
                       {ent.pieces.map((p, i) => (
                         <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
                           className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-[#e8e8e8]">
-                          <div className="w-8 h-8 bg-[#1a1a1a] text-white rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0">{p.num}</div>
+                          <div className="w-8 h-8 bg-[#F7941D] text-white rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0">{p.num}</div>
                           <div>
                             <p className="font-semibold text-[#1a1a1a] text-sm">{p.title}</p>
                             <p className="text-[#888] text-xs mt-1 leading-relaxed">{p.desc}</p>
@@ -599,7 +606,7 @@ export default function Home() {
                         <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
                           className="flex items-center justify-between p-5 bg-white rounded-2xl border border-[#e8e8e8]">
                           <span className="text-[#555] text-sm font-medium">{t.label}</span>
-                          <span className="font-bold text-sm bg-[#1a1a1a] text-white px-3 py-1 rounded-full">{t.amount}</span>
+                          <span className="font-bold text-sm bg-[#F7941D] text-white px-3 py-1 rounded-full">{t.amount}</span>
                         </motion.div>
                       ))}
                       <div className="mt-4 p-5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
@@ -617,7 +624,8 @@ export default function Home() {
                         { label: "Express VIP", sub: "Création accélérée", value: "1 jour", light: false },
                       ].map((d, i) => (
                         <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                          className={`p-8 rounded-2xl border ${d.light ? 'bg-white border-[#e8e8e8]' : 'bg-[#1a1a1a] border-[#1a1a1a]'}`}>
+                          className={`p-8 rounded-2xl border ${d.light ? 'bg-white border-[#e8e8e8]' : 'border-[#F7941D]'}`}
+                          style={!d.light ? { background: 'linear-gradient(135deg, #F7941D, #e07d0a)' } : {}}>
                           <p className={`font-bold text-lg mb-1 ${d.light ? 'text-[#1a1a1a]' : 'text-white'}`}>{d.label}</p>
                           <p className={`text-xs mb-6 ${d.light ? 'text-[#aaa]' : 'text-[#888]'}`}>{d.sub}</p>
                           <p className={`font-black tracking-[-0.03em] leading-none ${d.light ? 'text-[#1a1a1a]' : 'text-white'}`}
@@ -650,7 +658,7 @@ export default function Home() {
                       <Search className="w-3.5 h-3.5" /> Vérifier une dénomination
                     </a>
                     <button onClick={handleGetStarted}
-                      className="flex items-center gap-1.5 text-sm bg-[#1a1a1a] hover:bg-[#333] text-white font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer">
+                      className="flex items-center gap-1.5 text-sm bg-[#F7941D] hover:bg-[#e07d0a] text-white font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer">
                       Créer maintenant <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -732,7 +740,7 @@ export default function Home() {
       {/* ══════════════════════════════════════
           CTA BAND — dark full-width
       ══════════════════════════════════════ */}
-      <section className="py-28 px-6 bg-[#1a1a1a] text-white">
+      <section className="py-28 px-6 text-white" style={{ background: 'linear-gradient(135deg, #1a3a1a 0%, #0d2b0d 100%)' }}>
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row gap-12 items-center justify-between">
           <div>
             <h2 className="font-black text-white leading-[1] tracking-[-0.03em] mb-5"
@@ -745,7 +753,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col gap-3 flex-shrink-0">
             <button onClick={handleGetStarted}
-              className="inline-flex items-center justify-center gap-3 bg-white text-[#1a1a1a] font-bold px-8 py-4 rounded-full hover:bg-[#f0f0f0] transition-colors cursor-pointer text-base">
+              className="inline-flex items-center justify-center gap-3 bg-[#F7941D] hover:bg-[#e07d0a] text-white font-bold px-8 py-4 rounded-full transition-colors cursor-pointer text-base">
               Créer votre société <ArrowRight className="w-4 h-4" />
             </button>
             <Link to="/procedures"
@@ -790,7 +798,7 @@ export default function Home() {
       {/* ══════════════════════════════════════
           FOOTER
       ══════════════════════════════════════ */}
-      <footer className="bg-[#1a1a1a] text-white py-16 px-6">
+      <footer className="text-white py-16 px-6" style={{ background: '#0d2b0d' }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="flex flex-col md:flex-row justify-between gap-12 mb-12">
             <div className="max-w-xs">
