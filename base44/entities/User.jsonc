@@ -6,12 +6,11 @@
       "type": "string",
       "enum": [
         "admin",
-        "user",
-        "manager",
-        "accountant"
+        "agent",
+        "entrepreneur"
       ],
-      "default": "user",
-      "description": "R\u00f4le de l'utilisateur"
+      "default": "entrepreneur",
+      "description": "R\u00f4le de l'utilisateur : admin (acc\u00e8s total), agent (agent ANPI), entrepreneur (client)"
     },
     "company_id": {
       "type": "string",
@@ -27,8 +26,5 @@
       "description": "Onboarding termin\u00e9"
     }
   },
-  "required": [
-    "company_id",
-    "company_name"
-  ]
+  "required": []
 }

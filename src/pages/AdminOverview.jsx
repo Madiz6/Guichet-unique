@@ -281,10 +281,9 @@ export default function AdminOverview() {
                             onChange={e => updateUserMutation.mutate({ userId: u.id, data: { role: e.target.value } })}
                             className="border border-[#E5E7EB] rounded px-2 py-1 text-xs bg-white"
                           >
-                            <option value="user">Utilisateur</option>
-                            <option value="manager">Manager</option>
-                            <option value="accountant">Comptable</option>
-                            <option value="admin">Admin</option>
+                            <option value="entrepreneur">Entrepreneur</option>
+                            <option value="agent">Agent ANPI</option>
+                            <option value="admin">Administrateur</option>
                           </select>
                         </td>
                         <td className="px-4 py-3">

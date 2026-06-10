@@ -38,7 +38,7 @@ export default function Layout({ children, currentPageName }) {
   };
   
   const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
-  const isAdmin = user?.role === 'admin' || ADMIN_EMAILS.includes(user?.email);
+  const isAdmin = user?.role === 'admin' || user?.role === 'agent' || ADMIN_EMAILS.includes(user?.email);
   
   // Show full app layout only if NOT on Home page
   const isHomePage = currentPageName === 'Home' || location.pathname === createPageUrl('Home') || location.pathname === '/';
@@ -156,7 +156,9 @@ export default function Layout({ children, currentPageName }) {
                     <div className="flex items-center gap-3 cursor-pointer select-none">
                       <div className="text-right">
                         <p className="text-sm font-medium text-[#1A1A1A]">{user?.full_name}</p>
-                        <p className="text-xs text-[#6B6B6B] font-normal">{user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</p>
+                        <p className="text-xs text-[#6B6B6B] font-normal">
+                          {user?.role === 'admin' ? 'Administrateur' : user?.role === 'agent' ? 'Agent ANPI' : 'Entrepreneur'}
+                        </p>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-white font-medium">
                         {user?.full_name?.[0] || 'U'}

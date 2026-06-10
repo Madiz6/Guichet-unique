@@ -36,20 +36,20 @@ const AuthenticatedApp = () => {
   // Redirect on login based on role
   const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
   const ADMIN_PATHS = ['/AdminPortal', '/AdminOverview', '/ActesModificatifs'];
-  const USER_PATHS = ['/entrepreneur', '/MesDossiers'];
+  const ENTREPRENEUR_PATHS = ['/entrepreneur', '/MesDossiers'];
 
   useEffect(() => {
     if (isLoadingAuth || !user) return;
     const path = location.pathname;
-    const isAdmin = user.role === 'admin' || ADMIN_EMAILS.includes(user.email);
+    const isAdmin = user.role === 'admin' || user.role === 'agent' || ADMIN_EMAILS.includes(user.email);
 
     if (isAdmin) {
-      // Admin landing on user-only pages or root → send to admin portal
-      if (path === '/' || USER_PATHS.some(p => path.startsWith(p))) {
+      // Admin/Agent landing on entrepreneur-only pages or root → send to admin portal
+      if (path === '/' || ENTREPRENEUR_PATHS.some(p => path.startsWith(p))) {
         navigate('/AdminPortal', { replace: true });
       }
     } else {
-      // Non-admin landing on admin-only pages or root → send to entrepreneur portal
+      // Entrepreneur landing on admin-only pages or root → send to entrepreneur portal
       if (path === '/' || ADMIN_PATHS.some(p => path.startsWith(p))) {
         navigate('/entrepreneur', { replace: true });
       }

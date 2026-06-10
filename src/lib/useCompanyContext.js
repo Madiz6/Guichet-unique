@@ -17,7 +17,8 @@ export function useCompanyContext() {
     queryFn: () => meras.auth.me(),
   });
 
-  const isAdmin = user?.role === 'admin';
+  const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
+  const isAdmin = user?.role === 'admin' || user?.role === 'agent' || ADMIN_EMAILS.includes(user?.email);
 
   // Effective company ID used for filtering
   const effectiveCompanyId = isAdmin

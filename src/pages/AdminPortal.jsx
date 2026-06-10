@@ -836,7 +836,7 @@ export default function AdminPortal() {
     staleTime: 0,
   });
 
-  if (user && user.role !== 'admin') {
+  if (user && user.role !== 'admin' && user.role !== 'agent' && user.email !== 'remoz.giovanni@meras.io') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
         <div className="text-center">
