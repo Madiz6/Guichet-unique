@@ -772,22 +772,9 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
               <XCircle className="w-4 h-4 mr-2" /> Rejeter le dossier
             </Button>
             {workflowComplete && (
-              <>
-                <Button onClick={() => handleAction('Validé')} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm justify-start">
-                  <CheckCircle2 className="w-4 h-4 mr-2" /> Valider et approuver
-                </Button>
-                <div className="border-t border-[#E5E7EB] my-1" />
-                <Button
-                  onClick={handleGenerateLicense}
-                  disabled={generatingLicense || saving}
-                  className="w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white text-sm justify-start"
-                >
-                  {generatingLicense
-                    ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Génération...</>
-                    : <><Award className="w-4 h-4 mr-2" /> Valider &amp; Générer la Licence</>
-                  }
-                </Button>
-              </>
+              <Button onClick={() => handleAction('Validé')} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm justify-start">
+                <CheckCircle2 className="w-4 h-4 mr-2" /> Valider et approuver
+              </Button>
             )}
             {!workflowComplete && (
               <p className="text-xs text-[#9B9B9B] text-center pt-1">Complétez les 3 étapes (ODPIC, DGI, CNSS) pour débloquer la validation finale.</p>
