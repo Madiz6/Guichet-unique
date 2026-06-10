@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
   Building2, Users, Eye, Search, ShieldCheck, Globe,
-  BarChart3, TrendingUp, DollarSign, ArrowRight, X, RefreshCw
+  BarChart3, X, RefreshCw
 } from 'lucide-react';
 import KYCComplianceBadge from '@/components/admin/KYCComplianceBadge';
 import { format } from 'date-fns';
@@ -32,17 +32,7 @@ export default function AdminOverview() {
     enabled: isAdmin,
   });
 
-  const { data: allEmployees = [] } = useQuery({
-    queryKey: ['all-employees'],
-    queryFn: () => meras.entities.Employee.list('-created_date', 500),
-    enabled: isAdmin,
-  });
 
-  const { data: allTransactions = [] } = useQuery({
-    queryKey: ['all-transactions'],
-    queryFn: () => meras.entities.Transaction.list('-date', 1000),
-    enabled: isAdmin,
-  });
 
   const queryClient = useQueryClient();
 
@@ -70,15 +60,7 @@ export default function AdminOverview() {
     c.nif?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Stats
-  const totalRevenue = allTransactions.filter(t => t.type === 'Revenu').reduce((s, t) => s + (t.amount || 0), 0);
-  const totalExpenses = allTransactions.filter(t => t.type === 'Dépense').reduce((s, t) => s + (t.amount || 0), 0);
-
   const getCompanyUsers = (cId) => allUsers.filter(u => u.company_id === cId);
-  const getCompanyEmployees = (cId) => allEmployees.filter(e => e.company_id === cId);
-  const getCompanyRevenue = (cId) => allTransactions
-    .filter(t => t.company_id === cId && t.type === 'Revenu')
-    .reduce((s, t) => s + (t.amount || 0), 0);
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -114,8 +96,7 @@ export default function AdminOverview() {
           {[
             { label: 'Entreprises', value: companies.length, icon: Building2, color: 'blue' },
             { label: 'Utilisateurs', value: allUsers.length, icon: Users, color: 'purple' },
-            { label: 'Employés (total)', value: allEmployees.length, icon: Users, color: 'green' },
-            { label: 'CA Global', value: `${(totalRevenue / 1_000_000).toFixed(1)}M DJF`, icon: TrendingUp, color: 'orange' },
+            { label: 'Dossiers actifs', value: companies.length, icon: BarChart3, color: 'green' },
           ].map((kpi, i) => (
             <Card key={i} className="border border-[#E5E7EB] bg-white">
               <CardContent className="p-5 flex items-center gap-4">
@@ -190,8 +171,6 @@ export default function AdminOverview() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filtered.map(company => {
                   const users = getCompanyUsers(company.id);
-                  const employees = getCompanyEmployees(company.id);
-                  const revenue = getCompanyRevenue(company.id);
                   const isViewing = adminOverrideCompanyId === company.id;
 
                   return (
@@ -216,11 +195,10 @@ export default function AdminOverview() {
                           </Badge>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="grid grid-cols-2 gap-2 mb-4">
                           {[
                             { label: 'Utilisateurs', value: users.length },
-                            { label: 'Employés', value: employees.length },
-                            { label: 'CA', value: revenue > 0 ? `${(revenue / 1000).toFixed(0)}K` : '—' },
+                            { label: 'Créé le', value: company.created_date ? format(new Date(company.created_date), 'dd/MM/yy') : '—' },
                           ].map((stat, i) => (
                             <div key={i} className="bg-[#FAFAFA] rounded-lg p-2 text-center">
                               <p className="text-sm font-bold text-[#1A1A1A]">{stat.value}</p>

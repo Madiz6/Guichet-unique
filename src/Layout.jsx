@@ -7,7 +7,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Home, FileText, Globe, Building2, Shield, FilePen, UserPlus } from "lucide-react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
-import AdminCompanyBanner from "@/components/layout/AdminCompanyBanner";
 import MobileBackButton from "@/components/layout/MobileBackButton";
 import {
   Sidebar,
@@ -22,7 +21,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
-import AICopilot from "@/components/ai/AICopilot";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -222,12 +220,10 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </header>
 
-          <AdminCompanyBanner />
           {/* Extra bottom padding on mobile for bottom nav bar */}
           <div className="flex-1 pb-16 md:pb-0">
               {children}
             </div>
-            <AICopilot currentPage={currentPageName} />
         {/* Footer — hidden on mobile (replaced by bottom nav) */}
         <footer className="hidden md:block bg-white border-t border-[#F0F0F0] px-6 py-3 text-center">
           <p className="text-xs text-[#6B6B6B] font-normal">© 2026 Guichet Unique ANPI Djibouti • Powered by <span className="font-medium text-[#1A1A1A]">Meras PSP</span></p>
