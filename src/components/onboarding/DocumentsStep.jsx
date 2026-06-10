@@ -91,21 +91,7 @@ export default function DocumentsStep({ value, onChange, stepData }) {
             onReplace={f => handleUpload('statuts_signes_url', f)}
           />
         )}
-        {statutsMode === 'online' && !docs.statuts_signed && (
-          <StatutsGenerator
-            stepData={stepData}
-            onComplete={(result) => onChange({ docs: { ...docs, ...result } })}
-          />
-        )}
-        {statutsMode === 'online' && docs.statuts_signed && (
-          <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
-            <CheckCircle2 className="w-4 h-4" />
-            Statuts {docs.model} signés électroniquement ✓
-            {docs.statuts_pdf_url && (
-              <a href={docs.statuts_pdf_url} download className="ml-auto text-xs text-blue-600 hover:underline">Télécharger</a>
-            )}
-          </div>
-        )}
+
       </DocSection>
 
       {/* FORMULAIRE UNIQUE */}
@@ -124,21 +110,7 @@ export default function DocumentsStep({ value, onChange, stepData }) {
             onReplace={f => handleUpload('formulaire_gui_url', f)}
           />
         )}
-        {formulaireMode === 'online' && !docs.formulaire_signed && (
-          <FormulaireGenerator
-            stepData={stepData}
-            onComplete={(result) => onChange({ docs: { ...docs, ...result } })}
-          />
-        )}
-        {formulaireMode === 'online' && docs.formulaire_signed && (
-          <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
-            <CheckCircle2 className="w-4 h-4" />
-            Formulaire {docs.model === 'morale' ? 'Personne Morale' : 'Personne Physique'} signé électroniquement ✓
-            {docs.formulaire_pdf_url && (
-              <a href={docs.formulaire_pdf_url} download className="ml-auto text-xs text-blue-600 hover:underline">Télécharger</a>
-            )}
-          </div>
-        )}
+
       </DocSection>
 
       {/* PIÈCES À JOINDRE — Personne Physique */}
@@ -195,7 +167,7 @@ function DocSection({ title, desc, done, mode, onChooseMode, children }) {
         {!mode ? (
           <div>
             <p className="text-xs font-medium text-[#6B6B6B] mb-3">Comment souhaitez-vous fournir ce document ?</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <button
                 type="button"
                 onClick={() => onChooseMode('upload')}
@@ -207,17 +179,7 @@ function DocSection({ title, desc, done, mode, onChooseMode, children }) {
                   <p className="text-xs text-[#9B9B9B]">J'ai déjà le document signé</p>
                 </div>
               </button>
-              <button
-                type="button"
-                onClick={() => onChooseMode('online')}
-                className="flex flex-col items-center gap-2 p-4 border-2 border-[#1A2B6B] bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl hover:from-blue-100 transition-all text-center"
-              >
-                <PenLine className="w-6 h-6 text-[#1A2B6B]" />
-                <div>
-                  <p className="text-sm font-medium text-[#1A2B6B]">Signer en ligne</p>
-                  <p className="text-xs text-[#6B6B6B]">Générer et signer électroniquement</p>
-                </div>
-              </button>
+
             </div>
           </div>
         ) : (

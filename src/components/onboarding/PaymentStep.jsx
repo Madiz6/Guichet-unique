@@ -7,7 +7,6 @@ import MerasPaymentGateway from '@/components/payments/MerasPaymentGateway.jsx';
 
 // Service tier surcharges only (added on top of base fees)
 const TIERS = [
-  { id: 'express', label: 'Express', delay: '45 minutes', surcharge: 25000, color: 'border-purple-400 bg-purple-50', desc: 'Traitement prioritaire immédiat', icon: '⚡' },
   { id: 'standard', label: 'Standard', delay: '24 heures', surcharge: 15000, color: 'border-blue-400 bg-blue-50', desc: 'Traitement le jour même', icon: '🕐', popular: true },
   { id: 'economique', label: 'Économique', delay: '72 heures', surcharge: 0, color: 'border-gray-300 bg-gray-50', desc: 'Traitement dans les 3 jours ouvrables', icon: '📋' },
   { id: 'test', label: 'Test', delay: '—', surcharge: 0, fixedAmount: 15, color: 'border-amber-400 bg-amber-50', desc: 'Environnement de test uniquement', icon: '🧪' },
@@ -228,7 +227,7 @@ export default function PaymentStep({ stepData, onSuccess }) {
       </div>
 
       {/* Tier selector */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {TIERS.map(t => {
           const tierTotal = t.fixedAmount !== undefined ? t.fixedAmount : patenteAmount + ODPIC + STATUS_FEES + t.surcharge;
           return (
