@@ -21,12 +21,117 @@ import {
   ChevronRight,
   Facebook,
   Twitter,
-  Linkedin
+  Linkedin,
+  User,
+  GitBranch,
+  DollarSign,
+  Package,
+  Timer,
+  AlertCircle,
+  BadgeCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const entityDocs = {
+  morale: {
+    label: "Personne Morale",
+    subtitle: "Sociétés & entreprises",
+    icon: Building2,
+    color: "blue",
+    pieces: [
+      { num: "01", title: "Pièces d'identités", desc: "Carte Nationale d'Identité (CNI), passeport, carte séjour original (associés/gérant)" },
+      { num: "02", title: "Bail Commercial", desc: "Contrat de bail pour enregistrement, le cas échéant signature d'une lettre d'engagement" },
+      { num: "03", title: "Agrément", desc: "Agrément de l'activité, si nécessaire" },
+      { num: "04", title: "Statut Juridique", desc: "4 exemplaires des statuts rédigés (acte notarié ou acte sous seing privée)" },
+      { num: "05", title: "Personne Morale Actionnaire", desc: "Extrait de registre de commerce des sociétés de la personne morale actionnaire (étrangère ou djiboutienne), le cas échéant" },
+      { num: "06", title: "Statuts Actionnaire", desc: "Copie certifiée conforme des statuts de la société de la personne morale actionnaire (étrangère ou djiboutienne), le cas échéant" },
+    ],
+    tarifs: [
+      { label: "Immatriculation registre de commerce", amount: "18 000 DJF" },
+      { label: "Certificat Négatif", amount: "5 000 DJF" },
+      { label: "Bail (loyer < 100 000)", amount: "60 000 + timbre" },
+      { label: "Bail (loyer 101 000–400 000)", amount: "150 000 + timbre" },
+      { label: "Bail (loyer > 400 000)", amount: "210 000 + timbre" },
+      { label: "Enregistrement des statuts", amount: "10 000 + timbre" },
+      { label: "Patente", amount: "Selon l'activité" },
+    ],
+    documents: [
+      { title: "Certificat Négatif", agency: "ODPIC" },
+      { title: "Registre de commerce", agency: "ODPIC" },
+      { title: "Patente d'activité", agency: "DGI" },
+      { title: "Statuts enregistrés", agency: "DGI" },
+      { title: "Bail commercial enregistré", agency: "DGI" },
+      { title: "Notification d'immatriculation", agency: "DGI" },
+      { title: "Boîte postale", agency: "Poste de Djibouti" },
+    ],
+  },
+  physique: {
+    label: "Personne Physique",
+    subtitle: "Entrepreneurs individuels",
+    icon: User,
+    color: "green",
+    pieces: [
+      { num: "01", title: "Pièces d'identités", desc: "Carte Nationale d'Identité (CNI), passeport, carte séjour original" },
+      { num: "02", title: "Photos", desc: "3 photos d'identité" },
+      { num: "03", title: "Bail Commercial", desc: "Contrat de bail pour enregistrement, le cas échéant signature d'une lettre d'engagement" },
+      { num: "04", title: "Agrément", desc: "Agrément de l'activité, si nécessaire" },
+    ],
+    tarifs: [
+      { label: "Immatriculation registre de commerce", amount: "18 000 DJF" },
+      { label: "Certificat Négatif", amount: "5 000 DJF" },
+      { label: "Bail (loyer < 100 000)", amount: "60 000 + timbre" },
+      { label: "Bail (loyer 101 000–400 000)", amount: "150 000 + timbre" },
+      { label: "Bail (loyer > 400 000)", amount: "210 000 + timbre" },
+      { label: "Enregistrement des statuts", amount: "10 000 + timbre" },
+      { label: "Patente", amount: "Selon l'activité" },
+    ],
+    documents: [
+      { title: "Certificat Négatif", agency: "ODPIC" },
+      { title: "Registre de commerce", agency: "ODPIC" },
+      { title: "Patente d'activité", agency: "DGI" },
+      { title: "Bail commercial enregistré", agency: "DGI" },
+      { title: "Notification d'immatriculation", agency: "DGI" },
+      { title: "Boîte postale", agency: "Poste de Djibouti" },
+    ],
+  },
+  succursale: {
+    label: "Succursale",
+    subtitle: "Établissements secondaires",
+    icon: GitBranch,
+    color: "purple",
+    pieces: [
+      { num: "01", title: "Pièces d'identités", desc: "Carte Nationale d'Identité (CNI), passeport, carte séjour original (associés/gérant)" },
+      { num: "02", title: "Bail Commercial", desc: "Contrat de bail pour enregistrement, le cas échéant signature d'une lettre d'engagement" },
+      { num: "03", title: "Agrément", desc: "Agrément de l'activité, si nécessaire" },
+      { num: "04", title: "Statuts traduits", desc: "Copie certifiée conforme des statuts de la société étrangère avec traduction Français ou Arabe (authentifiée par notaire ou avocat)" },
+      { num: "05", title: "Extrait Registre Commerce", desc: "Extrait de registre de commerce de la société étrangère avec traduction Français ou Arabe (authentifié)" },
+      { num: "06", title: "Décision de création", desc: "Décision de la société étrangère de créer une succursale" },
+    ],
+    tarifs: [
+      { label: "Immatriculation registre de commerce", amount: "18 000 DJF" },
+      { label: "Certificat Négatif", amount: "5 000 DJF" },
+      { label: "Bail (loyer < 100 000)", amount: "60 000 + timbre" },
+      { label: "Bail (loyer 101 000–400 000)", amount: "150 000 + timbre" },
+      { label: "Bail (loyer > 400 000)", amount: "210 000 + timbre" },
+      { label: "Enregistrement des statuts", amount: "10 000 + timbre" },
+      { label: "Patente", amount: "Selon l'activité" },
+    ],
+    documents: [
+      { title: "Certificat Négatif", agency: "ODPIC" },
+      { title: "Registre de commerce", agency: "ODPIC" },
+      { title: "Patente d'activité", agency: "DGI" },
+      { title: "Statuts enregistrés", agency: "DGI" },
+      { title: "Bail commercial enregistré", agency: "DGI" },
+      { title: "Notification d'immatriculation", agency: "DGI" },
+      { title: "Boîte postale", agency: "Poste de Djibouti" },
+    ],
+  },
+};
+
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedEntity, setSelectedEntity] = useState('morale');
+  const [activeTab, setActiveTab] = useState('pieces');
 
   const handleGetStarted = () => {
     meras.auth.redirectToLogin('/onboarding');
@@ -146,6 +251,7 @@ export default function Home() {
               <a href="#accueil" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Accueil</a>
               <a href="#services" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Nos Services</a>
               <a href="#procedures" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures</a>
+              <a href="#documentation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Procédures & Tarifs</a>
               <a href="#mission" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Notre Mission</a>
               <a href="#contact" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Contact</a>
               <a href="https://anpi.dj" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-semibold transition-colors">ANPI</a>
@@ -322,6 +428,171 @@ export default function Home() {
               ))}
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Documentation & Procédures */}
+      <section id="documentation" className="py-24 px-6 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-orange-500 font-semibold text-sm tracking-widest uppercase mb-3">Documentation officielle</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Procédures & Tarifs</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Consultez les pièces requises, tarifs officiels et documents délivrés selon votre type d'entité.
+            </p>
+          </div>
+
+          {/* Entity Type Selector */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+            {Object.entries(entityDocs).map(([key, ent]) => (
+              <button
+                key={key}
+                onClick={() => { setSelectedEntity(key); setActiveTab('pieces'); }}
+                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-base transition-all border-2 ${
+                  selectedEntity === key
+                    ? 'bg-blue-800 text-white border-blue-800 shadow-lg scale-105'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:text-blue-700'
+                }`}
+              >
+                <ent.icon className="w-5 h-5" />
+                <div className="text-left">
+                  <p className="font-bold leading-tight">{ent.label}</p>
+                  <p className={`text-xs font-normal ${selectedEntity === key ? 'text-blue-200' : 'text-gray-500'}`}>{ent.subtitle}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Tabs */}
+          {(() => {
+            const ent = entityDocs[selectedEntity];
+            return (
+              <motion.div key={selectedEntity} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="flex border-b border-gray-100 overflow-x-auto">
+                  {[
+                    { id: 'pieces', label: 'Pièces requises', icon: FileText },
+                    { id: 'tarifs', label: 'Tarification', icon: DollarSign },
+                    { id: 'delais', label: 'Délais', icon: Timer },
+                    { id: 'documents', label: 'Documents délivrés', icon: Package },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap transition-all border-b-2 ${
+                        activeTab === tab.id
+                          ? 'border-blue-700 text-blue-700 bg-blue-50'
+                          : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+                      }`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="p-8">
+                  {activeTab === 'pieces' && (
+                    <div>
+                      <p className="text-gray-500 mb-6 text-sm">Documents obligatoires à fournir pour la création d'une <strong>{ent.label}</strong>.</p>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {ent.pieces.map((p, i) => (
+                          <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors">
+                            <div className="w-9 h-9 bg-blue-800 text-white rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0">{p.num}</div>
+                            <div>
+                              <p className="font-semibold text-gray-900 text-sm">{p.title}</p>
+                              <p className="text-gray-600 text-sm mt-0.5 leading-relaxed">{p.desc}</p>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'tarifs' && (
+                    <div>
+                      <p className="text-gray-500 mb-6 text-sm">Tarifs officiels en vigueur (en Francs Djiboutiens).</p>
+                      <div className="space-y-3">
+                        {ent.tarifs.map((t, i) => (
+                          <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors">
+                            <span className="text-gray-700 text-sm font-medium">{t.label}</span>
+                            <span className="font-bold text-orange-600 text-sm bg-orange-100 px-3 py-1 rounded-full">{t.amount}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                      <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm text-amber-800">
+                          <p className="font-semibold mb-1">Exonération de patente</p>
+                          <p>Les activités de la classe 5 à 8 bénéficient d'une exonération dégressive les 3 premières années : <strong>100%</strong> (an 1), <strong>50%</strong> (an 2), <strong>25%</strong> (an 3). Applicable aux gérants djiboutiens de moins de 31 ans (première activité) ou retraités/licenciés pour motif économique.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'delais' && (
+                    <div>
+                      <p className="text-gray-500 mb-6 text-sm">Délais officiels selon le Décret n° 146/2018/PR/MAPCl du 12 avril 2018.</p>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-blue-50 border border-blue-100 rounded-2xl">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 bg-blue-800 text-white rounded-xl flex items-center justify-center font-bold">01</div>
+                            <div>
+                              <p className="font-bold text-gray-900">Standard</p>
+                              <p className="text-xs text-gray-500">Procédure normale</p>
+                            </div>
+                          </div>
+                          <p className="text-3xl font-bold text-blue-800 mb-1">3 jours</p>
+                          <p className="text-sm text-gray-600">ouvrables</p>
+                        </motion.div>
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-6 bg-orange-50 border border-orange-100 rounded-2xl">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 bg-orange-500 text-white rounded-xl flex items-center justify-center font-bold">02</div>
+                            <div>
+                              <p className="font-bold text-gray-900">Express</p>
+                              <p className="text-xs text-gray-500">Création VIP accélérée</p>
+                            </div>
+                          </div>
+                          <p className="text-3xl font-bold text-orange-600 mb-1">1 jour</p>
+                          <p className="text-sm text-gray-600">ouvrable</p>
+                        </motion.div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'documents' && (
+                    <div>
+                      <p className="text-gray-500 mb-6 text-sm">Documents officiels que vous recevrez à l'issue de la procédure.</p>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {ent.documents.map((d, i) => (
+                          <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} className="p-4 bg-green-50 border border-green-100 rounded-xl flex items-start gap-3">
+                            <BadgeCheck className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-semibold text-gray-900 text-sm">{d.title}</p>
+                              <p className="text-xs text-gray-500 mt-0.5 bg-white px-2 py-0.5 rounded-full inline-block border border-gray-200">{d.agency}</p>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                  <p className="text-sm text-gray-500">Prêt à créer votre <strong>{ent.label}</strong> ?</p>
+                  <div className="flex gap-3">
+                    <Button asChild variant="outline" size="sm" className="border-gray-300">
+                      <a href="https://odpic.dj/publication-registre/" target="_blank" rel="noopener noreferrer">
+                        <Search className="w-4 h-4 mr-2" /> Vérifier une dénomination
+                      </a>
+                    </Button>
+                    <Button onClick={handleGetStarted} size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-semibold">
+                      Créer maintenant <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })()}
         </div>
       </section>
 
