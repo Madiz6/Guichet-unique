@@ -34,11 +34,21 @@ const AuthenticatedApp = () => {
   const navigate = useNavigate();
 
   // Redirect on login based on role
+  const ADMIN_PATHS = ['/AdminPortal', '/AdminOverview', '/ActesModificatifs'];
+  const USER_PATHS = ['/entrepreneur', '/MesDossiers'];
+
   useEffect(() => {
-    if (!isLoadingAuth && user && location.pathname === '/') {
-      if (user.role === 'admin') {
+    if (isLoadingAuth || !user) return;
+    const path = location.pathname;
+
+    if (user.role === 'admin') {
+      // Admin landing on user-only pages → send to admin portal
+      if (path === '/' || USER_PATHS.some(p => path.startsWith(p))) {
         navigate('/AdminPortal', { replace: true });
-      } else {
+      }
+    } else {
+      // Non-admin landing on admin-only pages or root → send to entrepreneur portal
+      if (path === '/' || ADMIN_PATHS.some(p => path.startsWith(p))) {
         navigate('/entrepreneur', { replace: true });
       }
     }
