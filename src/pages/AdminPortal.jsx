@@ -958,6 +958,65 @@ export default function AdminPortal() {
           ))}
         </div>
 
+        {/* Workflow Analytics */}
+        <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-[#E5E7EB] bg-[#F9F9F9] flex items-center gap-2">
+            <Shield className="w-4 h-4 text-[#1A2B6B]" />
+            <p className="text-sm font-semibold text-[#1A1A1A]">Suivi du workflow d'approbation</p>
+            <span className="text-xs text-[#9B9B9B] ml-1">ODPIC → DGI → CNSS</span>
+          </div>
+          <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { key: 'odpic', label: 'ODPIC', colors: { bg: 'bg-blue-50', border: 'border-blue-200', icon: 'text-blue-600', badge: 'bg-blue-600' } },
+              { key: 'dgi',   label: 'DGI',   colors: { bg: 'bg-purple-50', border: 'border-purple-200', icon: 'text-purple-600', badge: 'bg-purple-600' } },
+              { key: 'cnss',  label: 'CNSS',  colors: { bg: 'bg-green-50', border: 'border-green-200', icon: 'text-green-600', badge: 'bg-green-600' } },
+            ].map(({ key, label, colors }) => {
+              const valide  = dossiers.filter(d => d.approval_workflow?.[key]?.approved === true).length;
+              const rejete  = dossiers.filter(d => d.approval_workflow?.[key]?.rejected === true).length;
+              const enAttente = dossiers.length - valide - rejete;
+              return (
+                <div key={key} className={`${colors.bg} ${colors.border} border rounded-xl p-4`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className={`w-7 h-7 rounded-full ${colors.badge} text-white flex items-center justify-center text-xs font-bold`}>
+                      {label[0]}
+                    </span>
+                    <span className="font-semibold text-sm text-[#1A1A1A]">{label}</span>
+                    <span className="ml-auto text-xs text-[#9B9B9B]">{dossiers.length} total</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-amber-200">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5 text-amber-500" />
+                        <span className="text-xs text-[#6B6B6B]">En attente</span>
+                      </div>
+                      <span className="text-sm font-bold text-amber-600">{enAttente}</span>
+                    </div>
+                    <div className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-green-200">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                        <span className="text-xs text-[#6B6B6B]">Validé</span>
+                      </div>
+                      <span className="text-sm font-bold text-green-600">{valide}</span>
+                    </div>
+                    <div className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-red-200">
+                      <div className="flex items-center gap-2">
+                        <XCircle className="w-3.5 h-3.5 text-red-500" />
+                        <span className="text-xs text-[#6B6B6B]">Rejeté</span>
+                      </div>
+                      <span className="text-sm font-bold text-red-600">{rejete}</span>
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="mt-3 h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden flex">
+                    {valide > 0 && <div className="bg-green-500 h-full transition-all" style={{ width: `${(valide / dossiers.length) * 100}%` }} />}
+                    {rejete > 0 && <div className="bg-red-400 h-full transition-all" style={{ width: `${(rejete / dossiers.length) * 100}%` }} />}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Customer Portal */}
         <CustomerPortalCard />
 
