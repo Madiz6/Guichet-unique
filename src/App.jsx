@@ -14,6 +14,7 @@ import MesDossiers from './pages/MesDossiers';
 import AdminOverview from './pages/AdminOverview';
 import ActesModificatifs from './pages/ActesModificatifs';
 import Dashboard from './pages/Dashboard';
+import EntrepreneurPortal from './pages/EntrepreneurPortal';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { AnimatePresence } from 'framer-motion';
@@ -32,10 +33,14 @@ const AuthenticatedApp = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Redirect admin user to AdminPortal on login
+  // Redirect on login based on role
   useEffect(() => {
-    if (!isLoadingAuth && user?.email === 'remoz.giovanni@meras.io' && location.pathname === '/') {
-      navigate('/AdminPortal', { replace: true });
+    if (!isLoadingAuth && user && location.pathname === '/') {
+      if (user.role === 'admin') {
+        navigate('/AdminPortal', { replace: true });
+      } else {
+        navigate('/entrepreneur', { replace: true });
+      }
     }
   }, [isLoadingAuth, user, location.pathname, navigate]);
 
@@ -82,6 +87,7 @@ const AuthenticatedApp = () => {
         <Route path="/MesDossiers" element={<LayoutWrapper currentPageName="MesDossiers"><MesDossiers /></LayoutWrapper>} />
         <Route path="/ActesModificatifs" element={<LayoutWrapper currentPageName="ActesModificatifs"><ActesModificatifs /></LayoutWrapper>} />
         <Route path="/Dashboard" element={<LayoutWrapper currentPageName="Dashboard"><PageTransition><Dashboard /></PageTransition></LayoutWrapper>} />
+        <Route path="/entrepreneur" element={<LayoutWrapper currentPageName="EntrepreneurPortal"><EntrepreneurPortal /></LayoutWrapper>} />
         <Route
           path="/AdminOverview"
           element={

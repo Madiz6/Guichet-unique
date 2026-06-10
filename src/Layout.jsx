@@ -53,24 +53,27 @@ export default function Layout({ children, currentPageName }) {
     meras.auth.logout();
   };
   
-  const navigationGroups = [
+  const navigationGroups = isAdmin ? [
     {
-      label: "Espace Client",
-      items: [
-        { title: "Accueil", url: createPageUrl("Home"), icon: Home },
-        { title: "Mes Dossiers", url: "/MesDossiers", icon: FileText },
-        { title: "Portail Client", url: "/onboarding", icon: UserPlus },
-      ]
-    },
-    ...(isAdmin ? [{
       label: "Administration ANPI",
       items: [
+        { title: "Accueil", url: createPageUrl("Home"), icon: Home },
         { title: "Portail Admin ANPI", url: "/AdminPortal", icon: Globe },
         { title: "Vue Globale Admin", url: "/AdminOverview", icon: Building2 },
         { title: "Actes Modificatifs", url: "/ActesModificatifs", icon: FilePen },
+        { title: "Portail Client", url: "/onboarding", icon: UserPlus },
         { title: "Sécurité & Audit", url: createPageUrl("SecurityDocumentation"), icon: Shield },
       ]
-    }] : []),
+    }
+  ] : [
+    {
+      label: "Mon Espace",
+      items: [
+        { title: "Accueil", url: createPageUrl("Home"), icon: Home },
+        { title: "Mon Espace Entreprise", url: "/entrepreneur", icon: Building2 },
+        { title: "Créer une entreprise", url: "/onboarding", icon: UserPlus },
+      ]
+    }
   ];
 
   return (

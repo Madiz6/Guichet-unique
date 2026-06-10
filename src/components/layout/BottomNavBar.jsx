@@ -1,21 +1,28 @@
-import React, { useEffect, useRef, useCallback } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Home, FileText, UserPlus, Globe } from "lucide-react";
+import { Home, Building2, UserPlus, Globe } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
-const tabs = [
-  { label: "Accueil",      icon: Home,     url: "/",             root: "/" },
-  { label: "Dossiers",     icon: FileText, url: "/MesDossiers",  root: "/MesDossiers" },
-  { label: "Créer",        icon: UserPlus, url: "/onboarding",   root: "/onboarding" },
-  { label: "Admin",        icon: Globe,    url: "/AdminPortal",  root: "/AdminPortal" },
+const adminTabs = [
+  { label: "Accueil",   icon: Home,      url: "/",            root: "/" },
+  { label: "Admin",     icon: Globe,     url: "/AdminPortal", root: "/AdminPortal" },
+  { label: "Actes",     icon: Building2, url: "/ActesModificatifs", root: "/ActesModificatifs" },
+  { label: "Portail",   icon: UserPlus,  url: "/onboarding",  root: "/onboarding" },
+];
+
+const userTabs = [
+  { label: "Accueil",      icon: Home,      url: "/",             root: "/" },
+  { label: "Mon Espace",   icon: Building2, url: "/entrepreneur", root: "/entrepreneur" },
+  { label: "Créer",        icon: UserPlus,  url: "/onboarding",   root: "/onboarding" },
 ];
 
 const SCROLL_KEY = "bottomnav_scroll";
 const STACK_KEY  = "bottomnav_stack"; // last visited path per tab root
 
 // Which tab root does a given pathname belong to?
-function getTabRoot(pathname) {
-  // Find the tab whose root is a prefix of the current path
+function getTabRoot(pathname, tabs) {
   const match = tabs.find(t => pathname === t.root || pathname.startsWith(t.root + '/'));
   return match?.root ?? null;
 }
@@ -25,9 +32,12 @@ export default function BottomNavBar() {
   const navigate = useNavigate();
   const prevPathRef = useRef(location.pathname);
 
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  const tabs = user?.role === 'admin' ? adminTabs : userTabs;
+
   // Persist last-visited path per tab root
   useEffect(() => {
-    const tabRoot = getTabRoot(location.pathname);
+    const tabRoot = getTabRoot(location.pathname, tabs);
     if (tabRoot) {
       const stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || "{}");
       stack[tabRoot] = location.pathname;
@@ -54,7 +64,7 @@ export default function BottomNavBar() {
 
   // Restore scroll position when arriving at a tab page
   useEffect(() => {
-    const isTab = tabs.some((t) => t.url === location.pathname);
+    const isTab = (tabs || []).some((t) => t.url === location.pathname);
     if (!isTab) return;
 
     const saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "{}");
@@ -79,7 +89,7 @@ export default function BottomNavBar() {
     >
       <div className="flex items-stretch">
         {tabs.map((tab) => {
-          const isActive = getTabRoot(location.pathname) === tab.root;
+          const isActive = getTabRoot(location.pathname, tabs) === tab.root;
           return (
             <button
               key={tab.label}
