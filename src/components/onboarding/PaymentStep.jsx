@@ -59,7 +59,10 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const envelopeId = stepData?.esignature?.envelope_id || 'N/A';
   const tier = TIERS.find(t => t.id === selectedTier) || TIERS[1];
 
-  const patenteAmount = getPatenteAmount(activite.secteur_principal, activite.activite_description);
+  const patenteAmount = tier.fixedAmount !== undefined ? tier.fixedAmount : getPatenteAmount(activite.secteur_principal, activite.activite_description);
+  const odpicAmount = tier.fixedAmount !== undefined ? 0 : ODPIC;
+  const statusFeesAmount = tier.fixedAmount !== undefined ? 0 : STATUS_FEES;
+  const tierSurcharge = tier.fixedAmount !== undefined ? 0 : tier.surcharge;
   const totalAmount = tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount + ODPIC + STATUS_FEES + tier.surcharge;
 
   const handlePaymentSuccess = async (paymentResult) => {
@@ -136,10 +139,10 @@ export default function PaymentStep({ stepData, onSuccess }) {
         tierDelay: tier.delay,
         applicantName: user?.full_name || '—',
         applicantEmail: user?.email || '—',
-        patenteAmount: tier.fixedAmount !== undefined ? tier.fixedAmount : patenteAmount,
-        odpicAmount: tier.fixedAmount !== undefined ? 0 : ODPIC,
-        statusFeesAmount: tier.fixedAmount !== undefined ? 0 : STATUS_FEES,
-        tierSurcharge: tier.fixedAmount !== undefined ? 0 : tier.surcharge,
+        patenteAmount,
+        odpicAmount,
+        statusFeesAmount,
+        tierSurcharge,
       });
     } finally {
       setDownloadingReceipt(false);
@@ -158,62 +161,104 @@ export default function PaymentStep({ stepData, onSuccess }) {
 
   if (paid) {
     return (
-      <div className="flex flex-col items-center justify-center py-6 space-y-6 text-center">
+      <div className="flex flex-col items-center justify-center py-8 space-y-6 text-center max-w-lg mx-auto">
+        {/* Success icon */}
         <div className="relative">
-          <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center">
-            <CheckCircle2 className="w-12 h-12 text-green-600" />
+          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center shadow-lg">
+            <CheckCircle2 className="w-10 h-10 text-green-600" />
           </div>
-          <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-green-500 animate-ping opacity-60" />
+          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-green-400 animate-ping opacity-70" />
         </div>
 
-        <div className="space-y-3 max-w-md w-full">
+        {/* Title */}
+        <div>
           <h2 className="text-2xl font-bold text-[#1A1A1A]">Paiement confirmé !</h2>
-          <div className="bg-gradient-to-br from-green-50 to-blue-50 border border-green-200 rounded-2xl p-6 text-left space-y-4">
-            <p className="text-lg font-semibold text-[#1A1A1A]">Merci de choisir le Guichet Unique ANPI 🇩🇯</p>
-            <p className="text-sm text-[#4B5563] leading-relaxed">
-              Votre dossier a été soumis avec succès. Nos équipes l'examineront attentivement dans les meilleurs délais. Nous vous encourageons dans votre démarche entrepreneuriale en République de Djibouti.
-            </p>
-            <div className="flex items-center gap-2 p-3 bg-white rounded-xl border border-[#E5E7EB]">
-              <Clock className="w-5 h-5 text-blue-600 shrink-0" />
-              <p className="text-sm text-[#1A1A1A]"><strong>Délai de traitement :</strong> 48 heures ouvrables</p>
+          <p className="text-sm text-[#6B6B6B] mt-1">Merci de faire confiance au Guichet Unique ANPI 🇩🇯</p>
+        </div>
+
+        {/* Receipt card */}
+        <div className="w-full bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-sm text-left">
+          {/* Card header */}
+          <div className="bg-[#0d2b0d] px-5 py-3 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-[#90c090] font-medium uppercase tracking-wider">Reçu de Paiement Officiel</p>
+              <p className="text-white font-bold text-sm mt-0.5">ANPI — Guichet Unique</p>
             </div>
-            <div className="p-3 bg-white rounded-xl border border-[#E5E7EB]">
-              <p className="text-xs text-[#6B6B6B] mb-1">Envelope ID (référence dossier)</p>
-              <p className="font-mono text-xs font-bold text-[#1A2B6B]">{envelopeId}</p>
+            <div className="text-right">
+              <p className="text-[10px] text-[#90c090]">Statut</p>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500 text-white text-xs font-bold mt-0.5">
+                <CheckCircle2 className="w-3 h-3" /> PAYÉ
+              </span>
             </div>
-            <p className="text-sm text-[#6B6B6B]">
-              Une confirmation par email vous sera envoyée. Vous pouvez suivre l'état de votre dossier dans <strong>Mes Dossiers</strong>.
-            </p>
           </div>
 
-          {/* Download buttons */}
-          <div className="grid grid-cols-1 gap-3">
-            <Button onClick={handleDownloadReceipt} disabled={downloadingReceipt}
-              className="flex items-center gap-2 w-full bg-[#1A2B6B] hover:bg-[#0f1e4d] text-white">
-              {downloadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              Télécharger le Reçu de Paiement (PDF)
-            </Button>
-            <Button onClick={handleDownloadPDF} disabled={downloading}
-              variant="outline" className="flex items-center gap-2 w-full">
-              {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              Télécharger le Formulaire Unique GUI (PDF)
-            </Button>
-          </div>
+          {/* Orange accent strip */}
+          <div className="h-1 bg-[#F7941D]" />
 
-          <div className="p-4 bg-[#F0F4FF] border border-[#C7D2FE] rounded-xl text-left">
-            <p className="text-xs text-[#3730A3] font-semibold mb-2">Reçu de paiement</p>
-            <div className="space-y-1 text-xs text-[#4338CA]">
-              <div className="flex justify-between"><span>Montant payé</span><span className="font-bold">{totalAmount.toLocaleString()} DJF</span></div>
-              <div className="flex justify-between"><span>Formule</span><span className="font-medium">{tier.label} ({tier.delay})</span></div>
-              <div className="flex justify-between"><span>Entreprise</span><span className="font-medium">{companyName}</span></div>
-              <div className="flex justify-between"><span>Date</span><span>{new Date().toLocaleDateString('fr-FR')}</span></div>
-              <div className="flex justify-between"><span>Ref. Envelope</span><span className="font-mono">{envelopeId.substring(0, 8)}...</span></div>
+          {/* Details */}
+          <div className="px-5 py-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-[10px] text-[#9B9B9B] uppercase tracking-wide">Entreprise</p>
+                <p className="text-sm font-semibold text-[#1A1A1A] truncate">{companyName}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-[#9B9B9B] uppercase tracking-wide">Formule</p>
+                <p className="text-sm font-semibold text-[#1A1A1A]">{tier.label} — {tier.delay}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-[#9B9B9B] uppercase tracking-wide">Date</p>
+                <p className="text-sm font-medium text-[#1A1A1A]">{new Date().toLocaleDateString('fr-FR')}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-[#9B9B9B] uppercase tracking-wide">Mode de paiement</p>
+                <p className="text-sm font-medium text-[#1A1A1A]">Meras Gateway</p>
+              </div>
+            </div>
+
+            <div className="border-t border-dashed border-[#E5E7EB] pt-3">
+              <p className="text-[10px] text-[#9B9B9B] uppercase tracking-wide mb-1">Ref. Dossier (Envelope ID)</p>
+              <p className="font-mono text-xs font-bold text-[#0d2b0d] bg-[#f0f7f0] px-2 py-1 rounded break-all">{envelopeId}</p>
+            </div>
+
+            {/* Fee breakdown */}
+            <div className="bg-[#FAFAFA] border border-[#F0F0F0] rounded-xl p-3 space-y-1.5">
+              <p className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wider mb-2">Détail des frais</p>
+              <div className="flex justify-between text-xs"><span className="text-[#6B6B6B]">Droits de patente</span><span className="font-medium">{patenteAmount.toLocaleString()} DJF</span></div>
+              <div className="flex justify-between text-xs"><span className="text-[#6B6B6B]">Frais ODPIC</span><span className="font-medium">{odpicAmount.toLocaleString()} DJF</span></div>
+              <div className="flex justify-between text-xs"><span className="text-[#6B6B6B]">Frais de statuts</span><span className="font-medium">{statusFeesAmount.toLocaleString()} DJF</span></div>
+              {tierSurcharge > 0 && (
+                <div className="flex justify-between text-xs"><span className="text-[#6B6B6B]">Traitement {tier.label}</span><span className="font-medium">+{tierSurcharge.toLocaleString()} DJF</span></div>
+              )}
+              <div className="flex justify-between items-center pt-2 border-t border-[#E5E7EB]">
+                <span className="text-sm font-bold text-[#1A1A1A]">Total payé</span>
+                <span className="text-lg font-bold text-[#F7941D]">{totalAmount.toLocaleString()} <span className="text-xs font-normal text-[#6B6B6B]">DJF</span></span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+              <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+              <p className="text-xs text-blue-700"><strong>Délai de traitement :</strong> {tier.delay} — vous serez notifié par email.</p>
             </div>
           </div>
         </div>
 
-        <Button onClick={onSuccess} className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-base">
-          Retour au tableau de bord
+        {/* Download buttons */}
+        <div className="w-full grid grid-cols-1 gap-3">
+          <Button onClick={handleDownloadReceipt} disabled={downloadingReceipt}
+            className="flex items-center gap-2 w-full bg-[#F7941D] hover:bg-[#e07f0a] text-white font-semibold h-11">
+            {downloadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            Télécharger le Reçu Officiel (PDF)
+          </Button>
+          <Button onClick={handleDownloadPDF} disabled={downloading}
+            variant="outline" className="flex items-center gap-2 w-full h-11 border-[#0d2b0d] text-[#0d2b0d] hover:bg-[#f0f7f0]">
+            {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            Télécharger le Formulaire Unique GUI
+          </Button>
+        </div>
+
+        <Button onClick={onSuccess} className="w-full bg-[#0d2b0d] hover:bg-[#1a3d1a] text-white px-8 py-3 text-base font-semibold h-12">
+          Accéder à Mon Espace Entreprise →
         </Button>
       </div>
     );
@@ -229,7 +274,8 @@ export default function PaymentStep({ stepData, onSuccess }) {
       {/* Tier selector */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {TIERS.map(t => {
-          const tierTotal = t.fixedAmount !== undefined ? t.fixedAmount : patenteAmount + ODPIC + STATUS_FEES + t.surcharge;
+          const basePatente = getPatenteAmount(activite.secteur_principal, activite.activite_description);
+          const tierTotal = t.fixedAmount !== undefined ? t.fixedAmount : basePatente + ODPIC + STATUS_FEES + t.surcharge;
           return (
             <button key={t.id} type="button" onClick={() => setSelectedTier(t.id)}
               className={`relative flex flex-col items-start text-left p-4 rounded-xl border-2 transition-all ${selectedTier === t.id ? t.color + ' shadow-md' : 'border-[#E5E7EB] bg-white hover:border-[#C4C4C4]'}`}>
@@ -245,7 +291,7 @@ export default function PaymentStep({ stepData, onSuccess }) {
                 </div>
               ) : (
                 <div className="w-full space-y-1 text-xs text-[#6B6B6B] mb-3">
-                  <div className="flex justify-between"><span>1. Patente</span><span className="font-medium text-[#1A1A1A]">{patenteAmount.toLocaleString()} DJF</span></div>
+                  <div className="flex justify-between"><span>1. Patente</span><span className="font-medium text-[#1A1A1A]">{basePatente.toLocaleString()} DJF</span></div>
                   <div className="flex justify-between"><span>2. ODPIC</span><span className="font-medium text-[#1A1A1A]">{ODPIC.toLocaleString()} DJF</span></div>
                   <div className="flex justify-between"><span>3. Statuts</span><span className="font-medium text-[#1A1A1A]">{STATUS_FEES.toLocaleString()} DJF</span></div>
                   <div className="flex justify-between border-t border-dashed border-[#E5E7EB] pt-1">
