@@ -100,19 +100,7 @@ export async function generatePaymentReceiptPDF(params) {
   doc.setTextColor(...MUTED);
   doc.text('ANPI Djibouti', ML + logoSz / 2, logoY + logoSz + 7, { align: 'center' });
 
-  // Right logo
-  const rightLogoX = W - MR - logoSz;
-  if (mainLogoData) {
-    doc.addImage(mainLogoData, 'PNG', rightLogoX, logoY, logoSz, logoSz);
-  }
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
-  doc.setTextColor(...NAVY);
-  doc.text('ANPI', rightLogoX + logoSz / 2, logoY + logoSz + 3.5, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(5.5);
-  doc.setTextColor(...MUTED);
-  doc.text('Guichet Unique', rightLogoX + logoSz / 2, logoY + logoSz + 7, { align: 'center' });
+
 
   // Center title block
   const cx = W / 2;
@@ -406,23 +394,51 @@ export async function generatePaymentReceiptPDF(params) {
   doc.text('PARTENAIRES ET INSTITUTIONS FINANCIÈRES', W / 2, y, { align: 'center' });
   y += 5;
 
-  const pLogoW = 22;
-  const pLogoH = 13;
-  const pSpacing = CW / PARTNER_LOGOS.length;
+  // Cell dimensions for each logo slot
+  const cellW = CW / PARTNER_LOGOS.length;
+  const cellH = 14; // fixed cell height
+  const maxLogoW = cellW - 4;
+  const maxLogoH = cellH;
 
   partnerData.forEach((imgData, i) => {
-    const lx = ML + i * pSpacing + (pSpacing - pLogoW) / 2;
-    const ly = y;
+    const cellX = ML + i * cellW;
+    const cellCX = cellX + cellW / 2;
+
     if (imgData) {
-      try { doc.addImage(imgData, 'PNG', lx, ly, pLogoW, pLogoH); } catch { /* skip */ }
+      try {
+        // Draw a white rounded background cell
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(...BORDER);
+        doc.setLineWidth(0.2);
+        doc.roundedRect(cellX + 1, y, cellW - 2, cellH, 1.5, 1.5, 'FD');
+
+        // Load image to get natural dimensions for aspect ratio
+        const tmpImg = new Image();
+        tmpImg.src = imgData;
+        const nw = tmpImg.naturalWidth || 100;
+        const nh = tmpImg.naturalHeight || 50;
+        const ratio = nw / nh;
+
+        // Fit within maxLogoW x maxLogoH keeping aspect ratio
+        let dw = maxLogoW;
+        let dh = dw / ratio;
+        if (dh > maxLogoH) { dh = maxLogoH; dw = dh * ratio; }
+
+        // Center inside cell
+        const dx = cellCX - dw / 2;
+        const dy = y + (cellH - dh) / 2;
+
+        doc.addImage(imgData, 'PNG', dx, dy, dw, dh);
+      } catch { /* skip */ }
     }
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(5);
     doc.setTextColor(...MUTED);
-    doc.text(PARTNER_LOGOS[i]?.name || '', lx + pLogoW / 2, ly + pLogoH + 3, { align: 'center' });
+    doc.text(PARTNER_LOGOS[i]?.name || '', cellCX, y + cellH + 3.5, { align: 'center' });
   });
 
-  y += pLogoH + 9;
+  y += cellH + 9;
 
   // ─────────────────────────────────────────────
   // ANTI-CORRUPTION FOOTER
