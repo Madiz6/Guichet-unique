@@ -15,6 +15,7 @@ import AdminOverview from './pages/AdminOverview';
 import ActesModificatifs from './pages/ActesModificatifs';
 import EntrepreneurPortal from './pages/EntrepreneurPortal';
 import Procedures from './pages/Procedures';
+import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { AnimatePresence } from 'framer-motion';
@@ -28,19 +29,18 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
+const ADMIN_PATHS = ['/AdminPortal', '/AdminOverview', '/ActesModificatifs'];
+const ENTREPRENEUR_PATHS = ['/entrepreneur', '/MesDossiers'];
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
-  const ADMIN_PATHS = ['/AdminPortal', '/AdminOverview', '/ActesModificatifs'];
-  const ENTREPRENEUR_PATHS = ['/entrepreneur', '/MesDossiers'];
-
   useEffect(() => {
     if (isLoadingAuth || !user) return;
     const path = location.pathname;
-    const isAdmin = user.role === 'admin' || user.role === 'agent' || ADMIN_EMAILS.includes(user.email);
+    const isAdmin = user.role === 'admin' || user.role === 'agent';
 
     if (isAdmin) {
       if (path === '/' || ENTREPRENEUR_PATHS.some(p => path.startsWith(p))) {
@@ -61,7 +61,7 @@ const AuthenticatedApp = () => {
     );
   }
 
-  const isPublicPage = location.pathname === '/' || location.pathname === '/onboarding';
+  const isPublicPage = location.pathname === '/' || location.pathname === '/onboarding' || location.pathname === '/login';
 
   if (authError && !isPublicPage) {
     if (authError.type === 'user_not_registered') {
@@ -75,6 +75,7 @@ const AuthenticatedApp = () => {
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={
           <LayoutWrapper currentPageName={mainPageKey}>
             <PageTransition><MainPage /></PageTransition>

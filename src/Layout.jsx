@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
-import { meras } from "@/components/core/MerasClient";
+import { useAuth } from "@/lib/AuthContext";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Home, FileText, Globe, Building2, Shield, FilePen, UserPlus } from "lucide-react";
@@ -26,32 +25,26 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const { user, logout } = useAuth();
 
-  const { data: user } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: () => meras.auth.me(),
-  });
+  const isAdmin = user?.role === 'admin' || user?.role === 'agent';
 
   const handleDeleteAccount = async () => {
     setIsDeletingAccount(true);
-    try { await meras.auth.logout(); } finally { setIsDeletingAccount(false); }
+    try { await logout(); } finally { setIsDeletingAccount(false); }
   };
-  
-  const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
-  const isAdmin = user?.role === 'admin' || user?.role === 'agent' || ADMIN_EMAILS.includes(user?.email);
-  
+
   // Show full app layout only if NOT on Home page
   const isHomePage = currentPageName === 'Home' || location.pathname === createPageUrl('Home') || location.pathname === '/';
-  
+
   if (isHomePage) {
-    // Homepage has its own navigation, render children only
     return <>{children}</>;
   }
-  
+
   const handleLogout = () => {
-    meras.auth.logout();
+    logout();
   };
-  
+
   const navigationGroups = isAdmin ? [
     {
       label: "Administration ANPI",
@@ -81,9 +74,9 @@ export default function Layout({ children, currentPageName }) {
         <Sidebar className="border-r border-[#E5E7EB] bg-white">
           <SidebarHeader className="border-b border-[#F0F0F0] p-6">
             <Link to={createPageUrl("Home")} className="flex items-center gap-3">
-                <img 
-                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png" 
-                  alt="Guichet UN Logo" 
+                <img
+                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+                  alt="Guichet UN Logo"
                   className="w-10 h-10 object-contain"
                 />
                 <div>
@@ -92,7 +85,7 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </Link>
           </SidebarHeader>
-          
+
           <SidebarContent className="p-3">
             {navigationGroups.map((group, gi) => (
               <SidebarGroup key={gi}>
@@ -134,9 +127,9 @@ export default function Layout({ children, currentPageName }) {
                 <MobileBackButton />
                 <SidebarTrigger className="hover:bg-[#F5F5F5] p-2 rounded-lg transition-colors duration-200 touch-target" />
                 <Link to={createPageUrl("Home")} className="flex items-center gap-2 select-none">
-                  <img 
-                    src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png" 
-                    alt="Guichet UN Logo" 
+                  <img
+                    src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+                    alt="Guichet UN Logo"
                     className="w-8 h-8 object-contain"
                   />
                   <div>
@@ -145,12 +138,12 @@ export default function Layout({ children, currentPageName }) {
                   </div>
                 </Link>
               </div>
-              
+
               <div className="hidden md:block flex-1" />
-              
+
               <div className="flex items-center gap-4">
                 <NotificationCenter />
-                
+
                 <div className="flex items-center gap-3 pl-4 border-l border-[#F0F0F0]">
                   <div className="relative group">
                     <div className="flex items-center gap-3 cursor-pointer select-none">
@@ -164,7 +157,7 @@ export default function Layout({ children, currentPageName }) {
                         {user?.full_name?.[0] || 'U'}
                       </div>
                     </div>
-                    
+
                     {/* Dropdown Menu */}
                     <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg border border-[#E5E7EB] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 swan-shadow-lg">
                       <div className="p-2">

@@ -1,9 +1,9 @@
 /**
  * Multi-tenant company context hook.
  * - Regular users: scoped to their own company_id
- * - Admins: can impersonate / overview any company, or see all
+ * - Admins (role === 'admin' || 'agent'): can impersonate / overview any company
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { meras } from '@/components/core/MerasClient';
 
@@ -17,8 +17,7 @@ export function useCompanyContext() {
     queryFn: () => meras.auth.me(),
   });
 
-  const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
-  const isAdmin = user?.role === 'admin' || user?.role === 'agent' || ADMIN_EMAILS.includes(user?.email);
+  const isAdmin = user?.role === 'admin' || user?.role === 'agent';
 
   // Effective company ID used for filtering
   const effectiveCompanyId = isAdmin
@@ -37,7 +36,6 @@ export function useCompanyContext() {
   // Build filter object for entity queries
   const companyFilter = (extra = {}) => {
     if (isAdmin && !adminOverrideCompanyId) {
-      // Admin sees all — no filter
       return extra;
     }
     if (effectiveCompanyId) {
