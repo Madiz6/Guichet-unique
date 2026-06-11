@@ -98,15 +98,23 @@ function createEntity(entityName) {
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 async function getCurrentProfile() {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: profile } = await supabase
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user) return null
+  const { data: profile, error } = await supabase
     .from('profiles')
-    .select('*')
-    .eq('id', user.id)
+    .select('id, role, full_name, company_id, onboarding_completed')
+    .eq('id', session.user.id)
     .single()
-  if (!profile) return null
-  return { ...profile, email: user.email, id: user.id }
+  if (error || !profile) return null
+  // Merge: profile fields (role, full_name, …) take precedence; email from auth
+  return {
+    id: session.user.id,
+    email: session.user.email,
+    role: profile.role,
+    full_name: profile.full_name,
+    company_id: profile.company_id,
+    onboarding_completed: profile.onboarding_completed,
+  }
 }
 
 // ── API route helper (includes Supabase session token) ───────────────────────

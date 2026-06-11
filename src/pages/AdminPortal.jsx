@@ -836,7 +836,8 @@ export default function AdminPortal() {
     staleTime: 0,
   });
 
-  if (user && user.role !== 'admin' && user.role !== 'agent' && user.email !== 'remoz.giovanni@meras.io') {
+  const ADMIN_ROLES = new Set(['admin', 'agent', 'agent_odpic', 'agent_dgi', 'agent_cnss']);
+  if (user && !ADMIN_ROLES.has(user.role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
         <div className="text-center">

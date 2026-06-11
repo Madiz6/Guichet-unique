@@ -31,6 +31,8 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 
 const ADMIN_PATHS = ['/AdminPortal', '/AdminOverview', '/ActesModificatifs'];
 const ENTREPRENEUR_PATHS = ['/entrepreneur', '/MesDossiers'];
+// All roles that get the admin portal — includes sub-agency agents
+const ADMIN_ROLES = new Set(['admin', 'agent', 'agent_odpic', 'agent_dgi', 'agent_cnss']);
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -38,15 +40,21 @@ const AuthenticatedApp = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isLoadingAuth || !user) return;
+    // Wait until auth AND the profiles row are fully loaded.
+    // Do NOT route while isLoadingAuth=true or while user/role is still null —
+    // that is the race that was defaulting admins to /entrepreneur.
+    if (isLoadingAuth || !user || !user.role) return;
+
     const path = location.pathname;
-    const isAdmin = user.role === 'admin' || user.role === 'agent';
+    const isAdmin = ADMIN_ROLES.has(user.role);
 
     if (isAdmin) {
       if (path === '/' || ENTREPRENEUR_PATHS.some(p => path.startsWith(p))) {
         navigate('/AdminPortal', { replace: true });
       }
     } else {
+      // Only redirect non-admins away from admin paths — never speculatively
+      // redirect to /entrepreneur before role is confirmed.
       if (path === '/' || ADMIN_PATHS.some(p => path.startsWith(p))) {
         navigate('/entrepreneur', { replace: true });
       }

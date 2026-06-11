@@ -33,8 +33,8 @@ export default function BottomNavBar() {
   const prevPathRef = useRef(location.pathname);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
-  const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
-  const isAdmin = user?.role === 'admin' || ADMIN_EMAILS.includes(user?.email);
+  const ADMIN_ROLES = new Set(['admin', 'agent', 'agent_odpic', 'agent_dgi', 'agent_cnss']);
+  const isAdmin = ADMIN_ROLES.has(user?.role);
   const tabs = isAdmin ? adminTabs : userTabs;
 
   // Persist last-visited path per tab root
