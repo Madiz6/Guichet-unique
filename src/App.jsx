@@ -33,7 +33,6 @@ const AuthenticatedApp = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Redirect on login based on role
   const ADMIN_EMAILS = ['remoz.giovanni@meras.io'];
   const ADMIN_PATHS = ['/AdminPortal', '/AdminOverview', '/ActesModificatifs'];
   const ENTREPRENEUR_PATHS = ['/entrepreneur', '/MesDossiers'];
@@ -44,12 +43,10 @@ const AuthenticatedApp = () => {
     const isAdmin = user.role === 'admin' || user.role === 'agent' || ADMIN_EMAILS.includes(user.email);
 
     if (isAdmin) {
-      // Admin/Agent landing on entrepreneur-only pages or root → send to admin portal
       if (path === '/' || ENTREPRENEUR_PATHS.some(p => path.startsWith(p))) {
         navigate('/AdminPortal', { replace: true });
       }
     } else {
-      // Entrepreneur landing on admin-only pages or root → send to entrepreneur portal
       if (path === '/' || ADMIN_PATHS.some(p => path.startsWith(p))) {
         navigate('/entrepreneur', { replace: true });
       }
@@ -100,23 +97,18 @@ const AuthenticatedApp = () => {
         <Route path="/ActesModificatifs" element={<LayoutWrapper currentPageName="ActesModificatifs"><ActesModificatifs /></LayoutWrapper>} />
         <Route path="/entrepreneur" element={<LayoutWrapper currentPageName="EntrepreneurPortal"><EntrepreneurPortal /></LayoutWrapper>} />
         <Route path="/procedures" element={<Procedures />} />
-        <Route
-          path="/AdminOverview"
-          element={
-            <LayoutWrapper currentPageName="AdminOverview">
-              <PageTransition><AdminOverview /></PageTransition>
-            </LayoutWrapper>
-          }
-        />
+        <Route path="/AdminOverview" element={
+          <LayoutWrapper currentPageName="AdminOverview">
+            <PageTransition><AdminOverview /></PageTransition>
+          </LayoutWrapper>
+        } />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </AnimatePresence>
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
