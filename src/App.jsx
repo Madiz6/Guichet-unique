@@ -49,13 +49,15 @@ const AuthenticatedApp = () => {
     const isAdmin = ADMIN_ROLES.has(user.role);
 
     if (isAdmin) {
-      if (path === '/' || ENTREPRENEUR_PATHS.some(p => path.startsWith(p))) {
+      // Staff (any admin/agent role) must never land on onboarding or entrepreneur pages
+      if (path === '/' || path === '/onboarding' || ENTREPRENEUR_PATHS.some(p => path.startsWith(p))) {
         navigate('/AdminPortal', { replace: true });
       }
     } else {
-      // Only redirect non-admins away from admin paths — never speculatively
-      // redirect to /entrepreneur before role is confirmed.
-      if (path === '/' || ADMIN_PATHS.some(p => path.startsWith(p))) {
+      // Entrepreneurs must complete onboarding before accessing the portal
+      if (!user.onboarding_completed && path !== '/onboarding' && path !== '/login') {
+        navigate('/onboarding', { replace: true });
+      } else if (user.onboarding_completed && (path === '/' || ADMIN_PATHS.some(p => path.startsWith(p)))) {
         navigate('/entrepreneur', { replace: true });
       }
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -135,7 +135,7 @@ function ActeForm({ dossier, user, onCreated }) {
 
   const handleUpload = async (file) => {
     setUploadingDoc(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     setDocs(prev => [...prev, { nom: file.name, url: file_url }]);
     setUploadingDoc(false);
   };
@@ -145,7 +145,7 @@ function ActeForm({ dossier, user, onCreated }) {
     setSaving(true);
     try {
       const recNumber = `MOD-${Date.now().toString().slice(-8)}`;
-      await base44.entities.ModificationDossier.create({
+      await apiClient.entities.ModificationDossier.create({
         registration_dossier_id: dossier.id,
         company_name: dossier.company_name,
         envelope_id: dossier.envelope_id,
@@ -281,12 +281,12 @@ export default function ActesModificatifsPanel({ dossier, user }) {
 
   const { data: actes = [], refetch } = useQuery({
     queryKey: ['actes-modificatifs', dossier.id],
-    queryFn: () => base44.entities.ModificationDossier.filter({ registration_dossier_id: dossier.id }, '-created_date'),
+    queryFn: () => apiClient.entities.ModificationDossier.filter({ registration_dossier_id: dossier.id }, '-created_date'),
     enabled: open,
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ModificationDossier.update(id, data),
+    mutationFn: ({ id, data }) => apiClient.entities.ModificationDossier.update(id, data),
     onSuccess: () => { refetch(); toast.success('Statut mis à jour'); },
   });
 

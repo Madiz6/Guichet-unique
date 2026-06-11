@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -151,7 +151,7 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
   const handleAction = async (statut) => {
     setSaving(true);
     try {
-      const updated = await base44.entities.RegistrationDossier.update(localDossier.id, {
+      const updated = await apiClient.entities.RegistrationDossier.update(localDossier.id, {
         statut, admin_comment: comment, admin_email: user?.email,
         date_traitement: new Date().toISOString().split('T')[0]
       });
@@ -165,7 +165,7 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
   const handleWorkflowSave = async (updates) => {
     const merged = { ...localDossier, ...updates };
     setLocalDossier(merged);
-    await base44.entities.RegistrationDossier.update(localDossier.id, updates);
+    await apiClient.entities.RegistrationDossier.update(localDossier.id, updates);
     onUpdateDossier(merged);
     toast.success('Progression sauvegardée');
   };
@@ -179,7 +179,7 @@ function DossierDetail({ dossier, user, onBack, onUpdateDossier }) {
   const handleGenerateLicense = async () => {
     setGeneratingLicense(true);
     try {
-      const response = await base44.functions.invoke('generateLicense', { dossier_id: localDossier.id });
+      const response = await apiClient.functions.invoke('generateLicense', { dossier_id: localDossier.id });
       if (response.data?.success) {
         setLicenseData(response.data);
         const updated = { ...localDossier, ...response.data, statut: 'Validé' };
@@ -824,14 +824,14 @@ export default function AdminPortal() {
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => apiClient.auth.me() });
   const { data: dossiers = [], isLoading, refetch } = useQuery({
     queryKey: ['registration-dossiers'],
-    queryFn: () => base44.entities.RegistrationDossier.list('-created_date'),
+    queryFn: () => apiClient.entities.RegistrationDossier.list('-created_date'),
   });
   const { data: freshDossier, isLoading: isLoadingDossier } = useQuery({
     queryKey: ['registration-dossier', selectedDossier?.id],
-    queryFn: () => base44.entities.RegistrationDossier.filter({ id: selectedDossier?.id }).then(r => r[0]),
+    queryFn: () => apiClient.entities.RegistrationDossier.filter({ id: selectedDossier?.id }).then(r => r[0]),
     enabled: !!selectedDossier?.id,
     staleTime: 0,
   });

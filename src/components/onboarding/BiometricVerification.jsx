@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import {
   Camera, CheckCircle2, Loader2, Shield, Eye, Zap, AlertTriangle,
@@ -85,7 +85,7 @@ export default function BiometricVerification({ idPhotoUrl, onComplete, onSkip }
     return new Promise(resolve => {
       canvas.toBlob(async (blob) => {
         const file = new File([blob], `biometric_${Date.now()}.jpg`, { type: 'image/jpeg' });
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
         resolve(file_url);
       }, 'image/jpeg', 0.9);
     });
@@ -101,7 +101,7 @@ export default function BiometricVerification({ idPhotoUrl, onComplete, onSkip }
       setCapturing(false);
       setAnalyzing(true);
 
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await apiClient.integrations.Core.InvokeLLM({
         prompt: `You are a biometric liveness detection system performing multi-factor analysis. Analyze this face image for:
 1. Liveness signals: skin texture, pore visibility, micro-reflections, depth cues, natural lighting gradients
 2. Spoof detection: look for signs of printed photo, screen replay, flat surface, unnatural sheen, moiré patterns, screen borders
@@ -190,7 +190,7 @@ Return a JSON with: liveness_score (0-100), spoof_risk (none/low/medium/high), q
     setAnalyzing(true);
     try {
       const url = await captureAndUpload();
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await apiClient.integrations.Core.InvokeLLM({
         prompt: `Active liveness verification frame. Analyze for: natural facial movement traces, micro-expression authenticity, 3D flash response simulation (analyze light gradient on facial surfaces), replay attack detection (check for timestamp inconsistencies, screen edges, pixel artifacts). Return JSON: liveness_confirmed (boolean), action_detected (boolean), confidence (0-100), spoof_detected (boolean).`,
         file_urls: [url],
         response_json_schema: {
@@ -230,7 +230,7 @@ Return a JSON with: liveness_score (0-100), spoof_risk (none/low/medium/high), q
   const runFaceMatching = async (liveUrl) => {
     setAnalyzing(true);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await apiClient.integrations.Core.InvokeLLM({
         prompt: `You are a forensic face verification system. Compare these two images:
 IMAGE 1: Live capture from verification session
 IMAGE 2: Photo from government-issued ID document

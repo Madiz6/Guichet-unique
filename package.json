@@ -1,5 +1,5 @@
 {
-  "name": "base44-app",
+  "name": "guichet-unique-anpi",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,9 +12,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "@base44/sdk": "^0.8.32",
-    "@base44/vite-plugin": "^1.0.21",
-    "@hello-pangea/dnd": "^17.0.0",
+"@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -90,7 +90,7 @@ export default function AdminCreateDossier({ user, onBack, onSuccess }) {
       const companyName = activiteData.commercial_names?.[0] || activiteData.raison_sociale || 'Entreprise';
       const applicantName = `${idData.prenom || ''} ${idData.nom || ''}`.trim() || user?.full_name || 'Admin';
 
-      const company = await base44.entities.Company.create({
+      const company = await apiClient.entities.Company.create({
         nom_entreprise: companyName,
         nif: docsData.nif || '',
         numero_affiliation: '',
@@ -105,7 +105,7 @@ export default function AdminCreateDossier({ user, onBack, onSuccess }) {
         statut_societe_url: docsData.statuts_signes_url || '',
       });
 
-      await base44.entities.RegistrationDossier.create({
+      await apiClient.entities.RegistrationDossier.create({
         company_id: company.id,
         envelope_id: envelopeId,
         applicant_email: idData.email || user?.email || '',

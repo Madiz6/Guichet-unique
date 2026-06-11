@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreditCard, Smartphone, Building2, Loader2, CheckCircle, XCircle, Banknote, FileText } from 'lucide-react';
-import { base44 } from "@/api/base44Client";
+import { apiClient } from "@/api/apiClient";
 import { toast } from 'sonner';
 import MerasPaymentGateway from './MerasPaymentGateway';
 
@@ -66,7 +66,7 @@ export default function PaymentGateway({
       };
       
       // Process payment through backend
-      const response = await base44.functions.invoke('processPayment', paymentData);
+      const response = await apiClient.functions.invoke('processPayment', paymentData);
       
       if (response.data.success) {
         setPaymentStatus('success');

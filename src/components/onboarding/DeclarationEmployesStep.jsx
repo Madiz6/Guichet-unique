@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +20,7 @@ function IdExtract({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
 
   const handle = async (file, side) => {
     setUploading(p => ({ ...p, [side]: true }));
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     setUploading(p => ({ ...p, [side]: false }));
     if (side === 'front') onFront(file_url); else onBack(file_url);
 
@@ -31,7 +31,7 @@ function IdExtract({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
 
     setExtracting(true);
     try {
-      const r = await base44.integrations.Core.InvokeLLM({
+      const r = await apiClient.integrations.Core.InvokeLLM({
         prompt: 'Extract from identity document (CIN/Passport): nom, prenom, date_naissance (YYYY-MM-DD), nationalite, adresse, nni, numero_identite, email, telephone, lieu_naissance, sexe, mere_nom. Return JSON.',
         file_urls: urls,
         response_json_schema: {

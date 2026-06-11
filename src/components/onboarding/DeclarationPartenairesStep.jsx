@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -66,7 +66,7 @@ function DocUpload({ label, onUploaded }) {
   const handle = async (file) => {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       setDone(true);
       onUploaded(file_url);
       toast.success('Document téléchargé');
@@ -102,7 +102,7 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
     extractedRef.current = true;
     setExtracting(true);
     try {
-      const r = await base44.integrations.Core.InvokeLLM({
+      const r = await apiClient.integrations.Core.InvokeLLM({
         prompt: `Extract identity document fields. Return JSON: nom, prenom, date_naissance (YYYY-MM-DD), lieu_naissance, nationalite, sexe, numero_identite, nni, date_emission (YYYY-MM-DD), date_expiration (YYYY-MM-DD), adresse, profession, pere_nom, mere_nom, email, telephone. Empty string for missing.`,
         file_urls: urls,
         response_json_schema: {
@@ -139,7 +139,7 @@ function IdScanSection({ frontUrl, backUrl, onFront, onBack, onExtracted }) {
     setUploading(p => ({ ...p, [side]: true }));
     let file_url;
     try {
-      const res = await base44.integrations.Core.UploadFile({ file });
+      const res = await apiClient.integrations.Core.UploadFile({ file });
       file_url = res.file_url;
     } catch {
       setUploading(p => ({ ...p, [side]: false }));

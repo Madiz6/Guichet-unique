@@ -31,7 +31,7 @@ Private storage bucket: `dossiers` (access via signed URLs only — never public
 
 ## Rules
 
-- **NEVER** use `@base44/sdk` — it is fully removed
+- **NEVER** import `@base44/sdk` — it is fully removed; use `src/api/apiClient.js` instead
 - `service_role` key + JWT signing + LLM calls live **only** in `api/*.js`, never client-side
 - Official numbers come from Postgres RPCs: `rpc('next_license_number')`, `rpc('next_numero_registre')`
 - NIF is entered by the DGI agent, **never** auto-generated
@@ -90,7 +90,7 @@ fetch('/api/generate-license', {
 })
 ```
 
-## Field renames (Base44 → Supabase)
+## Field renames (legacy → Supabase)
 
 | Old | New |
 |-----|-----|

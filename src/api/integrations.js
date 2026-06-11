@@ -1,14 +1,14 @@
 /**
- * Integration exports — backed by Supabase storage via base44 compat shim.
+ * Integration exports — backed by Supabase storage via apiClient.
  */
-import { base44 } from './base44Client'
+import { apiClient } from './apiClient'
 
-export const Core = base44.integrations.Core
-export const UploadFile = base44.integrations.Core.UploadFile.bind(base44.integrations.Core)
-export const SendEmail = base44.integrations.Core.SendEmail.bind(base44.integrations.Core)
-export const SendSMS = base44.integrations.Core.SendSMS.bind(base44.integrations.Core)
-export const GenerateImage = base44.integrations.Core.GenerateImage.bind(base44.integrations.Core)
-export const ExtractDataFromUploadedFile = base44.integrations.Core.ExtractDataFromUploadedFile.bind(base44.integrations.Core)
+export const Core = apiClient.integrations.Core
+export const UploadFile = apiClient.integrations.Core.UploadFile.bind(apiClient.integrations.Core)
+export const SendEmail = apiClient.integrations.Core.SendEmail.bind(apiClient.integrations.Core)
+export const SendSMS = apiClient.integrations.Core.SendSMS.bind(apiClient.integrations.Core)
+export const GenerateImage = apiClient.integrations.Core.GenerateImage.bind(apiClient.integrations.Core)
+export const ExtractDataFromUploadedFile = apiClient.integrations.Core.ExtractDataFromUploadedFile.bind(apiClient.integrations.Core)
 
 // InvokeLLM is server-side only — stub that throws if called client-side
 export const InvokeLLM = () => {

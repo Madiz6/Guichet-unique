@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { meras } from '@/components/core/MerasClient';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, User, Building2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';

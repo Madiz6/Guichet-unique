@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { meras } from "@/components/core/MerasClient";
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, ArrowRight, Loader2, Download, FileText } from 'lucide-react';
@@ -39,16 +39,16 @@ export default function PaymentSuccess() {
 
       // Load user's latest dossier for receipt generation
       try {
-        const user = await base44.auth.me().catch(() => null);
+        const user = await apiClient.auth.me().catch(() => null);
         if (user) {
-          const dossiers = await base44.entities.RegistrationDossier.filter(
+          const dossiers = await apiClient.entities.RegistrationDossier.filter(
             { applicant_email: user.email }, '-created_date', 1
           );
           if (dossiers?.[0]) {
             const d = dossiers[0];
             // Mark payment as confirmed if coming from success page
             if (!d.payment_confirmed && txnId) {
-              await base44.entities.RegistrationDossier.update(d.id, {
+              await apiClient.entities.RegistrationDossier.update(d.id, {
                 payment_confirmed: true,
                 statut: 'En attente',
               });
@@ -70,7 +70,7 @@ export default function PaymentSuccess() {
   const handleDownloadReceipt = async () => {
     setDownloadingReceipt(true);
     try {
-      const user = await base44.auth.me().catch(() => null);
+      const user = await apiClient.auth.me().catch(() => null);
       const stepData = dossier?.step_data || {};
       const activite = stepData.activite || {};
       const paiement = stepData.paiement || {};

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Upload, CheckCircle2, Loader2, FileText, PenLine, CloudUpload, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import StatutsGenerator from './StatutsGenerator.jsx';
@@ -36,7 +36,7 @@ export default function DocumentsStep({ value, onChange, stepData }) {
 
   const handleUpload = async (key, file) => {
     setUploading(p => ({ ...p, [key]: true }));
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     onChange({ docs: { ...docs, [key]: file_url } });
     setUploading(p => ({ ...p, [key]: false }));
     toast.success('Document téléchargé avec succès');

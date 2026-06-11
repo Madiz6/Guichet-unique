@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,21 +23,21 @@ export default function MesDossiers() {
   const [modifyingDossier, setModifyingDossier] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => apiClient.auth.me() });
   const { data: dossiers = [], isLoading } = useQuery({
     queryKey: ['my-dossiers', user?.email],
-    queryFn: () => base44.entities.RegistrationDossier.filter({ applicant_email: user?.email }, '-created_date'),
+    queryFn: () => apiClient.entities.RegistrationDossier.filter({ applicant_email: user?.email }, '-created_date'),
     enabled: !!user?.email,
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.RegistrationDossier.update(id, data),
+    mutationFn: ({ id, data }) => apiClient.entities.RegistrationDossier.update(id, data),
     onSuccess: () => { queryClient.invalidateQueries(['my-dossiers']); toast.success('Document ajouté'); },
   });
 
   const handleUploadSupplementaire = async (dossierId, currentDocs, file) => {
     setUploadingDoc(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     const newDocs = [...(currentDocs || []), { nom: file.name, url: file_url, date: new Date().toISOString().split('T')[0] }];
     updateMutation.mutate({ id: dossierId, data: { docs_supplementaires: newDocs } });
     setUploadingDoc(false);

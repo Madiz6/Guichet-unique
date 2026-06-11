@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -48,7 +48,7 @@ export default function KYCComplianceBadge({ company, dossier_id }) {
     e.stopPropagation();
     setLoading(true);
     try {
-      const res = await base44.functions.invoke('kycRiskEngine', {
+      const res = await apiClient.functions.invoke('kycRiskEngine', {
         company_id: company.id,
         company_name: company.nom_entreprise,
         nif: company.nif,

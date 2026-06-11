@@ -4,7 +4,7 @@
  * This module provides a clean interface that hides implementation details
  */
 
-import { base44 as _internalClient } from "@/api/base44Client";
+import { apiClient as _internalClient } from "@/api/apiClient";
 
 // Suppress console logs in production
 const isDev = false; // Set to false to disable all debug logs

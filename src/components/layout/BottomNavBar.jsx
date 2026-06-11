@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Building2, UserPlus, Globe } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { apiClient } from "@/api/apiClient";
 import { useQuery } from "@tanstack/react-query";
 
 const adminTabs = [
@@ -32,7 +32,7 @@ export default function BottomNavBar() {
   const navigate = useNavigate();
   const prevPathRef = useRef(location.pathname);
 
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => apiClient.auth.me() });
   const ADMIN_ROLES = new Set(['admin', 'agent', 'agent_odpic', 'agent_dgi', 'agent_cnss']);
   const isAdmin = ADMIN_ROLES.has(user?.role);
   const tabs = isAdmin ? adminTabs : userTabs;

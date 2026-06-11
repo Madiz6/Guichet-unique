@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -84,7 +84,7 @@ function ActeRow({ acte, dossierDocs, onUploaded }) {
   const handleUpload = async (file) => {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       onUploaded(acte.id, file_url, file.name);
       toast.success(`${acte.label} téléversé`);
     } catch {
@@ -201,7 +201,7 @@ export default function ActesAdministratifsRCS({ dossier, onDossierUpdated }) {
       },
     };
 
-    await base44.entities.RegistrationDossier.update(dossier.id, {
+    await apiClient.entities.RegistrationDossier.update(dossier.id, {
       step_data: {
         ...dossier.step_data,
         actes_rcs: updatedActesRcs,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -112,7 +112,7 @@ function FileUploadField({ label, url, onUploaded }) {
   const handle = async (file) => {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       onUploaded(file_url);
       toast.success('Document téléchargé');
     } catch { toast.error('Erreur de téléchargement'); }
@@ -163,7 +163,7 @@ function ActeForm({ dossier, user, onCreated, onCancel }) {
 
   const handleUpload = async (file) => {
     setUploadingDoc(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     setDocs(prev => [...prev, { nom: file.name, url: file_url }]);
     setUploadingDoc(false);
   };
@@ -213,7 +213,7 @@ function ActeForm({ dossier, user, onCreated, onCancel }) {
     }
 
     if (Object.keys(stepUpdates).length > 0 || Object.keys(updates).length > 0) {
-      await base44.entities.RegistrationDossier.update(dossier.id, {
+      await apiClient.entities.RegistrationDossier.update(dossier.id, {
         ...updates,
         step_data: { ...stepData, ...stepUpdates },
         date_traitement: new Date().toISOString().split('T')[0],
@@ -230,7 +230,7 @@ function ActeForm({ dossier, user, onCreated, onCancel }) {
       if (repDocFront) allDocs.push({ nom: 'CIN Nouveau représentant — Recto', url: repDocFront });
       if (repDocBack) allDocs.push({ nom: 'CIN Nouveau représentant — Verso', url: repDocBack });
 
-      await base44.entities.ModificationDossier.create({
+      await apiClient.entities.ModificationDossier.create({
         registration_dossier_id: dossier.id,
         company_name: dossier.company_name,
         envelope_id: dossier.envelope_id,
@@ -490,7 +490,7 @@ function AdminCorrectionForm({ dossier, user, onSaved }) {
 
       // 1. Update RegistrationDossier (reflected in AdminPortal)
       const recNumber = `CORR-${Date.now().toString().slice(-8)}`;
-      await base44.entities.RegistrationDossier.update(dossier.id, {
+      await apiClient.entities.RegistrationDossier.update(dossier.id, {
         company_name: form.company_name,
         forme_juridique: form.nouvelle_forme || form.forme_juridique,
         admin_comment: form.admin_comment,
@@ -503,7 +503,7 @@ function AdminCorrectionForm({ dossier, user, onSaved }) {
       if (form.rep_doc_front && selectedSection === 'representant') docs.push({ nom: 'CIN Représentant — Recto', url: form.rep_doc_front });
       if (form.rep_doc_back && selectedSection === 'representant') docs.push({ nom: 'CIN Représentant — Verso', url: form.rep_doc_back });
 
-      await base44.entities.ModificationDossier.create({
+      await apiClient.entities.ModificationDossier.create({
         registration_dossier_id: dossier.id,
         company_name: dossier.company_name,
         envelope_id: dossier.envelope_id,
@@ -704,14 +704,14 @@ function CompanyActes({ dossier, user, onBack, onDossierUpdated }) {
 
   const { data: allModifications = [], refetch } = useQuery({
     queryKey: ['all-modifications', dossier.id],
-    queryFn: () => base44.entities.ModificationDossier.filter({ registration_dossier_id: dossier.id }, '-created_date'),
+    queryFn: () => apiClient.entities.ModificationDossier.filter({ registration_dossier_id: dossier.id }, '-created_date'),
   });
 
   const officialActes = allModifications.filter(m => !m.type_acte?.startsWith('Correction admin'));
   const corrections = allModifications.filter(m => m.type_acte?.startsWith('Correction admin'));
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ModificationDossier.update(id, data),
+    mutationFn: ({ id, data }) => apiClient.entities.ModificationDossier.update(id, data),
     onSuccess: () => { refetch(); toast.success('Statut mis à jour'); },
   });
 
@@ -929,11 +929,11 @@ export default function ActesModificatifs() {
   const [selectedDossier, setSelectedDossier] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => apiClient.auth.me() });
 
   const { data: dossiers = [], isLoading } = useQuery({
     queryKey: ['registration-dossiers-all'],
-    queryFn: () => base44.entities.RegistrationDossier.list('-created_date'),
+    queryFn: () => apiClient.entities.RegistrationDossier.list('-created_date'),
   });
 
   const [freshDossier, setFreshDossier] = useState(null);
@@ -941,7 +941,7 @@ export default function ActesModificatifs() {
   // Refresh selected dossier when updates happen
   const handleDossierUpdated = async () => {
     if (!selectedDossier) return;
-    const updated = await base44.entities.RegistrationDossier.filter({ id: selectedDossier.id }).then(r => r[0]);
+    const updated = await apiClient.entities.RegistrationDossier.filter({ id: selectedDossier.id }).then(r => r[0]);
     if (updated) {
       setFreshDossier(updated);
       setSelectedDossier(updated);

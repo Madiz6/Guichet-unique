@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import PhoneInput from './PhoneInput.jsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +48,7 @@ function IdDocUploader({ data, onChange, showBiometric }) {
     setUploading(p => ({ ...p, [side]: true }));
     let file_url;
     try {
-      const res = await base44.integrations.Core.UploadFile({ file });
+      const res = await apiClient.integrations.Core.UploadFile({ file });
       file_url = res.file_url;
     } catch {
       setUploading(p => ({ ...p, [side]: false }));
@@ -88,7 +88,7 @@ function IdDocUploader({ data, onChange, showBiometric }) {
       // Try ExtractDataFromUploadedFile first on the primary image (most reliable for structured docs)
       let extracted = null;
       try {
-        const extractResult = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        const extractResult = await apiClient.integrations.Core.ExtractDataFromUploadedFile({
           file_url: frontUrl || backUrl,
           json_schema: JSON_SCHEMA,
         });
@@ -101,7 +101,7 @@ function IdDocUploader({ data, onChange, showBiometric }) {
 
       // If ExtractDataFromUploadedFile didn't get good results, fall back to InvokeLLM vision with all images
       if (!extracted || !extracted.nom) {
-        extracted = await base44.integrations.Core.InvokeLLM({
+        extracted = await apiClient.integrations.Core.InvokeLLM({
           model: 'claude_sonnet_4_6',
           prompt: `You are an expert OCR system. You are given ${extractUrls.length === 2 ? 'the front AND back sides' : 'a side'} of a Djiboutian identity document (CNI or passport). Extract ALL readable text and fill the JSON fields. For Djiboutian CNI: the front has photo, name, date of birth, place of birth, NNI, nationality; the back has address, parents names, profession, MRZ lines. For passport: biodata page has all fields. Return dates in YYYY-MM-DD format. Use empty string "" for any field not visible. Do NOT invent data.`,
           file_urls: extractUrls,

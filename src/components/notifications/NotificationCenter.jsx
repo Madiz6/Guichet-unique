@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from "@/api/base44Client";
+import { apiClient } from "@/api/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Bell, X, Check, AlertCircle, Calendar, FileText } from 'lucide-react';
@@ -13,22 +13,22 @@ export default function NotificationCenter() {
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => base44.entities.Employee.list(),
+    queryFn: () => apiClient.entities.Employee.list(),
   });
 
   const { data: holidays = [] } = useQuery({
     queryKey: ['holidays'],
-    queryFn: () => base44.entities.Holiday.list(),
+    queryFn: () => apiClient.entities.Holiday.list(),
   });
 
   const { data: declarations = [] } = useQuery({
     queryKey: ['declarations'],
-    queryFn: () => base44.entities.Declaration.list(),
+    queryFn: () => apiClient.entities.Declaration.list(),
   });
 
   const { data: compliance = [] } = useQuery({
     queryKey: ['compliance'],
-    queryFn: () => base44.entities.ComplianceItem.list(),
+    queryFn: () => apiClient.entities.ComplianceItem.list(),
   });
 
   const notifications = React.useMemo(() => {

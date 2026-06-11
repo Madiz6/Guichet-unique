@@ -1,13 +1,13 @@
 /**
- * Entity exports — backed by Supabase via base44 compat shim.
+ * Entity exports — backed by Supabase via apiClient.
  */
-import { base44 } from './base44Client'
+import { apiClient } from './apiClient'
 
-export const RegistrationDossier = base44.entities.RegistrationDossier
-export const ModificationDossier = base44.entities.ModificationDossier
-export const Company = base44.entities.Company
-export const AuditLog = base44.entities.AuditLog
+export const RegistrationDossier = apiClient.entities.RegistrationDossier
+export const ModificationDossier = apiClient.entities.ModificationDossier
+export const Company = apiClient.entities.Company
+export const AuditLog = apiClient.entities.AuditLog
 
 // Legacy alias kept for backward compat
-export const User = base44.auth
-export const Query = base44.entities.RegistrationDossier
+export const User = apiClient.auth
+export const Query = apiClient.entities.RegistrationDossier

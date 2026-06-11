@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -353,7 +353,7 @@ export default function AMLScreeningPanel({ dossier }) {
     setResults(null);
     setVerdicts({});
     try {
-      const res = await base44.functions.invoke('amlScreening', { names: subjects, dossier_id: dossier.id });
+      const res = await apiClient.functions.invoke('amlScreening', { names: subjects, dossier_id: dossier.id });
       if (res.data?.success) {
         setResults(res.data);
         toast.success(`Criblage terminé — ${res.data.subjects_screened} sujets analysés`);

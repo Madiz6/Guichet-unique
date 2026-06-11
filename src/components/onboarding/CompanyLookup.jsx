@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -118,7 +118,7 @@ Return the structured JSON with a "companies" array.`;
     setExpanded({});
     const interval = startRegistryCycle();
     try {
-      const r = await base44.integrations.Core.InvokeLLM({
+      const r = await apiClient.integrations.Core.InvokeLLM({
         prompt: buildPrompt(),
         add_context_from_internet: true,
         model: 'gemini_3_flash',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,7 +45,7 @@ function FileUploadField({ label, url, onUploaded, required = false }) {
   const handle = async (file) => {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       onUploaded(file_url);
       toast.success('Document téléchargé');
     } catch { toast.error('Erreur de téléchargement'); }
@@ -461,7 +461,7 @@ function StepDocuments({ data, onChange }) {
   const handleNamedUpload = async (file, key) => {
     setUploadingIdx(key);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       onChange('named_docs', { ...namedDocs, [key]: file_url });
       toast.success('Document téléchargé');
     } catch { toast.error('Erreur de téléchargement'); }
@@ -471,7 +471,7 @@ function StepDocuments({ data, onChange }) {
   const handleExtraUpload = async (file) => {
     setUploadingIdx('extra');
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       onChange('justificatifs', [...docs, { nom: file.name, url: file_url }]);
       toast.success('Document ajouté');
     } catch { toast.error('Erreur de téléchargement'); }
@@ -608,7 +608,7 @@ async function applyChangesToDossier(dossier, stepData) {
     ...(stepData.employes ? { employes: { ...sd.employes, employees: stepData.employes } } : {}),
   };
 
-  await base44.entities.RegistrationDossier.update(dossier.id, {
+  await apiClient.entities.RegistrationDossier.update(dossier.id, {
     ...updates,
     step_data: updatedStepData,
     date_traitement: new Date().toISOString().split('T')[0],
@@ -675,7 +675,7 @@ export default function RCSWizard({ dossier, user, onFinished, onCancel }) {
         : `Acte modificatif RCS (${changedSteps.length} sections)`;
 
       // 1. Create ModificationDossier record
-      await base44.entities.ModificationDossier.create({
+      await apiClient.entities.ModificationDossier.create({
         registration_dossier_id: dossier.id,
         company_name: dossier.company_name,
         envelope_id: dossier.envelope_id,

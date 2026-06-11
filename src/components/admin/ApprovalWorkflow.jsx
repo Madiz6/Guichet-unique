@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -169,7 +169,7 @@ function StepPanel({ step, stepIndex, wfState, isUnlocked, workflow, dossier, on
   const handleUpload = async (file, key) => {
     setUploading(p => ({ ...p, [key]: true }));
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       setUploadedDocs(p => ({ ...p, [key]: file_url }));
       toast.success('Document téléchargé');
     } catch {

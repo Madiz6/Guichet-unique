@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,7 +32,7 @@ function FileUpload({ label, url, onUploaded, uploading, setUploading }) {
   const handleFile = async (file) => {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       onUploaded(file_url);
       toast.success('Document téléchargé');
     } catch {
@@ -211,7 +211,7 @@ export default function DossierEditPanel({ dossier, onSave }) {
         }
       };
 
-      const updated = await base44.entities.RegistrationDossier.update(dossier.id, {
+      const updated = await apiClient.entities.RegistrationDossier.update(dossier.id, {
         company_name: form.company_name,
         forme_juridique: form.nouvelle_forme || form.forme_juridique,
         admin_comment: form.admin_comment,

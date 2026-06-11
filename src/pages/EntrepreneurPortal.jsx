@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -118,7 +118,7 @@ function DossierCard({ dossier, user, onModify, onUpload, uploadingDoc }) {
 
   const { data: modifications = [] } = useQuery({
     queryKey: ['my-modifications', dossier.id],
-    queryFn: () => base44.entities.ModificationDossier.filter({ registration_dossier_id: dossier.id }, '-created_date'),
+    queryFn: () => apiClient.entities.ModificationDossier.filter({ registration_dossier_id: dossier.id }, '-created_date'),
     enabled: showMods,
   });
 
@@ -281,12 +281,12 @@ export default function EntrepreneurPortal() {
 
   const { data: user, isLoading: loadingUser } = useQuery({
     queryKey: ['me'],
-    queryFn: () => base44.auth.me(),
+    queryFn: () => apiClient.auth.me(),
   });
 
   const { data: dossiers = [], isLoading, refetch } = useQuery({
     queryKey: ['my-dossiers', user?.email],
-    queryFn: () => base44.entities.RegistrationDossier.filter(
+    queryFn: () => apiClient.entities.RegistrationDossier.filter(
       { applicant_email: user.email },
       '-created_date'
     ),
@@ -294,7 +294,7 @@ export default function EntrepreneurPortal() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.RegistrationDossier.update(id, data),
+    mutationFn: ({ id, data }) => apiClient.entities.RegistrationDossier.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['my-dossiers']);
       toast.success('Document ajouté');
@@ -303,7 +303,7 @@ export default function EntrepreneurPortal() {
 
   const handleUpload = async (dossierId, currentDocs, file) => {
     setUploadingDoc(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     const newDocs = [...(currentDocs || []), { nom: file.name, url: file_url, date: new Date().toISOString().split('T')[0] }];
     updateMutation.mutate({ id: dossierId, data: { docs_supplementaires: newDocs } });
     setUploadingDoc(false);

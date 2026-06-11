@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { meras } from '@/components/core/MerasClient';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import {
   Building2, FileText, Users, CreditCard, ArrowRight,
   CheckCircle, Shield, Globe, Clock, ChevronRight
@@ -117,7 +117,7 @@ export default function OnboardingWizard() {
             </div>
 
             <Button
-              onClick={() => isAuthenticated ? setShowSplash(true) : base44.auth.redirectToLogin('/onboarding')}
+              onClick={() => isAuthenticated ? setShowSplash(true) : apiClient.auth.redirectToLogin('/onboarding')}
               size="lg"
               className="bg-orange-500 hover:bg-orange-600 text-white text-xl px-12 py-7 h-auto font-bold rounded-xl shadow-2xl"
             >
@@ -164,7 +164,7 @@ export default function OnboardingWizard() {
 
           <div className="text-center mt-12">
             <Button
-              onClick={() => isAuthenticated ? setShowSplash(true) : base44.auth.redirectToLogin('/onboarding')}
+              onClick={() => isAuthenticated ? setShowSplash(true) : apiClient.auth.redirectToLogin('/onboarding')}
               size="lg"
               className="bg-blue-900 hover:bg-blue-800 text-white px-12 py-6 h-auto text-lg font-bold rounded-xl"
             >
@@ -215,7 +215,7 @@ export default function OnboardingWizard() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Prêt à créer votre entreprise ?</h2>
           <p className="text-orange-100 text-lg mb-8">Rejoignez les milliers d'entrepreneurs qui ont fait confiance au Guichet Unique ANPI.</p>
           <Button
-            onClick={() => isAuthenticated ? setShowSplash(true) : base44.auth.redirectToLogin('/onboarding')}
+            onClick={() => isAuthenticated ? setShowSplash(true) : apiClient.auth.redirectToLogin('/onboarding')}
               size="lg"
               className="bg-white text-orange-600 hover:bg-gray-100 text-xl px-12 py-7 h-auto font-bold rounded-xl shadow-xl"
           >

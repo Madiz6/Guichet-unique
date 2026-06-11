@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { meras } from '@/components/core/MerasClient';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -171,7 +171,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
       const envelopeId = stepData.esignature?.envelope_id || `ENV-${Date.now()}`;
       const companyName = activiteData.commercial_names?.[0] || activiteData.raison_sociale || 'Entreprise';
 
-      const user = await base44.auth.me();
+      const user = await apiClient.auth.me();
 
       // Avoid duplicate creation if already submitted
       const existing = await meras.entities.RegistrationDossier.filter({ applicant_email: user?.email || '', envelope_id: envelopeId });
@@ -206,7 +206,7 @@ export default function CompanyOnboardingWizard({ onBack, onSuccess }) {
         date_soumission: new Date().toISOString().split('T')[0],
       });
 
-      await base44.auth.updateMe({
+      await apiClient.auth.updateMe({
         company_id: company.id,
         company_name: companyName,
         onboarding_completed: true,

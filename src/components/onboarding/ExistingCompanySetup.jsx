@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { meras } from '@/components/core/MerasClient';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,7 +39,7 @@ export default function ExistingCompanySetup({ onBack, onSuccess }) {
 
   const handleUpload = async (key, file) => {
     setUploading(p => ({ ...p, [key]: true }));
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     setDocs(p => ({ ...p, [key]: file_url }));
     setUploading(p => ({ ...p, [key]: false }));
     toast.success('Document téléchargé');
@@ -57,7 +57,7 @@ export default function ExistingCompanySetup({ onBack, onSuccess }) {
     setSaving(true);
     const company = await meras.entities.Company.create({ ...form, ...docs });
     // Link user to this company
-    await base44.auth.updateMe({ company_id: company.id, company_name: company.nom_entreprise, onboarding_completed: true });
+    await apiClient.auth.updateMe({ company_id: company.id, company_name: company.nom_entreprise, onboarding_completed: true });
     setSaving(false);
     toast.success('Entreprise configurée avec succès !');
     onSuccess();

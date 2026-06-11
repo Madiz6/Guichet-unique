@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -65,7 +65,7 @@ function UBOPhysiqueForm({ ubo, onChange, onRemove, index }) {
     extractedRef.current = true;
     setExtracting(true);
     try {
-      const r = await base44.integrations.Core.InvokeLLM({
+      const r = await apiClient.integrations.Core.InvokeLLM({
         prompt: `Extract identity document fields. Return JSON: nom, prenom, date_naissance (YYYY-MM-DD), lieu_naissance, nationalite, sexe, numero_identite, nni. Empty string for missing.`,
         file_urls: [frontU, backU].filter(Boolean),
         response_json_schema: {
@@ -89,7 +89,7 @@ function UBOPhysiqueForm({ ubo, onChange, onRemove, index }) {
   const handleFile = async (file, side) => {
     setUploading(p => ({ ...p, [side]: true }));
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       const updated = { ...ubo, [side === 'front' ? 'doc_front' : 'doc_back']: file_url };
       onChange(updated);
       if (side === 'front') {
@@ -287,7 +287,7 @@ function UBOMoraleForm({ ubo, onChange, onRemove, index }) {
   const handleDocUpload = async (file, field) => {
     setUploadingDoc(p => ({ ...p, [field]: true }));
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
       set(field, file_url);
       toast.success('Document téléchargé');
     } catch {

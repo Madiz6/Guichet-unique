@@ -1,5 +1,5 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, LogOut, Mail } from 'lucide-react';
 
@@ -33,7 +33,7 @@ const UserNotRegisteredError = () => {
 
         <div className="flex flex-col gap-2">
           <Button
-            onClick={() => base44.auth.logout('/')}
+            onClick={() => apiClient.auth.logout('/')}
             className="w-full bg-[#1A1A1A] hover:bg-[#333] text-white"
           >
             <LogOut className="w-4 h-4 mr-2" />

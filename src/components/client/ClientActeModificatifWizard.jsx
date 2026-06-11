@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { apiClient } from '@/api/apiClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +31,7 @@ function FileUploadField({ label, url, onUploaded }) {
   const [uploading, setUploading] = useState(false);
   const handle = async (file) => {
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     onUploaded(file_url);
     toast.success('Document téléchargé');
     setUploading(false);
@@ -112,7 +112,7 @@ export default function ClientActeModificatifWizard({ dossier, user, onClose, on
 
   const handleUploadDoc = async (file) => {
     setUploadingDoc(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await apiClient.integrations.Core.UploadFile({ file });
     setDocs(prev => [...prev, { nom: file.name, url: file_url }]);
     setUploadingDoc(false);
   };
@@ -214,7 +214,7 @@ export default function ClientActeModificatifWizard({ dossier, user, onClose, on
     const toSubmit = actes.length > 0 ? actes : [{ type: 'Autre modification', fields: {} }];
     for (const acte of toSubmit) {
       const rec = `MOD-${Date.now().toString().slice(-8)}-${Math.floor(Math.random()*1000)}`;
-      await base44.entities.ModificationDossier.create({
+      await apiClient.entities.ModificationDossier.create({
         registration_dossier_id: dossier.id,
         company_name: dossier.company_name,
         envelope_id: dossier.envelope_id,

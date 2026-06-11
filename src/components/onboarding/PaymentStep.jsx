@@ -86,12 +86,12 @@ export default function PaymentStep({ stepData, onSuccess }) {
 
     // Persist payment details to the dossier record so admin can see them
     try {
-      const { base44 } = await import('@/api/base44Client');
-      const user = await base44.auth.me().catch(() => null);
+      const { apiClient } = await import('@/api/apiClient');
+      const user = await apiClient.auth.me().catch(() => null);
       if (user) {
-        const dossiers = await base44.entities.RegistrationDossier.filter({ applicant_email: user.email }, '-created_date', 1);
+        const dossiers = await apiClient.entities.RegistrationDossier.filter({ applicant_email: user.email }, '-created_date', 1);
         if (dossiers?.[0]?.id) {
-          await base44.entities.RegistrationDossier.update(dossiers[0].id, {
+          await apiClient.entities.RegistrationDossier.update(dossiers[0].id, {
             payment_confirmed: true,
             payment_amount: totalAmount,
             step_data: { ...stepData, paiement: paymentMeta },
@@ -103,8 +103,8 @@ export default function PaymentStep({ stepData, onSuccess }) {
 
     // Auto-generate receipt PDF
     try {
-      const { base44 } = await import('@/api/base44Client');
-      const user = await base44.auth.me().catch(() => null);
+      const { apiClient } = await import('@/api/apiClient');
+      const user = await apiClient.auth.me().catch(() => null);
       await generatePaymentReceiptPDF({
         amount: totalAmount,
         transactionId: txId,
@@ -127,7 +127,7 @@ export default function PaymentStep({ stepData, onSuccess }) {
   const handleDownloadReceipt = async () => {
     setDownloadingReceipt(true);
     try {
-      const user = await import('@/api/base44Client').then(m => m.base44.auth.me()).catch(() => null);
+      const user = await import('@/api/apiClient').then(m => m.apiClient.auth.me()).catch(() => null);
       await generatePaymentReceiptPDF({
         amount: totalAmount,
         transactionId,
