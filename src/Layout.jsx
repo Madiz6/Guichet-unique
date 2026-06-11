@@ -75,7 +75,7 @@ export default function Layout({ children, currentPageName }) {
           <SidebarHeader className="border-b border-[#F0F0F0] p-6">
             <Link to={createPageUrl("Home")} className="flex items-center gap-3">
                 <img
-                  src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+                  src="/assets/anpi-logo.png"
                   alt="Guichet UN Logo"
                   className="w-10 h-10 object-contain"
                 />
@@ -128,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
                 <SidebarTrigger className="hover:bg-[#F5F5F5] p-2 rounded-lg transition-colors duration-200 touch-target" />
                 <Link to={createPageUrl("Home")} className="flex items-center gap-2 select-none">
                   <img
-                    src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+                    src="/assets/anpi-logo.png"
                     alt="Guichet UN Logo"
                     className="w-8 h-8 object-contain"
                   />

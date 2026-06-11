@@ -50,7 +50,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-2xl border border-[#E5E7EB] p-8 shadow-sm">
         <div className="flex items-center gap-3 mb-8">
           <img
-            src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+            src="/assets/anpi-logo.png"
             alt="Guichet UN"
             className="w-10 h-10 object-contain"
           />

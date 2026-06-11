@@ -35,7 +35,7 @@ export default function OnboardingSplash({ onComplete }) {
             className="w-72 sm:w-96 px-8"
           >
             <img
-              src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/a296da2dc_IMG_6025.jpg"
+              src="/assets/onboarding-splash.jpg"
               alt="Ismaïl Omar Guelleh — En toute confiance 2026"
               className="w-full object-contain"
             />
@@ -50,7 +50,7 @@ export default function OnboardingSplash({ onComplete }) {
           >
             <div className="flex items-center gap-3">
               <img
-                src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+                src="/assets/anpi-logo.png"
                 alt="Guichet UN"
                 className="w-9 h-9 object-contain"
               />

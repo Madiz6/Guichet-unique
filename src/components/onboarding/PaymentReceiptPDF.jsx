@@ -58,15 +58,15 @@ export async function generatePaymentReceiptPDF(params) {
   const dateTimeStr = `${dateStr} ${timeStr}`;
   const receiptNumber = `GUI-${now.getFullYear()}-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
-  const GUICHET_LOGO = 'https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png';
+  const GUICHET_LOGO = '/assets/anpi-logo.png';
   const PARTNER_LOGOS = [
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/ad45d10f1_odpic-logo.png',                        name: 'ODPIC' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/4d01ed747_Logo-75-x-21-pixels-couleur-3-1-1.png',  name: 'CNSS' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/0be7f5c77_9391f0df4_green-2copy-1.jpg',            name: 'Min. Budget' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/cf2bbfeae_AS_Ali_Sabieh-Djibouti_Tlcom.png',       name: 'Djibouti Télécom' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/923b7fae1_Gemini_Generated_Image_yj3n6yj3n6yj3n6y.png', name: 'Meras' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/e29bdac39_edd.jpg',                                name: 'EDD' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/3996ad141_unnamed.png',                            name: 'ONEAD' },
+    { url: '/assets/odpic-logo.png',                        name: 'ODPIC' },
+    { url: '/assets/cnss-logo.png',  name: 'CNSS' },
+    { url: '/assets/budget-logo.jpg',            name: 'Min. Budget' },
+    { url: '/assets/djibouti-telecom-logo.png',       name: 'Djibouti Télécom' },
+    { url: '/assets/meras-logo.png', name: 'Meras' },
+    { url: '/assets/edd-logo.jpg',                                name: 'EDD' },
+    { url: '/assets/onead-logo.png',                            name: 'ONEAD' },
   ];
 
   const [mainLogoData, ...partnerData] = await Promise.all([

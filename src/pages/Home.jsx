@@ -149,7 +149,7 @@ const partners = [
   { name: 'FDED', logo: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/fded-1-150x150.png' },
   { name: 'IND', logo: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/ind-1.png' },
   { name: 'MCPT', logo: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/LOGO-MCPT-1.png' },
-  { name: 'Meras', logo: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/bdb98f172_Gemini_Generated_Image_yj3n6yj3n6yj3n6y.png' },
+  { name: 'Meras', logo: '/assets/meras-logo.png' },
 ];
 
 /* ─── Arrow Button (Montix style) ─── */
@@ -201,7 +201,7 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 select-none">
-            <img src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+            <img src="/assets/anpi-logo.png"
               alt="Guichet Unique" className="w-9 h-9 object-contain" />
             <span className="font-bold text-[#1a1a1a] text-lg tracking-tight">Guichet Unique</span>
           </Link>
@@ -803,7 +803,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between gap-12 mb-12">
             <div className="max-w-xs">
               <div className="flex items-center gap-3 mb-5">
-                <img src="https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png"
+                <img src="/assets/anpi-logo.png"
                   alt="Guichet Unique" className="w-9 h-9 object-contain" />
                 <div>
                   <p className="font-bold text-white text-base leading-tight">Guichet Unique</p>
