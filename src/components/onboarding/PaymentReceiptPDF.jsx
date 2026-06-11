@@ -99,15 +99,15 @@ export async function generatePaymentReceiptPDF(params) {
   // ── Preload images in parallel ────────────────────────────
   const GUICHET_LOGO_URL = 'https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png';
 
-  // Partner logo URLs from the website
+  // Partner logo URLs — uploaded directly
   const PARTNER_LOGOS = [
-    { url: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/djibtel-1.png',       name: 'Djibtel' },
-    { url: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/edd-1.png',           name: 'EDD' },
-    { url: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/fded-1-150x150.png',  name: 'FDED' },
-    { url: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/ind-1.png',           name: 'IND' },
-    { url: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/LOGO-CNSS-1-150x146.png', name: 'CNSS' },
-    { url: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/LOGO-MCPT-1.png',     name: 'MCPT' },
-    { url: 'https://guichet-unique.craftnovasolutions.com/wp-content/uploads/2024/05/LOGO-MHUE-1-150x150.png', name: 'MHUE' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/ad45d10f1_odpic-logo.png',                       name: 'ODPIC' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/4d01ed747_Logo-75-x-21-pixels-couleur-3-1-1.png', name: 'CNSS' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/0be7f5c77_9391f0df4_green-2copy-1.jpg',           name: 'Min. Budget' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/cf2bbfeae_AS_Ali_Sabieh-Djibouti_Tlcom.png',      name: 'Djibouti Télécom' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/923b7fae1_Gemini_Generated_Image_yj3n6yj3n6yj3n6y.png', name: 'Meras' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/e29bdac39_edd.jpg',                               name: 'EDD' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/3996ad141_unnamed.png',                           name: 'ONEAD' },
   ];
 
   const [mainLogoData, ...partnerData] = await Promise.all([
@@ -145,21 +145,21 @@ export async function generatePaymentReceiptPDF(params) {
   // Right of logo: institution text block (like the reference)
   const txtX = ML + logoSize + 5;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
+  doc.setFontSize(9.5);
   doc.setTextColor(...BLUE_DARK);
   doc.text('République de Djibouti', txtX, logoY + 7);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setTextColor(80, 80, 80);
-  doc.text('Agence Nationale pour la Promotion des Investissements (ANPI)', txtX, logoY + 13);
-  doc.text('Guichet Unique de Création d\'Entreprise', txtX, logoY + 18);
+  doc.text('Agence Nationale pour la Promotion des Investissements (ANPI)', txtX, logoY + 12);
+  doc.text('Guichet Unique de Création d\'Entreprise', txtX, logoY + 17);
 
   // Big bold title (like "FACTURE DES TIMBRES")
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setTextColor(...BLUE_DARK);
-  doc.text('REÇU DE PAIEMENT', txtX, logoY + 26);
+  doc.text('REÇU DE PAIEMENT', txtX, logoY + 24);
 
   // Horizontal separator under header
   const sepY = logoY + logoSize + 5;
@@ -176,16 +176,16 @@ export async function generatePaymentReceiptPDF(params) {
   // RECEIPT NUMBER — centred, prominent (like the reference)
   // ════════════════════════════════════════════════════════
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setTextColor(...MUTED);
   doc.text('N° REÇU', W / 2, y, { align: 'center' });
-  y += 5;
+  y += 4;
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
+  doc.setFontSize(13);
   doc.setTextColor(...BLUE_DARK);
   doc.text(receiptNumber, W / 2, y, { align: 'center' });
-  y += 8;
+  y += 7;
 
   // ════════════════════════════════════════════════════════
   // INFO BLOCK — light bordered box (Date, Société, Mode, Statut)
@@ -318,19 +318,19 @@ export async function generatePaymentReceiptPDF(params) {
   doc.setFillColor(...BLUE_MED);
   doc.rect(ML, y, CW, totalRowH, 'F');
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
+  doc.setFontSize(7.5);
   doc.setTextColor(...WHITE);
-  doc.text('NOMBRE DE FRAIS', ML + 5, y + 6);
-  doc.setFontSize(11);
-  doc.text(`${feeRows.length} poste${feeRows.length > 1 ? 's' : ''}`, ML + 5, y + 12);
+  doc.text('NOMBRE DE FRAIS', ML + 5, y + 5.5);
+  doc.setFontSize(9);
+  doc.text(`${feeRows.length} poste${feeRows.length > 1 ? 's' : ''}`, ML + 5, y + 11);
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
+  doc.setFontSize(7.5);
   doc.setTextColor(255, 220, 150);
-  doc.text('MONTANT TOTAL', W - MR - 4, y + 6, { align: 'right' });
-  doc.setFontSize(15);
+  doc.text('MONTANT TOTAL', W - MR - 4, y + 5.5, { align: 'right' });
+  doc.setFontSize(13);
   doc.setTextColor(...WHITE);
-  doc.text(`${Number(amount).toLocaleString('fr-FR')} DJF`, W - MR - 4, y + 13, { align: 'right' });
+  doc.text(`${Number(amount).toLocaleString('fr-FR')} DJF`, W - MR - 4, y + 12.5, { align: 'right' });
   y += totalRowH + 6;
 
   // ════════════════════════════════════════════════════════
@@ -446,30 +446,29 @@ export async function generatePaymentReceiptPDF(params) {
   doc.setTextColor(...MUTED);
   doc.text('NOS PARTENAIRES', W / 2, partnerSectionY + 5, { align: 'center' });
 
-  const logoIconH = 10;
-  const logoIconW = 18;
+  const logoIconH = 12;
+  const logoIconW = 20;
   const totalLogos = partnerData.length;
   const logoSpacing = CW / totalLogos;
 
   partnerData.forEach((imgData, i) => {
     const lx = ML + i * logoSpacing + (logoSpacing - logoIconW) / 2;
-    const ly = partnerSectionY + 8;
+    const ly = partnerSectionY + 7;
     if (imgData) {
       try {
         doc.addImage(imgData, 'PNG', lx, ly, logoIconW, logoIconH);
       } catch {
-        // If image fails, draw a placeholder dot
         doc.setFillColor(...BORDER);
-        doc.circle(lx + logoIconW / 2, ly + logoIconH / 2, 3, 'F');
+        doc.circle(lx + logoIconW / 2, ly + logoIconH / 2, 4, 'F');
       }
     } else {
       doc.setFillColor(...BORDER);
-      doc.circle(lx + logoIconW / 2, ly + logoIconH / 2, 3, 'F');
+      doc.circle(lx + logoIconW / 2, ly + logoIconH / 2, 4, 'F');
     }
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(4.5);
     doc.setTextColor(...MUTED);
-    doc.text(PARTNER_LOGOS[i]?.name || '', lx + logoIconW / 2, ly + logoIconH + 3, { align: 'center' });
+    doc.text(PARTNER_LOGOS[i]?.name || '', lx + logoIconW / 2, ly + logoIconH + 3.5, { align: 'center' });
   });
 
   // ════════════════════════════════════════════════════════
