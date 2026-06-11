@@ -18,9 +18,8 @@ async function loadImageAsBase64(url) {
 }
 
 async function generateQRDataURL(text) {
-  const size = 200;
   return loadImageAsBase64(
-    `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&format=png`
+    `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}&format=png`
   );
 }
 
@@ -33,25 +32,25 @@ export async function generatePaymentReceiptPDF(params) {
   } = params;
 
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = doc.internal.pageSize.getWidth();   // 210
-  const H = doc.internal.pageSize.getHeight();  // 297
-  const ML = 14;
-  const MR = 14;
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const ML = 15;
+  const MR = 15;
   const CW = W - ML - MR;
 
-  // Colors matching reference
-  const NAVY       = [10, 36, 99];     // deep navy
-  const ORANGE     = [247, 148, 29];   // ANPI orange
-  const GREEN_BG   = [220, 252, 231];
-  const GREEN_TXT  = [14, 120, 55];
-  const GREEN_BRD  = [74, 180, 110];
-  const WHITE      = [255, 255, 255];
-  const LIGHT_GRAY = [247, 248, 250];
-  const BORDER     = [210, 215, 225];
-  const TEXT       = [20, 20, 35];
-  const MUTED      = [110, 115, 130];
-  const TBL_HDR    = [40, 60, 140];    // table header blue (like reference)
-  const RED_LABEL  = [180, 30, 30];    // for "En attente de confirmation" style italic
+  // Color palette
+  const NAVY        = [10, 36, 99];
+  const ORANGE      = [247, 148, 29];
+  const GREEN_BG    = [220, 252, 231];
+  const GREEN_TXT   = [14, 120, 55];
+  const GREEN_BRD   = [74, 180, 110];
+  const WHITE       = [255, 255, 255];
+  const BORDER      = [210, 215, 225];
+  const TEXT        = [20, 20, 35];
+  const MUTED       = [120, 125, 140];
+  const TBL_HDR     = [28, 55, 130];
+  const TBL_ALT     = [245, 247, 252];
+  const RED_ITALIC  = [180, 30, 30];
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -59,167 +58,174 @@ export async function generatePaymentReceiptPDF(params) {
   const dateTimeStr = `${dateStr} ${timeStr}`;
   const receiptNumber = `GUI-${now.getFullYear()}-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
-  // Logos
-  const GUICHET_LOGO_URL = 'https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png';
+  const GUICHET_LOGO = 'https://media.base44.com/images/public/69db89e14e315ad78c6a394b/e597c3294_Untitled-design-1.png';
   const PARTNER_LOGOS = [
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/ad45d10f1_odpic-logo.png',                       name: 'ODPIC' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/4d01ed747_Logo-75-x-21-pixels-couleur-3-1-1.png', name: 'CNSS' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/0be7f5c77_9391f0df4_green-2copy-1.jpg',           name: 'Min. Budget' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/cf2bbfeae_AS_Ali_Sabieh-Djibouti_Tlcom.png',      name: 'Djibouti Télécom' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/ad45d10f1_odpic-logo.png',                        name: 'ODPIC' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/4d01ed747_Logo-75-x-21-pixels-couleur-3-1-1.png',  name: 'CNSS' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/0be7f5c77_9391f0df4_green-2copy-1.jpg',            name: 'Min. Budget' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/cf2bbfeae_AS_Ali_Sabieh-Djibouti_Tlcom.png',       name: 'Djibouti Télécom' },
     { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/923b7fae1_Gemini_Generated_Image_yj3n6yj3n6yj3n6y.png', name: 'Meras' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/e29bdac39_edd.jpg',                               name: 'EDD' },
-    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/3996ad141_unnamed.png',                           name: 'ONEAD' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/e29bdac39_edd.jpg',                                name: 'EDD' },
+    { url: 'https://media.base44.com/images/public/69e7c103c0374f336a3dd2b6/3996ad141_unnamed.png',                            name: 'ONEAD' },
   ];
 
   const [mainLogoData, ...partnerData] = await Promise.all([
-    loadImageAsBase64(GUICHET_LOGO_URL),
+    loadImageAsBase64(GUICHET_LOGO),
     ...PARTNER_LOGOS.map(p => loadImageAsBase64(p.url)),
   ]);
 
   const qrText = `RECU:${receiptNumber}|ENV:${envelopeId}|MONTANT:${amount}DJF|SOCIETE:${companyName}|DATE:${dateStr}`;
   const qrDataUrl = await generateQRDataURL(qrText);
 
-  // ══════════════════════════════════════════════════════════
-  // HEADER — exactly like reference
-  // ══════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────
+  // HEADER
+  // ─────────────────────────────────────────────
+  const headerH = 46;
+  // light gray header background
+  doc.setFillColor(248, 249, 251);
+  doc.rect(0, 0, W, headerH, 'F');
 
-  // Left logo (ANPI/Guichet Unique)
-  const logoSize = 22;
-  const logoY = 8;
+  // Left logo
+  const logoSz = 20;
+  const logoY = 7;
   if (mainLogoData) {
-    doc.addImage(mainLogoData, 'PNG', ML, logoY, logoSize, logoSize);
+    doc.addImage(mainLogoData, 'PNG', ML, logoY, logoSz, logoSz);
   }
-  // Left label under logo
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6.5);
   doc.setTextColor(...NAVY);
-  doc.text('Guichet Unique', ML + logoSize / 2, logoY + logoSize + 4, { align: 'center' });
+  doc.text('Guichet Unique', ML + logoSz / 2, logoY + logoSz + 3.5, { align: 'center' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(5.5);
   doc.setTextColor(...MUTED);
-  doc.text('ANPI Djibouti', ML + logoSize / 2, logoY + logoSize + 8, { align: 'center' });
+  doc.text('ANPI Djibouti', ML + logoSz / 2, logoY + logoSz + 7, { align: 'center' });
 
-  // Center block — title
-  const centerX = W / 2;
+  // Right logo
+  const rightLogoX = W - MR - logoSz;
+  if (mainLogoData) {
+    doc.addImage(mainLogoData, 'PNG', rightLogoX, logoY, logoSz, logoSz);
+  }
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
+  doc.setFontSize(6.5);
   doc.setTextColor(...NAVY);
-  doc.text('RÉPUBLIQUE DE DJIBOUTI', centerX, logoY + 7, { align: 'center' });
+  doc.text('ANPI', rightLogoX + logoSz / 2, logoY + logoSz + 3.5, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(5.5);
+  doc.setTextColor(...MUTED);
+  doc.text('Guichet Unique', rightLogoX + logoSz / 2, logoY + logoSz + 7, { align: 'center' });
 
-  // Arabic subtitle
+  // Center title block
+  const cx = W / 2;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(...NAVY);
+  doc.text('RÉPUBLIQUE DE DJIBOUTI', cx, 13, { align: 'center' });
+
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...MUTED);
-  doc.text('جمهورية جيبوتي  |  Ministère du Commerce', centerX, logoY + 13, { align: 'center' });
+  doc.text('Ministère du Commerce et de l\'Industrie', cx, 19, { align: 'center' });
 
-  // Thin divider under arabic
+  // thin rule
   doc.setDrawColor(...BORDER);
-  doc.setLineWidth(0.3);
-  doc.line(centerX - 50, logoY + 15.5, centerX + 50, logoY + 15.5);
+  doc.setLineWidth(0.25);
+  doc.line(cx - 52, 21.5, cx + 52, 21.5);
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...NAVY);
-  doc.text('Agence Nationale pour la Promotion des Investissements', centerX, logoY + 20, { align: 'center' });
-
-  // Main receipt title
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(...NAVY);
-  doc.text('REÇU DE PAIEMENT', centerX, logoY + 28, { align: 'center' });
-
-  // PAYÉ badge (green, centered, like reference)
-  const badgeW = 32;
-  const badgeH = 8;
-  const badgeX = centerX - badgeW / 2;
-  const badgeY = logoY + 31;
-  doc.setFillColor(...GREEN_BG);
-  doc.setDrawColor(...GREEN_BRD);
-  doc.setLineWidth(0.5);
-  doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 3, 3, 'FD');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
-  doc.setTextColor(...GREEN_TXT);
-  doc.text('✓ PAYÉ', centerX, badgeY + 5.5, { align: 'center' });
-
-  // Right logo (same ANPI logo, mirrored position like reference uses Police logo)
-  if (mainLogoData) {
-    doc.addImage(mainLogoData, 'PNG', W - MR - logoSize, logoY, logoSize, logoSize);
-  }
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
   doc.setTextColor(...NAVY);
-  doc.text('ANPI', W - MR - logoSize / 2, logoY + logoSize + 4, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(5.5);
-  doc.setTextColor(...MUTED);
-  doc.text('Guichet Unique', W - MR - logoSize / 2, logoY + logoSize + 8, { align: 'center' });
+  doc.text('Agence Nationale pour la Promotion des Investissements', cx, 26, { align: 'center' });
 
-  // Double horizontal rule under header (like reference)
-  const sepY = logoY + logoSize + 13;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(...NAVY);
+  doc.text('REÇU DE PAIEMENT', cx, 33, { align: 'center' });
+
+  // PAYÉ badge — placed just below main title, inside header
+  const bW = 30; const bH = 7;
+  const bX = cx - bW / 2;
+  const bY = 35.5;
+  doc.setFillColor(...GREEN_BG);
+  doc.setDrawColor(...GREEN_BRD);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(bX, bY, bW, bH, 2.5, 2.5, 'FD');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GREEN_TXT);
+  doc.text('✓  PAYÉ', cx, bY + 4.8, { align: 'center' });
+
+  // Double rule closing header
   doc.setDrawColor(...NAVY);
   doc.setLineWidth(0.8);
-  doc.line(ML, sepY, W - MR, sepY);
+  doc.line(0, headerH, W, headerH);
   doc.setDrawColor(...ORANGE);
-  doc.setLineWidth(0.4);
-  doc.line(ML, sepY + 1.2, W - MR, sepY + 1.2);
+  doc.setLineWidth(0.35);
+  doc.line(0, headerH + 1.1, W, headerH + 1.1);
 
-  let y = sepY + 7;
+  let y = headerH + 9;
 
-  // ══════════════════════════════════════════════════════════
-  // REFERENCE INFO BAR (top-right like reference: "REÇU N°, ID Transaction, Djibouti le:")
-  // ══════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────
+  // REFERENCE INFO BAR
+  // ─────────────────────────────────────────────
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...MUTED);
   doc.text('Portail de Paiement en Ligne : guichet-unique-djib.com', ML, y);
 
-  // Right-aligned receipt info
-  const rightX = W - MR;
+  const rX = W - MR;
+  // Receipt number
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.5);
   doc.setTextColor(...TEXT);
-  doc.text(`REÇU N°: `, rightX - 70, y);
+  const rnLabel = 'REÇU N°: ';
+  const rnLabelW = doc.getTextWidth(rnLabel);
+  const rnStartX = rX - rnLabelW - doc.getTextWidth(receiptNumber);
+  doc.text(rnLabel, rnStartX, y);
   doc.setTextColor(...NAVY);
-  doc.text(receiptNumber, rightX - 70 + doc.getTextWidth('REÇU N°: '), y);
+  doc.text(receiptNumber, rnStartX + rnLabelW, y);
 
-  y += 5;
+  y += 5.5;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7);
   doc.setTextColor(...TEXT);
-  doc.text('ID Transaction MERAS: ', rightX - 70, y);
+  const txLabel = 'ID Transaction MERAS: ';
+  const txLabelW = doc.getTextWidth(txLabel);
+  const txVal = transactionId || 'En attente de confirmation';
+  const txStartX = rX - txLabelW - doc.getTextWidth(txVal);
+  doc.text(txLabel, txStartX, y);
   doc.setFont('helvetica', 'italic');
-  doc.setTextColor(...RED_LABEL);
-  doc.text(transactionId || 'En attente de confirmation', rightX - 70 + doc.getTextWidth('ID Transaction MERAS: '), y);
+  doc.setFontSize(7);
+  doc.setTextColor(...RED_ITALIC);
+  doc.text(txVal, txStartX + txLabelW, y);
 
-  y += 5;
+  y += 5.5;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...MUTED);
-  doc.text(`Djibouti, le: ${dateTimeStr}`, rightX, y, { align: 'right' });
+  doc.text(`Djibouti, le: ${dateTimeStr}`, rX, y, { align: 'right' });
 
   y += 8;
 
-  // ══════════════════════════════════════════════════════════
-  // THIN SEPARATOR
-  // ══════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────
+  // SEPARATOR
+  // ─────────────────────────────────────────────
   doc.setDrawColor(...BORDER);
-  doc.setLineWidth(0.3);
+  doc.setLineWidth(0.25);
   doc.line(ML, y, W - MR, y);
-  y += 7;
+  y += 8;
 
-  // ══════════════════════════════════════════════════════════
-  // CLIENT INFO GRID — 2 columns, label: bold value (like reference)
-  // ══════════════════════════════════════════════════════════
-  const col1 = ML;
-  const col2 = W / 2 + 5;
-  const labelW = 32;
-  const lineH = 7;
+  // ─────────────────────────────────────────────
+  // CLIENT INFO — 2-column grid
+  // ─────────────────────────────────────────────
+  const col1X = ML;
+  const col2X = W / 2 + 5;
+  const lblW = 34;
+  const rowH = 8;
 
   const infoRows = [
     [
       { label: 'Nom / Prénom :', value: applicantName || '—' },
-      { label: 'Montant Payé :', value: `${Number(amount).toLocaleString('fr-FR')} DJF`, bold: true, navy: true },
+      { label: 'Montant Payé :', value: `${Number(amount).toLocaleString('fr-FR')} DJF`, navy: true, bold: true },
     ],
     [
       { label: 'Forme juridique :', value: formeJuridique || '—' },
@@ -236,222 +242,211 @@ export async function generatePaymentReceiptPDF(params) {
   ];
 
   infoRows.forEach((row) => {
-    // Col 1
+    // col 1
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...TEXT);
-    doc.text(row[0].label, col1, y);
+    doc.setFontSize(8);
+    doc.setTextColor(...MUTED);
+    doc.text(row[0].label, col1X, y);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
+    doc.setFontSize(8);
     doc.setTextColor(row[0].navy ? NAVY[0] : TEXT[0], row[0].navy ? NAVY[1] : TEXT[1], row[0].navy ? NAVY[2] : TEXT[2]);
-    doc.text(row[0].value, col1 + labelW, y, { maxWidth: W / 2 - labelW - 5 });
+    doc.text(row[0].value, col1X + lblW, y, { maxWidth: W / 2 - lblW - 5 });
 
-    // Col 2
+    // col 2
     if (row[1]) {
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7.5);
-      doc.setTextColor(...TEXT);
-      doc.text(row[1].label, col2, y);
+      doc.setFontSize(8);
+      doc.setTextColor(...MUTED);
+      doc.text(row[1].label, col2X, y);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
-      if (row[1].navy) {
-        doc.setTextColor(...NAVY);
-      } else {
-        doc.setTextColor(...TEXT);
-      }
-      doc.text(row[1].value, col2 + labelW, y, { maxWidth: W - MR - col2 - labelW });
+      doc.setFontSize(8);
+      doc.setTextColor(row[1].navy ? NAVY[0] : TEXT[0], row[1].navy ? NAVY[1] : TEXT[1], row[1].navy ? NAVY[2] : TEXT[2]);
+      doc.text(row[1].value, col2X + lblW, y, { maxWidth: W - MR - col2X - lblW });
     }
-
-    y += lineH;
+    y += rowH;
   });
 
-  y += 5;
+  y += 7;
 
-  // ══════════════════════════════════════════════════════════
-  // FEE TABLE — exactly like reference
-  // ══════════════════════════════════════════════════════════
-  const THH = 8;
-  // Header
+  // ─────────────────────────────────────────────
+  // FEE TABLE
+  // ─────────────────────────────────────────────
+  const thH = 9;
   doc.setFillColor(...TBL_HDR);
-  doc.rect(ML, y, CW, THH, 'F');
+  doc.rect(ML, y, CW, thH, 'F');
+
+  // Column x positions
+  const tc1 = ML + 3;
+  const tc2 = ML + CW * 0.50;   // reference center
+  const tc3 = ML + CW * 0.73;   // amount right-align
+  const tc4 = ML + CW - 3;      // status right-align
+
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(...WHITE);
+  doc.text('Désignation', tc1, y + 6);
+  doc.text('Référence', tc2, y + 6, { align: 'center' });
+  doc.text('Montant (DJF)', tc3, y + 6, { align: 'right' });
+  doc.text('Statut', tc4, y + 6, { align: 'right' });
+  y += thH;
 
-  // Column positions
-  const c1 = ML + 3;           // Désignation
-  const c2 = ML + CW * 0.45;   // Référence (centered)
-  const c3 = ML + CW * 0.76;   // Montant
-  const c4 = W - MR - 3;       // Statut
-
-  doc.text('Désignation', c1, y + 5.5);
-  doc.text('Référence', c2, y + 5.5, { align: 'center' });
-  doc.text('Montant (DJF)', c3, y + 5.5, { align: 'right' });
-  doc.text('Statut', c4, y + 5.5, { align: 'right' });
-  y += THH;
-
-  const feeRows = [
-    { label: `Droits de patente — ${secteur || 'Activité générale'}`, ref: receiptNumber, amount: patenteAmount },
-    { label: 'Frais ODPIC — Registre du Commerce', ref: receiptNumber, amount: odpicAmount },
-    { label: 'Frais de statuts — Rédaction & enregistrement', ref: receiptNumber, amount: statusFeesAmount },
-  ];
-  if (tierSurcharge > 0) {
-    feeRows.push({ label: `Traitement ${tierLabel} — ${tierDelay}`, ref: receiptNumber, amount: tierSurcharge });
+  const feeRows = [];
+  if (Number(patenteAmount) > 0) {
+    feeRows.push({ label: `Droits de patente — ${secteur || 'Activité générale'}`, amount: patenteAmount });
+  }
+  if (Number(odpicAmount) > 0) {
+    feeRows.push({ label: 'Frais ODPIC — Registre du Commerce', amount: odpicAmount });
+  }
+  if (Number(statusFeesAmount) > 0) {
+    feeRows.push({ label: 'Frais de statuts — Rédaction & enregistrement', amount: statusFeesAmount });
+  }
+  if (Number(tierSurcharge) > 0) {
+    feeRows.push({ label: `Traitement ${tierLabel || 'Standard'} — ${tierDelay || '5-7 jours'}`, amount: tierSurcharge });
+  }
+  // Fallback: if all breakdown is 0 but total amount > 0, show total as single line
+  if (feeRows.length === 0) {
+    feeRows.push({ label: `Frais de création d'entreprise — ${companyName || ''}`, amount: amount });
   }
 
-  const rowH = 9;
-  feeRows.forEach(({ label, ref, amount: amt }, i) => {
-    const ry = y + i * rowH;
-    doc.setFillColor(i % 2 === 0 ? 255 : 248, i % 2 === 0 ? 255 : 249, i % 2 === 0 ? 255 : 253);
-    doc.rect(ML, ry, CW, rowH, 'F');
+  const trH = 9;
+  feeRows.forEach(({ label, amount: amt }, i) => {
+    const ry = y + i * trH;
+    doc.setFillColor(i % 2 === 1 ? TBL_ALT[0] : 255, i % 2 === 1 ? TBL_ALT[1] : 255, i % 2 === 1 ? TBL_ALT[2] : 255);
+    doc.rect(ML, ry, CW, trH, 'F');
     doc.setDrawColor(...BORDER);
     doc.setLineWidth(0.2);
-    doc.line(ML, ry + rowH, ML + CW, ry + rowH);
+    doc.line(ML, ry + trH, ML + CW, ry + trH);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(...TEXT);
-    doc.text(label, c1, ry + 6, { maxWidth: CW * 0.42 });
+    doc.text(label, tc1, ry + 6, { maxWidth: CW * 0.44 });
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...MUTED);
-    doc.text(ref, c2, ry + 6, { align: 'center', maxWidth: CW * 0.28 });
+    doc.text(receiptNumber, tc2, ry + 6, { align: 'center', maxWidth: CW * 0.22 });
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
     doc.setTextColor(...TEXT);
-    doc.text(Number(amt || 0).toLocaleString('fr-FR'), c3, ry + 6, { align: 'right' });
+    doc.text(Number(amt || 0).toLocaleString('fr-FR'), tc3, ry + 6, { align: 'right' });
 
-    // PAYÉ badge in row
-    const sbW = 18;
-    const sbX = c4 - sbW;
-    const sbY = ry + 1.5;
+    // PAYÉ pill
+    const pW = 20; const pH = 6;
+    const pX = tc4 - pW;
+    const pY = ry + 1.5;
     doc.setFillColor(...GREEN_BG);
     doc.setDrawColor(...GREEN_BRD);
     doc.setLineWidth(0.3);
-    doc.roundedRect(sbX, sbY, sbW, 6, 1.5, 1.5, 'FD');
+    doc.roundedRect(pX, pY, pW, pH, 2, 2, 'FD');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6);
+    doc.setFontSize(6.5);
     doc.setTextColor(...GREEN_TXT);
-    doc.text('✓ PAYÉ', sbX + sbW / 2, sbY + 4, { align: 'center' });
+    doc.text('✓ PAYÉ', pX + pW / 2, pY + 4, { align: 'center' });
   });
 
-  y += feeRows.length * rowH;
+  y += feeRows.length * trH;
 
   // Total row
+  const totH = 10;
   doc.setFillColor(...TBL_HDR);
-  doc.rect(ML, y, CW, rowH + 2, 'F');
+  doc.rect(ML, y, CW, totH, 'F');
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
+  doc.setFontSize(8.5);
   doc.setTextColor(...WHITE);
-  doc.text('Total', c1, y + 7);
+  doc.text('Total', tc1, y + 6.5);
   doc.setFontSize(9);
-  doc.text(`${Number(amount).toLocaleString('fr-FR')} DJF`, c3, y + 7, { align: 'right' });
-  y += rowH + 2 + 12;
+  doc.text(`${Number(amount).toLocaleString('fr-FR')} DJF`, tc3, y + 6.5, { align: 'right' });
+  y += totH + 12;
 
-  // ══════════════════════════════════════════════════════════
-  // QR CODE + legal text — like reference (QR bottom-right, text bottom-left)
-  // ══════════════════════════════════════════════════════════
-  const qrSize = 36;
-  const qrX = W - MR - qrSize;
-  const qrBlockY = y;
+  // ─────────────────────────────────────────────
+  // QR + LEGAL TEXT
+  // ─────────────────────────────────────────────
+  const qrSz = 38;
+  const qrX = W - MR - qrSz;
+  const qrY = y;
 
   if (qrDataUrl) {
-    doc.addImage(qrDataUrl, 'PNG', qrX, qrBlockY, qrSize, qrSize);
+    doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSz, qrSz);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6);
     doc.setTextColor(...MUTED);
-    doc.text('Scan pour vérifier', qrX + qrSize / 2, qrBlockY + qrSize + 4, { align: 'center' });
-    doc.text(receiptNumber, qrX + qrSize / 2, qrBlockY + qrSize + 8, { align: 'center' });
+    doc.text('Scan pour vérifier', qrX + qrSz / 2, qrY + qrSz + 4, { align: 'center' });
+    doc.text(receiptNumber, qrX + qrSz / 2, qrY + qrSz + 8, { align: 'center' });
   }
 
-  // Legal text left of QR
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  doc.setFontSize(8);
   doc.setTextColor(...TEXT);
-  doc.text('Ce reçu fait foi de paiement auprès du Guichet Unique ANPI.', ML, y + 6);
-  doc.text('Présentez ce document lors de vos démarches administratives.', ML, y + 12);
+  doc.text('Ce reçu fait foi de paiement auprès du Guichet Unique ANPI.', ML, y + 8);
+  doc.text('Présentez ce document lors de vos démarches administratives.', ML, y + 15);
 
-  y += qrSize + 14;
+  y = qrY + qrSz + 14;
 
-  // ══════════════════════════════════════════════════════════
-  // GENERATED ELECTRONICALLY notice (like reference)
-  // ══════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────
+  // GENERATED ELECTRONICALLY
+  // ─────────────────────────────────────────────
   doc.setDrawColor(...BORDER);
-  doc.setLineWidth(0.3);
+  doc.setLineWidth(0.25);
   doc.line(ML, y, W - MR, y);
   y += 5;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.5);
   doc.setTextColor(...MUTED);
-  doc.text(
-    `Document généré électroniquement  ·  Guichet Unique ANPI  ·  Djibouti ${now.getFullYear()}`,
-    W / 2, y, { align: 'center' }
-  );
+  doc.text(`Document généré électroniquement  ·  Guichet Unique ANPI  ·  Djibouti ${now.getFullYear()}`, W / 2, y, { align: 'center' });
   y += 7;
 
-  // ══════════════════════════════════════════════════════════
-  // PARTNER LOGOS ROW — "TRUSTED PARTNERS" (like reference)
-  // ══════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────
+  // PARTNER LOGOS
+  // ─────────────────────────────────────────────
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6);
   doc.setTextColor(...MUTED);
   doc.text('PARTENAIRES ET INSTITUTIONS FINANCIÈRES', W / 2, y, { align: 'center' });
-  y += 4;
+  y += 5;
 
-  const logoIconW = 22;
-  const logoIconH = 12;
-  const totalLogos = partnerData.length;
-  const logoSpacing = CW / totalLogos;
+  const pLogoW = 22;
+  const pLogoH = 13;
+  const pSpacing = CW / PARTNER_LOGOS.length;
 
   partnerData.forEach((imgData, i) => {
-    const lx = ML + i * logoSpacing + (logoSpacing - logoIconW) / 2;
+    const lx = ML + i * pSpacing + (pSpacing - pLogoW) / 2;
     const ly = y;
     if (imgData) {
-      try {
-        doc.addImage(imgData, 'PNG', lx, ly, logoIconW, logoIconH);
-      } catch {
-        // skip silently
-      }
+      try { doc.addImage(imgData, 'PNG', lx, ly, pLogoW, pLogoH); } catch { /* skip */ }
     }
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(4.5);
+    doc.setFontSize(5);
     doc.setTextColor(...MUTED);
-    doc.text(PARTNER_LOGOS[i]?.name || '', lx + logoIconW / 2, ly + logoIconH + 3, { align: 'center' });
+    doc.text(PARTNER_LOGOS[i]?.name || '', lx + pLogoW / 2, ly + pLogoH + 3, { align: 'center' });
   });
 
-  y += logoIconH + 8;
+  y += pLogoH + 9;
 
-  // ══════════════════════════════════════════════════════════
-  // ANTI-CORRUPTION FOOTER (like reference CNPCLC logo + text)
-  // ══════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────
+  // ANTI-CORRUPTION FOOTER
+  // ─────────────────────────────────────────────
   doc.setDrawColor(...BORDER);
-  doc.setLineWidth(0.3);
+  doc.setLineWidth(0.25);
   doc.line(ML, y, W - MR, y);
-  y += 5;
+  y += 6;
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7);
   doc.setTextColor(...NAVY);
-  doc.text(
-    'Commission Nationale Indépendante pour la Prévention et la Lutte contre la Corruption',
-    W / 2, y, { align: 'center' }
-  );
+  doc.text('Commission Nationale Indépendante pour la Prévention et la Lutte contre la Corruption', W / 2, y, { align: 'center' });
   y += 5;
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(6.5);
   doc.setTextColor(...MUTED);
-  doc.text(
-    "Ce reçu est un document officiel. Toute falsification est passible de poursuites judiciaires.",
-    W / 2, y, { align: 'center' }
-  );
+  doc.text("Ce reçu est un document officiel. Toute falsification est passible de poursuites judiciaires.", W / 2, y, { align: 'center' });
 
-  // Bottom orange bar
-  doc.setFillColor(...ORANGE);
-  doc.rect(0, H - 4, W, 4, 'F');
+  // Bottom color bars
   doc.setFillColor(...NAVY);
-  doc.rect(0, H - 7, W, 3, 'F');
+  doc.rect(0, H - 7, W, 4, 'F');
+  doc.setFillColor(...ORANGE);
+  doc.rect(0, H - 3, W, 3, 'F');
 
   doc.save(`recu-paiement-${receiptNumber}.pdf`);
   return receiptNumber;
