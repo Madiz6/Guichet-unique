@@ -192,15 +192,34 @@ export const apiClient = {
           .createSignedUrl(data.path, 604800) // 7-day signed URL for display
         return { file_url: urlData?.signedUrl || '', path: data.path }
       },
-      async InvokeLLM() {
-        throw new Error('InvokeLLM is server-side only. Use /api/aml-screening etc.')
+      // Document OCR: delegates to /api/extract-document (Anthropic vision, server-side)
+      // Returns the extracted fields object directly (InvokeLLM contract).
+      async InvokeLLM({ prompt, file_urls, response_json_schema } = {}) {
+        const { data } = await apiFetch('/api/extract-document', {
+          file_urls,
+          json_schema: response_json_schema,
+          prompt,
+        })
+        if (data?.status === 'success') return data.output ?? {}
+        throw new Error(data?.error || 'Extraction failed')
       },
       async SendEmail(params) {
         return apiFetch('/api/send-email', params)
       },
       SendSMS: async () => {},
       GenerateImage: async () => {},
-      ExtractDataFromUploadedFile: async () => ({}),
+      // Returns { status: 'success', output: {...} } matching Base44 contract.
+      async ExtractDataFromUploadedFile({ file_url, json_schema } = {}) {
+        try {
+          const { data } = await apiFetch('/api/extract-document', {
+            file_urls: [file_url].filter(Boolean),
+            json_schema,
+          })
+          return data ?? {}
+        } catch {
+          return {}
+        }
+      },
     },
   },
 
